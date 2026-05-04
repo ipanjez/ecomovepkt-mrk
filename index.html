@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoMove: Trash Sorting Challenge (Cloud Leaderboard)</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    
+    <!-- FIREBASE COMPAT SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        pktBlue: '#005B9F',
+                        pktOrange: '#F37021',
+                        pktGreen: '#7AB800',
+                    },
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { margin: 0; overflow: hidden; }
+        .screen { display: none; }
+        .screen.active { display: flex; }
+        
+        .trash-item { transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); }
+        .bin { transition: transform 0.2s, box-shadow 0.2s; }
+        .bin:hover { transform: scale(1.05); }
+        .bin:active { transform: scale(0.95); }
+        
+        @keyframes toss {
+            0% { transform: translateY(0) scale(1) rotate(0deg); opacity: 1; }
+            50% { transform: translateY(-50px) scale(0.8) rotate(15deg); opacity: 0.8; }
+            100% { transform: translateY(150px) scale(0) rotate(45deg); opacity: 0; }
+        }
+        .anim-toss { animation: toss 0.5s forwards; }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            50% { transform: translateX(10px); }
+            75% { transform: translateX(-10px); }
+        }
+        .anim-shake { animation: shake 0.4s; color: red; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        .bg-pattern {
+            background-color: #f8fafc;
+            background-image: radial-gradient(rgba(203, 213, 225, 0.35) 1px, transparent 1px);
+            background-size: 28px 28px;
+        }
+        @media (min-width: 1024px) {
+            .bg-pattern {
+                background-image: linear-gradient(135deg, #edf7ff 0%, #e8fff7 52%, #f8fafc 100%);
+                background-size: auto;
+            }
+        }
+        .floating-feedback {
+            position: absolute;
+            top: 40%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 3rem;
+            font-weight: 900;
+            z-index: 50;
+            pointer-events: none;
+            animation: floatUp 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+            text-shadow: 0px 4px 10px rgba(0,0,0,0.2);
+        }
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translate(-50%, 0) scale(0.5); }
+            20% { transform: translate(-50%, -20px) scale(1.2); }
+            100% { opacity: 0; transform: translate(-50%, -150px) scale(1); }
+        }
+        .timer-progress-fill {
+            transition: width 0.25s ease-out;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-[100dvh] w-screen text-gray-800 flex flex-col font-sans select-none bg-pattern">
+
+    <!-- START SCREEN -->
+    <div id="start-screen" class="screen active flex-col items-center justify-start w-full h-full pt-4 pb-3 px-4 relative z-10 bg-gradient-to-br from-blue-100 via-[#e0f7fa] to-green-100 overflow-y-auto no-scrollbar">
+        <!-- Colored Background Blobs for more dynamic visual -->
+        <div class="absolute top-0 right-0 w-[40vw] h-[40vh] bg-blue-300/40 rounded-full blur-[100px] -z-10 mix-blend-multiply"></div>
+        <div class="absolute bottom-0 left-0 w-[50vw] h-[50vh] bg-green-300/30 rounded-full blur-[120px] -z-10 mix-blend-multiply"></div>
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[30vw] h-[30vw] bg-orange-300/20 rounded-full blur-[80px] -z-10 mix-blend-multiply"></div>
+
+        <!-- Floating Decor Extended -->
+        <div class="absolute top-10 left-[10%] text-5xl opacity-40 animate-bounce" style="animation-duration: 3s; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));">♻️</div>
+        <div class="absolute bottom-32 right-[10%] text-6xl opacity-40 animate-bounce" style="animation-delay: 1s; animation-duration: 4s; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));">🌱</div>
+        <div class="absolute top-1/4 right-[15%] text-4xl opacity-30 animate-pulse" style="animation-duration: 2s;">🗑️</div>
+        <div class="absolute bottom-20 left-[15%] text-5xl opacity-30 animate-pulse" style="animation-duration: 3s; animation-delay: 1.5s;">🌍</div>
+        <div class="absolute top-1/3 left-[5%] text-3xl opacity-30 animate-bounce" style="animation-duration: 5s;">💧</div>
+
+        <div class="max-w-md w-full bg-white/95 rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.15)] overflow-hidden border border-white text-center transform transition-all relative z-20 flex flex-col max-h-[90vh] backdrop-blur-md">
+            <!-- HEADER HERO CARD -->
+            <div class="bg-gradient-to-br from-pktBlue to-blue-800 p-6 md:p-8 shadow-md relative overflow-hidden shrink-0">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -mr-10 -mt-10 blur-xl"></div>
+                <div class="absolute bottom-0 left-0 w-24 h-24 bg-pktGreen opacity-30 rounded-full -ml-8 -mb-8 blur-lg"></div>
+                
+                <div class="text-6xl md:text-7xl mb-3 animate-bounce drop-shadow-lg mx-auto relative z-10">🌍</div>
+                <h1 class="text-4xl md:text-5xl font-black text-white mb-1 drop-shadow-md tracking-wide relative z-10">ECO<span class="text-pktOrange">MOVE</span></h1>
+                <p class="text-xs md:text-sm font-bold text-blue-100 uppercase tracking-widest relative z-10">Trash Sorting Challenge</p>
+                <div class="mt-4 inline-block bg-white/20 text-white px-4 py-1.5 rounded-full text-[0.65rem] md:text-xs font-semibold backdrop-blur-md border border-white/20 relative z-10 shadow-sm">
+                    ✨ Pantang Menyerah Pilah Sampah! ✨
+                </div>
+            </div>
+            
+            <div class="p-6 md:p-8 overflow-y-auto no-scrollbar">
+                <input type="text" id="player-name" placeholder="Masukkan Nama Pemain..." class="w-full px-5 py-4 bg-gray-50 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-pktBlue focus:bg-white mb-6 transition shadow-inner font-semibold text-center text-lg" autocomplete="off">
+                
+                <p class="mb-3 text-xs font-bold text-gray-400 uppercase tracking-widest">Pilih Tingkat Kesulitan</p>
+                <div class="grid grid-cols-3 gap-2 mb-6" id="diff-selector">
+                    <button type="button" onclick="selectDifficulty('Easy', 60, this)" class="diff-btn border-2 border-gray-200 bg-white rounded-xl p-3 hover:border-pktGreen hover:bg-green-50 transition flex flex-col items-center">
+                        <span class="text-2xl mb-1">🐢</span>
+                        <span class="text-[0.65rem] md:text-xs font-bold text-gray-700 block">EASY</span>
+                    </button>
+                    <button type="button" onclick="selectDifficulty('Medium', 45, this)" class="diff-btn border-2 border-gray-200 bg-white rounded-xl p-3 hover:border-pktOrange hover:bg-orange-50 transition flex flex-col items-center">
+                        <span class="text-2xl mb-1">🚶</span>
+                        <span class="text-[0.65rem] md:text-xs font-bold text-gray-700 block">MEDIUM</span>
+                    </button>
+                    <button type="button" onclick="selectDifficulty('Hard', 30, this)" class="diff-btn border-2 border-gray-200 bg-white rounded-xl p-3 hover:border-pktBlue hover:bg-blue-50 transition flex flex-col items-center">
+                        <span class="text-2xl mb-1">🔥</span>
+                        <span class="text-[0.65rem] md:text-xs font-bold text-gray-700 block">HARD</span>
+                    </button>
+                </div>
+                
+                <!-- Tombol Mulai Permainan -->
+                <button onclick="attemptStart()" class="w-full bg-gradient-to-b from-pktOrange to-[#e06117] hover:from-[#e06117] hover:to-[#c65412] text-white font-black py-4 rounded-xl shadow-[0_8px_20px_rgba(243,112,33,0.3)] transition transform hover:-translate-y-1 active:scale-95 text-lg tracking-wide border-b-4 border-[#b84e11]">
+                    🚀 MULAI PERMAINAN
+                </button>
+                <p id="start-error" class="text-red-500 mt-4 text-xs md:text-sm hidden font-bold bg-red-50 py-2 rounded-lg border border-red-100">Harap isi Nama & Pilih Level!</p>
+                
+                <!-- Tombol Aturan Main -->
+                <button type="button" onclick="document.getElementById('how-to-play-modal').classList.remove('hidden')" class="mt-6 text-gray-500 hover:text-pktBlue font-bold transition block mx-auto text-sm bg-gray-100 hover:bg-blue-50 px-4 py-2 rounded-full border border-transparent hover:border-blue-100">
+                    📖 Cara Bermain &amp; Poin
+                </button>
+            </div>
+        </div>
+        <div class="mt-4 text-[0.65rem] md:text-xs text-gray-600 font-semibold text-center px-4 w-full z-10 drop-shadow-sm">
+            Dikembangkan oleh Enviro Agent Farhan Jezando Wardana<br>Departemen Manajemen Risiko Korporasi
+        </div>
+    </div>
+
+    <!-- HOW TO PLAY MODAL -->
+    <div id="how-to-play-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 transition-opacity">
+        <div class="bg-white rounded-3xl p-6 md:p-8 max-w-lg w-full max-h-[90vh] overflow-y-auto relative shadow-2xl scroll-smooth">
+            <!-- Header Sticky -->
+            <div class="sticky top-0 bg-white z-10 pb-4 border-b border-gray-100 flex justify-between items-center mb-5">
+                <h2 class="text-2xl md:text-3xl font-extrabold text-pktBlue flex items-center gap-2"><span>🎮</span> Panduan Bermain</h2>
+                <button onclick="document.getElementById('how-to-play-modal').classList.add('hidden')" class="text-gray-400 hover:text-red-500 transition text-3xl font-bold leading-none">&times;</button>
+            </div>
+            
+            <div class="space-y-6 text-sm md:text-base text-gray-700 text-left">
+                <!-- Cara Bermain -->
+                <div>
+                    <h3 class="font-bold text-gray-900 mb-2 border-l-4 border-pktGreen pl-3 flex items-center gap-2">🎯 Cara Bermain</h3>
+                    <ul class="list-decimal pl-6 space-y-1">
+                        <li>Masukkan nama Anda dan pilih tingkat kesulitan.</li>
+                        <li>Tebak kategori sampah yang muncul dengan mengklik ikon tong yang sesuai: <b>Sisa Makanan</b>, <b>Laku Jual</b>, atau <b>Residu</b>.</li>
+                        <li class="text-red-600 font-bold">Hati-hati! Memilih tong yang salah akan memotong batas waktu Anda sebanyak 5 detik!</li>
+                    </ul>
+                </div>
+
+                <!-- Difficulty -->
+                <div>
+                    <h3 class="font-bold text-gray-900 mb-2 border-l-4 border-pktOrange pl-3 flex items-center gap-2">🔥 Kesulitan &amp; Poin Dasar</h3>
+                    <div class="grid grid-cols-1 gap-2 text-xs md:text-sm">
+                        <div class="bg-green-50 p-3 rounded-lg border border-green-200"><b>Easy (🐢) :</b> Waktu 60 detik. Benar <b>+10</b> Poin.</div>
+                        <div class="bg-orange-50 p-3 rounded-lg border border-orange-200"><b>Medium (🚶) :</b> Waktu 45 detik. Benar <b>+15</b> Poin.</div>
+                        <div class="bg-blue-50 p-3 rounded-lg border border-blue-200"><b>Hard (🔥) :</b> Waktu 30 detik. Benar <b>+20</b> Poin.</div>
+                    </div>
+                </div>
+
+                <!-- Combo -->
+                <div>
+                    <h3 class="font-bold text-gray-900 mb-2 border-l-4 border-yellow-400 pl-3 flex items-center gap-2">⚡ Sistem Combo</h3>
+                    <p class="text-[0.85rem] md:text-sm leading-relaxed">Menjawab benar berturut-turut tanpa salah akan mengaktifkan kemampuan <b>Combo (hingga 3x lipat)</b>. Poin dasar Anda akan dikalikan sesuai panjang rentetan combo. Kesalahan 1 kali saja akan langsung me-reset combo kembali ke nol.</p>
+                </div>
+
+                <!-- Leaderboard -->
+                <div>
+                    <h3 class="font-bold text-gray-900 mb-2 border-l-4 border-purple-500 pl-3 flex items-center gap-2">🏆 Leaderboard Global</h3>
+                    <p class="text-[0.85rem] md:text-sm leading-relaxed">Papan skor akan tercatat dan diperbarui secara <i>real-time</i> menembus berbagai <i>device</i>! Sistem sangat pintar: ia otomatis melacak jika Anda bermain berulang kali menggunakan nama yang sama. Hanya <b>skor tertinggi</b> Anda yang akan tampil, dan sistem akan menyimpan riwayat seberapa banyak Anda telah memainkannya pada kolom <b>Coba</b>.</p>
+                </div>
+            </div>
+
+            <button onclick="document.getElementById('how-to-play-modal').classList.add('hidden')" class="w-full mt-8 bg-gradient-to-r from-pktGreen to-green-500 text-white font-black py-4 rounded-xl shadow-[0_4px_15px_rgba(122,184,0,0.4)] hover:-translate-y-1 active:scale-95 transition text-lg tracking-wide">Paham, Ayo Mulai!</button>
+        </div>
+    </div>
+
+    <!-- GAME SCREEN -->
+    <div id="game-screen" class="screen flex-col w-full h-[100dvh] bg-gray-50 relative overflow-hidden">
+        <div class="w-full flex justify-between items-center p-2.5 md:p-4 bg-white shadow-sm min-h-16 shrink-0">
+            <div class="flex flex-col">
+                <p class="text-[0.65rem] md:text-xs text-gray-500 font-bold uppercase" id="game-player-name">Player</p>
+                <p class="text-base md:text-lg font-bold text-pktBlue">Skor: <span id="score-display">0</span></p>
+            </div>
+            <div class="flex flex-col items-end gap-1">
+                <p class="text-[0.65rem] md:text-xs text-gray-500 font-bold uppercase"><span id="game-difficulty">Easy</span> Mode</p>
+                <p id="timer-text" class="text-lg md:text-xl font-bold text-pktOrange">00:00</p>
+                <div class="flex items-center gap-1.5">
+                    <button id="pause-btn" type="button" onclick="togglePause()" class="text-[0.65rem] md:text-xs font-bold px-2 py-1 rounded-md bg-blue-50 text-pktBlue border border-blue-100 hover:bg-blue-100 transition">⏸ Pause</button>
+                    <button id="mute-btn" type="button" onclick="toggleMute()" class="text-[0.65rem] md:text-xs font-bold px-2 py-1 rounded-md bg-orange-50 text-pktOrange border border-orange-100 hover:bg-orange-100 transition">🔊 Sound</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="px-3 md:px-4 pt-1.5 shrink-0">
+            <div class="w-full bg-white/90 border border-green-100 rounded-xl px-3 py-2 text-[0.65rem] sm:text-xs md:text-sm font-bold text-gray-600 flex items-center justify-between shadow-sm">
+                <span>Progres Soal Unik Sesi</span>
+                <span class="text-pktGreen" id="session-unique-progress">0/0</span>
+            </div>
+            <div class="w-full mt-2 bg-white/90 border border-orange-100 rounded-xl p-2 shadow-sm">
+                <div class="h-2.5 w-full bg-gray-100 rounded-full overflow-hidden">
+                    <div id="timer-progress-fill" class="timer-progress-fill h-full bg-gradient-to-r from-pktGreen via-yellow-400 to-red-500 rounded-full" style="width: 100%;"></div>
+                </div>
+                <div class="mt-1 text-[0.65rem] sm:text-[0.72rem] md:text-xs text-gray-500 font-semibold flex justify-between gap-2">
+                    <span>Sisa Waktu</span>
+                    <span id="streak-display">Best Combo: x0</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex-grow flex flex-col items-center justify-start px-2 sm:px-4 pt-2 lg:pt-4 pb-1 relative overflow-hidden gap-2 sm:gap-3 lg:gap-4 min-h-0">
+            <!-- Audio Context Hint -->
+            <div id="combo-display" class="absolute top-[24%] left-1/2 transform -translate-x-1/2 text-3xl md:text-5xl font-black text-pktOrange opacity-0 transition-all duration-300 z-50 pointer-events-none filter drop-shadow-xl scale-50 whitespace-nowrap leading-none tracking-tight" style="text-shadow: 2px 2px 0px white, -2px -2px 0px white, 2px -2px 0px white, -2px 2px 0px white, 0 4px 6px rgba(0,0,0,0.2);"></div>
+
+            <!-- Mini Leaderboard (Top 5) -->
+            <div class="w-full max-w-md lg:max-w-lg bg-white/90 backdrop-blur rounded-2xl p-1.5 sm:p-2 shadow-md border border-blue-100 z-0">
+                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-0.5 mb-0.5">
+                    <span class="font-bold text-gray-700 text-[0.6rem] sm:text-xs uppercase tracking-wider leading-none">Top 5 Leaderboard</span>
+                    <span class="text-pktBlue font-bold text-[0.6rem] sm:text-xs uppercase leading-none">Skor Anda: <span id="ingame-score">0</span></span>
+                </div>
+                <div id="ingame-leaderboard" class="flex gap-1 overflow-x-auto pb-0.5 no-scrollbar text-[0.6rem] sm:text-xs">
+                    <div class="text-gray-400 italic">Memuat Top 5...</div>
+                </div>
+            </div>
+
+            <!-- Trash Item Display -->
+            <div id="trash-container" class="trash-item bg-white border-2 border-gray-200 p-3 sm:p-4 md:p-6 rounded-[2rem] shadow-xl flex flex-col items-center justify-center text-center w-full max-w-[min(88vw,22rem)] lg:max-w-[20rem] md:max-w-sm h-auto min-h-[140px] sm:min-h-[170px] max-h-[220px] sm:max-h-[280px] cursor-pointer z-10 mt-1 lg:mt-2">
+                <div id="trash-emoji" class="text-4xl sm:text-5xl md:text-7xl mb-1 sm:mb-2 drop-shadow-md transition-transform transform hover:scale-110">🗑️</div>
+                <h2 id="trash-name" class="text-[0.9rem] sm:text-base md:text-3xl font-bold text-gray-900 break-words drop-shadow-md leading-tight max-w-full px-1">Sampah</h2>
+            </div>
+
+            <div id="pause-overlay" class="hidden absolute inset-0 z-40 bg-black/35 backdrop-blur-sm flex items-center justify-center px-4">
+                <div class="w-full max-w-sm bg-white rounded-2xl p-5 text-center shadow-2xl border border-blue-100">
+                    <h3 class="text-2xl font-black text-pktBlue">Game Dijeda</h3>
+                    <p class="text-sm text-gray-600 mt-2">Tarik napas dulu. Klik tombol lanjut untuk kembali bermain.</p>
+                    <button type="button" onclick="togglePause()" class="mt-4 w-full bg-gradient-to-r from-pktBlue to-blue-700 text-white font-black py-3 rounded-xl hover:from-blue-600 hover:to-blue-800 transition">▶ Lanjutkan</button>
+                    <p class="mt-2 text-[0.65rem] text-gray-400 font-semibold">Shortcut: tekan tombol P</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="h-[21vh] sm:h-[22vh] min-h-[112px] md:h-1/4 w-full bg-white/90 backdrop-blur pb-2 pt-2 px-2 md:px-4 grid grid-cols-3 gap-2 md:gap-6 rounded-t-[2.5rem] shadow-[0_-10px_40px_rgba(0,0,0,0.1)] border-t border-gray-100 relative z-20">
+            <!-- SISA MAKANAN -->
+            <div onclick="checkBin('SISA MAKANAN')" class="bin flex flex-col justify-between items-center bg-gradient-to-t from-green-200 to-green-50 rounded-xl md:rounded-2xl cursor-pointer border-b-[6px] border-pktGreen relative overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-2 active:scale-95 group pt-1.5">
+                <span class="text-3xl sm:text-4xl md:text-5xl mt-0.5 opacity-55 group-hover:scale-110 transition-transform">🍏</span>
+                <div class="absolute inset-0 bg-pktGreen opacity-5"></div>
+                <h3 class="font-black text-pktGreen text-[0.65rem] sm:text-sm md:text-lg relative z-10 mb-1.5 px-2 py-1 rounded-lg bg-white/75 border border-green-100 text-center leading-tight">SISA<br>MAKANAN</h3>
+            </div>
+            <!-- LAKU JUAL -->
+            <div onclick="checkBin('LAKU JUAL')" class="bin flex flex-col justify-between items-center bg-gradient-to-t from-orange-200 to-orange-50 rounded-xl md:rounded-2xl cursor-pointer border-b-[6px] border-pktOrange relative overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-2 active:scale-95 group pt-1.5">
+                <span class="text-3xl sm:text-4xl md:text-5xl mt-0.5 opacity-55 group-hover:scale-110 transition-transform">♻️</span>
+                <div class="absolute inset-0 bg-pktOrange opacity-5"></div>
+                <h3 class="font-black text-pktOrange text-[0.65rem] sm:text-sm md:text-lg relative z-10 mb-1.5 px-2 py-1 rounded-lg bg-white/75 border border-orange-100 text-center leading-tight">LAKU<br>JUAL</h3>
+            </div>
+            <!-- RESIDU -->
+            <div onclick="checkBin('RESIDU')" class="bin flex flex-col justify-between items-center bg-gradient-to-t from-blue-200 to-blue-50 rounded-xl md:rounded-2xl cursor-pointer border-b-[6px] border-pktBlue relative overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-2 active:scale-95 group pt-1.5">
+                <span class="text-3xl sm:text-4xl md:text-5xl mt-0.5 opacity-55 group-hover:scale-110 transition-transform">🗑️</span>
+                <div class="absolute inset-0 bg-pktBlue opacity-5"></div>
+                <h3 class="font-black text-pktBlue text-[0.65rem] sm:text-sm md:text-lg relative z-10 mb-1.5 px-2 py-1 rounded-lg bg-white/75 border border-blue-100 text-center leading-tight">RESIDU</h3>
+            </div>
+        </div>
+    </div>
+
+    <!-- END SCREEN -->
+    <div id="end-screen" class="screen flex-col items-center justify-start w-full h-[100dvh] p-3 sm:p-4 relative z-10 bg-white overflow-y-auto">
+        <div class="max-w-2xl w-full bg-white rounded-lg p-4 sm:p-6 my-0 sm:my-auto text-center">
+            <h2 class="text-4xl font-bold text-pktBlue mb-2">Game Over!</h2>
+            
+            <div id="result-summary-card" class="bg-gradient-to-br from-blue-50 via-white to-green-50 rounded-2xl p-3 md:p-4 my-4 shadow-inner border border-blue-100">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+                    <div class="bg-white rounded-xl p-2.5 border border-gray-100 shadow-sm">
+                        <p class="text-[0.6rem] md:text-xs text-gray-500 uppercase font-bold">Total Skor</p>
+                        <p class="text-2xl md:text-3xl font-black text-pktOrange" id="final-score">0</p>
+                    </div>
+                    <div class="bg-white rounded-xl p-2.5 border border-gray-100 shadow-sm">
+                        <p class="text-[0.6rem] md:text-xs text-gray-500 uppercase font-bold">Akurasi</p>
+                        <p class="text-2xl md:text-3xl font-black text-pktGreen" id="final-accuracy">0%</p>
+                    </div>
+                    <div class="bg-white rounded-xl p-2.5 border border-gray-100 shadow-sm">
+                        <p class="text-[0.6rem] md:text-xs text-gray-500 uppercase font-bold">Dijawab</p>
+                        <p class="text-2xl md:text-3xl font-black text-pktBlue" id="final-total-answered">0</p>
+                    </div>
+                    <div class="bg-white rounded-xl p-2.5 border border-gray-100 shadow-sm">
+                        <p class="text-[0.6rem] md:text-xs text-gray-500 uppercase font-bold">Benar/Salah</p>
+                        <p class="text-xl md:text-2xl font-black text-gray-700"><span id="final-correct">0</span>/<span id="final-wrong">0</span></p>
+                    </div>
+                    <div class="bg-white rounded-xl p-2.5 border border-gray-100 shadow-sm col-span-2 md:col-span-4">
+                        <p class="text-[0.6rem] md:text-xs text-gray-500 uppercase font-bold">Posisi Saat Ini di Leaderboard</p>
+                        <p class="text-xl md:text-2xl font-black text-pktBlue" id="final-rank">-</p>
+                    </div>
+                    <div class="bg-white rounded-xl p-2.5 border border-gray-100 shadow-sm col-span-2 md:col-span-2">
+                        <p class="text-[0.6rem] md:text-xs text-gray-500 uppercase font-bold">Badge Performa</p>
+                        <p class="text-base md:text-xl font-black text-pktOrange" id="final-badge">-</p>
+                    </div>
+                    <div class="bg-white rounded-xl p-2.5 border border-gray-100 shadow-sm col-span-2 md:col-span-2">
+                        <p class="text-[0.6rem] md:text-xs text-gray-500 uppercase font-bold">Personal Best</p>
+                        <p class="text-[0.72rem] md:text-sm font-bold text-gray-700" id="final-personal-best">Skor terbaik: -</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-3 grid grid-cols-1 md:grid-cols-2 gap-2">
+                <button type="button" onclick="copyResultSummary()" class="bg-indigo-50 border border-indigo-200 text-indigo-700 text-sm md:text-base font-bold px-3 py-2.5 rounded-xl shadow-sm hover:bg-indigo-100 transition">📋 Copy Hasil</button>
+                <button type="button" onclick="saveResultImage()" class="bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm md:text-base font-bold px-3 py-2.5 rounded-xl shadow-sm hover:bg-emerald-100 transition">🖼️ Simpan Gambar</button>
+            </div>
+
+            <div class="text-left w-full relative">
+                <!-- Status koneksi Database -->
+                <div class="flex justify-between items-start mb-3 border-b-2 border-gray-200 pb-2">
+                    <h3 class="text-sm md:text-lg font-bold text-gray-700 max-w-[70%]">Leaderboard</h3>
+                    <div class="flex items-center justify-end gap-2 md:gap-3 flex-wrap">
+                        <span id="db-status" class="text-[0.65rem] md:text-xs font-bold text-gray-400">Menghubungkan...</span>
+                        <button onclick="clearDatabase()" class="text-red-400 hover:text-red-600 bg-red-50 p-2 rounded-lg transition-transform transform hover:scale-110 active:scale-95 shadow-sm border border-red-100 flex-shrink-0" title="Hapus Semua Data Leaderboard">
+                            🗑️
+                        </button>
+                    </div>
+                </div>
+                <div class="max-h-[38vh] sm:max-h-[42vh] overflow-y-auto overflow-x-hidden rounded-xl border border-blue-100 mb-4 bg-gradient-to-b from-white to-blue-50/40 shadow-md no-scrollbar">
+                    <table class="w-full text-sm text-left">
+                        <thead class="sticky top-0 z-10 bg-gradient-to-r from-blue-600 to-blue-500 text-white uppercase text-[0.58rem] md:text-[0.65rem]">
+                            <tr>
+                                <th class="px-2 py-3 w-8 text-center">#</th>
+                                <th class="px-3 py-3">Nama Pemain</th>
+                                <th class="px-3 py-3 text-center">Skor</th>
+                                <th class="px-3 py-3 text-center hidden md:table-cell" title="Akurasi Jawaban">Akurasi</th>
+                                <th class="px-3 py-3 text-center hidden lg:table-cell" title="Dijawab / Benar / Salah">D/B/S</th>
+                                <th class="px-3 py-3 text-center hidden md:table-cell">Level</th>
+                                <th class="px-2 py-3 text-center">Waktu Bermain</th>
+                                <th class="px-2 py-3 text-center" title="Berapa kali beralih">Percobaan</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leaderboard-body" class="divide-y divide-gray-200">
+                            <tr><td colspan="8" class="text-center py-4 text-gray-500">Memuat data secara Real-time...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <button onclick="showStartScreen()" class="w-full max-w-sm bg-gradient-to-b from-pktBlue to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white font-bold py-3 rounded-xl shadow-lg transition transform hover:-translate-y-1 text-base md:text-lg">TRY AGAIN</button>
+        </div>
+        
+        <div class="pt-2 pb-6 text-[0.65rem] md:text-xs text-gray-500 font-semibold text-center w-full">
+            Dikembangkan oleh Enviro Agent Farhan Jezando Wardana<br>Departemen Manajemen Risiko Korporasi
+        </div>
+    </div>
+
+
+    <script>
+        // ==========================================
+        // 1. KONFIGURASI FIREBASE ANDA (GANTI INI!)
+        // ==========================================
+        // Dapatkan ini dari: Firebase Console -> Project Settings -> General -> Your Apps (Web)
+        const firebaseConfig = {
+            apiKey: "AIzaSyAAr7BXusC8klGB_cZKUhqi8-q2vOQ3FOQ",
+            authDomain: "enviro-agent.firebaseapp.com",
+            databaseURL: "https://enviro-agent-default-rtdb.firebaseio.com",
+            projectId: "enviro-agent",
+            storageBucket: "enviro-agent.firebasestorage.app",
+            messagingSenderId: "874828756963",
+            appId: "1:874828756963:web:cf405e4edabd79111212d6"
+        };
+
+        // Inisialisasi Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // ==========================================
+        // 2. DATA SAMPAH & STATE GAME
+        // ==========================================
+        const trashData = [
+    // --- KATEGORI: LAKU JUAL (Sellable) ---
+    // Logam & Aluminium
+    { name: "Aluminium Rece", category: "LAKU JUAL", emoji: "🏗️" },
+    { name: "Kaleng Sprite", category: "LAKU JUAL", emoji: "🥤" },
+    { name: "Kaleng Fanta", category: "LAKU JUAL", emoji: "🥤" },
+    { name: "Panci Aluminium", category: "LAKU JUAL", emoji: "🥘" },
+    { name: "Wajan Aluminium", category: "LAKU JUAL", emoji: "🍳" },
+    { name: "Teko Aluminium", category: "LAKU JUAL", emoji: "🫖" },
+    { name: "Kusen Aluminium", category: "LAKU JUAL", emoji: "🪟" },
+    { name: "Oven Bekas", category: "LAKU JUAL", emoji: "⏲️" },
+    { name: "Kaleng Biskuit Khong Guan", category: "LAKU JUAL", emoji: "🍪" },
+    { name: "Kaleng Susu Kental Manis", category: "LAKU JUAL", emoji: "🍼" },
+    { name: "Kaleng Wafer", category: "LAKU JUAL", emoji: "🍫" },
+    { name: "Kaleng Cat Alumunium (Bersih)", category: "LAKU JUAL", emoji: "🥫" },
+    { name: "Minyak Jelantah Jagung", category: "LAKU JUAL", emoji: "🍶" },
+    { name: "Minyak Jelantah Sayur", category: "LAKU JUAL", emoji: "🍳" },
+    
+    // Plastik Bersih (PET & Padat)
+    { name: "Botol Cleo (PET Putih)", category: "LAKU JUAL", emoji: "🧴" },
+    { name: "Botol Aqua (PET Biru)", category: "LAKU JUAL", emoji: "💧" },
+    { name: "Botol Sprite (PET Hijau)", category: "LAKU JUAL", emoji: "🥤" },
+    { name: "Gelas Ale-Ale", category: "LAKU JUAL", emoji: "🍹" },
+    { name: "Gelas Teh Gelas", category: "LAKU JUAL", emoji: "🍵" },
+    { name: "Gelas Teh Rio", category: "LAKU JUAL", emoji: "🥤" },
+    { name: "Gelas Vit (Bersih)", category: "LAKU JUAL", emoji: "🥤" },
+    { name: "Thinwall Kotak Makan", category: "LAKU JUAL", emoji: "🍱" },
+    { name: "Ember Plastik Putih", category: "LAKU JUAL", emoji: "🪣" },
+    { name: "Ember Plastik Hitam", category: "LAKU JUAL", emoji: "🪣" },
+    { name: "Kursi Plastik Patah", category: "LAKU JUAL", emoji: "🪑" },
+    { name: "Bak Plastik", category: "LAKU JUAL", emoji: "🛁" },
+    { name: "Gayung Plastik", category: "LAKU JUAL", emoji: "🚿" },
+    { name: "Tutup Botol Minuman", category: "LAKU JUAL", emoji: "⭕" },
+    { name: "Galon Le Minerale", category: "LAKU JUAL", emoji: "🏺" },
+    { name: "Pot Bunga Plastik", category: "LAKU JUAL", emoji: "🪴" },
+    { name: "Jerigen Plastik Bersih", category: "LAKU JUAL", emoji: "🛢️" },
+    { name: "Rak Plastik Pecah", category: "LAKU JUAL", emoji: "🗄️" },
+    { name: "Botol Shampoo Kosong", category: "LAKU JUAL", emoji: "🧴" },
+    { name: "Botol Sabun Cuci Kosong", category: "LAKU JUAL", emoji: "🧼" },
+    { name: "Tutup Galon Plastik", category: "LAKU JUAL", emoji: "⭕" },
+
+    // Kertas Kering
+    { name: "Kardus Paket Kering", category: "LAKU JUAL", emoji: "📦" },
+    { name: "Kardus Mie Instan", category: "LAKU JUAL", emoji: "📦" },
+    { name: "Kertas HVS Putih (Print)", category: "LAKU JUAL", emoji: "📄" },
+    { name: "Kertas HVS Warna", category: "LAKU JUAL", emoji: "📑" },
+    { name: "Buku Tulis Bekas", category: "LAKU JUAL", emoji: "📒" },
+    { name: "Majalah Bekas", category: "LAKU JUAL", emoji: "📖" },
+    { name: "Koran Bekas", category: "LAKU JUAL", emoji: "📰" },
+    { name: "Kotak Susu Bubuk (Duplex)", category: "LAKU JUAL", emoji: "🥛" },
+    { name: "Kotak Sereal (Duplex)", category: "LAKU JUAL", emoji: "🥣" },
+    { name: "Wadah Skincare (Kardus)", category: "LAKU JUAL", emoji: "🧴" },
+    { name: "Kotak Parfum (Kardus)", category: "LAKU JUAL", emoji: "✨" },
+    { name: "Novel Kertas Buram", category: "LAKU JUAL", emoji: "📚" },
+    { name: "Komik Kertas Buram", category: "LAKU JUAL", emoji: "📖" },
+    { name: "LKS Sekolah Buram", category: "LAKU JUAL", emoji: "📝" },
+    { name: "Amplop Cokelat (Bersih)", category: "LAKU JUAL", emoji: "✉️" },
+    { name: "Karton Telur Kering", category: "LAKU JUAL", emoji: "🥚" },
+    { name: "Kertas Brosur Bekas", category: "LAKU JUAL", emoji: "📃" },
+    { name: "Map Kertas Rusak", category: "LAKU JUAL", emoji: "🗂️" },
+    { name: "Paper Bag Bersih", category: "LAKU JUAL", emoji: "🛍️" },
+    { name: "Tabung Kardus Tisu", category: "LAKU JUAL", emoji: "🧻" },
+
+    // --- KATEGORI: SISA MAKANAN (Food Waste) ---
+    { name: "Sisa Nasi Putih", category: "SISA MAKANAN", emoji: "🍚" },
+    { name: "Sisa Nasi Kuning", category: "SISA MAKANAN", emoji: "🍚" },
+    { name: "Kulit Jeruk Nipis", category: "SISA MAKANAN", emoji: "🍊" },
+    { name: "Kulit Pisang", category: "SISA MAKANAN", emoji: "🍌" },
+    { name: "Kulit Mangga", category: "SISA MAKANAN", emoji: "🥭" },
+    { name: "Kulit Apel", category: "SISA MAKANAN", emoji: "🍎" },
+    { name: "Sisa Potongan Wortel", category: "SISA MAKANAN", emoji: "🥕" },
+    { name: "Sisa Kangkung", category: "SISA MAKANAN", emoji: "🥦" },
+    { name: "Sisa Bayam", category: "SISA MAKANAN", emoji: "🥬" },
+    { name: "Kulit Kacang Tanah", category: "SISA MAKANAN", emoji: "🥜" },
+    { name: "Kulit Kacang Kedelai", category: "SISA MAKANAN", emoji: "🥜" },
+    { name: "Cangkang Telur Ayam", category: "SISA MAKANAN", emoji: "🥚" },
+    { name: "Cangkang Telur Bebek", category: "SISA MAKANAN", emoji: "🥚" },
+    { name: "Tulang Ikan", category: "SISA MAKANAN", emoji: "🐟" },
+    { name: "Tulang Ayam Bakar", category: "SISA MAKANAN", emoji: "🦴" },
+    { name: "Sisa Daging Sapi", category: "SISA MAKANAN", emoji: "🥩" },
+    { name: "Sisa Lemak Daging", category: "SISA MAKANAN", emoji: "🥓" },
+    { name: "Sisa Lauk Basi", category: "SISA MAKANAN", emoji: "🍲" },
+    { name: "Ampas Kopi", category: "SISA MAKANAN", emoji: "☕" },
+    { name: "Kantong Teh Bekas", category: "SISA MAKANAN", emoji: "🍵" },
+    { name: "Roti Tawar Jamuran", category: "SISA MAKANAN", emoji: "🍞" },
+    { name: "Sisa Mie Instan", category: "SISA MAKANAN", emoji: "🍜" },
+    { name: "Biji Melon", category: "SISA MAKANAN", emoji: "🍈" },
+    { name: "Kulit Semangka", category: "SISA MAKANAN", emoji: "🍉" },
+    { name: "Sisa Sayur Sop", category: "SISA MAKANAN", emoji: "🥣" },
+    { name: "Sisa Daun Kol", category: "SISA MAKANAN", emoji: "🥬" },
+    { name: "Sisa Tauge", category: "SISA MAKANAN", emoji: "🌱" },
+    { name: "Bonggol Brokoli", category: "SISA MAKANAN", emoji: "🥦" },
+    { name: "Kulit Nanas", category: "SISA MAKANAN", emoji: "🍍" },
+    { name: "Kulit Rambutan", category: "SISA MAKANAN", emoji: "🥭" },
+    { name: "Sisa Bubur Ayam", category: "SISA MAKANAN", emoji: "🥣" },
+    { name: "Sisa Soto", category: "SISA MAKANAN", emoji: "🍲" },
+    { name: "Sisa Tempe Goreng", category: "SISA MAKANAN", emoji: "🍽️" },
+    { name: "Sisa Pepaya", category: "SISA MAKANAN", emoji: "🍈" },
+    { name: "Kulit Salak", category: "SISA MAKANAN", emoji: "🟤" },
+
+    // --- KATEGORI: RESIDU (Residual & Tricky) ---
+    // Pengecoh (Sering dikira Laku Jual)
+    { name: "Plastik Label Botol", category: "RESIDU", emoji: "🏷️" },
+    { name: "Kardus Pizza Berminyak", category: "RESIDU", emoji: "🍕" },
+    { name: "Kardus Fried Chicken (Berminyak)", category: "RESIDU", emoji: "🍗" },
+    { name: "Kardus Basah Kena Air", category: "RESIDU", emoji: "📦" },
+    { name: "Kemasan Susu Tetrapack", category: "RESIDU", emoji: "🧃" },
+    { name: "Kemasan Teh Kotak", category: "RESIDU", emoji: "🧃" },
+    { name: "Paper Cup (Gelas Kertas)", category: "RESIDU", emoji: "☕" },
+    { name: "Kertas Nasi Cokelat", category: "RESIDU", emoji: "🍱" },
+    { name: "Mika Bento Hitam", category: "RESIDU", emoji: "🍱" },
+    { name: "Mika Bening Kue", category: "RESIDU", emoji: "🥡" },
+    { name: "Wadah Styrofoam Putih", category: "RESIDU", emoji: "🧊" },
+    { name: "Wadah Styrofoam Pop Mie", category: "RESIDU", emoji: "🍜" },
+    { name: "Plastik Keresek Merah", category: "RESIDU", emoji: "🛍️" },
+    { name: "Plastik Keresek Hitam", category: "RESIDU", emoji: "🛍️" },
+    { name: "Bungkus Snack (Aluminium Foil)", category: "RESIDU", emoji: "🍬" },
+    { name: "Bungkus Permen", category: "RESIDU", emoji: "🍬" },
+    { name: "Kemasan Biskuit Plastik", category: "RESIDU", emoji: "🍪" },
+    { name: "Sachet Kopi Plastik", category: "RESIDU", emoji: "☕" },
+    { name: "Sedotan Plastik", category: "RESIDU", emoji: "🥤" },
+    { name: "Plastik Bubble Wrap", category: "RESIDU", emoji: "🫧" },
+    { name: "Kemasan Saus Sachet", category: "RESIDU", emoji: "🍅" },
+    { name: "Plastik Vacuum Makanan", category: "RESIDU", emoji: "📦" },
+    { name: "Bungkus Mi Instan", category: "RESIDU", emoji: "🍜" },
+    { name: "Plastik Frozen Food", category: "RESIDU", emoji: "🧊" },
+    { name: "Kertas Roti Berlapis Minyak", category: "RESIDU", emoji: "🍞" },
+
+    // Kebersihan & Kantor
+    { name: "Tisu Bekas Pakai", category: "RESIDU", emoji: "🧻" },
+    { name: "Pembalut Wanita", category: "RESIDU", emoji: "🩹" },
+    { name: "Popok Bayi (Pampers)", category: "RESIDU", emoji: "👶" },
+    { name: "Masker Medis Bekas", category: "RESIDU", emoji: "😷" },
+    { name: "Kapas Pembersih Wajah", category: "RESIDU", emoji: "☁️" },
+    { name: "Puntung Rokok", category: "RESIDU", emoji: "🚬" },
+    { name: "Bolpoin Mati", category: "RESIDU", emoji: "🖊️" },
+    { name: "Spidol Kering", category: "RESIDU", emoji: "🖍️" },
+    { name: "Isi Staples Karatan", category: "RESIDU", emoji: "📎" },
+    { name: "Klip Kertas", category: "RESIDU", emoji: "📎" },
+    { name: "Baterai Jam Bekas", category: "RESIDU", emoji: "🔋" },
+    { name: "Pecahan Gelas Kaca", category: "RESIDU", emoji: "🍷" },
+    { name: "Pecahan Piring Keramik", category: "RESIDU", emoji: "🧱" },
+    { name: "Botol Sirup Kaca", category: "RESIDU", emoji: "🍾" },
+    { name: "Toples Selai Kaca", category: "RESIDU", emoji: "🏺" },
+    { name: "Cermin Pecah", category: "RESIDU", emoji: "🪞" },
+    { name: "Kain Perca", category: "RESIDU", emoji: "🧵" },
+    { name: "Sandal Jepit Putus", category: "RESIDU", emoji: "🩴" },
+    { name: "Sachet Sambal", category: "RESIDU", emoji: "🌶️" },
+    { name: "Puntung Korek Api", category: "RESIDU", emoji: "🔥" },
+    { name: "Karet Gelang Putus", category: "RESIDU", emoji: "🧷" },
+    { name: "CD/DVD Rusak", category: "RESIDU", emoji: "💿" },
+    { name: "Lampu Bohlam Pecah", category: "RESIDU", emoji: "💡" },
+    { name: "Sikat Gigi Bekas", category: "RESIDU", emoji: "🪥" },
+    { name: "Sarung Tangan Karet Bekas", category: "RESIDU", emoji: "🧤" },
+    { name: "Kain Pel Kotor", category: "RESIDU", emoji: "🧽" },
+    { name: "Isolasi Bekas", category: "RESIDU", emoji: "🧻" },
+    { name: "Serpihan Kayu Cat", category: "RESIDU", emoji: "🪵" },
+    { name: "Spons Cuci Piring Bekas", category: "RESIDU", emoji: "🧽" }
+        ];
+
+        let gameState = { playerName: '', difficulty: '', score: 0, initialTime: 0, timeLeft: 0, timerInterval: null, currentTrash: null, totalAnswered: 0, correctAnswers: 0, isPlaying: false, paused: false, isMuted: false, currentSessionId: null, combo: 0, bestCombo: 0, questionQueue: [] };
+        let sessionQuestionQueue = [];
+        let sessionUniqueAskedSet = new Set();
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        let selectedDiffObj = null;
+
+        function selectDifficulty(diffName, time, btnEl) {
+            selectedDiffObj = { name: diffName, time: time };
+            
+            // Reset style semua tombol
+            document.querySelectorAll('.diff-btn').forEach(btn => {
+                btn.classList.remove('border-pktGreen', 'bg-green-50', 'border-pktOrange', 'bg-orange-50', 'border-pktBlue', 'bg-blue-50', 'scale-[1.03]', 'shadow-md');
+                btn.classList.add('border-gray-200');
+            });
+            
+            // Tambah style kotak terpilih sesuai tingkat kesulitan
+            let colorClass = diffName === 'Hard' ? ['border-pktBlue', 'bg-blue-50'] : diffName === 'Medium' ? ['border-pktOrange', 'bg-orange-50'] : ['border-pktGreen', 'bg-green-50'];
+            btnEl.classList.remove('border-gray-200');
+            btnEl.classList.add(...colorClass, 'scale-[1.03]', 'shadow-md');
+        }
+
+        function attemptStart() {
+            const name = uis.playerNameInput.value.trim();
+            if (!name || !selectedDiffObj) {
+                uis.startError.classList.remove('hidden');
+                return;
+            }
+            uis.startError.classList.add('hidden');
+            startGame(selectedDiffObj.time, selectedDiffObj.name);
+        }
+
+        function playSound(type) {
+            if (gameState.isMuted) return;
+            if(audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            
+            if (type === 'correct') {
+                osc.type = 'sine'; osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.1);
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+            } else if (type === 'wrong') {
+                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.2);
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.2);
+            }
+        }
+
+        // DOM ELEMENTS
+        const screens = { start: document.getElementById('start-screen'), game: document.getElementById('game-screen'), end: document.getElementById('end-screen') };
+        const uis = { playerNameInput: document.getElementById('player-name'), startError: document.getElementById('start-error'), scoreDisp: document.getElementById('score-display'), timerDisp: document.getElementById('timer-text'), gamePlayerName: document.getElementById('game-player-name'), gameDifficulty: document.getElementById('game-difficulty'), trashName: document.getElementById('trash-name'), trashContainer: document.getElementById('trash-container') };
+
+        function getPerformanceBadge(score, accuracy, bestCombo) {
+            if (score >= 700 && accuracy >= 90) return 'LEGEND ♛';
+            if (score >= 500 && accuracy >= 80) return 'MASTER ⚡';
+            if (score >= 300 && accuracy >= 70) return 'EXPLORER 🌱';
+            if (bestCombo >= 3) return 'COMBO HUNTER 🔥';
+            return 'RISING PLAYER 🚀';
+        }
+
+        function renderPersonalBestSummaryFromLeaderboard(leaderboardRecord) {
+            const bestEl = document.getElementById('final-personal-best');
+            if (!bestEl) return;
+            if (!leaderboardRecord) {
+                bestEl.textContent = 'Skor terbaik: menunggu sinkronisasi leaderboard';
+                return;
+            }
+            bestEl.textContent = `Skor terbaik: ${leaderboardRecord.score} | Akurasi: ${leaderboardRecord.accuracy || 0}% | D/B/S: ${leaderboardRecord.total || 0}/${leaderboardRecord.correct || 0}/${leaderboardRecord.wrong || 0}`;
+        }
+
+        function copyResultSummary() {
+            const summaryText = [
+                'EcoMove - Hasil Bermain',
+                `Pemain: ${gameState.playerName || '-'}`,
+                `Skor: ${document.getElementById('final-score').textContent}`,
+                `Akurasi: ${document.getElementById('final-accuracy').textContent}`,
+                `Dijawab: ${document.getElementById('final-total-answered').textContent}`,
+                `Benar/Salah: ${document.getElementById('final-correct').textContent}/${document.getElementById('final-wrong').textContent}`,
+                `Posisi Leaderboard: ${document.getElementById('final-rank').textContent}`,
+                `Badge: ${document.getElementById('final-badge').textContent}`,
+                `${document.getElementById('final-personal-best').textContent}`
+            ].join('\n');
+
+            navigator.clipboard.writeText(summaryText)
+                .then(() => alert('Ringkasan hasil berhasil disalin.'))
+                .catch(() => alert('Gagal menyalin hasil. Coba lagi.'));
+        }
+
+        function saveResultImage() {
+            const target = document.getElementById('result-summary-card');
+            if (!target || typeof html2canvas === 'undefined') {
+                alert('Fitur simpan gambar belum siap.');
+                return;
+            }
+
+            html2canvas(target, { scale: 2, backgroundColor: '#f8fafc' }).then((canvas) => {
+                const link = document.createElement('a');
+                const safeName = (gameState.playerName || 'player').replace(/\s+/g, '_');
+                link.download = `EcoMove_Hasil_${safeName}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            }).catch(() => {
+                alert('Gagal menyimpan gambar.');
+            });
+        }
+
+        function startTimerLoop() {
+            clearInterval(gameState.timerInterval);
+            gameState.timerInterval = setInterval(() => {
+                if (!gameState.isPlaying || gameState.paused) return;
+                gameState.timeLeft--;
+                updateTimerUI();
+                if (gameState.timeLeft <= 0) endGame();
+            }, 1000);
+        }
+
+        function togglePause() {
+            if (!gameState.isPlaying) return;
+            gameState.paused = !gameState.paused;
+            const pauseOverlay = document.getElementById('pause-overlay');
+            const pauseBtn = document.getElementById('pause-btn');
+            if (gameState.paused) {
+                pauseOverlay.classList.remove('hidden');
+                pauseBtn.textContent = '▶ Lanjut';
+                pauseBtn.className = 'text-xs font-bold px-2 py-1 rounded-md bg-green-50 text-pktGreen border border-green-100 hover:bg-green-100 transition';
+            } else {
+                pauseOverlay.classList.add('hidden');
+                pauseBtn.textContent = '⏸ Pause';
+                pauseBtn.className = 'text-xs font-bold px-2 py-1 rounded-md bg-blue-50 text-pktBlue border border-blue-100 hover:bg-blue-100 transition';
+            }
+        }
+
+        function toggleMute() {
+            gameState.isMuted = !gameState.isMuted;
+            const muteBtn = document.getElementById('mute-btn');
+            if (gameState.isMuted) {
+                muteBtn.textContent = '🔇 Mute';
+                muteBtn.className = 'text-xs font-bold px-2 py-1 rounded-md bg-gray-100 text-gray-600 border border-gray-200 hover:bg-gray-200 transition';
+                return;
+            }
+            muteBtn.textContent = '🔊 Sound';
+            muteBtn.className = 'text-xs font-bold px-2 py-1 rounded-md bg-orange-50 text-pktOrange border border-orange-100 hover:bg-orange-100 transition';
+        }
+
+        document.addEventListener('keydown', (event) => {
+            const key = event.key.toLowerCase();
+            if (key === '1') checkBin('SISA MAKANAN');
+            if (key === '2') checkBin('LAKU JUAL');
+            if (key === '3') checkBin('RESIDU');
+            if (key === 'p') togglePause();
+            if (key === 'm') toggleMute();
+        });
+
+        // ==========================================
+        // 3. LOGIKA FIREBASE (REAL-TIME LISTENER)
+        // ==========================================
+        // Sinkronisasi data Leaderboard ke HTML saat ada skor baru di DB (LINTAS DEVICE)
+        const leaderboardRef = database.ref('leaderboard');
+        leaderboardRef.on('value', (snapshot) => {
+            document.getElementById('db-status').textContent = 'Live (Terhubung)';
+            document.getElementById('db-status').className = 'text-xs font-bold text-green-500';
+            
+            const data = snapshot.val();
+            let arrData = [];
+            
+            // Konversi dari Object Firebase ke Array
+            if (data) {
+                for (let key in data) {
+                    arrData.push({ id: key, ...data[key] });
+                }
+            }
+
+            // Urutkan berdasarkan skor tertinggi (DESC)
+            arrData.sort((a, b) => b.score - a.score);
+            renderLeaderboardTable(arrData.slice(0, 10), arrData); // Tampilkan 10 terbaik, hitung rank dari semua data
+        }, (error) => {
+            document.getElementById('db-status').textContent = 'Gagal Konek ke DB';
+            document.getElementById('db-status').className = 'text-xs font-bold text-red-500';
+            console.error(error);
+        });
+
+        function renderLeaderboardTable(leaderboardData, fullLeaderboardData = leaderboardData) {
+            const tbody = document.getElementById('leaderboard-body');
+            tbody.innerHTML = '';
+            const rankDisplay = document.getElementById('final-rank');
+            
+            // Render In-Game Top 5 Leaderboard
+            const inGameLb = document.getElementById('ingame-leaderboard');
+            if (inGameLb) {
+                inGameLb.innerHTML = '';
+                const top5 = leaderboardData.slice(0, 5);
+                if(top5.length === 0) inGameLb.innerHTML = '<div class="text-gray-400 italic w-full text-center">Belum ada skor</div>';
+                top5.forEach((run, idx) => {
+                    const isPlayer = (run.id === gameState.currentSessionId) || (run.name === gameState.playerName);
+                    const style = isPlayer ? 'bg-blue-100 text-pktBlue border-blue-300 shadow-sm' : 
+                                  idx === 0 ? 'bg-yellow-100 text-yellow-700 border-yellow-300 shadow-sm' : 
+                                  'bg-white text-gray-600 border-gray-200 opacity-80';
+                    const el = document.createElement('div');
+                    el.className = `flex-shrink-0 px-2 py-1 rounded-lg border min-w-[76px] text-center flex flex-col justify-center ${style}`;
+                    el.innerHTML = `<span class="font-bold truncate max-w-[80px]">#${idx+1} ${run.name}</span><span class="font-black text-sm">${run.score}</span>`;
+                    inGameLb.appendChild(el);
+                });
+            }
+
+            if (leaderboardData.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" class="text-center py-4 text-gray-500">Belum ada skor yang dicatat.</td></tr>';
+                if (rankDisplay) rankDisplay.textContent = '-';
+                return;
+            }
+
+            if (rankDisplay) {
+                const myRankIndex = fullLeaderboardData.findIndex(run => run.id === gameState.currentSessionId);
+                rankDisplay.textContent = myRankIndex >= 0 ? `#${myRankIndex + 1}` : '-';
+            }
+
+            if (gameState.currentSessionId) {
+                const myRecord = fullLeaderboardData.find(run => run.id === gameState.currentSessionId);
+                renderPersonalBestSummaryFromLeaderboard(myRecord || null);
+            }
+            
+            leaderboardData.forEach((run, index) => {
+                const tr = document.createElement('tr');
+                tr.className = index % 2 === 0 ? 'bg-white' : 'bg-blue-50/30';
+                
+                let rankStyle = 'font-normal';
+                if (index === 0) rankStyle = 'font-bold text-yellow-600 text-lg';
+                else if (index === 1) rankStyle = 'font-bold text-gray-500 text-base';
+                else if (index === 2) rankStyle = 'font-bold text-orange-700 text-base';
+
+                // Highlight skor pemain saat ini (berdasarkan Session ID)
+                const isCurrentPlayer = (run.id === gameState.currentSessionId);
+                if(isCurrentPlayer) tr.classList.add('bg-blue-50', 'border-l-4', 'border-pktBlue');
+
+                tr.innerHTML = `
+                    <td class="px-2 py-2 text-center ${rankStyle}">${index + 1}</td>
+                    <td class="px-2 py-2 font-semibold ${isCurrentPlayer ? 'text-pktBlue' : 'text-gray-800'} break-all leading-tight">
+                        ${run.name} <br> <span class="md:hidden text-[0.6rem] ${run.difficulty === 'Hard' ? 'text-blue-500' : run.difficulty === 'Medium' ? 'text-orange-500' : 'text-green-500'}">${run.difficulty}</span>
+                    </td>
+                    <td class="px-2 py-2 text-center font-bold text-pktOrange">${run.score}</td>
+                    <td class="px-2 py-2 text-center text-xs hidden md:table-cell font-bold text-gray-600">${run.accuracy || 0}%</td>
+                    <td class="px-2 py-2 text-center text-xs hidden lg:table-cell text-gray-600 font-bold">${run.total || 0}/${run.correct || 0}/${run.wrong || 0}
+                    </td>
+                    <td class="px-2 py-2 text-center text-xs hidden md:table-cell">
+                        <span class="${run.difficulty === 'Hard' ? 'text-blue-600' : run.difficulty === 'Medium' ? 'text-orange-600' : 'text-green-600'} font-bold">
+                            ${run.difficulty}
+                        </span>
+                    </td>
+                    <td class="px-2 py-2 text-center text-[0.65rem] text-gray-500">${run.timestamp ? new Date(run.timestamp).toLocaleString('id-ID', {day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit', second:'2-digit'}) : '-'}</td>
+                    <td class="px-2 py-2 text-center text-xs font-bold text-gray-600">${run.attempts || 1}x</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function saveToCloudDb() {
+            if (gameState.score > 0 || gameState.totalAnswered > 0) {
+                // Agar tidak dobel jika nama sama, kita jadikan Nama sbg ID 
+                const safeNameId = gameState.playerName.replace(/[.#$\[\]\/\s]/g, "_").toUpperCase();
+                const userRef = database.ref('leaderboard/' + safeNameId);
+                
+                gameState.currentSessionId = safeNameId; 
+                
+                // Cek skor sebelumnya dari nama ini
+                userRef.once('value').then(snapshot => {
+                    const existingData = snapshot.val();
+                    const attemptCount = existingData ? (existingData.attempts || 1) + 1 : 1;
+                    const accuracyCalc = gameState.totalAnswered === 0 ? 0 : Math.round((gameState.correctAnswers / gameState.totalAnswered) * 100);
+                    const wrongCalc = gameState.totalAnswered - gameState.correctAnswers;
+
+                    // Simpan JIKA belum ada data, ATAU skor baru >= skor lama
+                    if (!existingData || gameState.score >= existingData.score) {
+                        userRef.set({
+                            name: gameState.playerName,
+                            score: gameState.score,
+                            difficulty: gameState.difficulty,
+                            timestamp: firebase.database.ServerValue.TIMESTAMP,
+                            attempts: attemptCount,
+                            total: gameState.totalAnswered,
+                            correct: gameState.correctAnswers,
+                            wrong: wrongCalc,
+                            accuracy: accuracyCalc
+                        }).catch(err => {
+                            console.error("Gagal simpan ke DB", err);
+                        });
+                    } else {
+                        // Jika skor lebih kecil, cuma update jumlah mainnya (attempts)
+                        userRef.update({
+                            attempts: attemptCount
+                        });
+                    }
+                });
+            }
+        }
+
+        // ==========================================
+        // 4. GAME ENGINE LOGIC
+        // ==========================================
+        function switchScreen(screenName) {
+            Object.values(screens).forEach(s => s.classList.remove('active'));
+            screens[screenName].classList.add('active');
+        }
+
+        function showStartScreen() {
+            switchScreen('start');
+            uis.playerNameInput.value = gameState.playerName; 
+            gameState.paused = false;
+            const pauseOverlay = document.getElementById('pause-overlay');
+            if (pauseOverlay) pauseOverlay.classList.add('hidden');
+        }
+
+        function startGame(time, diff) {
+            const name = uis.playerNameInput.value.trim();
+            // Validasi nama tidak lagi dicek di sini karena sudah dicek di attemptStart()
+
+            gameState.playerName = name; gameState.difficulty = diff; gameState.score = 0; gameState.initialTime = time; gameState.timeLeft = time; gameState.totalAnswered = 0; gameState.correctAnswers = 0; gameState.isPlaying = true; gameState.paused = false; gameState.currentSessionId = null; gameState.combo = 0; gameState.bestCombo = 0; gameState.questionQueue = [];
+
+            const comboDisp = document.getElementById('combo-display');
+            comboDisp.textContent = '';
+            comboDisp.classList.add('opacity-0', 'scale-50');
+            const finalRank = document.getElementById('final-rank');
+            if (finalRank) finalRank.textContent = '-';
+            const pauseOverlay = document.getElementById('pause-overlay');
+            if (pauseOverlay) pauseOverlay.classList.add('hidden');
+            const pauseBtn = document.getElementById('pause-btn');
+            pauseBtn.textContent = '⏸ Pause';
+            pauseBtn.className = 'text-xs font-bold px-2 py-1 rounded-md bg-blue-50 text-pktBlue border border-blue-100 hover:bg-blue-100 transition';
+            updateSessionUniqueProgressUI();
+            updateTimerUI();
+            document.getElementById('streak-display').textContent = 'Best Combo: x0';
+            renderPersonalBestSummaryFromLeaderboard(null);
+
+            uis.gamePlayerName.textContent = name; uis.gameDifficulty.textContent = diff;
+            updateScoreUI();
+            
+            switchScreen('game');
+            spawnTrash();
+            startTimerLoop();
+        }
+
+        function updateTimerUI() {
+            const seconds = Math.max(0, gameState.timeLeft);
+            const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+            const s = (seconds % 60).toString().padStart(2, '0');
+            uis.timerDisp.textContent = `${m}:${s}`;
+
+            const timerFill = document.getElementById('timer-progress-fill');
+            if (timerFill) {
+                const pct = gameState.initialTime > 0 ? Math.max(0, (seconds / gameState.initialTime) * 100) : 0;
+                timerFill.style.width = `${pct}%`;
+            }
+            
+            if (gameState.timeLeft <= 10) { uis.timerDisp.classList.add('text-red-600', 'animate-pulse'); } 
+            else { uis.timerDisp.classList.remove('text-red-600', 'animate-pulse'); }
+        }
+
+        function updateScoreUI() {
+            uis.scoreDisp.textContent = gameState.score;
+            if(document.getElementById('ingame-score')) document.getElementById('ingame-score').textContent = gameState.score;
+        }
+
+        function buildShuffledQuestionQueue() {
+            const queue = Array.from({ length: trashData.length }, (_, index) => index);
+            for (let i = queue.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [queue[i], queue[j]] = [queue[j], queue[i]];
+            }
+            return queue;
+        }
+
+        function updateSessionUniqueProgressUI() {
+            const progressEl = document.getElementById('session-unique-progress');
+            if (!progressEl) return;
+            progressEl.textContent = `${sessionUniqueAskedSet.size}/${trashData.length}`;
+        }
+
+        function getNextQuestionFromSessionPool() {
+            if (sessionQuestionQueue.length === 0) {
+                sessionQuestionQueue = buildShuffledQuestionQueue();
+            }
+            const nextIndex = sessionQuestionQueue.pop();
+            sessionUniqueAskedSet.add(nextIndex);
+            updateSessionUniqueProgressUI();
+            return trashData[nextIndex];
+        }
+
+        function spawnTrash() {
+            if (!gameState.isPlaying || gameState.paused) return;
+            gameState.currentTrash = getNextQuestionFromSessionPool();
+            
+            uis.trashName.textContent = gameState.currentTrash.name;
+            if(document.getElementById('trash-emoji')) document.getElementById('trash-emoji').textContent = gameState.currentTrash.emoji;
+            
+            uis.trashContainer.className = "trash-item bg-white border-2 border-gray-200 p-6 md:p-8 rounded-[2rem] shadow-xl flex flex-col items-center justify-center text-center w-full max-w-xs md:max-w-sm aspect-square cursor-pointer z-10 hover:bg-gray-50 transition-colors";
+            uis.trashName.classList.remove('anim-shake');
+        }
+
+        function checkBin(category) {
+            if (!gameState.isPlaying || gameState.paused || !gameState.currentTrash) return;
+            gameState.totalAnswered++;
+
+            if (gameState.currentTrash.category === category) { // Benar
+                playSound('correct');
+                gameState.combo++;
+                gameState.bestCombo = Math.max(gameState.bestCombo, gameState.combo);
+                document.getElementById('streak-display').textContent = `Best Combo: x${gameState.bestCombo}`;
+                
+                // Tentukan poin sesuai level kesulitan
+                let basePoints = 10;
+                if (gameState.difficulty === 'Medium') basePoints = 15;
+                if (gameState.difficulty === 'Hard') basePoints = 20;
+
+                // Multiplier jika combo tinggi (maksimal x3)
+                const multiplier = Math.min(gameState.combo, 3);
+                const pointsToAdd = basePoints * multiplier;
+
+                gameState.correctAnswers++; gameState.score += pointsToAdd;
+                
+                uis.trashContainer.classList.add('anim-toss');
+                uis.scoreDisp.classList.add('text-green-500', 'scale-125', 'transition');
+                
+                showFeedback(multiplier > 1 ? `+${pointsToAdd} (${multiplier}x)` : `+${pointsToAdd}`, "text-green-500");
+                
+                // Show combo splash
+                const comboDisp = document.getElementById('combo-display');
+                if(gameState.combo > 1) {
+                    comboDisp.textContent = `${gameState.combo}x COMBO!`;
+                    comboDisp.classList.remove('opacity-0', 'scale-50');
+                    comboDisp.classList.add('opacity-100', 'scale-100');
+                    setTimeout(() => comboDisp.classList.add('opacity-0', 'scale-50'), 600);
+                }
+
+                setTimeout(() => { uis.scoreDisp.classList.remove('text-green-500', 'scale-125'); spawnTrash(); }, 300);
+            } else { // Salah
+                playSound('wrong');
+                gameState.combo = 0;
+                document.getElementById('combo-display').classList.add('opacity-0', 'scale-50');
+
+                gameState.score = Math.max(0, gameState.score);
+                gameState.timeLeft -= 5; if(gameState.timeLeft < 0) gameState.timeLeft = 0;
+                
+                uis.trashName.classList.add('anim-shake');
+                uis.timerDisp.classList.add('scale-125', 'text-red-500', 'transition');
+                showFeedback("-5s", "text-red-500");
+                
+                setTimeout(() => { uis.trashName.classList.remove('anim-shake'); uis.timerDisp.classList.remove('scale-125', 'text-red-500'); updateTimerUI(); spawnTrash(); }, 400);
+            }
+            updateScoreUI(); updateTimerUI();
+        }
+
+        function showFeedback(text, colorClass) {
+            const feedback = document.createElement('div');
+            feedback.textContent = text;
+            feedback.className = `floating-feedback ${colorClass}`;
+            document.getElementById('game-screen').appendChild(feedback);
+            setTimeout(() => feedback.remove(), 1000);
+        }
+
+        function clearDatabase() {
+            if(confirm("AWAS! Apakah Anda yakin ingin menghapus SELURUH data Leaderboard di server Firebase?")) {
+                database.ref('leaderboard').remove()
+                    .then(() => alert("Database berhasil dikosongkan!"))
+                    .catch(err => alert("Gagal menghapus data: " + err));
+            }
+        }
+
+        function endGame() {
+            gameState.isPlaying = false;
+            gameState.paused = false;
+            clearInterval(gameState.timerInterval);
+            
+            const accuracy = gameState.totalAnswered === 0 ? 0 : Math.round((gameState.correctAnswers / gameState.totalAnswered) * 100);
+            const wrongAnswers = gameState.totalAnswered - gameState.correctAnswers;
+            document.getElementById('final-score').textContent = gameState.score;
+            document.getElementById('final-accuracy').textContent = accuracy + '%';
+            document.getElementById('final-total-answered').textContent = gameState.totalAnswered;
+            document.getElementById('final-correct').textContent = gameState.correctAnswers;
+            document.getElementById('final-wrong').textContent = wrongAnswers;
+            document.getElementById('final-badge').textContent = getPerformanceBadge(gameState.score, accuracy, gameState.bestCombo);
+            renderPersonalBestSummaryFromLeaderboard(null);
+            updateSessionUniqueProgressUI();
+
+            // Simpan Skor secara Global ke Firebase
+            saveToCloudDb(); 
+
+            switchScreen('end');
+        }
+    </script>
+</body>
+</html>
