@@ -68,6 +68,9 @@
                 background-size: auto;
             }
         }
+        .game-surface {
+            background: linear-gradient(180deg, #f8fbff 0%, #f7fffb 48%, #f8fafc 100%);
+        }
         .floating-feedback {
             position: absolute;
             top: 40%;
@@ -204,7 +207,7 @@
     </div>
 
     <!-- GAME SCREEN -->
-    <div id="game-screen" class="screen flex-col w-full h-[100dvh] bg-gray-50 relative overflow-y-auto overflow-x-hidden scroll-smooth">
+    <div id="game-screen" class="screen flex-col w-full h-[100dvh] game-surface relative overflow-y-auto overflow-x-hidden scroll-smooth">
         <div class="w-full flex justify-between items-center p-2.5 md:p-4 bg-white shadow-sm min-h-16 shrink-0">
             <div class="flex flex-col">
                 <p class="text-[0.65rem] md:text-xs text-gray-500 font-bold uppercase" id="game-player-name">Player</p>
@@ -236,13 +239,13 @@
             </div>
         </div>
 
-        <div class="flex-grow flex flex-col items-center justify-start px-2 sm:px-4 pt-2 lg:pt-4 pb-1 relative overflow-hidden gap-2 sm:gap-3 lg:gap-4 min-h-0">
+        <div class="flex-grow flex flex-col items-center justify-start px-2 sm:px-4 pt-2 lg:pt-4 pb-1 relative overflow-hidden gap-2 sm:gap-3 lg:gap-3 min-h-0">
             <!-- Audio Context Hint -->
             <div id="combo-display" class="absolute top-[24%] left-1/2 transform -translate-x-1/2 text-3xl md:text-5xl font-black text-pktOrange opacity-0 transition-all duration-300 z-50 pointer-events-none filter drop-shadow-xl scale-50 whitespace-nowrap leading-none tracking-tight" style="text-shadow: 2px 2px 0px white, -2px -2px 0px white, 2px -2px 0px white, -2px 2px 0px white, 0 4px 6px rgba(0,0,0,0.2);"></div>
 
             <!-- Mini Leaderboard (Top 5) -->
             <div class="w-full max-w-md lg:max-w-lg bg-white/90 backdrop-blur rounded-2xl p-1.5 sm:p-2 shadow-md border border-blue-100 z-0">
-                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-0.5 mb-0.5">
+                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-0.5 mb-1">
                     <span class="font-bold text-gray-700 text-[0.6rem] sm:text-xs uppercase tracking-wider leading-none">Top 5 Leaderboard</span>
                     <span class="text-pktBlue font-bold text-[0.6rem] sm:text-xs uppercase leading-none">Skor Anda: <span id="ingame-score">0</span></span>
                 </div>
@@ -252,8 +255,8 @@
             </div>
 
             <!-- Trash Item Display -->
-            <div id="trash-container" class="trash-item bg-white border-2 border-gray-200 p-3 sm:p-4 md:p-6 rounded-[2rem] shadow-xl flex flex-col items-center justify-center text-center w-full max-w-[min(88vw,22rem)] lg:max-w-[20rem] md:max-w-sm h-auto min-h-[140px] sm:min-h-[170px] max-h-[220px] sm:max-h-[280px] cursor-pointer z-10 mt-1 lg:mt-2">
-                <div id="trash-emoji" class="text-4xl sm:text-5xl md:text-7xl mb-1 sm:mb-2 drop-shadow-md transition-transform transform hover:scale-110">🗑️</div>
+            <div id="trash-container" class="trash-item bg-white border-2 border-gray-200 p-3 sm:p-4 md:p-6 rounded-[2rem] shadow-xl flex flex-col items-center justify-center text-center w-full max-w-[min(88vw,22rem)] lg:max-w-[20rem] md:max-w-sm h-auto min-h-[140px] sm:min-h-[170px] max-h-[220px] sm:max-h-[280px] cursor-pointer z-10 mt-1 lg:mt-1.5">
+                <div id="trash-emoji" class="text-4xl sm:text-5xl md:text-7xl mb-1 sm:mb-1.5 drop-shadow-md transition-transform transform hover:scale-110">🗑️</div>
                 <h2 id="trash-name" class="text-[0.9rem] sm:text-base md:text-3xl font-bold text-gray-900 break-words drop-shadow-md leading-tight max-w-full px-1">Sampah</h2>
             </div>
 
@@ -267,7 +270,7 @@
             </div>
         </div>
 
-        <div class="h-[21vh] sm:h-[22vh] min-h-[112px] md:h-1/4 w-full bg-white/90 backdrop-blur pb-2 pt-2 px-2 md:px-4 grid grid-cols-3 gap-2 md:gap-6 rounded-t-[2.5rem] shadow-[0_-10px_40px_rgba(0,0,0,0.1)] border-t border-gray-100 relative z-20">
+        <div class="h-[22vh] sm:h-[22vh] min-h-[118px] md:h-1/4 w-full bg-white/88 backdrop-blur pb-2 pt-2 px-2 md:px-4 grid grid-cols-3 gap-2 md:gap-6 rounded-t-[2.5rem] shadow-[0_-10px_40px_rgba(0,0,0,0.1)] border-t border-gray-100 relative z-20">
             <!-- SISA MAKANAN -->
             <div onclick="checkBin('SISA MAKANAN')" class="bin flex flex-col justify-between items-center bg-gradient-to-t from-green-200 to-green-50 rounded-xl md:rounded-2xl cursor-pointer border-b-[6px] border-pktGreen relative overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-2 active:scale-95 group pt-1.5">
                 <span class="text-3xl sm:text-4xl md:text-5xl mt-0.5 opacity-55 group-hover:scale-110 transition-transform">🍏</span>
