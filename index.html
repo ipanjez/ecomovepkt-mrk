@@ -90,7 +90,7 @@
         }
     </style>
 </head>
-<body class="bg-gray-100 min-h-[100dvh] w-screen text-gray-800 flex flex-col font-sans select-none bg-pattern">
+<body class="bg-gray-100 min-h-[100dvh] w-screen text-gray-800 flex flex-col font-sans select-none bg-pattern overflow-y-auto overflow-x-hidden">
 
     <!-- START SCREEN -->
     <div id="start-screen" class="screen active flex-col items-center justify-start w-full h-full pt-4 pb-3 px-4 relative z-10 bg-gradient-to-br from-blue-100 via-[#e0f7fa] to-green-100 overflow-y-auto no-scrollbar">
@@ -204,7 +204,7 @@
     </div>
 
     <!-- GAME SCREEN -->
-    <div id="game-screen" class="screen flex-col w-full h-[100dvh] bg-gray-50 relative overflow-hidden">
+    <div id="game-screen" class="screen flex-col w-full h-[100dvh] bg-gray-50 relative overflow-y-auto overflow-x-hidden scroll-smooth">
         <div class="w-full flex justify-between items-center p-2.5 md:p-4 bg-white shadow-sm min-h-16 shrink-0">
             <div class="flex flex-col">
                 <p class="text-[0.65rem] md:text-xs text-gray-500 font-bold uppercase" id="game-player-name">Player</p>
