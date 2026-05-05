@@ -657,12 +657,22 @@
         const screens = { start: document.getElementById('start-screen'), game: document.getElementById('game-screen'), end: document.getElementById('end-screen') };
         const uis = { playerNameInput: document.getElementById('player-name'), startError: document.getElementById('start-error'), scoreDisp: document.getElementById('score-display'), timerDisp: document.getElementById('timer-text'), gamePlayerName: document.getElementById('game-player-name'), gameDifficulty: document.getElementById('game-difficulty'), trashName: document.getElementById('trash-name'), trashContainer: document.getElementById('trash-container') };
 
-        function getPerformanceBadge(score, accuracy, bestCombo) {
-            if (score >= 700 && accuracy >= 90) return 'LEGEND ♛';
-            if (score >= 500 && accuracy >= 80) return 'MASTER ⚡';
-            if (score >= 300 && accuracy >= 70) return 'EXPLORER 🌱';
-            if (bestCombo >= 3) return 'COMBO HUNTER 🔥';
-            return 'RISING PLAYER 🚀';
+        function getPerformanceBadge(score, accuracy, bestCombo, prevBest) {
+            // New badge hierarchy with rarer badges and no generic 'RISING PLAYER' default
+            // If we have a previous best and this session improved, award Rising Star (rare)
+            if (typeof prevBest === 'number' && prevBest > 0 && score > prevBest) {
+                // require at least +1 or a relative improvement for Rising to be meaningful
+                if (score - prevBest >= 1) return 'RISING STAR ✨';
+            }
+            if (score >= 900 && accuracy >= 95) return 'MYTHIC ✪';
+            if (score >= 750 && accuracy >= 92) return 'LEGEND ♛';
+            if (score >= 600 && accuracy >= 85) return 'MASTER ⚡';
+            if (bestCombo >= 4) return 'COMBO HUNTER 🔥';
+            if (score >= 400 && accuracy >= 75) return 'EXPLORER 🌱';
+            if (score >= 250 && accuracy >= 70 && bestCombo >= 2) return 'ECO CHAMPION 🌿';
+            if (accuracy >= 92 && score >= 220) return 'SUSTAINER ♻️';
+            // Less common achievement based on improvement (Rising) is handled when prevBest is provided
+            return 'NOVICE 🟢';
         }
 
         function renderPersonalBestSummaryFromLeaderboard(leaderboardRecord) {
@@ -784,6 +794,12 @@
             arrData.sort((a, b) => b.score - a.score);
             // Cache latest leaderboard data so other parts of the app can re-render immediately
             window.__latestLeaderboardData = arrData;
+            // Cache our saved record (if any) and expose previous best to gameState
+            try {
+                window.__mySavedRecord = (gameState.currentSessionId) ? arrData.find(r => r.id === gameState.currentSessionId) || null : null;
+                gameState.previousBest = window.__mySavedRecord ? (window.__mySavedRecord.score || 0) : 0;
+            } catch(e) { window.__mySavedRecord = null; gameState.previousBest = 0; }
+
             renderLeaderboardTable(arrData.slice(0, 10), arrData); // Tampilkan 10 terbaik di table, semua di leaderboard horizontal
         }, (error) => {
             document.getElementById('db-status').textContent = 'Gagal Konek ke DB';
@@ -808,6 +824,8 @@
                 // Identify nearest rival ABOVE player's current score (smallest positive delta)
                 let nearestRivalDisplay = null;
                 let minDelta = Infinity;
+                // track previous nearest rival to trigger small celebration when a closer target appears
+                if (typeof window.__prevNearestRivalId === 'undefined') window.__prevNearestRivalId = null;
                 for (let i = 0; i < fullLeaderboardData.length; i++) {
                     const candidate = fullLeaderboardData[i];
                     if (!candidate) continue;
@@ -821,6 +839,15 @@
                         nearestRival = candidate;
                     }
                 }
+                // If nearest rival changed to a different player and we're still chasing, show small confetti
+                try {
+                    if (nearestRivalDisplay && window.__prevNearestRivalId !== nearestRivalDisplay.id) {
+                        if (playerScore < nearestRivalDisplay.score) {
+                            try { launchConfettiSmall(); } catch(e) {}
+                        }
+                        window.__prevNearestRivalId = nearestRivalDisplay.id;
+                    }
+                } catch(e) {}
                 
                 // Display only the nearest rival (Dynamic/Proximity Scoring)
                 if (nearestRivalDisplay) {
@@ -1047,6 +1074,36 @@
                     root.appendChild(frag);
                 }
 
+                // Smaller confetti for minor celebrations (new rival, close approach)
+                function launchConfettiSmall() {
+                    const colors = ['#FFD93D', '#6BCB77', '#4D96FF'];
+                    const count = 12;
+                    const root = document.getElementById('game-screen');
+                    const frag = document.createDocumentFragment();
+                    for (let i = 0; i < count; i++) {
+                        const el = document.createElement('div');
+                        el.style.position = 'absolute';
+                        el.style.left = (50 + (Math.random()-0.5)*40) + '%';
+                        el.style.top = (28 + (Math.random()-0.5)*8) + '%';
+                        el.style.width = (5 + Math.random()*6) + 'px';
+                        el.style.height = (6 + Math.random()*8) + 'px';
+                        el.style.background = colors[Math.floor(Math.random()*colors.length)];
+                        el.style.opacity = '0.95';
+                        el.style.transform = `translateY(0) rotate(${Math.random()*360}deg)`;
+                        el.style.borderRadius = '2px';
+                        el.style.zIndex = 90;
+                        el.className = 'confetti-piece-small';
+                        frag.appendChild(el);
+                        const dur = 700 + Math.random()*500;
+                        el.animate([
+                            { transform: `translateY(0) rotate(${Math.random()*360}deg)`, opacity: 1 },
+                            { transform: `translateY(${120 + Math.random()*160}px) rotate(${Math.random()*720}deg)`, opacity: 0 }
+                        ], { duration: dur, easing: 'cubic-bezier(.2,.7,.2,1)' });
+                        setTimeout(() => el.remove(), dur + 50);
+                    }
+                    root.appendChild(frag);
+                }
+
 
 
         // ==========================================
@@ -1260,7 +1317,7 @@
             document.getElementById('final-total-answered').textContent = gameState.totalAnswered;
             document.getElementById('final-correct').textContent = gameState.correctAnswers;
             document.getElementById('final-wrong').textContent = wrongAnswers;
-            document.getElementById('final-badge').textContent = getPerformanceBadge(gameState.score, accuracy, gameState.bestCombo);
+            document.getElementById('final-badge').textContent = getPerformanceBadge(gameState.score, accuracy, gameState.bestCombo, gameState.previousBest || 0);
             renderPersonalBestSummaryFromLeaderboard(null);
             updateSessionUniqueProgressUI();
 
