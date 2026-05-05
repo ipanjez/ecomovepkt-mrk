@@ -542,6 +542,7 @@
                 <div class="flex justify-between items-start mb-3 border-b-2 border-gray-200 pb-2">
                     <div class="flex items-center gap-3">
                         <h3 class="text-sm md:text-lg font-bold text-gray-700">Leaderboard</h3>
+                        <div class="text-xs text-gray-500 font-semibold ml-2">Max: Skor 1300 | Akurasi 100% | Combo 25x | Percobaan 100x</div>
                         <button id="export-pdf-btn" title="Export PDF" onclick="exportLeaderboardPdf()" class="ml-2 p-1 rounded-md hover:bg-gray-100 transition" style="border:1px solid transparent">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M19 21H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h3V3h8v2h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2z" stroke="#0f172a" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/><path d="M17 17H7V7h10v10z" stroke="#0f172a" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/></svg>
                         </button>
@@ -1698,7 +1699,10 @@
                     }
             }
             
+            // Build current ranks map for this render
+            const currentRanks = {};
             filteredLeaderboardData.forEach((run, index) => {
+                if (run && run.id) currentRanks[run.id] = index;
                 const tr = document.createElement('tr');
                 tr.className = index % 2 === 0 ? 'bg-white' : 'bg-blue-50/30';
                 
@@ -1707,13 +1711,23 @@
                 else if (index === 1) rankStyle = 'font-bold text-gray-500 text-base';
                 else if (index === 2) rankStyle = 'font-bold text-orange-700 text-base';
 
+                // Determine position change indicator (▲ up, ▼ down, — same, ★ new)
+                if (typeof window.__prevLeaderboardRanks === 'undefined') window.__prevLeaderboardRanks = {};
+                const prevIndex = (run && run.id) ? window.__prevLeaderboardRanks[run.id] : undefined;
+                let posChange = '—';
+                let posClass = 'text-gray-400';
+                if (typeof prevIndex === 'undefined') { posChange = '★'; posClass = 'text-blue-500'; }
+                else if (index < prevIndex) { posChange = '▲'; posClass = 'text-green-600'; }
+                else if (index > prevIndex) { posChange = '▼'; posClass = 'text-red-600'; }
+
                 // Highlight skor pemain saat ini (berdasarkan Session ID)
                 const isCurrentPlayer = (run.id === gameState.currentSessionId);
                 if(isCurrentPlayer) tr.classList.add('bg-blue-50', 'border-l-4', 'border-pktBlue');
                 const badgeData = getFullBadgeData(run.score || 0, run.accuracy || 0, run.bestCombo || 0, 0, run.correct || 0, run.wrong || 0, run.total || 0, run.categoryStats || {}, index + 1, run.attempts || 0);
-
                 tr.innerHTML = `
-                    <td class="px-2 py-2 text-center ${rankStyle}">${index + 1}</td>
+                    <td class="px-2 py-2 text-center ${rankStyle}">
+                        <div class="flex items-center justify-center gap-2"><span>${index + 1}</span><span class="text-[0.65rem] font-bold ${posClass}">${posChange}</span></div>
+                    </td>
                     <td class="px-2 py-2 font-semibold ${isCurrentPlayer ? 'text-pktBlue' : 'text-gray-800'} break-all leading-tight">
                         <div class="flex flex-col gap-0.5">
                             <div class="flex flex-wrap items-center gap-2">
@@ -1733,6 +1747,9 @@
                 `;
                 tbody.appendChild(tr);
             });
+
+            // persist current ranks for next render comparison
+            try { window.__prevLeaderboardRanks = currentRanks; } catch(e) { window.__prevLeaderboardRanks = {}; }
 
             const previewModal = document.getElementById('leaderboard-preview-modal');
             if (previewModal && !previewModal.classList.contains('hidden')) {
@@ -1857,11 +1874,19 @@
 
             body.innerHTML = '';
             snapshot.forEach((run, index) => {
+                // determine pos change using last saved ranks
+                if (typeof window.__prevLeaderboardRanks === 'undefined') window.__prevLeaderboardRanks = {};
+                const prevIdx = (run && run.id) ? window.__prevLeaderboardRanks[run.id] : undefined;
+                let pChange = '—';
+                let pClass = 'text-gray-400';
+                if (typeof prevIdx === 'undefined') { pChange = '★'; pClass = 'text-blue-500'; }
+                else if (index < prevIdx) { pChange = '▲'; pClass = 'text-green-600'; }
+                else if (index > prevIdx) { pChange = '▼'; pClass = 'text-red-600'; }
                 const tr = document.createElement('tr');
                 tr.className = index % 2 === 0 ? 'bg-white' : 'bg-blue-50/30';
                     const badgeData = getFullBadgeData(run.score || 0, run.accuracy || 0, run.bestCombo || 0, 0, run.correct || 0, run.wrong || 0, run.total || 0, run.categoryStats || {}, index + 1, run.attempts || 0);
                 tr.innerHTML = `
-                    <td class="px-2 py-2 text-center font-normal">${index + 1}</td>
+                    <td class="px-2 py-2 text-center font-normal"><div class="flex items-center justify-center gap-2"><span>${index + 1}</span><span class="text-[0.65rem] font-bold ${pClass}">${pChange}</span></div></td>
                     <td class="px-2 py-2 font-semibold text-gray-800 break-all leading-tight">
                         <div class="flex flex-col gap-0.5">
                             <div class="flex flex-wrap items-center gap-2">
