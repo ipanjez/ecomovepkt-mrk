@@ -188,6 +188,13 @@
                     ✨ Pantang Menyerah Pilah Sampah! ✨
                 </div>
             </div>
+
+            <div id="secondary-info" class="bg-white rounded-xl p-3 mt-3 border border-gray-100 shadow-sm text-left" style="display:none">
+                <p class="text-sm font-bold text-gray-700 mb-1">Info Badge Bonus & Tag</p>
+                <div id="secondary-current" class="text-[0.9rem] text-gray-800 mb-1">Secondary: -</div>
+                <div id="secondary-next" class="text-[0.85rem] text-gray-600 mb-1">Selanjutnya: -</div>
+                <div id="missing-tags" class="text-[0.85rem] text-gray-600">Tag belum diperoleh: -</div>
+            </div>
             
             <div class="p-6 md:p-8 overflow-y-auto no-scrollbar">
                 <input type="text" id="player-name" placeholder="Masukkan Nama Pemain..." class="w-full px-5 py-4 bg-gray-50 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-pktBlue focus:bg-white mb-6 transition shadow-inner font-semibold text-center text-lg" autocomplete="off">
@@ -2375,8 +2382,42 @@
             document.getElementById('final-wrong').textContent = wrongAnswers;
             const finalBadgeData = getFullBadgeData(gameState.score, accuracy, gameState.bestCombo, gameState.previousBest || 0, gameState.correctAnswers || 0, wrongAnswers || 0, gameState.totalAnswered || 0, gameState.categoryStats, null, 1);
             const finalBadgeEl = document.getElementById('final-badge');
-            finalBadgeEl.textContent = finalBadgeData.display;
+            finalBadgeEl.textContent = formatBadgeDisplay(finalBadgeData);
             finalBadgeEl.className = 'inline-flex items-center rounded-full px-3 py-1.5 text-sm md:text-base font-bold ' + getBadgeStyleClass(finalBadgeData.primary);
+            // Secondary badge info + missing tags
+            try {
+                const secInfo = document.getElementById('secondary-info');
+                const secCurrentEl = document.getElementById('secondary-current');
+                const secNextEl = document.getElementById('secondary-next');
+                const missingTagsEl = document.getElementById('missing-tags');
+
+                const secondaryOrder = ['Debut Top 10', 'Versatile', 'Rising Star'];
+                const obtainedSecondary = finalBadgeData.secondary || null;
+                let nextSecondary = 'Tidak ada';
+                if (!obtainedSecondary) nextSecondary = secondaryOrder[0];
+                else {
+                    const i = secondaryOrder.indexOf(obtainedSecondary);
+                    if (i >= 0 && i < secondaryOrder.length - 1) nextSecondary = secondaryOrder[i+1];
+                    else nextSecondary = 'Semua secondary badge sudah tercapai';
+                }
+
+                // All possible tags
+                const allTags = ['Residu Expert','Sisa Makanan Expert','Layak Jual Expert','Combo Pro','Grinder','God Aim','Persistence','Performer'];
+                const obtainedTags = Array.isArray(finalBadgeData.tags) ? finalBadgeData.tags : [];
+                const missingTags = allTags.filter(t => !obtainedTags.includes(t));
+
+                secCurrentEl.textContent = `Secondary yang diperoleh saat ini: ${obtainedSecondary || 'Tidak ada'}`;
+                // Provide brief guidance on next secondary
+                let nextDesc = '';
+                if (nextSecondary === 'Debut Top 10') nextDesc = 'Run pertama & finish di Top 10.';
+                else if (nextSecondary === 'Versatile') nextDesc = 'Akurasi seimbang tiap kategori, minimal 70% dan perbedaan antar kategori ≤15%.';
+                else if (nextSecondary === 'Rising Star') nextDesc = 'Skor ≥ (prevBest + 75) dan komposit ≥45.';
+                else nextDesc = nextSecondary;
+                secNextEl.textContent = `Selanjutnya: ${nextSecondary} — ${nextDesc}`;
+
+                missingTagsEl.innerHTML = 'Tag belum diperoleh: ' + (missingTags.length ? missingTags.map(t => `<span class="inline-block bg-gray-100 px-2 py-1 rounded-full text-[0.75rem] mr-2 mb-1">${t}</span>`).join('') : 'Tidak ada — kamu sudah punya semua tag');
+                if (secInfo) secInfo.style.display = 'block';
+            } catch (e) { console.warn('Could not render secondary info', e); }
             renderPersonalBestSummaryFromLeaderboard(null);
             updateSessionUniqueProgressUI();
 
