@@ -782,6 +782,8 @@
 
             // Urutkan berdasarkan skor tertinggi (DESC)
             arrData.sort((a, b) => b.score - a.score);
+            // Cache latest leaderboard data so other parts of the app can re-render immediately
+            window.__latestLeaderboardData = arrData;
             renderLeaderboardTable(arrData.slice(0, 10), arrData); // Tampilkan 10 terbaik di table, semua di leaderboard horizontal
         }, (error) => {
             document.getElementById('db-status').textContent = 'Gagal Konek ke DB';
@@ -1118,13 +1120,24 @@
         function updateScoreUI() {
             uis.scoreDisp.textContent = gameState.score;
             if(document.getElementById('ingame-score')) document.getElementById('ingame-score').textContent = gameState.score;
+            // Re-render in-game leaderboard using latest cached DB snapshot so rival delta updates live
+            try {
+                if (window.__latestLeaderboardData && Array.isArray(window.__latestLeaderboardData)) {
+                    renderLeaderboardTable(window.__latestLeaderboardData.slice(0,10), window.__latestLeaderboardData);
+                }
+            } catch(e) { /* ignore render errors */ }
             
             // Proximity Scoring: Check if we've reached the nearest rival above us
             if (nearestRival && !nearestRivalReached && gameState.score >= nearestRival.score) {
                 nearestRivalReached = true;
                 showFeedback('Rival Terlampaui! 🎉 ' + nearestRival.name, 'text-green-500');
                 try { launchConfetti(); } catch(e) {}
-                // The leaderboard will re-render on next Firebase update to find the next nearest rival
+                // Immediately re-evaluate to find the next nearest rival from cached data
+                try {
+                    if (window.__latestLeaderboardData && Array.isArray(window.__latestLeaderboardData)) {
+                        renderLeaderboardTable(window.__latestLeaderboardData.slice(0,10), window.__latestLeaderboardData);
+                    }
+                } catch(e) {}
             }
         }
 
