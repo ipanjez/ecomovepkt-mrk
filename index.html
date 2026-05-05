@@ -581,6 +581,10 @@
         let selectedDiffObj = null;
         // Track last rendered in-game progress percent for animation triggers
         let lastInGameProgress = 0;
+        // Target challenge state (player id & score)
+        gameState.targetPlayerId = null;
+        gameState.targetScore = null;
+        gameState.targetReached = false;
 
         function selectDifficulty(diffName, time, btnEl) {
             selectedDiffObj = { name: diffName, time: time };
@@ -780,9 +784,12 @@
                 }
 
                 // Find previous lower bound (largest score <= playerScore) or 0
-                let prevLower = { score: 0, name: 'Anda' };
-                for (let i = fullLeaderboardData.length - 1; i >= 0; i--) {
-                    if (fullLeaderboardData[i].score <= playerScore) { prevLower = fullLeaderboardData[i]; break; }
+                let prevLower = { score: 0, name: 'Terendah' };
+                for (let i = 0; i < fullLeaderboardData.length; i++) {
+                    if (fullLeaderboardData[i].score <= playerScore) {
+                        // since list is sorted DESC, keep updating until the last one <= playerScore
+                        prevLower = fullLeaderboardData[i];
+                    }
                 }
 
                 // Progress calculation
@@ -832,6 +839,17 @@
                     });
                 }
                 // make chips clickable to view player detail
+                // highlight targeted chip when set
+                if (gameState.targetPlayerId) {
+                    Array.from(chips.children).forEach((chip, idx) => {
+                        const r = top5[idx];
+                        if (!r) return;
+                        if (r.id === gameState.targetPlayerId) {
+                            chip.classList.add('ring-2', 'ring-pktBlue', 'scale-[1.02]');
+                        }
+                    });
+                }
+
                 inGameLb.appendChild(chips);
                 Array.from(chips.children).forEach((chip, idx) => {
                     const run = top5[idx];
@@ -959,13 +977,27 @@
                     <div class="meta">Akurasi: <strong>${record.accuracy || 0}%</strong> &nbsp; • &nbsp; Dijawab: <strong>${record.total || 0}</strong></div>
                     <div class="meta">Level: <strong>${record.difficulty || '-'}</strong> &nbsp; • &nbsp; Percobaan: <strong>${record.attempts || 1}x</strong></div>
                     <div class="meta">Waktu: <strong>${record.timestamp ? new Date(record.timestamp).toLocaleString() : '-'}</strong></div>
+                    <div style="margin-top:12px; display:flex; gap:8px; align-items:center;">
+                        <button id="challenge-btn" class="bg-pktBlue text-white px-3 py-2 rounded-md font-bold">Tantang</button>
+                        <button id="close-info-btn" class="bg-gray-100 px-3 py-2 rounded-md">Tutup</button>
+                    </div>
                     <div style="margin-top:12px; color:#334155;">Klik di luar kotak untuk menutup.</div>
                 </div>
             `;
 
             // close handlers
             modal.querySelector('.close-btn').addEventListener('click', () => modal.remove());
+            modal.querySelector('#close-info-btn').addEventListener('click', () => modal.remove());
             modal.addEventListener('click', (ev) => { if (ev.target === modal) modal.remove(); });
+
+            // Challenge button: set target to this player
+            const challengeBtn = modal.querySelector('#challenge-btn');
+            if (challengeBtn) {
+                challengeBtn.addEventListener('click', () => {
+                    setChallengeTarget(record);
+                    modal.remove();
+                });
+            }
 
             document.body.appendChild(modal);
         }
@@ -984,6 +1016,55 @@
         }
 
         function escapeHtml(s) { return (s+'').replace(/[&<>"']/g, function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[m]; }); }
+
+                // Set the selected challenge target (highlight + store)
+                function setChallengeTarget(record) {
+                    if (!record || !record.id) return;
+                    gameState.targetPlayerId = record.id;
+                    gameState.targetScore = record.score || 0;
+                    gameState.targetReached = false;
+                    showFeedback('Target diset ke ' + record.name, 'text-pktBlue');
+
+                    // Refresh leaderboard rendering (read current DB snapshot and re-render)
+                    leaderboardRef.once('value').then(snapshot => {
+                        const data = snapshot.val();
+                        let arrData = [];
+                        if (data) for (let k in data) arrData.push({ id: k, ...data[k] });
+                        arrData.sort((a,b) => b.score - a.score);
+                        renderLeaderboardTable(arrData.slice(0,10), arrData);
+                    }).catch(() => {});
+                }
+
+                // Simple confetti effect (DOM-based, lightweight)
+                function launchConfetti() {
+                    const colors = ['#FF6B6B', '#FFD93D', '#6BCB77', '#4D96FF', '#C77DFF'];
+                    const count = 40;
+                    const root = document.getElementById('game-screen');
+                    const frag = document.createDocumentFragment();
+                    for (let i = 0; i < count; i++) {
+                        const el = document.createElement('div');
+                        el.style.position = 'absolute';
+                        el.style.left = (50 + (Math.random()-0.5)*60) + '%';
+                        el.style.top = (30 + (Math.random()-0.5)*10) + '%';
+                        el.style.width = (6 + Math.random()*10) + 'px';
+                        el.style.height = (8 + Math.random()*12) + 'px';
+                        el.style.background = colors[Math.floor(Math.random()*colors.length)];
+                        el.style.opacity = '0.95';
+                        el.style.transform = `translateY(0) rotate(${Math.random()*360}deg)`;
+                        el.style.borderRadius = '2px';
+                        el.style.zIndex = 90;
+                        el.className = 'confetti-piece';
+                        frag.appendChild(el);
+                        // animate
+                        const dur = 1200 + Math.random()*800;
+                        el.animate([
+                            { transform: `translateY(0) rotate(${Math.random()*360}deg)`, opacity: 1 },
+                            { transform: `translateY(${200 + Math.random()*300}px) rotate(${Math.random()*1080}deg)`, opacity: 0 }
+                        ], { duration: dur, easing: 'cubic-bezier(.2,.7,.2,1)' });
+                        setTimeout(() => el.remove(), dur + 50);
+                    }
+                    root.appendChild(frag);
+                }
 
         // ==========================================
         // 4. GAME ENGINE LOGIC
@@ -1049,6 +1130,14 @@
         function updateScoreUI() {
             uis.scoreDisp.textContent = gameState.score;
             if(document.getElementById('ingame-score')) document.getElementById('ingame-score').textContent = gameState.score;
+            // Check if a challenge target exists and whether we've reached it
+            if (gameState.targetScore && !gameState.targetReached && gameState.score >= gameState.targetScore) {
+                gameState.targetReached = true;
+                showFeedback('Target Tercapai! 🎉', 'text-green-500');
+                try { launchConfetti(); } catch(e) {}
+                // optional: clear target after reached
+                // gameState.targetPlayerId = null; gameState.targetScore = null;
+            }
         }
 
         function buildShuffledQuestionQueue() {
