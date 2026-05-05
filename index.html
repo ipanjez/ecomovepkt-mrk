@@ -242,18 +242,20 @@
                 <!-- Leaderboard -->
                 <div>
                     <h3 class="font-bold text-gray-900 mb-2 border-l-4 border-purple-500 pl-3 flex items-center gap-2">🏆 Leaderboard Global</h3>
-                    <p class="text-[0.85rem] md:text-sm leading-relaxed">Papan skor akan tercatat dan diperbarui secara <i>real-time</i> menembus berbagai <i>perangkat</i>! Sistem sangat pintar: ia otomatis melacak jika Anda bermain berulang kali menggunakan nama yang sama. Hanya <b>skor tertinggi</b> Anda yang akan tampil, dan sistem akan menyimpan riwayat seberapa banyak Anda telah <b>Bermain</b>.</p>
+                    <p class="text-[0.85rem] md:text-sm leading-relaxed">Papan skor akan tercatat dan diperbarui secara <i>real-time</i> menembus berbagai <i>device</i>! Sistem sangat pintar: ia otomatis melacak jika Anda bermain berulang kali menggunakan nama yang sama. Hanya <b>skor tertinggi</b> Anda yang akan tampil, dan sistem akan menyimpan riwayat seberapa banyak Anda telah memainkannya pada kolom <b>Coba</b>.</p>
                 </div>
 
                 <!-- Proximity Scoring Section -->
                 <div>
                     <h3 class="font-bold text-gray-900 mb-2 border-l-4 border-blue-400 pl-3 flex items-center gap-2">🏁 Dynamic Leaderboard (Proximity Scoring)</h3>
                     <p class="text-[0.85rem] md:text-sm leading-relaxed">Sistem <b>Proximity Scoring</b> atau <b>Delta Timing</b> secara otomatis melacak dan menampilkan hanya <b>pemain terdekat di atas skor Anda</b> yang harus Anda kejar. Ini seperti game balap — Anda tahu persis siapa yang perlu Anda lampaui dan seberapa jauh jarak Anda darinya.</p>
+                    <p class="text-[0.85rem] md:text-sm leading-relaxed">Di bagian atas layar, Anda akan melihat pertandingan satu-lawan-satu antara skor Anda dan skor rival terdekat (dengan delta/jarak yang ditampilkan). Ketika Anda mencapai atau melampaui skor rival, sistem secara otomatis memilih rival berikutnya dan merayakannya dengan <b>konfeti</b>! Jika Anda peringkat 1, layar akan menampilkan pesan kemenangan.</p>
+                </div>
 
                 <!-- Badge Rules -->
                 <div>
                     <h3 class="font-bold text-gray-900 mb-2 border-l-4 border-pktOrange pl-3 flex items-center gap-2">🏅 Badge Performa</h3>
-                        <p class="text-[0.85rem] md:text-sm leading-relaxed">Syarat badge (urut prioritas tertinggi ke bawah).</p>
+                        <p class="text-[0.85rem] md:text-sm leading-relaxed">Syarat badge (urut prioritas tertinggi ke bawah). Combo-first badges diberikan langsung untuk pencapaian streak (combo) tinggi.</p>
                         <ul class="list-disc pl-6 mt-2 text-[0.85rem] md:text-sm space-y-1">
                             <li><b>MYTHIC SUPREME ✪</b>: sangat langka — combo ≥30, skor ≥1500, akurasi ≥98%, benar ≥50.</li>
                             <li><b>MYTHIC ✪</b>: sangat langka — combo ≥22, skor ≥1000, akurasi ≥96%.</li>
@@ -282,6 +284,7 @@
                             <li><b>GREEN APPRENTICE 🌿</b>: skor ≥90 dan akurasi ≥60%.</li>
                             <li><b>NOVICE 🟢</b>: belum memenuhi kriteria badge lainnya.</li>
                         </ul>
+                        <p class="text-[0.8rem] md:text-sm text-gray-600 mt-2">Badge tampil di kolom <b>Badge</b> pada Leaderboard dan di ringkasan hasil akhir. Badge dapat dipicu oleh kombinasi metrik: skor, akurasi, combo (streak), jumlah benar, jumlah salah, dan total soal yang dijawab.</p>
                 </div>
             </div>
 
@@ -460,10 +463,6 @@
                         <p class="text-[0.6rem] md:text-xs text-gray-500 uppercase font-bold">Personal Best</p>
                         <p class="text-[0.72rem] md:text-sm font-bold text-gray-700" id="final-personal-best">Skor terbaik: -</p>
                     </div>
-                    <!-- NOTICE: tampil jika skor sekarang < personal best sehingga tidak akan menggantikan entri leaderboard -->
-                    <div id="final-personal-best-notice" class="col-span-2 md:col-span-4 hidden mt-3 text-sm text-yellow-800 bg-yellow-50 border border-yellow-100 rounded-lg px-3 py-2"> 
-                        <!-- akan diisi oleh JS -->
-                    </div>
                 </div>
             </div>
 
@@ -516,7 +515,7 @@
         </div>
         
         <div class="pt-2 pb-6 text-[0.65rem] md:text-xs text-gray-500 font-semibold text-center w-full">
-            Dikembangkan oleh Enviro Agent Farhan Jezando Wardana<br>Departemen Manajemen Risiko Korporasi PKT | 2026
+            Dikembangkan oleh Enviro Agent Farhan Jezando Wardana<br>Departemen Manajemen Risiko Korporasi
         </div>
     </div>
 
@@ -1964,20 +1963,6 @@
             document.getElementById('final-wrong').textContent = wrongAnswers;
             document.getElementById('final-badge').textContent = getPerformanceBadge(gameState.score, accuracy, gameState.bestCombo, gameState.previousBest || 0, gameState.correctAnswers || 0, wrongAnswers || 0, gameState.totalAnswered || 0);
             renderPersonalBestSummaryFromLeaderboard(null);
-
-            // Tampilkan keterangan apabila skor sesi saat ini masih di bawah personal best yang tersimpan
-            try {
-                const noticeEl = document.getElementById('final-personal-best-notice');
-                if (noticeEl) {
-                    const prev = (typeof gameState.previousBest === 'number') ? gameState.previousBest : 0;
-                    if (prev > 0 && gameState.score < prev) {
-                        noticeEl.textContent = 'Perhatian: Skor saat ini masih di bawah Personal Best Anda. Skor yang lebih rendah dengan nama yang sama tidak akan menggantikan entri di leaderboard.';
-                        noticeEl.classList.remove('hidden');
-                    } else {
-                        noticeEl.classList.add('hidden');
-                    }
-                }
-            } catch (e) { console.warn('Gagal menampilkan personal-best notice', e); }
             updateSessionUniqueProgressUI();
 
             // Simpan Skor secara Global ke Firebase
