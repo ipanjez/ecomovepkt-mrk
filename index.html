@@ -143,23 +143,31 @@
                 <div class="grid grid-cols-3 gap-2 mb-6" id="diff-selector">
                     <button type="button" onclick="selectDifficulty('Easy', 60, this)" class="diff-btn border-2 border-gray-200 bg-white rounded-xl p-3 hover:border-pktGreen hover:bg-green-50 transition flex flex-col items-center">
                         <span class="text-2xl mb-1">🐢</span>
-                        <span class="text-[0.65rem] md:text-xs font-bold text-gray-700 block">EASY</span>
+                        <span class="text-[0.65rem] md:text-xs font-bold text-gray-700 block">BUMI LESTARI</span>
+                        <span class="text-[0.58rem] text-gray-500">Santai</span>
                     </button>
                     <button type="button" onclick="selectDifficulty('Medium', 45, this)" class="diff-btn border-2 border-gray-200 bg-white rounded-xl p-3 hover:border-pktOrange hover:bg-orange-50 transition flex flex-col items-center">
                         <span class="text-2xl mb-1">🚶</span>
-                        <span class="text-[0.65rem] md:text-xs font-bold text-gray-700 block">MEDIUM</span>
+                        <span class="text-[0.65rem] md:text-xs font-bold text-gray-700 block">EKO AKTIF</span>
+                        <span class="text-[0.58rem] text-gray-500">Menengah</span>
                     </button>
                     <button type="button" onclick="selectDifficulty('Hard', 30, this)" class="diff-btn border-2 border-gray-200 bg-white rounded-xl p-3 hover:border-pktBlue hover:bg-blue-50 transition flex flex-col items-center">
                         <span class="text-2xl mb-1">🔥</span>
-                        <span class="text-[0.65rem] md:text-xs font-bold text-gray-700 block">HARD</span>
+                        <span class="text-[0.65rem] md:text-xs font-bold text-gray-700 block">PENJAGA BUMI</span>
+                        <span class="text-[0.58rem] text-gray-500">Cepat</span>
                     </button>
+                </div>
+                <div class="mb-6 grid grid-cols-1 gap-1.5 text-[0.68rem] md:text-xs font-semibold">
+                    <div class="bg-green-50 border border-green-200 rounded-lg px-3 py-2 text-green-800">Bumi Lestari: 60 detik, poin benar +10, cocok untuk pemula.</div>
+                    <div class="bg-orange-50 border border-orange-200 rounded-lg px-3 py-2 text-orange-800">Eko Aktif: 45 detik, poin benar +15, tempo lebih cepat.</div>
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg px-3 py-2 text-blue-800">Penjaga Bumi: 30 detik, poin benar +20, untuk respon paling cepat.</div>
                 </div>
                 
                 <!-- Tombol Mulai Permainan -->
                 <button onclick="attemptStart()" class="w-full bg-gradient-to-b from-pktOrange to-[#e06117] hover:from-[#e06117] hover:to-[#c65412] text-white font-black py-4 rounded-xl shadow-[0_8px_20px_rgba(243,112,33,0.3)] transition transform hover:-translate-y-1 active:scale-95 text-lg tracking-wide border-b-4 border-[#b84e11]">
                     🚀 MULAI PERMAINAN
                 </button>
-                <p id="start-error" class="text-red-500 mt-4 text-xs md:text-sm hidden font-bold bg-red-50 py-2 rounded-lg border border-red-100">Harap isi Nama & Pilih Level!</p>
+                <p id="start-error" class="text-red-500 mt-4 text-xs md:text-sm hidden font-bold bg-red-50 py-2 rounded-lg border border-red-100">Harap isi Nama & Pilih Tingkat!</p>
                 
                 <!-- Tombol Aturan Main -->
                 <button type="button" onclick="document.getElementById('how-to-play-modal').classList.remove('hidden')" class="mt-6 text-gray-500 hover:text-pktBlue font-bold transition block mx-auto text-sm bg-gray-100 hover:bg-blue-50 px-4 py-2 rounded-full border border-transparent hover:border-blue-100">
@@ -186,7 +194,7 @@
                 <div>
                     <h3 class="font-bold text-gray-900 mb-2 border-l-4 border-pktGreen pl-3 flex items-center gap-2">🎯 Cara Bermain</h3>
                     <ul class="list-decimal pl-6 space-y-1">
-                        <li>Masukkan nama Anda dan pilih tingkat kesulitan.</li>
+                        <li>Masukkan nama Anda dan pilih tingkat: <b>Bumi Lestari</b>, <b>Eko Aktif</b>, atau <b>Penjaga Bumi</b>.</li>
                         <li>Tebak kategori sampah yang muncul dengan mengklik ikon tong yang sesuai: <b>Sisa Makanan</b>, <b>Laku Jual</b>, atau <b>Residu</b>.</li>
                         <li class="text-red-600 font-bold">Hati-hati! Memilih tong yang salah akan memotong batas waktu Anda sebanyak 5 detik!</li>
                     </ul>
@@ -196,9 +204,9 @@
                 <div>
                     <h3 class="font-bold text-gray-900 mb-2 border-l-4 border-pktOrange pl-3 flex items-center gap-2">🔥 Kesulitan &amp; Poin Dasar</h3>
                     <div class="grid grid-cols-1 gap-2 text-xs md:text-sm">
-                        <div class="bg-green-50 p-3 rounded-lg border border-green-200"><b>Easy (🐢) :</b> Waktu 60 detik. Benar <b>+10</b> Poin.</div>
-                        <div class="bg-orange-50 p-3 rounded-lg border border-orange-200"><b>Medium (🚶) :</b> Waktu 45 detik. Benar <b>+15</b> Poin.</div>
-                        <div class="bg-blue-50 p-3 rounded-lg border border-blue-200"><b>Hard (🔥) :</b> Waktu 30 detik. Benar <b>+20</b> Poin.</div>
+                        <div class="bg-green-50 p-3 rounded-lg border border-green-200"><b>Bumi Lestari (🐢)</b> | Waktu: <b>60 detik</b> | Poin benar: <b>+10</b> | Tempo: santai.</div>
+                        <div class="bg-orange-50 p-3 rounded-lg border border-orange-200"><b>Eko Aktif (🚶)</b> | Waktu: <b>45 detik</b> | Poin benar: <b>+15</b> | Tempo: menengah.</div>
+                        <div class="bg-blue-50 p-3 rounded-lg border border-blue-200"><b>Penjaga Bumi (🔥)</b> | Waktu: <b>30 detik</b> | Poin benar: <b>+20</b> | Tempo: cepat.</div>
                     </div>
                 </div>
 
@@ -224,15 +232,21 @@
                 <!-- Badge Rules -->
                 <div>
                     <h3 class="font-bold text-gray-900 mb-2 border-l-4 border-pktOrange pl-3 flex items-center gap-2">🏅 Badge Performa</h3>
-                    <p class="text-[0.85rem] md:text-sm leading-relaxed">Badge performa sekarang lebih berjenjang dan beberapa bersifat <b>langka</b>. Tidak semua pemain bisa langsung mendapat badge tinggi.</p>
+                    <p class="text-[0.85rem] md:text-sm leading-relaxed">Syarat badge (urut prioritas tertinggi ke bawah):</p>
                     <ul class="list-disc pl-6 mt-2 text-[0.85rem] md:text-sm space-y-1">
-                        <li><b>MYTHIC ✪</b> / <b>GRANDMASTER 🧠</b> — Badge puncak dengan syarat sangat ketat (skor, akurasi, dan combo).</li>
-                        <li><b>LEGEND ♛</b> / <b>MASTER ⚡</b> — Untuk performa tinggi dengan akurasi stabil.</li>
-                        <li><b>PRECISION ACE 🎯</b> — Akurasi sangat tinggi (hampir sempurna).</li>
-                        <li><b>COMBO TITAN 🔥</b> — Fokus pada kemampuan menjaga combo panjang.</li>
-                        <li><b>EXPLORER 🌱</b> / <b>ECO CHAMPION 🌿</b> / <b>SUSTAINER ♻️</b> / <b>STEADY HAND 🛡️</b> — Tier menengah dengan kombinasi syarat berbeda.</li>
-                        <li><b>RISING STAR ✨</b> — Bukan default; hanya jika skor Anda naik signifikan dibanding best sebelumnya.</li>
-                        <li><b>GREEN APPRENTICE 🌿</b> / <b>NOVICE 🟢</b> — Tier awal untuk progres awal.</li>
+                        <li><b>MYTHIC ✪</b>: skor ≥1000, akurasi ≥96%, combo terbaik ≥5.</li>
+                        <li><b>GRANDMASTER 🧠</b>: skor ≥850, akurasi ≥92%, combo terbaik ≥4.</li>
+                        <li><b>LEGEND ♛</b>: skor ≥700, akurasi ≥90%.</li>
+                        <li><b>PRECISION ACE 🎯</b>: akurasi ≥97%, skor ≥450.</li>
+                        <li><b>MASTER ⚡</b>: skor ≥560, akurasi ≥84%.</li>
+                        <li><b>COMBO TITAN 🔥</b>: combo terbaik ≥5, skor ≥350.</li>
+                        <li><b>EXPLORER 🌱</b>: skor ≥420, akurasi ≥76%.</li>
+                        <li><b>ECO CHAMPION 🌿</b>: skor ≥280, akurasi ≥72%, combo terbaik ≥2.</li>
+                        <li><b>SUSTAINER ♻️</b>: akurasi ≥92%, skor ≥250.</li>
+                        <li><b>STEADY HAND 🛡️</b>: akurasi ≥85%, skor ≥180.</li>
+                        <li><b>RISING STAR ✨</b>: skor saat ini ≥ (personal best lama + 50), akurasi ≥75%.</li>
+                        <li><b>GREEN APPRENTICE 🌿</b>: skor ≥120, akurasi ≥65%.</li>
+                        <li><b>NOVICE 🟢</b>: selain kondisi di atas.</li>
                     </ul>
                     <p class="text-[0.8rem] md:text-sm text-gray-600 mt-2">Badge akan terlihat di kolom <b>Badge</b> pada Leaderboard dan juga ditampilkan di ringkasan hasil akhir.</p>
                 </div>
@@ -250,7 +264,7 @@
                 <p class="text-base md:text-lg font-bold text-pktBlue">Skor: <span id="score-display">0</span></p>
             </div>
             <div class="flex flex-col items-end gap-1">
-                <p class="text-[0.65rem] md:text-xs text-gray-500 font-bold uppercase"><span id="game-difficulty">Easy</span> Mode</p>
+                <p class="text-[0.65rem] md:text-xs text-gray-500 font-bold uppercase"><span id="game-difficulty">Bumi Lestari</span> Mode</p>
                 <p id="timer-text" class="text-lg md:text-xl font-bold text-pktOrange">00:00</p>
                 <div class="flex items-center gap-1.5">
                     <button id="pause-btn" type="button" onclick="togglePause()" class="text-[0.65rem] md:text-xs font-bold px-2 py-1 rounded-md bg-blue-50 text-pktBlue border border-blue-100 hover:bg-blue-100 transition">⏸ Pause</button>
@@ -659,6 +673,12 @@
         const screens = { start: document.getElementById('start-screen'), game: document.getElementById('game-screen'), end: document.getElementById('end-screen') };
         const uis = { playerNameInput: document.getElementById('player-name'), startError: document.getElementById('start-error'), scoreDisp: document.getElementById('score-display'), timerDisp: document.getElementById('timer-text'), gamePlayerName: document.getElementById('game-player-name'), gameDifficulty: document.getElementById('game-difficulty'), trashName: document.getElementById('trash-name'), trashContainer: document.getElementById('trash-container') };
 
+        function getDifficultyDisplayName(diff) {
+            if (diff === 'Hard') return 'Penjaga Bumi';
+            if (diff === 'Medium') return 'Eko Aktif';
+            return 'Bumi Lestari';
+        }
+
         function getPerformanceBadge(score, accuracy, bestCombo, prevBest) {
             // Rarer, multi-tier badge hierarchy
             if (score >= 1000 && accuracy >= 96 && bestCombo >= 5) return 'MYTHIC ✪';
@@ -966,7 +986,7 @@
                 tr.innerHTML = `
                     <td class="px-2 py-2 text-center ${rankStyle}">${index + 1}</td>
                     <td class="px-2 py-2 font-semibold ${isCurrentPlayer ? 'text-pktBlue' : 'text-gray-800'} break-all leading-tight">
-                        ${run.name} <br> <span class="md:hidden text-[0.6rem] ${run.difficulty === 'Hard' ? 'text-blue-500' : run.difficulty === 'Medium' ? 'text-orange-500' : 'text-green-500'}">${run.difficulty}</span>
+                        ${run.name} <br> <span class="md:hidden text-[0.6rem] ${run.difficulty === 'Hard' ? 'text-blue-500' : run.difficulty === 'Medium' ? 'text-orange-500' : 'text-green-500'}">${getDifficultyDisplayName(run.difficulty)}</span>
                     </td>
                     <td class="px-3 py-2 text-center"><span class="inline-block px-2 py-1 rounded-full text-[0.68rem] font-bold bg-gray-50 border border-gray-200 text-gray-700">${escapeHtml(badgeLabel)}</span></td>
                     <td class="px-2 py-2 text-center font-bold text-pktOrange">${run.score}</td>
@@ -975,7 +995,7 @@
                     </td>
                     <td class="px-2 py-2 text-center text-xs hidden md:table-cell">
                         <span class="${run.difficulty === 'Hard' ? 'text-blue-600' : run.difficulty === 'Medium' ? 'text-orange-600' : 'text-green-600'} font-bold">
-                            ${run.difficulty}
+                            ${getDifficultyDisplayName(run.difficulty)}
                         </span>
                     </td>
                     <td class="px-2 py-2 text-center text-[0.65rem] text-gray-500">${run.timestamp ? new Date(run.timestamp).toLocaleString('id-ID', {day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit', second:'2-digit'}) : '-'}</td>
@@ -1188,7 +1208,7 @@
             document.getElementById('streak-display').textContent = 'Best Combo: x0';
             renderPersonalBestSummaryFromLeaderboard(null);
 
-            uis.gamePlayerName.textContent = name; uis.gameDifficulty.textContent = diff;
+            uis.gamePlayerName.textContent = name; uis.gameDifficulty.textContent = getDifficultyDisplayName(diff);
             updateScoreUI();
             
             switchScreen('game');
