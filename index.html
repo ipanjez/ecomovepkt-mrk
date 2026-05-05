@@ -239,12 +239,12 @@
             </div>
         </div>
 
-        <div class="flex-grow flex flex-col items-center justify-center px-2 sm:px-4 pt-2 lg:pt-4 pb-3 relative overflow-hidden gap-3 sm:gap-3 lg:gap-4 min-h-0">
+        <div class="flex-grow flex flex-col items-center justify-center px-2 sm:px-4 pt-2 lg:pt-4 pb-3 relative overflow-visible gap-3 sm:gap-3 lg:gap-4 min-h-0">
             <!-- Audio Context Hint -->
             <div id="combo-display" class="absolute top-[24%] left-1/2 transform -translate-x-1/2 text-3xl md:text-5xl font-black text-pktOrange opacity-0 transition-all duration-300 z-50 pointer-events-none filter drop-shadow-xl scale-50 whitespace-nowrap leading-none tracking-tight" style="text-shadow: 2px 2px 0px white, -2px -2px 0px white, 2px -2px 0px white, -2px 2px 0px white, 0 4px 6px rgba(0,0,0,0.2);"></div>
 
             <!-- Mini Leaderboard (Top 5) -->
-            <div class="w-full max-w-md lg:max-w-lg bg-white/90 backdrop-blur rounded-2xl p-1.5 sm:p-2 shadow-md border border-blue-100 z-10 shrink-0">
+            <div class="w-full max-w-md lg:max-w-lg bg-white/90 backdrop-blur rounded-2xl p-1.5 sm:p-2 shadow-md border border-blue-100 relative z-40 shrink-0 mt-1">
                 <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-0.5 mb-1">
                     <span class="font-bold text-gray-700 text-[0.6rem] sm:text-xs uppercase tracking-wider leading-none">Top 5 Leaderboard</span>
                     <span class="text-pktBlue font-bold text-[0.6rem] sm:text-xs uppercase leading-none">Skor Anda: <span id="ingame-score">0</span></span>
