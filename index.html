@@ -1527,6 +1527,16 @@
             const tbody = document.getElementById('leaderboard-body');
             tbody.innerHTML = '';
             const rankDisplay = document.getElementById('final-rank');
+            // DEBUG: log leaderboard sizes and active filters to help diagnose empty end-screen
+            try {
+                console.debug('[LB] renderLeaderboardTable called', {
+                    leaderboardDataLength: Array.isArray(leaderboardData) ? leaderboardData.length : typeof leaderboardData,
+                    fullLeaderboardDataLength: Array.isArray(fullLeaderboardData) ? fullLeaderboardData.length : typeof fullLeaderboardData,
+                    leaderboardEndFilter: leaderboardEndFilter,
+                    leaderboardPreviewFilter: leaderboardPreviewFilter,
+                    currentSessionId: gameState.currentSessionId
+                });
+            } catch(e) {}
             const filteredLeaderboardData = filterLeaderboardByDifficulty(leaderboardData, leaderboardEndFilter);
             const filteredFullLeaderboardData = filterLeaderboardByDifficulty(fullLeaderboardData, leaderboardEndFilter);
             
