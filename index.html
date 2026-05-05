@@ -236,6 +236,7 @@
             </div>
         </div>
 
+        <!-- Top area: progress -->
         <div class="px-3 md:px-4 pt-1.5 shrink-0 relative z-50">
             <div class="w-full bg-white/90 border border-green-100 rounded-xl px-3 py-2 text-[0.65rem] sm:text-xs md:text-sm font-bold text-gray-600 flex items-center justify-between shadow-sm">
                 <span>Progres Soal Unik Sesi</span>
@@ -250,17 +251,19 @@
                     <span id="streak-display">Best Combo: x0</span>
                 </div>
             </div>
+        </div>
 
-            <!-- Relocated Mini Leaderboard (Top 5) - placed under progress to avoid overlap -->
-            <div class="w-full max-w-4xl mx-auto mt-3 bg-white/90 backdrop-blur rounded-2xl p-2 shadow-md border border-blue-100 relative z-30">
-                <div class="flex items-center justify-between mb-1">
-                    <span class="font-bold text-gray-700 text-sm uppercase tracking-wider">Top 5 Leaderboard</span>
+        <!-- Centered Top Leaderboard (moved to top of screen) -->
+        <div class="w-full flex justify-center mt-3 relative z-40">
+            <div class="w-full max-w-3xl bg-white/95 backdrop-blur rounded-2xl p-3 shadow-lg border border-blue-100 text-sm">
+                <div class="flex items-center justify-between mb-2">
+                    <div class="font-bold text-gray-700 uppercase tracking-wider">Top 5 Leaderboard</div>
                     <div class="flex items-center gap-3">
-                        <span class="text-pktBlue font-bold text-sm uppercase">Skor Anda: <span id="ingame-score">0</span></span>
+                        <div class="text-xs text-gray-600">Skor Anda: <span id="ingame-score">0</span></div>
                         <button id="clear-target-btn" class="text-xs bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded-md font-semibold">Batal Tantangan</button>
                     </div>
                 </div>
-                <div id="ingame-leaderboard" class="flex gap-2 overflow-x-auto pb-1 no-scrollbar text-sm">
+                <div id="ingame-leaderboard" class="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
                     <div class="text-gray-400 italic">Memuat Top 5...</div>
                 </div>
             </div>
@@ -845,24 +848,26 @@
                     progressPct = Math.max(0, Math.min(100, Math.round(((playerScore - low) / range) * 100)));
                 }
 
-                // Build progress UI
+                // Build simplified "Target Terdekat" UI (only next higher player's name and score)
                 const wrapper = document.createElement('div');
-                wrapper.className = 'w-full bg-white rounded-lg p-3 border shadow-sm';
+                wrapper.className = 'w-full bg-white rounded-lg p-3 border shadow-sm flex items-center justify-between';
                 wrapper.innerHTML = `
-                    <div class="flex items-center justify-between mb-2">
+                    <div class="flex flex-col">
                         <div class="text-sm font-bold text-gray-700">Target Terdekat</div>
-                        <div class="text-sm font-extrabold text-pktBlue">Skor Anda: ${playerScore}</div>
+                        <div class="text-xs text-gray-500">Pemain di atas skor real-time Anda</div>
                     </div>
-                    <div class="w-full bg-gray-100 rounded-full h-3 overflow-hidden mb-2">
-                        <div class="h-full bg-gradient-to-r from-pktGreen via-yellow-400 to-pktOrange" style="width: ${progressPct}%; transition: width 300ms;"></div>
-                    </div>
-                    <div class="flex items-center justify-between text-[0.78rem] text-gray-600">
-                        <div>${prevLower.name || 'Terendah'}: ${prevLower.score || 0}</div>
-                        <div>${nextHigher ? `#${nextHigherIdx+1} ${nextHigher.name}: ${nextHigher.score}` : 'Anda di Peringkat 1'} </div>
+                    <div class="text-right">
+                        ${nextHigher ? `<div class="text-sm font-extrabold text-pktBlue">${escapeHtml(nextHigher.name)}</div><div class="text-xs text-gray-600">${nextHigher.score}</div>` : `<div class="text-sm font-extrabold text-pktBlue">Anda Peringkat 1</div>`}
                     </div>
                 `;
 
                 inGameLb.appendChild(wrapper);
+
+                // If there is a nextHigher player, make that area clickable to view details and challenge
+                if (nextHigher) {
+                    wrapper.style.cursor = 'pointer';
+                    wrapper.addEventListener('click', (ev) => { ev.stopPropagation(); showPlayerDetail(nextHigher); });
+                }
 
                 // Also render compact top5 chips below progress for context
                 const chips = document.createElement('div');
