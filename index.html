@@ -1736,9 +1736,13 @@
                             correct: gameState.correctAnswers,
                             wrong: wrongCalc,
                             accuracy: accuracyCalc,
-                            bestCombo: gameState.bestCombo || 0
-                            ,
+                            bestCombo: gameState.bestCombo || 0,
                             categoryStats: gameState.categoryStats
+                        }).then(() => {
+                            // After write completes, try render leaderboard with latest cached data
+                            if (window.__latestLeaderboardData && Array.isArray(window.__latestLeaderboardData)) {
+                                renderLeaderboardTable(window.__latestLeaderboardData, window.__latestLeaderboardData);
+                            }
                         }).catch(err => {
                             console.error("Gagal simpan ke DB", err);
                         });
@@ -1752,7 +1756,13 @@
                         if (gameState.categoryStats) {
                             updates.categoryStats = gameState.categoryStats;
                         }
-                        userRef.update(updates);
+                        userRef.update(updates).then(() => {
+                            if (window.__latestLeaderboardData && Array.isArray(window.__latestLeaderboardData)) {
+                                renderLeaderboardTable(window.__latestLeaderboardData, window.__latestLeaderboardData);
+                            }
+                        }).catch(err => {
+                            console.error("Gagal update DB", err);
+                        });
                     }
                 });
             }
@@ -2164,6 +2174,17 @@
             if (window.__latestLeaderboardData && Array.isArray(window.__latestLeaderboardData)) {
                 renderLeaderboardTable(window.__latestLeaderboardData, window.__latestLeaderboardData);
             }
+            // Sometimes the DB listener or cache updates slightly later; retry a couple times
+            setTimeout(() => {
+                if (window.__latestLeaderboardData && Array.isArray(window.__latestLeaderboardData)) {
+                    renderLeaderboardTable(window.__latestLeaderboardData, window.__latestLeaderboardData);
+                }
+            }, 600);
+            setTimeout(() => {
+                if (window.__latestLeaderboardData && Array.isArray(window.__latestLeaderboardData)) {
+                    renderLeaderboardTable(window.__latestLeaderboardData, window.__latestLeaderboardData);
+                }
+            }, 1500);
         }
     </script>
 </body>
