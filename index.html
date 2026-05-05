@@ -805,18 +805,20 @@
                 const ingameEl = document.getElementById('ingame-score');
                 if (ingameEl) ingameEl.textContent = playerScore;
 
-                // Identify nearest rival above player's current score, but skip our own record
+                // Identify nearest rival ABOVE player's current score (smallest positive delta)
                 let nearestRivalDisplay = null;
+                let minDelta = Infinity;
                 for (let i = 0; i < fullLeaderboardData.length; i++) {
                     const candidate = fullLeaderboardData[i];
                     if (!candidate) continue;
                     // Skip if this is our own saved record (match by session id or by name)
                     if (gameState.currentSessionId && candidate.id === gameState.currentSessionId) continue;
                     if (candidate.name && gameState.playerName && candidate.name === gameState.playerName) continue;
-                    if (candidate.score > playerScore) {
+                    const delta = candidate.score - playerScore;
+                    if (delta > 0 && delta < minDelta) {
+                        minDelta = delta;
                         nearestRivalDisplay = candidate;
                         nearestRival = candidate;
-                        break;
                     }
                 }
                 
