@@ -2469,16 +2469,15 @@
                 const obtainedTags = Array.isArray(finalBadgeData.tags) ? finalBadgeData.tags : [];
                 const missingTags = allTags.filter(t => !obtainedTags.includes(t));
 
-                secCurrentEl.textContent = `Secondary yang diperoleh saat ini: ${obtainedSecondary || 'Tidak ada'}`;
+                secCurrentEl.textContent = `Badge Bonus yang diperoleh saat ini: ${obtainedSecondary || 'Tidak ada'}`;
                 // Provide brief guidance on next secondary
                 let nextDesc = '';
-                if (nextSecondary === 'Top 10') nextDesc = 'Masuk 10 besar, run pertama atau bukan tetap dihitung.';
+                if (nextSecondary === 'Top 10') nextDesc = 'Masuk 10 besar';
                 else if (nextSecondary === 'Versatile') nextDesc = 'Akurasi seimbang tiap kategori, minimal 70% dan perbedaan antar kategori ≤15%.';
                 else if (nextSecondary === 'Rising Star') nextDesc = 'Skor ≥ (prevBest + 75) dan komposit ≥45.';
                 else nextDesc = nextSecondary;
                 secNextEl.textContent = `Selanjutnya: ${nextSecondary} — ${nextDesc}`;
 
-                missingTagsEl.innerHTML = 'Tag belum diperoleh: ' + (missingTags.length ? missingTags.map(t => `<span class="inline-block bg-gray-100 px-2 py-1 rounded-full text-[0.75rem] mr-2 mb-1">${t}</span>`).join('') : 'Tidak ada — kamu sudah punya semua tag');
                 if (secInfo) secInfo.style.display = 'block';
             } catch (e) { console.warn('Could not render secondary info', e); }
             renderPersonalBestSummaryFromLeaderboard(null);
