@@ -600,7 +600,7 @@
     { name: "Spons Cuci Piring Bekas", category: "RESIDU", emoji: "🧽" }
         ];
 
-        let gameState = { playerName: '', difficulty: '', score: 0, initialTime: 0, timeLeft: 0, timerInterval: null, currentTrash: null, totalAnswered: 0, correctAnswers: 0, isPlaying: false, paused: false, isMuted: false, currentSessionId: null, combo: 0, bestCombo: 0, questionQueue: [] };
+        let gameState = { playerName: '', difficulty: '', score: 0, initialTime: 0, timeLeft: 0, timerInterval: null, currentTrash: null, totalAnswered: 0, correctAnswers: 0, isPlaying: false, paused: false, isMuted: false, currentSessionId: null, combo: 0, bestCombo: 0, previousBest: 0, questionQueue: [] };
         let sessionQuestionQueue = [];
         let sessionUniqueAskedSet = new Set();
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -826,6 +826,7 @@
                 // Identify nearest rival ABOVE player's current score (smallest positive delta)
                 let nearestRivalDisplay = null;
                 let minDelta = Infinity;
+                nearestRival = null;
                 // track previous nearest rival to trigger small celebration when a closer target appears
                 if (typeof window.__prevNearestRivalId === 'undefined') window.__prevNearestRivalId = null;
                 for (let i = 0; i < fullLeaderboardData.length; i++) {
@@ -839,6 +840,28 @@
                         minDelta = delta;
                         nearestRivalDisplay = candidate;
                         nearestRival = candidate;
+                    }
+                }
+
+                // If already #1 in global board but score still below personal best, chase self personal-best
+                if (!nearestRivalDisplay) {
+                    let personalBestScore = gameState.previousBest || 0;
+                    for (let i = 0; i < fullLeaderboardData.length; i++) {
+                        const candidate = fullLeaderboardData[i];
+                        if (!candidate) continue;
+                        if (gameState.currentSessionId && candidate.id === gameState.currentSessionId) {
+                            personalBestScore = Math.max(personalBestScore, candidate.score || 0);
+                            break;
+                        }
+                    }
+                    if (personalBestScore > playerScore) {
+                        nearestRivalDisplay = {
+                            id: `SELF_BEST_${gameState.currentSessionId || 'ME'}`,
+                            name: 'PERSONAL BEST',
+                            score: personalBestScore,
+                            isPersonalBestTarget: true
+                        };
+                        nearestRival = nearestRivalDisplay;
                     }
                 }
                 // If nearest rival changed to a different player and we're still chasing, show small confetti
@@ -855,6 +878,7 @@
                 if (nearestRivalDisplay) {
                     // Rival ahead of player - show race display
                     const delta = nearestRivalDisplay.score - playerScore;
+                    const isSelfTarget = !!nearestRivalDisplay.isPersonalBestTarget;
                     const container = document.createElement('div');
                     container.className = 'w-full flex items-center justify-center gap-3 px-2 py-2 bg-gradient-to-r from-blue-50 to-purple-50 rounded-md border border-blue-100 shadow-sm';
                     
@@ -867,13 +891,15 @@
                     
                     const vs = document.createElement('div');
                     vs.className = 'text-sm font-black text-gray-600 px-2';
-                    vs.textContent = '⚡ vs ⚡';
+                    vs.textContent = isSelfTarget ? '🏁' : '⚡ vs ⚡';
                     
                     const rivalCard = document.createElement('div');
-                    rivalCard.className = 'flex flex-col items-center px-3 py-1 bg-orange-100 rounded-lg border border-pktOrange';
+                    rivalCard.className = isSelfTarget
+                        ? 'flex flex-col items-center px-3 py-1 bg-violet-100 rounded-lg border border-violet-400'
+                        : 'flex flex-col items-center px-3 py-1 bg-orange-100 rounded-lg border border-pktOrange';
                     rivalCard.innerHTML = `
-                        <div class="text-[0.65rem] font-bold text-pktOrange uppercase truncate max-w-[120px]">${escapeHtml(nearestRivalDisplay.name)}</div>
-                        <div class="text-xl font-black text-pktOrange">${nearestRivalDisplay.score}</div>
+                        <div class="text-[0.65rem] font-bold ${isSelfTarget ? 'text-violet-700' : 'text-pktOrange'} uppercase truncate max-w-[120px]">${escapeHtml(nearestRivalDisplay.name)}</div>
+                        <div class="text-xl font-black ${isSelfTarget ? 'text-violet-700' : 'text-pktOrange'}">${nearestRivalDisplay.score}</div>
                         <div class="text-xs font-bold text-red-500 mt-1">Δ +${delta}</div>
                     `;
                     
@@ -1135,9 +1161,17 @@
                 gameState.currentSessionId = name.replace(/[.#$\[\]\/\s]/g, "_").toUpperCase();
             } catch(e) { gameState.currentSessionId = null; }
 
+            // Initialize previous best from cached leaderboard snapshot for immediate self-target fallback
+            try {
+                const cached = Array.isArray(window.__latestLeaderboardData) ? window.__latestLeaderboardData : [];
+                const myPrev = cached.find(r => gameState.currentSessionId && r.id === gameState.currentSessionId);
+                gameState.previousBest = myPrev ? (myPrev.score || 0) : 0;
+            } catch(e) { gameState.previousBest = 0; }
+
             // Reset Proximity Scoring state
             nearestRival = null;
             nearestRivalReached = false;
+            window.__prevNearestRivalId = null;
 
             const comboDisp = document.getElementById('combo-display');
             comboDisp.textContent = '';
@@ -1191,7 +1225,11 @@
             // Proximity Scoring: Check if we've reached the nearest rival above us
             if (nearestRival && !nearestRivalReached && gameState.score >= nearestRival.score) {
                 nearestRivalReached = true;
-                showFeedback('Rival Terlampaui! 🎉 ' + nearestRival.name, 'text-green-500');
+                if (nearestRival.isPersonalBestTarget) {
+                    showFeedback('Personal Best Terlampaui! 🎉', 'text-green-500');
+                } else {
+                    showFeedback('Rival Terlampaui! 🎉 ' + nearestRival.name, 'text-green-500');
+                }
                 try { launchConfetti(); } catch(e) {}
                 // Immediately re-evaluate to find the next nearest rival from cached data
                 try {
