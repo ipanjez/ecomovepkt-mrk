@@ -463,6 +463,10 @@
                         <p class="text-[0.6rem] md:text-xs text-gray-500 uppercase font-bold">Personal Best</p>
                         <p class="text-[0.72rem] md:text-sm font-bold text-gray-700" id="final-personal-best">Skor terbaik: -</p>
                     </div>
+                    <!-- NOTICE: tampil jika skor sekarang < personal best sehingga tidak akan menggantikan entri leaderboard -->
+                    <div id="final-personal-best-notice" class="col-span-2 md:col-span-4 hidden mt-3 text-sm text-yellow-800 bg-yellow-50 border border-yellow-100 rounded-lg px-3 py-2"> 
+                        <!-- akan diisi oleh JS -->
+                    </div>
                 </div>
             </div>
 
@@ -1963,6 +1967,20 @@
             document.getElementById('final-wrong').textContent = wrongAnswers;
             document.getElementById('final-badge').textContent = getPerformanceBadge(gameState.score, accuracy, gameState.bestCombo, gameState.previousBest || 0, gameState.correctAnswers || 0, wrongAnswers || 0, gameState.totalAnswered || 0);
             renderPersonalBestSummaryFromLeaderboard(null);
+
+            // Tampilkan keterangan apabila skor sesi saat ini masih di bawah personal best yang tersimpan
+            try {
+                const noticeEl = document.getElementById('final-personal-best-notice');
+                if (noticeEl) {
+                    const prev = (typeof gameState.previousBest === 'number') ? gameState.previousBest : 0;
+                    if (prev > 0 && gameState.score < prev) {
+                        noticeEl.textContent = 'Perhatian: Skor saat ini masih di bawah Personal Best Anda. Skor yang lebih rendah dengan nama yang sama tidak akan menggantikan entri di leaderboard.';
+                        noticeEl.classList.remove('hidden');
+                    } else {
+                        noticeEl.classList.add('hidden');
+                    }
+                }
+            } catch (e) { console.warn('Gagal menampilkan personal-best notice', e); }
             updateSessionUniqueProgressUI();
 
             // Simpan Skor secara Global ke Firebase
