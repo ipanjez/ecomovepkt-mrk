@@ -91,6 +91,19 @@
         .timer-progress-fill {
             transition: width 0.25s ease-out;
         }
+        .progress-pulse { animation: pulseProgress 420ms ease; }
+        @keyframes pulseProgress {
+            0% { transform: scale(1); box-shadow: none; }
+            50% { transform: scale(1.02); box-shadow: 0 12px 30px rgba(0,0,0,0.12); }
+            100% { transform: scale(1); }
+        }
+
+        /* Player detail modal */
+        #player-detail-modal { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 60; }
+        #player-detail-modal .card { width: min(520px, 92%); background: white; border-radius: 14px; padding: 18px; box-shadow: 0 18px 40px rgba(0,0,0,0.12); border: 1px solid rgba(2,6,23,0.06); }
+        #player-detail-modal .card h4 { font-weight: 800; color: #083344; margin: 0 0 6px 0; }
+        #player-detail-modal .meta { color: #475569; font-size: 0.95rem; margin-top: 6px; }
+        #player-detail-modal .close-btn { position: absolute; top: 12px; right: 14px; background: transparent; border: none; font-size: 20px; cursor: pointer; }
     </style>
 </head>
 <body class="bg-gray-100 min-h-[100dvh] w-screen text-gray-800 flex flex-col font-sans select-none bg-pattern overflow-y-auto overflow-x-hidden">
@@ -566,6 +579,8 @@
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         
         let selectedDiffObj = null;
+        // Track last rendered in-game progress percent for animation triggers
+        let lastInGameProgress = 0;
 
         function selectDifficulty(diffName, time, btnEl) {
             selectedDiffObj = { name: diffName, time: time };
@@ -816,7 +831,26 @@
                         chips.appendChild(chip);
                     });
                 }
+                // make chips clickable to view player detail
                 inGameLb.appendChild(chips);
+                Array.from(chips.children).forEach((chip, idx) => {
+                    const run = top5[idx];
+                    if (!run) return;
+                    chip.style.cursor = 'pointer';
+                    chip.addEventListener('click', (ev) => {
+                        ev.stopPropagation();
+                        showPlayerDetail(run);
+                    });
+                });
+
+                // animate progress when it increases
+                try {
+                    if (progressPct > lastInGameProgress) {
+                        wrapper.classList.add('progress-pulse');
+                        setTimeout(() => wrapper.classList.remove('progress-pulse'), 520);
+                    }
+                } catch(e) {}
+                lastInGameProgress = progressPct;
             }
 
             if (leaderboardData.length === 0) {
@@ -908,6 +942,48 @@
                 });
             }
         }
+
+        // Show a modal with player details (invoked from top5 chips)
+        function showPlayerDetail(record) {
+            // Remove existing modal if present
+            const existing = document.getElementById('player-detail-modal');
+            if (existing) existing.remove();
+
+            const modal = document.createElement('div');
+            modal.id = 'player-detail-modal';
+            modal.innerHTML = `
+                <div style="position:relative;" class="card">
+                    <button class="close-btn" aria-label="Tutup">&times;</button>
+                    <h4>${escapeHtml(record.name || 'Player')}</h4>
+                    <div class="meta">Skor: <strong>${record.score || 0}</strong> &nbsp; • &nbsp; Peringkat: <strong>${getRankLabel(record)}</strong></div>
+                    <div class="meta">Akurasi: <strong>${record.accuracy || 0}%</strong> &nbsp; • &nbsp; Dijawab: <strong>${record.total || 0}</strong></div>
+                    <div class="meta">Level: <strong>${record.difficulty || '-'}</strong> &nbsp; • &nbsp; Percobaan: <strong>${record.attempts || 1}x</strong></div>
+                    <div class="meta">Waktu: <strong>${record.timestamp ? new Date(record.timestamp).toLocaleString() : '-'}</strong></div>
+                    <div style="margin-top:12px; color:#334155;">Klik di luar kotak untuk menutup.</div>
+                </div>
+            `;
+
+            // close handlers
+            modal.querySelector('.close-btn').addEventListener('click', () => modal.remove());
+            modal.addEventListener('click', (ev) => { if (ev.target === modal) modal.remove(); });
+
+            document.body.appendChild(modal);
+        }
+
+        function getRankLabel(record) {
+            if (!record) return '-';
+            // Try to determine rank from current full leaderboard (best effort)
+            // If record has no id, return '-'
+            try {
+                const table = document.querySelectorAll('#leaderboard-body tr');
+                for (let r = 0; r < table.length; r++) {
+                    if (table[r].textContent.includes(record.name)) return (r+1);
+                }
+            } catch(e) {}
+            return '-';
+        }
+
+        function escapeHtml(s) { return (s+'').replace(/[&<>"']/g, function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[m]; }); }
 
         // ==========================================
         // 4. GAME ENGINE LOGIC
