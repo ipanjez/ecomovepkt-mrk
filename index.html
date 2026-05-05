@@ -1683,7 +1683,7 @@
                     <td class="px-2 py-2 font-semibold ${isCurrentPlayer ? 'text-pktBlue' : 'text-gray-800'} break-all leading-tight">
                         <div class="flex flex-col gap-0.5">
                             <div class="flex flex-wrap items-center gap-2">
-                                <span>${run.name}</span>
+                                <span>${escapeHtml(run.name)}</span>
                                 <span class="inline-flex items-center whitespace-nowrap rounded-full px-2 py-1 text-[0.6rem] leading-none font-bold ${getBadgeStyleClass(badgeData.primary)}">${escapeHtml(badgeData.display)}</span>
                             </div>
                             <span class="text-[0.6rem] ${run.difficulty === 'Hard' ? 'text-blue-500' : run.difficulty === 'Medium' ? 'text-orange-500' : 'text-green-500'}">${getDifficultyDisplayName(run.difficulty)}</span>
@@ -2156,6 +2156,11 @@
             saveToCloudDb(); 
 
             switchScreen('end');
+            
+            // Render leaderboard immediately with cached data
+            if (window.__latestLeaderboardData && Array.isArray(window.__latestLeaderboardData)) {
+                renderLeaderboardTable(window.__latestLeaderboardData, window.__latestLeaderboardData);
+            }
         }
     </script>
 </body>
