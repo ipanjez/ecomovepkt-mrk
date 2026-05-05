@@ -213,6 +213,14 @@
                     <h3 class="font-bold text-gray-900 mb-2 border-l-4 border-purple-500 pl-3 flex items-center gap-2">🏆 Leaderboard Global</h3>
                     <p class="text-[0.85rem] md:text-sm leading-relaxed">Papan skor akan tercatat dan diperbarui secara <i>real-time</i> menembus berbagai <i>device</i>! Sistem sangat pintar: ia otomatis melacak jika Anda bermain berulang kali menggunakan nama yang sama. Hanya <b>skor tertinggi</b> Anda yang akan tampil, dan sistem akan menyimpan riwayat seberapa banyak Anda telah memainkannya pada kolom <b>Coba</b>.</p>
                 </div>
+
+                <!-- Tantang / Target Section -->
+                <div>
+                    <h3 class="font-bold text-gray-900 mb-2 border-l-4 border-blue-400 pl-3 flex items-center gap-2">🎯 Tantang Pemain & Target</h3>
+                    <p class="text-[0.85rem] md:text-sm leading-relaxed">Di papan Top 5 terdapat tombol untuk melihat detail pemain. Anda dapat menekan <b>Tantang</b> pada detail pemain untuk menjadikan skor mereka sebagai <b>Target Terdekat</b> — sistem akan menampilkan pemain yang berada tepat di atas skor Anda (nama &amp; skor). Ketika Anda mencapai skor target, akan muncul notifikasi dan konfeti kecil sebagai perayaan.</p>
+                    <p class="text-[0.85rem] md:text-sm leading-relaxed">Jika Anda sudah memiliki target, tombol <b>Batal Tantangan</b> akan muncul di bagian atas layar untuk membatalkan target tersebut kapan saja. Bila tidak ada target, tombol ini disembunyikan.</p>
+                    <p class="text-[0.85rem] md:text-sm leading-relaxed">Fitur ini disederhanakan: Target Terdekat hanya menampilkan nama dan skor pemain yang berdiri satu tingkat di atas Anda saat ini. Untuk menantang pemain lain, buka detail pemain dan tekan <b>Tantang</b>.</p>
+                </div>
             </div>
 
             <button onclick="document.getElementById('how-to-play-modal').classList.add('hidden')" class="w-full mt-8 bg-gradient-to-r from-pktGreen to-green-500 text-white font-black py-4 rounded-xl shadow-[0_4px_15px_rgba(122,184,0,0.4)] hover:-translate-y-1 active:scale-95 transition text-lg tracking-wide">Paham, Ayo Mulai!</button>
@@ -260,7 +268,7 @@
                     <div class="font-bold text-gray-700 uppercase tracking-wider">Top 5 Leaderboard</div>
                     <div class="flex items-center gap-3">
                         <div class="text-xs text-gray-600">Skor Anda: <span id="ingame-score">0</span></div>
-                        <button id="clear-target-btn" class="text-xs bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded-md font-semibold">Batal Tantangan</button>
+                        <button id="clear-target-btn" style="display:none" class="text-xs bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded-md font-semibold">Batal Tantangan</button>
                     </div>
                 </div>
                 <div id="ingame-leaderboard" class="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
@@ -611,6 +619,7 @@
                     gameState.targetPlayerId = obj.id;
                     gameState.targetScore = obj.score || 0;
                     gameState.targetReached = false;
+                    try { updateClearTargetButtonUI(); } catch(e) {}
                 }
             } catch (e) {}
         }
@@ -618,6 +627,7 @@
         function clearChallengeTarget() {
             gameState.targetPlayerId = null; gameState.targetScore = null; gameState.targetReached = false;
             try { localStorage.removeItem(CHALLENGE_STORAGE_KEY); } catch(e) {}
+            try { updateClearTargetButtonUI(); } catch(e) {}
             // re-render leaderboard to remove highlight
             leaderboardRef.once('value').then(snapshot => {
                 const data = snapshot.val(); let arr = [];
@@ -1119,6 +1129,22 @@
                     const clearBtn = document.getElementById('clear-target-btn');
                     if (clearBtn) clearBtn.addEventListener('click', (ev) => { ev.stopPropagation(); clearChallengeTarget(); });
                 } catch(e) {}
+
+                // Toggle visibility for the clear-target button based on whether a challenge is active
+                function updateClearTargetButtonUI() {
+                    try {
+                        const clearBtn = document.getElementById('clear-target-btn');
+                        if (!clearBtn) return;
+                        if (gameState.targetPlayerId) {
+                            clearBtn.style.display = '';
+                        } else {
+                            clearBtn.style.display = 'none';
+                        }
+                    } catch(e) {}
+                }
+
+                // ensure UI initial state
+                try { updateClearTargetButtonUI(); } catch(e) {}
 
         // ==========================================
         // 4. GAME ENGINE LOGIC
