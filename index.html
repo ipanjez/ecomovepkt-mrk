@@ -1659,8 +1659,10 @@
                 return;
             }
 
+            // determine player's rank index (keep in outer scope for later use)
+            let myRankIndex = -1;
             if (rankDisplay) {
-                const myRankIndex = filteredFullLeaderboardData.findIndex(run => run.id === gameState.currentSessionId);
+                myRankIndex = filteredFullLeaderboardData.findIndex(run => run.id === gameState.currentSessionId);
                 rankDisplay.textContent = myRankIndex >= 0 ? `#${myRankIndex + 1}` : '-';
             }
 
