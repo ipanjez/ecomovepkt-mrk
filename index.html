@@ -818,7 +818,8 @@
                 gameState.previousBest = window.__mySavedRecord ? (window.__mySavedRecord.score || 0) : 0;
             } catch(e) { window.__mySavedRecord = null; gameState.previousBest = 0; }
 
-            renderLeaderboardTable(arrData.slice(0, 10), arrData); // Tampilkan 10 terbaik di table, semua di leaderboard horizontal
+            // Tampilkan seluruh leaderboard di tabel akhir, tetap gunakan full array untuk in-game logic
+            renderLeaderboardTable(arrData, arrData);
         }, (error) => {
             document.getElementById('db-status').textContent = 'Gagal Konek ke DB';
             document.getElementById('db-status').className = 'text-xs font-bold text-red-500';
