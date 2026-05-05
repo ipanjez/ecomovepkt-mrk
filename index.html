@@ -1038,15 +1038,18 @@
                             total: gameState.totalAnswered,
                             correct: gameState.correctAnswers,
                             wrong: wrongCalc,
-                            accuracy: accuracyCalc
+                            accuracy: accuracyCalc,
+                            bestCombo: gameState.bestCombo || 0
                         }).catch(err => {
                             console.error("Gagal simpan ke DB", err);
                         });
                     } else {
-                        // Jika skor lebih kecil, cuma update jumlah mainnya (attempts)
-                        userRef.update({
-                            attempts: attemptCount
-                        });
+                        // Jika skor lebih kecil, update attempts dan simpan bestCombo jika meningkat
+                        const updates = { attempts: attemptCount };
+                        if (gameState.bestCombo && gameState.bestCombo > (existingData.bestCombo || 0)) {
+                            updates.bestCombo = gameState.bestCombo;
+                        }
+                        userRef.update(updates);
                     }
                 });
             }
