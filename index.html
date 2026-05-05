@@ -104,6 +104,30 @@
         #player-detail-modal .card h4 { font-weight: 800; color: #083344; margin: 0 0 6px 0; }
         #player-detail-modal .meta { color: #475569; font-size: 0.95rem; margin-top: 6px; }
         #player-detail-modal .close-btn { position: absolute; top: 12px; right: 14px; background: transparent; border: none; font-size: 20px; cursor: pointer; }
+
+        .filter-chip { position: relative; display: inline-flex; cursor: pointer; }
+        .filter-chip input { position: absolute; opacity: 0; pointer-events: none; }
+        .filter-chip span {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.6rem 0.95rem;
+            border-radius: 9999px;
+            border: 1px solid #bfdbfe;
+            background: #ffffff;
+            color: #334155;
+            font-size: 0.8rem;
+            font-weight: 700;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 2px rgba(15,23,42,0.04);
+        }
+        .filter-chip span:hover { transform: translateY(-1px); border-color: #93c5fd; background: #eff6ff; }
+        .filter-chip input:checked + span {
+            background: linear-gradient(135deg, #005B9F 0%, #2563eb 100%);
+            color: #ffffff;
+            border-color: #005B9F;
+            box-shadow: 0 8px 18px rgba(0, 91, 159, 0.22);
+        }
     </style>
 </head>
 <body class="bg-gray-100 min-h-[100dvh] w-screen text-gray-800 flex flex-col font-sans select-none bg-pattern overflow-y-auto overflow-x-hidden">
@@ -279,14 +303,14 @@
                 <button onclick="closeLeaderboardPreviewModal()" class="text-gray-400 hover:text-red-500 transition text-3xl font-bold leading-none">&times;</button>
             </div>
 
-            <div class="mb-4 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
-                <label for="leaderboard-preview-filter" class="text-xs md:text-sm font-bold text-gray-600 uppercase tracking-wider">Filter Level</label>
-                <select id="leaderboard-preview-filter" onchange="setLeaderboardPreviewFilter(this.value)" class="w-full sm:w-auto px-3 py-2 rounded-xl border border-blue-200 bg-white text-sm font-semibold text-gray-700 focus:outline-none focus:border-pktBlue">
-                    <option value="All">All</option>
-                    <option value="Bumi Lestari">Bumi Lestari</option>
-                    <option value="Eko Aktif">Eko Aktif</option>
-                    <option value="Penjaga Bumi">Penjaga Bumi</option>
-                </select>
+            <div class="mb-4 flex flex-col gap-2 sm:gap-3">
+                <div class="text-xs md:text-sm font-bold text-gray-600 uppercase tracking-wider">Filter Level</div>
+                <div class="flex flex-wrap gap-2">
+                    <label class="filter-chip"><input type="radio" name="leaderboard-preview-filter" value="All" checked onchange="setLeaderboardPreviewFilter(this.value)"><span>All</span></label>
+                    <label class="filter-chip"><input type="radio" name="leaderboard-preview-filter" value="Bumi Lestari" onchange="setLeaderboardPreviewFilter(this.value)"><span>Bumi Lestari</span></label>
+                    <label class="filter-chip"><input type="radio" name="leaderboard-preview-filter" value="Eko Aktif" onchange="setLeaderboardPreviewFilter(this.value)"><span>Eko Aktif</span></label>
+                    <label class="filter-chip"><input type="radio" name="leaderboard-preview-filter" value="Penjaga Bumi" onchange="setLeaderboardPreviewFilter(this.value)"><span>Penjaga Bumi</span></label>
+                </div>
             </div>
 
             <div class="max-h-[65vh] overflow-y-auto overflow-x-auto rounded-2xl border border-blue-100 bg-gradient-to-b from-white to-blue-50/40 shadow-sm">
@@ -457,14 +481,14 @@
                         <span id="db-status" class="text-[0.65rem] md:text-xs font-bold text-gray-400">Menghubungkan...</span>
                     </div>
                 </div>
-                <div class="mb-3 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
-                    <label for="leaderboard-end-filter" class="text-xs md:text-sm font-bold text-gray-600 uppercase tracking-wider">Filter Level</label>
-                    <select id="leaderboard-end-filter" onchange="setLeaderboardEndFilter(this.value)" class="w-full sm:w-auto px-3 py-2 rounded-xl border border-blue-200 bg-white text-sm font-semibold text-gray-700 focus:outline-none focus:border-pktBlue">
-                        <option value="All">All</option>
-                        <option value="Bumi Lestari">Bumi Lestari</option>
-                        <option value="Eko Aktif">Eko Aktif</option>
-                        <option value="Penjaga Bumi">Penjaga Bumi</option>
-                    </select>
+                <div class="mb-3 flex flex-col gap-2 sm:gap-3">
+                    <div class="text-xs md:text-sm font-bold text-gray-600 uppercase tracking-wider">Filter Level</div>
+                    <div class="flex flex-wrap gap-2">
+                        <label class="filter-chip"><input type="radio" name="leaderboard-end-filter" value="All" checked onchange="setLeaderboardEndFilter(this.value)"><span>All</span></label>
+                        <label class="filter-chip"><input type="radio" name="leaderboard-end-filter" value="Bumi Lestari" onchange="setLeaderboardEndFilter(this.value)"><span>Bumi Lestari</span></label>
+                        <label class="filter-chip"><input type="radio" name="leaderboard-end-filter" value="Eko Aktif" onchange="setLeaderboardEndFilter(this.value)"><span>Eko Aktif</span></label>
+                        <label class="filter-chip"><input type="radio" name="leaderboard-end-filter" value="Penjaga Bumi" onchange="setLeaderboardEndFilter(this.value)"><span>Penjaga Bumi</span></label>
+                    </div>
                 </div>
                 <div class="max-h-[38vh] sm:max-h-[42vh] overflow-y-auto overflow-x-auto rounded-xl border border-blue-100 mb-4 bg-gradient-to-b from-white to-blue-50/40 shadow-md">
                     <div class="overflow-x-auto">
@@ -1044,8 +1068,16 @@
             return records.filter((record) => getLeaderboardDifficultyLabel(record) === filterValue);
         }
 
+        function syncLeaderboardFilterRadios(groupName, value) {
+            const radios = document.querySelectorAll(`input[name="${groupName}"]`);
+            radios.forEach((radio) => {
+                radio.checked = radio.value === value;
+            });
+        }
+
         function setLeaderboardPreviewFilter(value) {
             leaderboardPreviewFilter = value || 'All';
+            syncLeaderboardFilterRadios('leaderboard-preview-filter', leaderboardPreviewFilter);
             const modal = document.getElementById('leaderboard-preview-modal');
             if (modal && !modal.classList.contains('hidden')) {
                 renderLeaderboardPreviewModal();
@@ -1054,6 +1086,7 @@
 
         function setLeaderboardEndFilter(value) {
             leaderboardEndFilter = value || 'All';
+            syncLeaderboardFilterRadios('leaderboard-end-filter', leaderboardEndFilter);
             if (window.__latestLeaderboardData && Array.isArray(window.__latestLeaderboardData)) {
                 renderLeaderboardTable(window.__latestLeaderboardData.slice(0, 10), window.__latestLeaderboardData);
             }
