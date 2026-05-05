@@ -279,6 +279,42 @@
                 <div>
                     <h3 class="font-bold text-gray-900 mb-2 border-l-4 border-pktOrange pl-3 flex items-center gap-2">🏅 Badge Utama</h3>
                         <p class="text-[0.85rem] md:text-sm text-gray-700 mb-2">Badge utama pakai skor komposit 0-100 dari skor, akurasi, combo terbaik, dan jumlah percobaan. Bobotnya: skor 50%, akurasi 30%, combo 15%, percobaan 5%.</p>
+                        <table class="w-full mt-3 mb-3 text-[0.75rem] md:text-sm border-collapse">
+                            <thead>
+                                <tr class="bg-gray-100">
+                                    <th class="border border-gray-300 px-2 py-2 text-left">Komponen</th>
+                                    <th class="border border-gray-300 px-2 py-2 text-left">Skala Asli</th>
+                                    <th class="border border-gray-300 px-2 py-2 text-left">Konversi ke 0-100</th>
+                                    <th class="border border-gray-300 px-2 py-2 text-center">Bobot</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="border border-gray-300 px-2 py-2"><b>Skor</b></td>
+                                    <td class="border border-gray-300 px-2 py-2">0–1200</td>
+                                    <td class="border border-gray-300 px-2 py-2">Skor ÷ 12</td>
+                                    <td class="border border-gray-300 px-2 py-2 text-center"><b>50%</b></td>
+                                </tr>
+                                <tr class="bg-gray-50">
+                                    <td class="border border-gray-300 px-2 py-2"><b>Akurasi</b></td>
+                                    <td class="border border-gray-300 px-2 py-2">0–100%</td>
+                                    <td class="border border-gray-300 px-2 py-2">Akurasi langsung</td>
+                                    <td class="border border-gray-300 px-2 py-2 text-center"><b>30%</b></td>
+                                </tr>
+                                <tr>
+                                    <td class="border border-gray-300 px-2 py-2"><b>Combo</b></td>
+                                    <td class="border border-gray-300 px-2 py-2">0–50</td>
+                                    <td class="border border-gray-300 px-2 py-2">Combo × 2</td>
+                                    <td class="border border-gray-300 px-2 py-2 text-center"><b>15%</b></td>
+                                </tr>
+                                <tr class="bg-gray-50">
+                                    <td class="border border-gray-300 px-2 py-2"><b>Percobaan</b></td>
+                                    <td class="border border-gray-300 px-2 py-2">0–100+</td>
+                                    <td class="border border-gray-300 px-2 py-2">Min(Percobaan, 100)</td>
+                                    <td class="border border-gray-300 px-2 py-2 text-center"><b>5%</b></td>
+                                </tr>
+                            </tbody>
+                        </table>
                         <ul class="list-disc pl-6 mt-2 text-[0.8rem] md:text-sm space-y-1.5">
                             <li><b>Warrior</b>: komposit &lt;15. Contoh: skor 90, akurasi 58%, combo 2, percobaan 5.</li>
                             <li><b>Bronze</b>: komposit 15–29. Contoh: skor 250, akurasi 68%, combo 5, percobaan 10.</li>
