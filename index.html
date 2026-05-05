@@ -255,7 +255,10 @@
             <div class="w-full max-w-4xl mx-auto mt-3 bg-white/90 backdrop-blur rounded-2xl p-2 shadow-md border border-blue-100 relative z-30">
                 <div class="flex items-center justify-between mb-1">
                     <span class="font-bold text-gray-700 text-sm uppercase tracking-wider">Top 5 Leaderboard</span>
-                    <span class="text-pktBlue font-bold text-sm uppercase">Skor Anda: <span id="ingame-score">0</span></span>
+                    <div class="flex items-center gap-3">
+                        <span class="text-pktBlue font-bold text-sm uppercase">Skor Anda: <span id="ingame-score">0</span></span>
+                        <button id="clear-target-btn" class="text-xs bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded-md font-semibold">Batal Tantangan</button>
+                    </div>
                 </div>
                 <div id="ingame-leaderboard" class="flex gap-2 overflow-x-auto pb-1 no-scrollbar text-sm">
                     <div class="text-gray-400 italic">Memuat Top 5...</div>
@@ -586,6 +589,42 @@
         gameState.targetScore = null;
         gameState.targetReached = false;
 
+        const CHALLENGE_STORAGE_KEY = 'em_challenge_target';
+
+        function saveChallengeTargetToStorage() {
+            try {
+                if (!gameState.targetPlayerId) { localStorage.removeItem(CHALLENGE_STORAGE_KEY); return; }
+                const payload = { id: gameState.targetPlayerId, score: gameState.targetScore };
+                localStorage.setItem(CHALLENGE_STORAGE_KEY, JSON.stringify(payload));
+            } catch (e) {}
+        }
+
+        function loadChallengeTargetFromStorage() {
+            try {
+                const raw = localStorage.getItem(CHALLENGE_STORAGE_KEY);
+                if (!raw) return;
+                const obj = JSON.parse(raw);
+                if (obj && obj.id) {
+                    gameState.targetPlayerId = obj.id;
+                    gameState.targetScore = obj.score || 0;
+                    gameState.targetReached = false;
+                }
+            } catch (e) {}
+        }
+
+        function clearChallengeTarget() {
+            gameState.targetPlayerId = null; gameState.targetScore = null; gameState.targetReached = false;
+            try { localStorage.removeItem(CHALLENGE_STORAGE_KEY); } catch(e) {}
+            // re-render leaderboard to remove highlight
+            leaderboardRef.once('value').then(snapshot => {
+                const data = snapshot.val(); let arr = [];
+                if (data) for (let k in data) arr.push({ id: k, ...data[k] });
+                arr.sort((a,b) => b.score - a.score);
+                renderLeaderboardTable(arr.slice(0,10), arr);
+            }).catch(()=>{});
+            showFeedback('Tantangan dibatalkan', 'text-gray-600');
+        }
+
         function selectDifficulty(diffName, time, btnEl) {
             selectedDiffObj = { name: diffName, time: time };
             
@@ -757,6 +796,8 @@
 
             // Urutkan berdasarkan skor tertinggi (DESC)
             arrData.sort((a, b) => b.score - a.score);
+            // restore persisted challenge target (if any)
+            loadChallengeTargetFromStorage();
             renderLeaderboardTable(arrData.slice(0, 10), arrData); // Tampilkan 10 terbaik, hitung rank dari semua data
         }, (error) => {
             document.getElementById('db-status').textContent = 'Gagal Konek ke DB';
@@ -1031,6 +1072,8 @@
                         let arrData = [];
                         if (data) for (let k in data) arrData.push({ id: k, ...data[k] });
                         arrData.sort((a,b) => b.score - a.score);
+                        // persist challenge target
+                        try { saveChallengeTargetToStorage(); } catch(e) {}
                         renderLeaderboardTable(arrData.slice(0,10), arrData);
                     }).catch(() => {});
                 }
@@ -1065,6 +1108,12 @@
                     }
                     root.appendChild(frag);
                 }
+
+                // Wire up the "Batal Tantangan" button to clear the persisted challenge
+                try {
+                    const clearBtn = document.getElementById('clear-target-btn');
+                    if (clearBtn) clearBtn.addEventListener('click', (ev) => { ev.stopPropagation(); clearChallengeTarget(); });
+                } catch(e) {}
 
         // ==========================================
         // 4. GAME ENGINE LOGIC
