@@ -288,25 +288,58 @@
                 <!-- Badge Rules -->
                 <div>
                     <h3 class="font-bold text-gray-900 mb-2 border-l-4 border-pktOrange pl-3 flex items-center gap-2">🏅 Badge Performa</h3>
-                        <p class="text-[0.85rem] md:text-sm leading-relaxed">Sistem badge mengombinasikan skor, akurasi, combo maksimal, dan jumlah percobaan dalam satu metrik komposit (bobot: skor 45%, akurasi 27%, combo 20%, ketekunan 8%). Semakin tinggi metrik, semakin tinggi badge tier.</p>
+                        <p class="text-[0.85rem] md:text-sm leading-relaxed">Sistem badge utama memakai metrik komposit dari skor, akurasi, combo terbaik, dan ketekunan. Bobotnya: skor 45%, akurasi 27%, combo 20%, dan jumlah percobaan 8%. Semakin besar nilainya, semakin tinggi tier badge utama.</p>
                         <ul class="list-disc pl-6 mt-2 text-[0.8rem] md:text-sm space-y-1.5">
-                            <li><b>Pemula</b>: hanya untuk pemain baru dengan &lt;2 percobaan dan skor sangat rendah.</li>
-                            <li><b>Warrior</b>: performa terendah; skor rendah atau akurasi kurang dari 50%.</li>
-                            <li><b>Bronze</b>: skor sedang (~200–400 poin) atau akurasi 50–65% tanpa combo konsisten.</li>
-                            <li><b>Silver</b>: skor ~400–600 poin atau akurasi 65–75% dengan combo rendah (&lt;10).</li>
-                            <li><b>Gold</b>: skor ~600–850 poin dengan akurasi 70–80% atau combo 10–15.</li>
-                            <li><b>Platinum</b>: skor &gt;850 poin atau akurasi &gt;80% dengan combo 15–25.</li>
-                            <li><b>Epic</b>: skor &gt;900 poin + akurasi &gt;82% atau combo 25–35.</li>
-                            <li><b>Grandmaster</b>: skor &gt;950 poin + akurasi &gt;85% atau combo 35+.</li>
-                            <li><b>Diamond</b>: skor &gt;1000 poin + akurasi &gt;87% atau combo ekstrem (&gt;40).</li>
-                            <li><b>Legend</b>: skor &gt;1050 poin + akurasi &gt;88% + konsistensi tinggi.</li>
-                            <li><b>Master</b>: skor &gt;1100 poin + akurasi &gt;90% + konsistensi sangat tinggi.</li>
-                            <li><b>Immortal</b>: performa hampir sempurna (skor ~1200 + akurasi 91%+).</li>
-                            <li><b>Mythic</b> (spesial): combo ≥40 + performa &gt;0.80 — sangat langka, hanya pemain dengan streak ekstrem.</li>
-                            <li><b>Radiant</b> (spesial): akurasi ≥99% + skor ≥950 — presisi tertinggi.</li>
-                            <li><b>Veteran</b> (spesial): ≥200 percobaan + performa solid (menunjukkan dedikasi jangka panjang).</li>
+                            <li><b>Pemula</b>: pemain baru dengan &lt;2 percobaan dan skor sangat rendah.</li>
+                            <li><b>Warrior</b>: performa terendah, biasanya skor rendah atau akurasi &lt;50%.</li>
+                            <li><b>Bronze</b>: sekitar 200–400 poin atau akurasi 50–65%.</li>
+                            <li><b>Silver</b>: sekitar 400–600 poin atau akurasi 65–75% dengan combo masih rendah.</li>
+                            <li><b>Gold</b>: sekitar 600–850 poin dengan akurasi 70–80% atau combo mulai stabil.</li>
+                            <li><b>Platinum</b>: di atas 850 poin atau akurasi di atas 80% dengan combo 15–25.</li>
+                            <li><b>Epic</b>: di atas 900 poin, akurasi di atas 82%, atau combo 25–35.</li>
+                            <li><b>Grandmaster</b>: di atas 950 poin, akurasi di atas 85%, atau combo 35+.</li>
+                            <li><b>Diamond</b>: di atas 1000 poin atau combo ekstrem di atas 40.</li>
+                            <li><b>Legend</b>: performa sangat tinggi dengan konsistensi kuat di semua metrik.</li>
+                            <li><b>Master</b>: performa elite dengan akurasi di atas 90% dan skor sangat tinggi.</li>
+                            <li><b>Immortal</b>: tier paling atas untuk performa nyaris sempurna.</li>
+                            <li><b>Mythic</b> (spesial): combo ≥40 dan performa komposit sangat tinggi.</li>
+                            <li><b>Radiant</b> (spesial): akurasi ≥99% dan skor ≥950.</li>
+                            <li><b>Veteran</b> (spesial): ≥200 percobaan dan performa tetap solid.</li>
                         </ul>
-                        <p class="text-[0.75rem] md:text-xs text-gray-600 mt-2"><b>Tag tambahan:</b> <b>Rising Star</b> (skor session melampaui personal best + 75 poin), <b>Combo-Pro</b> (combo ≥25 + performa solid), <b>Persistent</b> (≥75 percobaan + performa masih rendah, menunjukkan ketekunan). Badge muncul di ringkasan akhir dan leaderboard di samping nama pemain.</p>
+
+                        <p class="text-[0.85rem] md:text-sm font-bold text-gray-900 mt-4 mb-2">🎯 Secondary Badge</p>
+                        <p class="text-[0.8rem] md:text-sm text-gray-700 mb-2">Secondary badge bersifat opsional, jadi tidak selalu muncul. Kalau memenuhi syarat, hanya satu secondary badge yang ditampilkan di samping badge utama.</p>
+                        <ul class="list-disc pl-6 text-[0.75rem] md:text-sm space-y-1">
+                            <li><b>Debut Top 10</b>: percobaan pertama dan langsung masuk 10 besar leaderboard saat ini.</li>
+                            <li><b>Combo Beast</b>: combo ≥40 dan performa komposit sangat kuat.</li>
+                            <li><b>Rising Star</b>: skor sesi melampaui personal best minimal 75 poin.</li>
+                            <li><b>Combo-Pro</b>: combo ≥25 dengan performa komposit solid.</li>
+                            <li><b>Persistent</b>: percobaan tinggi tapi performa masih rendah, menandakan ketekunan.</li>
+                        </ul>
+
+                        <p class="text-[0.85rem] md:text-sm font-bold text-gray-900 mt-4 mb-2">📏 Aturan Badge Baru</p>
+                        <ul class="list-disc pl-6 text-[0.75rem] md:text-sm space-y-1">
+                            <li><b>Badge utama</b> selalu satu dan ditentukan dari metrik komposit performa.</li>
+                            <li><b>Secondary badge</b> opsional dan maksimal satu per pemain; jika lebih dari satu syarat terpenuhi, yang tampil adalah prioritas tertinggi.</li>
+                            <li><b>Debut Top 10</b> hanya muncul jika itu <b>percobaan pertama</b> dan skor debut langsung masuk <b>10 besar</b> leaderboard pada saat hasil disimpan.</li>
+                            <li><b>Specialty tags</b> bisa lebih dari satu karena sifatnya penghargaan tambahan, bukan badge utama.</li>
+                            <li><b>Ranking</b> untuk Debut Top 10 dihitung dari leaderboard aktif saat sesi berakhir, jadi hasilnya mengikuti kondisi pemain lain pada saat itu.</li>
+                        </ul>
+
+                        <p class="text-[0.85rem] md:text-sm font-bold text-gray-900 mt-4 mb-2">✨ Specialty Tags</p>
+                        <p class="text-[0.8rem] md:text-sm text-gray-700 mb-2">Specialty tags bisa lebih dari satu. Ini dipakai untuk memberi apresiasi tambahan pada kemampuan tertentu dan bisa tampil bersamaan di badge utama.</p>
+                        <ul class="list-disc pl-6 text-[0.75rem] md:text-sm space-y-1">
+                            <li><b>Residu Expert</b>, <b>Sisa Makanan Expert</b>, <b>Layak Jual Expert</b>: akurasi kategori masing-masing ≥95%.</li>
+                            <li><b>Chain Master</b>: combo ≥50.</li>
+                            <li><b>Grinder</b>: ≥100 percobaan.</li>
+                            <li><b>Hardcore</b>: ≥50 percobaan.</li>
+                            <li><b>Engaged</b>: ≥5 percobaan.</li>
+                            <li><b>Versatile</b>: akurasi antar-kategori seimbang, selisih &lt;15% dan minimum 70%.</li>
+                        </ul>
+
+                        <p class="text-[0.75rem] md:text-xs text-gray-600 mt-3"><b>Format tampil:</b> <code style="background:#f3f4f6; padding:2px 6px; border-radius:3px;">Primary [Secondary] {Tag1, Tag2, ...}</code>. Contoh: <code style="background:#f3f4f6; padding:2px 6px; border-radius:3px;">Platinum [Rising Star] {Layak Jual Expert, Hardcore}</code>.</p>
+
+                        <p class="text-[0.75rem] md:text-xs text-gray-500 mt-3">Catatan evaluasi simulasi: kandidat seperti <b>Debut Top 10</b> dihitung dari simulasi leaderboard nyata, bukan sekadar proxy skor, supaya hasil evaluasinya lebih masuk akal.</p>
                 </div>
             </div>
 
@@ -1064,7 +1097,16 @@
     // Total mencapai 500 item di memori backend.
         ];
 
-        let gameState = { playerName: '', difficulty: '', score: 0, initialTime: 0, timeLeft: 0, timerInterval: null, currentTrash: null, totalAnswered: 0, correctAnswers: 0, isPlaying: false, paused: false, isMuted: false, currentSessionId: null, combo: 0, bestCombo: 0, previousBest: 0, questionQueue: [] };
+        let gameState = { 
+            playerName: '', difficulty: '', score: 0, initialTime: 0, timeLeft: 0, timerInterval: null, currentTrash: null, 
+            totalAnswered: 0, correctAnswers: 0, isPlaying: false, paused: false, isMuted: false, currentSessionId: null, 
+            combo: 0, bestCombo: 0, previousBest: 0, questionQueue: [],
+            categoryStats: {
+                'LAKU JUAL': { correct: 0, total: 0 },
+                'SISA MAKANAN': { correct: 0, total: 0 },
+                'RESIDU': { correct: 0, total: 0 }
+            }
+        };
         let sessionQuestionQueue = [];
         let sessionUniqueAskedSet = new Set();
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -1243,15 +1285,94 @@
             if (combo >= 40 && composite >= 0.80) badge = 'Mythic';
             if (accuracy >= 99 && score >= 950) badge = 'Radiant';
             if (tot >= 200 && composite >= 0.60) badge = 'Veteran';
-
-            // Special tags (more selective)
-            const tags = [];
-            if (typeof prevBest === 'number' && prevBest > 0 && score >= (prevBest + 75) && composite >= 0.45) tags.push('Rising Star');
-            if (tot >= 75 && composite < 0.28) tags.push('Persistent');
-            if (combo >= 25 && composite >= 0.50) tags.push('Combo-Pro');
-
-            if (tags.length) badge += ' (' + tags.join(', ') + ')';
             return badge;
+
+                // Get secondary badge (one per player, if qualifying)
+                function getSecondaryBadge(score, accuracy, bestCombo, prevBest, correct = 0, wrong = 0, total = 0, leaderboardRank = null, attempts = 0) {
+                    const combo = Math.max(0, Number(bestCombo) || 0);
+                    const tot = Number(total) || (Number(correct) || 0) + (Number(wrong) || 0);
+                    const s = Math.min(Math.max(Number(score) || 0, 0), 1200) / 1200;
+                    const a = Math.min(Math.max(Number(accuracy) || 0, 0), 100) / 100;
+                    const c = Math.min(combo, 80) / 80;
+                    const t = Math.min(tot, 300) / 300;
+                    const composite = s * 0.45 + a * 0.27 + c * 0.20 + t * 0.08;
+
+                    // Secondary badges (mutually exclusive, returned in priority order)
+                    if (Number(attempts) === 1 && Number.isFinite(Number(leaderboardRank)) && Number(leaderboardRank) > 0 && Number(leaderboardRank) <= 10) return 'Debut Top 10';
+                    if (combo >= 40 && composite >= 0.80) return 'Combo Beast';
+                    if (typeof prevBest === 'number' && prevBest > 0 && score >= (prevBest + 75) && composite >= 0.45) return 'Rising Star';
+                    if (combo >= 25 && composite >= 0.50) return 'Combo-Pro';
+                    if (tot >= 75 && composite < 0.28) return 'Persistent';
+
+                    return null; // No secondary badge
+                }
+
+                // Get specialty tags (multiple, 0-many per player)
+                function getSpecialtyTags(score, accuracy, bestCombo, prevBest, correct = 0, wrong = 0, total = 0, categoryStats = {}) {
+                    const tags = [];
+                    const combo = Math.max(0, Number(bestCombo) || 0);
+                    const tot = Number(total) || (Number(correct) || 0) + (Number(wrong) || 0);
+                    const s = Math.min(Math.max(Number(score) || 0, 0), 1200) / 1200;
+                    const a = Math.min(Math.max(Number(accuracy) || 0, 0), 100) / 100;
+                    const c = Math.min(combo, 80) / 80;
+                    const t = Math.min(tot, 300) / 300;
+                    const composite = s * 0.45 + a * 0.27 + c * 0.20 + t * 0.08;
+
+                    // Category mastery tags
+                    if (categoryStats && categoryStats['RESIDU']) {
+                        const residuAcc = categoryStats['RESIDU'].total > 0 ? (categoryStats['RESIDU'].correct / categoryStats['RESIDU'].total * 100) : 0;
+                        if (residuAcc >= 95) tags.push('Residu Expert');
+                    }
+                    if (categoryStats && categoryStats['SISA MAKANAN']) {
+                        const sisaMakananAcc = categoryStats['SISA MAKANAN'].total > 0 ? (categoryStats['SISA MAKANAN'].correct / categoryStats['SISA MAKANAN'].total * 100) : 0;
+                        if (sisaMakananAcc >= 95) tags.push('Sisa Makanan Expert');
+                    }
+                    if (categoryStats && categoryStats['LAKU JUAL']) {
+                        const lakuJualAcc = categoryStats['LAKU JUAL'].total > 0 ? (categoryStats['LAKU JUAL'].correct / categoryStats['LAKU JUAL'].total * 100) : 0;
+                        if (lakuJualAcc >= 95) tags.push('Layak Jual Expert');
+                    }
+
+                    // Combo variants
+                    if (combo >= 50) tags.push('Chain Master');
+                    if (combo >= 40 && combo < 50) tags.push('Combo Beast');
+
+                    // Engagement tags
+                    if (tot >= 100) tags.push('Grinder');
+                    else if (tot >= 50) tags.push('Hardcore');
+                    else if (tot >= 5) tags.push('Engaged');
+
+                    // Versatile (balanced accuracy across categories)
+                    if (categoryStats && Object.keys(categoryStats).length > 0) {
+                        const accs = Object.values(categoryStats)
+                            .filter(c => c.total > 0)
+                            .map(c => (c.correct / c.total * 100));
+                        if (accs.length > 0) {
+                            const minAcc = Math.min(...accs);
+                            const maxAcc = Math.max(...accs);
+                            if (maxAcc - minAcc <= 15 && minAcc >= 70) tags.push('Versatile');
+                        }
+                    }
+
+                    // Debut legend (first attempt in top 10 - requires leaderboard context, marked separately)
+                    // This is handled during leaderboard rendering
+
+                    return tags;
+                }
+
+                // Get full badge data: primary, secondary, tags, and formatted display
+                function getFullBadgeData(score, accuracy, bestCombo, prevBest, correct = 0, wrong = 0, total = 0, categoryStats = {}, leaderboardRank = null, attempts = 0) {
+                    const primary = getPerformanceBadge(score, accuracy, bestCombo, prevBest, correct, wrong, total);
+                    const secondary = getSecondaryBadge(score, accuracy, bestCombo, prevBest, correct, wrong, total, leaderboardRank, attempts);
+                    const tags = getSpecialtyTags(score, accuracy, bestCombo, prevBest, correct, wrong, total, categoryStats);
+
+                    // Format display string
+                    let display = primary;
+                    if (secondary) display += ` [${secondary}]`;
+                    if (tags.length > 0) display += ` {${tags.join(', ')}}`;
+
+                    return { primary, secondary, tags, display };
+                }
+
         }
 
         function renderPersonalBestSummaryFromLeaderboard(leaderboardRecord) {
@@ -1265,9 +1386,9 @@
             // Also set final badge label
             const finalBadgeEl = document.getElementById('final-badge');
             if (finalBadgeEl) {
-                const badgeText = getPerformanceBadge(leaderboardRecord.score || 0, leaderboardRecord.accuracy || 0, leaderboardRecord.bestCombo || 0, 0, leaderboardRecord.correct || 0, leaderboardRecord.wrong || 0, leaderboardRecord.total || 0);
-                finalBadgeEl.textContent = badgeText;
-                finalBadgeEl.className = 'inline-flex items-center rounded-full px-3 py-1.5 text-sm md:text-base font-bold ' + getBadgeStyleClass(badgeText);
+                const badgeData = getFullBadgeData(leaderboardRecord.score || 0, leaderboardRecord.accuracy || 0, leaderboardRecord.bestCombo || 0, 0, leaderboardRecord.correct || 0, leaderboardRecord.wrong || 0, leaderboardRecord.total || 0, leaderboardRecord.categoryStats || {}, leaderboardRecord.leaderboardRank || null, leaderboardRecord.attempts || 0);
+                finalBadgeEl.textContent = badgeData.display;
+                finalBadgeEl.className = 'inline-flex items-center rounded-full px-3 py-1.5 text-sm md:text-base font-bold ' + getBadgeStyleClass(badgeData.primary);
             }
         }
 
@@ -1537,9 +1658,9 @@
                 const finalBadgeEl = document.getElementById('final-badge');
                 if (finalBadgeEl) {
                     const r = myRecord || {};
-                    const badgeText = getPerformanceBadge(r.score || 0, r.accuracy || 0, r.bestCombo || 0, 0, r.correct || 0, r.wrong || 0, r.total || 0);
-                    finalBadgeEl.textContent = badgeText;
-                    finalBadgeEl.className = 'inline-flex items-center rounded-full px-3 py-1.5 text-sm md:text-base font-bold ' + getBadgeStyleClass(badgeText);
+                    const badgeData = getFullBadgeData(r.score || 0, r.accuracy || 0, r.bestCombo || 0, 0, r.correct || 0, r.wrong || 0, r.total || 0, r.categoryStats || {}, myRankIndex >= 0 ? myRankIndex + 1 : null, r.attempts || 0);
+                    finalBadgeEl.textContent = badgeData.display;
+                    finalBadgeEl.className = 'inline-flex items-center rounded-full px-3 py-1.5 text-sm md:text-base font-bold ' + getBadgeStyleClass(badgeData.primary);
                 }
             }
             
@@ -1555,7 +1676,7 @@
                 // Highlight skor pemain saat ini (berdasarkan Session ID)
                 const isCurrentPlayer = (run.id === gameState.currentSessionId);
                 if(isCurrentPlayer) tr.classList.add('bg-blue-50', 'border-l-4', 'border-pktBlue');
-                const badgeLabel = getPerformanceBadge(run.score || 0, run.accuracy || 0, run.bestCombo || 0, 0, run.correct || 0, run.wrong || 0, run.total || 0);
+                const badgeData = getFullBadgeData(run.score || 0, run.accuracy || 0, run.bestCombo || 0, 0, run.correct || 0, run.wrong || 0, run.total || 0, run.categoryStats || {}, index + 1, run.attempts || 0);
 
                 tr.innerHTML = `
                     <td class="px-2 py-2 text-center ${rankStyle}">${index + 1}</td>
@@ -1563,7 +1684,7 @@
                         <div class="flex flex-col gap-0.5">
                             <div class="flex flex-wrap items-center gap-2">
                                 <span>${run.name}</span>
-                                <span class="inline-flex items-center whitespace-nowrap rounded-full px-2 py-1 text-[0.6rem] leading-none font-bold ${getBadgeStyleClass(badgeLabel)}">${escapeHtml(badgeLabel)}</span>
+                                <span class="inline-flex items-center whitespace-nowrap rounded-full px-2 py-1 text-[0.6rem] leading-none font-bold ${getBadgeStyleClass(badgeData.primary)}">${escapeHtml(badgeData.display)}</span>
                             </div>
                             <span class="text-[0.6rem] ${run.difficulty === 'Hard' ? 'text-blue-500' : run.difficulty === 'Medium' ? 'text-orange-500' : 'text-green-500'}">${getDifficultyDisplayName(run.difficulty)}</span>
                         </div>
@@ -1613,6 +1734,8 @@
                             wrong: wrongCalc,
                             accuracy: accuracyCalc,
                             bestCombo: gameState.bestCombo || 0
+                            ,
+                            categoryStats: gameState.categoryStats
                         }).catch(err => {
                             console.error("Gagal simpan ke DB", err);
                         });
@@ -1621,6 +1744,10 @@
                         const updates = { attempts: attemptCount };
                         if (gameState.bestCombo && gameState.bestCombo > (existingData.bestCombo || 0)) {
                             updates.bestCombo = gameState.bestCombo;
+                        }
+                        // Update categoryStats
+                        if (gameState.categoryStats) {
+                            updates.categoryStats = gameState.categoryStats;
                         }
                         userRef.update(updates);
                     }
@@ -1688,14 +1815,14 @@
             snapshot.forEach((run, index) => {
                 const tr = document.createElement('tr');
                 tr.className = index % 2 === 0 ? 'bg-white' : 'bg-blue-50/30';
-                const badgeLabel = getPerformanceBadge(run.score || 0, run.accuracy || 0, run.bestCombo || 0, 0, run.correct || 0, run.wrong || 0, run.total || 0);
+                    const badgeData = getFullBadgeData(run.score || 0, run.accuracy || 0, run.bestCombo || 0, 0, run.correct || 0, run.wrong || 0, run.total || 0, run.categoryStats || {}, index + 1, run.attempts || 0);
                 tr.innerHTML = `
                     <td class="px-2 py-2 text-center font-normal">${index + 1}</td>
                     <td class="px-2 py-2 font-semibold text-gray-800 break-all leading-tight">
                         <div class="flex flex-col gap-0.5">
                             <div class="flex flex-wrap items-center gap-2">
                                 <span>${escapeHtml(run.name || '-')}</span>
-                                <span class="inline-flex items-center whitespace-nowrap rounded-full px-2 py-1 text-[0.6rem] leading-none font-bold ${getBadgeStyleClass(badgeLabel)}">${escapeHtml(badgeLabel)}</span>
+                                <span class="inline-flex items-center whitespace-nowrap rounded-full px-2 py-1 text-[0.6rem] leading-none font-bold ${getBadgeStyleClass(badgeData.primary)}">${escapeHtml(badgeData.display)}</span>
                             </div>
                             <span class="text-[0.6rem] ${run.difficulty === 'Hard' ? 'text-blue-500' : run.difficulty === 'Medium' ? 'text-orange-500' : 'text-green-500'}">${escapeHtml(getDifficultyDisplayName(run.difficulty))}</span>
                         </div>
@@ -1806,6 +1933,11 @@
             // Validasi nama tidak lagi dicek di sini karena sudah dicek di attemptStart()
 
             gameState.playerName = name; gameState.difficulty = diff; gameState.score = 0; gameState.initialTime = time; gameState.timeLeft = time; gameState.totalAnswered = 0; gameState.correctAnswers = 0; gameState.isPlaying = true; gameState.paused = false; gameState.currentSessionId = null; gameState.combo = 0; gameState.bestCombo = 0; gameState.questionQueue = [];
+            gameState.categoryStats = {
+                'LAKU JUAL': { correct: 0, total: 0 },
+                'SISA MAKANAN': { correct: 0, total: 0 },
+                'RESIDU': { correct: 0, total: 0 }
+            };
 
             // Set session id early so leaderboard excludes our own DB record while playing
             try {
@@ -1931,11 +2063,16 @@
             if (!gameState.isPlaying || gameState.paused || !gameState.currentTrash) return;
             gameState.totalAnswered++;
 
-            if (gameState.currentTrash.category === category) { // Benar
+            const trashCategory = gameState.currentTrash.category;
+            gameState.categoryStats[trashCategory].total++;
+
+            if (trashCategory === category) { // Benar
                 playSound('correct');
                 gameState.combo++;
                 gameState.bestCombo = Math.max(gameState.bestCombo, gameState.combo);
                 document.getElementById('streak-display').textContent = `Best Combo: x${gameState.bestCombo}`;
+                gameState.correctAnswers++;
+                gameState.categoryStats[trashCategory].correct++;
                 
                 // Tentukan poin sesuai level kesulitan
                 let basePoints = 10;
@@ -1946,7 +2083,7 @@
                 const multiplier = Math.min(gameState.combo, 3);
                 const pointsToAdd = basePoints * multiplier;
 
-                gameState.correctAnswers++; gameState.score += pointsToAdd;
+                gameState.score += pointsToAdd;
                 
                 uis.trashContainer.classList.add('anim-toss');
                 uis.scoreDisp.classList.add('text-green-500', 'scale-125', 'transition');
@@ -2008,10 +2145,10 @@
             document.getElementById('final-total-answered').textContent = gameState.totalAnswered;
             document.getElementById('final-correct').textContent = gameState.correctAnswers;
             document.getElementById('final-wrong').textContent = wrongAnswers;
-            const finalBadgeText = getPerformanceBadge(gameState.score, accuracy, gameState.bestCombo, gameState.previousBest || 0, gameState.correctAnswers || 0, wrongAnswers || 0, gameState.totalAnswered || 0);
+            const finalBadgeData = getFullBadgeData(gameState.score, accuracy, gameState.bestCombo, gameState.previousBest || 0, gameState.correctAnswers || 0, wrongAnswers || 0, gameState.totalAnswered || 0, gameState.categoryStats, null, 1);
             const finalBadgeEl = document.getElementById('final-badge');
-            finalBadgeEl.textContent = finalBadgeText;
-            finalBadgeEl.className = 'inline-flex items-center rounded-full px-3 py-1.5 text-sm md:text-base font-bold ' + getBadgeStyleClass(finalBadgeText);
+            finalBadgeEl.textContent = finalBadgeData.display;
+            finalBadgeEl.className = 'inline-flex items-center rounded-full px-3 py-1.5 text-sm md:text-base font-bold ' + getBadgeStyleClass(finalBadgeData.primary);
             renderPersonalBestSummaryFromLeaderboard(null);
             updateSessionUniqueProgressUI();
 
