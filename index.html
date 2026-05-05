@@ -1706,10 +1706,11 @@
                     }
             }
             
-            // Build current ranks map for this render
+            // Build current ranks map for this render (map by id and by lowercase name as fallback)
             const currentRanks = {};
             filteredLeaderboardData.forEach((run, index) => {
-                if (run && run.id) currentRanks[run.id] = index;
+                if (run && run.id) currentRanks[`id:${run.id}`] = index;
+                if (run && run.name) currentRanks[`name:${String(run.name).toLowerCase()}`] = index;
                 const tr = document.createElement('tr');
                 tr.className = index % 2 === 0 ? 'bg-white' : 'bg-blue-50/30';
                 
@@ -1720,7 +1721,9 @@
 
                 // Determine position change indicator (▲ up, ▼ down, — same, ★ new)
                 if (typeof window.__prevLeaderboardRanks === 'undefined') window.__prevLeaderboardRanks = {};
-                const prevIndex = (run && run.id) ? window.__prevLeaderboardRanks[run.id] : undefined;
+                let prevIndex = undefined;
+                if (run && run.id && window.__prevLeaderboardRanks.hasOwnProperty(`id:${run.id}`)) prevIndex = window.__prevLeaderboardRanks[`id:${run.id}`];
+                else if (run && run.name && window.__prevLeaderboardRanks.hasOwnProperty(`name:${String(run.name).toLowerCase()}`)) prevIndex = window.__prevLeaderboardRanks[`name:${String(run.name).toLowerCase()}`];
                 let posChange = '—';
                 let posClass = 'text-gray-400';
                 if (typeof prevIndex === 'undefined') { posChange = '★'; posClass = 'text-blue-500'; }
@@ -1881,9 +1884,11 @@
 
             body.innerHTML = '';
             snapshot.forEach((run, index) => {
-                // determine pos change using last saved ranks
+                // determine pos change using last saved ranks (support id and name fallback)
                 if (typeof window.__prevLeaderboardRanks === 'undefined') window.__prevLeaderboardRanks = {};
-                const prevIdx = (run && run.id) ? window.__prevLeaderboardRanks[run.id] : undefined;
+                let prevIdx = undefined;
+                if (run && run.id && window.__prevLeaderboardRanks.hasOwnProperty(`id:${run.id}`)) prevIdx = window.__prevLeaderboardRanks[`id:${run.id}`];
+                else if (run && run.name && window.__prevLeaderboardRanks.hasOwnProperty(`name:${String(run.name).toLowerCase()}`)) prevIdx = window.__prevLeaderboardRanks[`name:${String(run.name).toLowerCase()}`];
                 let pChange = '—';
                 let pClass = 'text-gray-400';
                 if (typeof prevIdx === 'undefined') { pChange = '★'; pClass = 'text-blue-500'; }
