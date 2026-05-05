@@ -1477,7 +1477,7 @@
             }
 
             if (filteredLeaderboardData.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="10" class="text-center py-4 text-gray-500">Belum ada skor yang dicatat.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="9" class="text-center py-4 text-gray-500">Belum ada skor yang dicatat.</td></tr>';
                 if (rankDisplay) rankDisplay.textContent = '-';
                 return;
             }
@@ -1515,18 +1515,16 @@
                 tr.innerHTML = `
                     <td class="px-2 py-2 text-center ${rankStyle}">${index + 1}</td>
                     <td class="px-2 py-2 font-semibold ${isCurrentPlayer ? 'text-pktBlue' : 'text-gray-800'} break-all leading-tight">
-                        ${run.name} <br> <span class="md:hidden text-[0.6rem] ${run.difficulty === 'Hard' ? 'text-blue-500' : run.difficulty === 'Medium' ? 'text-orange-500' : 'text-green-500'}">${getDifficultyDisplayName(run.difficulty)}</span>
+                        <div class="flex flex-col gap-0.5">
+                            <span>${run.name}</span>
+                            <span class="text-[0.6rem] ${run.difficulty === 'Hard' ? 'text-blue-500' : run.difficulty === 'Medium' ? 'text-orange-500' : 'text-green-500'}">${getDifficultyDisplayName(run.difficulty)}</span>
+                        </div>
                     </td>
                     <td class="px-3 py-2 text-center"><span class="inline-block px-2 py-1 rounded-full text-[0.68rem] font-bold bg-gray-50 border border-gray-200 text-gray-700">${escapeHtml(badgeLabel)}</span></td>
                     <td class="px-2 py-2 text-center font-bold text-pktOrange">${run.score}</td>
                     <td class="px-2 py-2 text-center font-bold text-pktBlue">${run.bestCombo || 0}</td>
                     <td class="px-2 py-2 text-center text-xs hidden md:table-cell font-bold text-gray-600">${run.accuracy || 0}%</td>
                     <td class="px-2 py-2 text-center text-xs hidden lg:table-cell text-gray-600 font-bold">${run.total || 0}/${run.correct || 0}/${run.wrong || 0}
-                    </td>
-                    <td class="px-2 py-2 text-center text-xs hidden md:table-cell">
-                        <span class="${run.difficulty === 'Hard' ? 'text-blue-600' : run.difficulty === 'Medium' ? 'text-orange-600' : 'text-green-600'} font-bold">
-                            ${getDifficultyDisplayName(run.difficulty)}
-                        </span>
                     </td>
                     <td class="px-2 py-2 text-center text-[0.65rem] text-gray-500">${run.timestamp ? new Date(run.timestamp).toLocaleString('id-ID', {day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit', second:'2-digit'}) : '-'}</td>
                     <td class="px-2 py-2 text-center text-xs font-bold text-gray-600">${run.attempts || 1}x</td>
@@ -1635,7 +1633,7 @@
 
             const snapshot = filterLeaderboardByDifficulty(Array.isArray(window.__latestLeaderboardData) ? window.__latestLeaderboardData : [], leaderboardPreviewFilter);
             if (snapshot.length === 0) {
-                body.innerHTML = '<tr><td colspan="10" class="text-center py-4 text-gray-500">Belum ada skor yang dicatat.</td></tr>';
+                body.innerHTML = '<tr><td colspan="9" class="text-center py-4 text-gray-500">Belum ada skor yang dicatat.</td></tr>';
                 return;
             }
 
@@ -1647,16 +1645,16 @@
                 tr.innerHTML = `
                     <td class="px-2 py-2 text-center font-normal">${index + 1}</td>
                     <td class="px-2 py-2 font-semibold text-gray-800 break-all leading-tight">
-                        ${escapeHtml(run.name || '-')}
-                        <br>
-                        <span class="md:hidden text-[0.6rem] ${run.difficulty === 'Hard' ? 'text-blue-500' : run.difficulty === 'Medium' ? 'text-orange-500' : 'text-green-500'}">${escapeHtml(getDifficultyDisplayName(run.difficulty))}</span>
+                        <div class="flex flex-col gap-0.5">
+                            <span>${escapeHtml(run.name || '-')}</span>
+                            <span class="text-[0.6rem] ${run.difficulty === 'Hard' ? 'text-blue-500' : run.difficulty === 'Medium' ? 'text-orange-500' : 'text-green-500'}">${escapeHtml(getDifficultyDisplayName(run.difficulty))}</span>
+                        </div>
                     </td>
                     <td class="px-3 py-2 text-center"><span class="inline-block px-2 py-1 rounded-full text-[0.68rem] font-bold bg-gray-50 border border-gray-200 text-gray-700">${escapeHtml(badgeLabel)}</span></td>
                     <td class="px-2 py-2 text-center font-bold text-pktOrange">${run.score || 0}</td>
                     <td class="px-2 py-2 text-center font-bold text-pktBlue">${run.bestCombo || 0}</td>
                     <td class="px-2 py-2 text-center text-xs hidden md:table-cell font-bold text-gray-600">${run.accuracy || 0}%</td>
                     <td class="px-2 py-2 text-center text-xs hidden lg:table-cell text-gray-600 font-bold">${run.total || 0}/${run.correct || 0}/${run.wrong || 0}</td>
-                    <td class="px-2 py-2 text-center text-xs hidden md:table-cell font-semibold text-gray-700">${escapeHtml(getDifficultyDisplayName(run.difficulty))}</td>
                     <td class="px-2 py-2 text-center text-[0.65rem] text-gray-500">${run.timestamp ? new Date(run.timestamp).toLocaleString('id-ID', {day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit', second:'2-digit'}) : '-'}</td>
                     <td class="px-2 py-2 text-center text-xs font-bold text-gray-600">${run.attempts || 1}x</td>
                 `;
