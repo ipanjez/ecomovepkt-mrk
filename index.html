@@ -214,12 +214,11 @@
                     <p class="text-[0.85rem] md:text-sm leading-relaxed">Papan skor akan tercatat dan diperbarui secara <i>real-time</i> menembus berbagai <i>device</i>! Sistem sangat pintar: ia otomatis melacak jika Anda bermain berulang kali menggunakan nama yang sama. Hanya <b>skor tertinggi</b> Anda yang akan tampil, dan sistem akan menyimpan riwayat seberapa banyak Anda telah memainkannya pada kolom <b>Coba</b>.</p>
                 </div>
 
-                <!-- Tantang / Target Section -->
+                <!-- Proximity Scoring Section -->
                 <div>
-                    <h3 class="font-bold text-gray-900 mb-2 border-l-4 border-blue-400 pl-3 flex items-center gap-2">🎯 Tantang Pemain & Target</h3>
-                    <p class="text-[0.85rem] md:text-sm leading-relaxed">Di papan Top 5 terdapat tombol untuk melihat detail pemain. Anda dapat menekan <b>Tantang</b> pada detail pemain untuk menjadikan skor mereka sebagai <b>Target Terdekat</b> — sistem akan menampilkan pemain yang berada tepat di atas skor Anda (nama &amp; skor). Ketika Anda mencapai skor target, akan muncul notifikasi dan konfeti kecil sebagai perayaan.</p>
-                    <p class="text-[0.85rem] md:text-sm leading-relaxed">Jika Anda sudah memiliki target, tombol <b>Batal Tantangan</b> akan muncul di bagian atas layar untuk membatalkan target tersebut kapan saja. Bila tidak ada target, tombol ini disembunyikan.</p>
-                    <p class="text-[0.85rem] md:text-sm leading-relaxed">Fitur ini disederhanakan: Target Terdekat hanya menampilkan nama dan skor pemain yang berdiri satu tingkat di atas Anda saat ini. Untuk menantang pemain lain, buka detail pemain dan tekan <b>Tantang</b>.</p>
+                    <h3 class="font-bold text-gray-900 mb-2 border-l-4 border-blue-400 pl-3 flex items-center gap-2">🏁 Proximity Scoring (Delta Timing)</h3>
+                    <p class="text-[0.85rem] md:text-sm leading-relaxed">Sistem <b>Proximity Scoring</b> secara otomatis melacak pemain terdekat yang berada di atas skor Anda saat bermain. Fitur ini seperti sistem <b>Delta Timing</b> pada game balap — menampilkan <b>siapa yang harus kamu balap</b> dan <b>seberapa jauh jarak Anda dari rivalnya</b>.</p>
+                    <p class="text-[0.85rem] md:text-sm leading-relaxed">Leaderboard Top menampilkan semua pemain secara horizontal di bagian atas layar (dapat digeser kiri-kanan). Sistem akan menyoroti pemain terdekat di atas skor Anda sebagai <b>Rival Target</b>. Ketika Anda mencapai atau melampaui skor rival tersebut, sistem secara otomatis memilih rival berikutnya dan merayakannya dengan konfeti!</p>
                 </div>
             </div>
 
@@ -266,13 +265,10 @@
             <div class="w-full max-w-3xl bg-white/95 backdrop-blur rounded-2xl p-3 shadow-lg border border-blue-100 text-sm">
                 <div class="flex items-center justify-between mb-2">
                     <div class="font-bold text-gray-700 uppercase tracking-wider">Top 5 Leaderboard</div>
-                    <div class="flex items-center gap-3">
-                        <div class="text-xs text-gray-600">Skor Anda: <span id="ingame-score">0</span></div>
-                        <button id="clear-target-btn" style="display:none" class="text-xs bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded-md font-semibold">Batal Tantangan</button>
-                    </div>
+                    <div class="text-xs text-gray-600">Skor Anda: <span id="ingame-score">0</span></div>
                 </div>
-                <div id="ingame-leaderboard" class="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
-                    <div class="text-gray-400 italic">Memuat Top 5...</div>
+                <div id="ingame-leaderboard" class="flex gap-2 overflow-x-auto pb-1 no-scrollbar text-sm">
+                    <div class="text-gray-400 italic">Memuat Leaderboard...</div>
                 </div>
             </div>
         </div>
@@ -593,50 +589,9 @@
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         
         let selectedDiffObj = null;
-        // Track last rendered in-game progress percent for animation triggers
-        let lastInGameProgress = 0;
-        // Target challenge state (player id & score)
-        gameState.targetPlayerId = null;
-        gameState.targetScore = null;
-        gameState.targetReached = false;
-
-        const CHALLENGE_STORAGE_KEY = 'em_challenge_target';
-
-        function saveChallengeTargetToStorage() {
-            try {
-                if (!gameState.targetPlayerId) { localStorage.removeItem(CHALLENGE_STORAGE_KEY); return; }
-                const payload = { id: gameState.targetPlayerId, score: gameState.targetScore };
-                localStorage.setItem(CHALLENGE_STORAGE_KEY, JSON.stringify(payload));
-            } catch (e) {}
-        }
-
-        function loadChallengeTargetFromStorage() {
-            try {
-                const raw = localStorage.getItem(CHALLENGE_STORAGE_KEY);
-                if (!raw) return;
-                const obj = JSON.parse(raw);
-                if (obj && obj.id) {
-                    gameState.targetPlayerId = obj.id;
-                    gameState.targetScore = obj.score || 0;
-                    gameState.targetReached = false;
-                    try { updateClearTargetButtonUI(); } catch(e) {}
-                }
-            } catch (e) {}
-        }
-
-        function clearChallengeTarget() {
-            gameState.targetPlayerId = null; gameState.targetScore = null; gameState.targetReached = false;
-            try { localStorage.removeItem(CHALLENGE_STORAGE_KEY); } catch(e) {}
-            try { updateClearTargetButtonUI(); } catch(e) {}
-            // re-render leaderboard to remove highlight
-            leaderboardRef.once('value').then(snapshot => {
-                const data = snapshot.val(); let arr = [];
-                if (data) for (let k in data) arr.push({ id: k, ...data[k] });
-                arr.sort((a,b) => b.score - a.score);
-                renderLeaderboardTable(arr.slice(0,10), arr);
-            }).catch(()=>{});
-            showFeedback('Tantangan dibatalkan', 'text-gray-600');
-        }
+        // Proximity Scoring state: nearest rival above current player
+        let nearestRival = null;
+        let nearestRivalReached = false;
 
         function selectDifficulty(diffName, time, btnEl) {
             selectedDiffObj = { name: diffName, time: time };
@@ -809,9 +764,7 @@
 
             // Urutkan berdasarkan skor tertinggi (DESC)
             arrData.sort((a, b) => b.score - a.score);
-            // restore persisted challenge target (if any)
-            loadChallengeTargetFromStorage();
-            renderLeaderboardTable(arrData.slice(0, 10), arrData); // Tampilkan 10 terbaik, hitung rank dari semua data
+            renderLeaderboardTable(arrData.slice(0, 10), arrData); // Tampilkan 10 terbaik di table, semua di leaderboard horizontal
         }, (error) => {
             document.getElementById('db-status').textContent = 'Gagal Konek ke DB';
             document.getElementById('db-status').className = 'text-xs font-bold text-red-500';
@@ -823,108 +776,51 @@
             tbody.innerHTML = '';
             const rankDisplay = document.getElementById('final-rank');
             
-            // Render In-Game Top 5 Leaderboard as progress-style target
+            // Render horizontal in-game leaderboard with Proximity Scoring (Delta Timing)
             const inGameLb = document.getElementById('ingame-leaderboard');
             if (inGameLb) {
                 inGameLb.innerHTML = '';
-
-                // Determine player's current score (use session score if playing)
                 const playerScore = (typeof gameState.score === 'number') ? gameState.score : 0;
-
-                // Find next higher score (smallest score > playerScore) from fullLeaderboardData
-                let nextHigher = null; let nextHigherIdx = -1;
-                for (let i = 0; i < fullLeaderboardData.length; i++) {
-                    if (fullLeaderboardData[i].score > playerScore) { nextHigher = fullLeaderboardData[i]; nextHigherIdx = i; break; }
-                }
-
-                // Find previous lower bound (largest score <= playerScore) or 0
-                let prevLower = { score: 0, name: 'Terendah' };
-                for (let i = 0; i < fullLeaderboardData.length; i++) {
-                    if (fullLeaderboardData[i].score <= playerScore) {
-                        // since list is sorted DESC, keep updating until the last one <= playerScore
-                        prevLower = fullLeaderboardData[i];
-                    }
-                }
-
-                // Progress calculation
-                let progressPct = 0;
-                if (!nextHigher) {
-                    // Player is at top (or no higher exists)
-                    progressPct = 100;
+                
+                // Render all players as horizontal scrollable chips
+                if (fullLeaderboardData.length === 0) {
+                    const note = document.createElement('div');
+                    note.className = 'text-gray-400 italic text-sm';
+                    note.textContent = 'Belum ada skor. Mulai bermain untuk melihat leaderboard!';
+                    inGameLb.appendChild(note);
                 } else {
-                    const low = prevLower.score || 0;
-                    const high = nextHigher.score;
-                    const range = Math.max(1, high - low);
-                    progressPct = Math.max(0, Math.min(100, Math.round(((playerScore - low) / range) * 100)));
-                }
-
-                // Build simplified "Target Terdekat" UI (only next higher player's name and score)
-                const wrapper = document.createElement('div');
-                wrapper.className = 'w-full bg-white rounded-lg p-3 border shadow-sm flex items-center justify-between';
-                wrapper.innerHTML = `
-                    <div class="flex flex-col">
-                        <div class="text-sm font-bold text-gray-700">Target Terdekat</div>
-                        <div class="text-xs text-gray-500">Pemain di atas skor real-time Anda</div>
-                    </div>
-                    <div class="text-right">
-                        ${nextHigher ? `<div class="text-sm font-extrabold text-pktBlue">${escapeHtml(nextHigher.name)}</div><div class="text-xs text-gray-600">${nextHigher.score}</div>` : `<div class="text-sm font-extrabold text-pktBlue">Anda Peringkat 1</div>`}
-                    </div>
-                `;
-
-                inGameLb.appendChild(wrapper);
-
-                // If there is a nextHigher player, make that area clickable to view details and challenge
-                if (nextHigher) {
-                    wrapper.style.cursor = 'pointer';
-                    wrapper.addEventListener('click', (ev) => { ev.stopPropagation(); showPlayerDetail(nextHigher); });
-                }
-
-                // Also render compact top5 chips below progress for context
-                const chips = document.createElement('div');
-                chips.className = 'flex gap-2 mt-3 overflow-x-auto no-scrollbar';
-                const top5 = leaderboardData.slice(0,5);
-                if (top5.length === 0) {
-                    const note = document.createElement('div'); note.className = 'text-gray-400 italic'; note.textContent = 'Belum ada skor'; chips.appendChild(note);
-                } else {
-                    top5.forEach((run, idx) => {
+                    fullLeaderboardData.forEach((run, idx) => {
                         const chip = document.createElement('div');
-                        const isPlayer = (run.id === gameState.currentSessionId) || (run.name === gameState.playerName);
-                        chip.className = `px-3 py-1 rounded-lg border shadow-sm min-w-[88px] text-center ${isPlayer ? 'bg-blue-100 text-pktBlue border-blue-300' : (idx===0 ? 'bg-yellow-100 text-yellow-700 border-yellow-300' : 'bg-white text-gray-600 border-gray-200')}`;
-                        chip.innerHTML = `<div class="font-bold truncate">#${idx+1} ${run.name}</div><div class="font-black">${run.score}</div>`;
-                        chips.appendChild(chip);
+                        const isCurrentPlayer = (run.id === gameState.currentSessionId);
+                        const delta = playerScore > 0 ? (run.score - playerScore) : run.score;
+                        const deltaText = delta > 0 ? `+${delta}` : (delta === 0 ? '0' : `${delta}`);
+                        const deltaColor = delta > 0 ? 'text-red-500' : (delta === 0 ? 'text-green-600' : 'text-green-600');
+                        
+                        chip.className = `flex flex-col items-center px-3 py-2 rounded-lg border shadow-sm min-w-[110px] text-center flex-shrink-0 transition-all ${
+                            isCurrentPlayer ? 'bg-blue-100 text-pktBlue border-pktBlue ring-2 ring-pktBlue' : 
+                            idx === 0 ? 'bg-yellow-100 text-yellow-700 border-yellow-300' : 
+                            'bg-white text-gray-700 border-gray-200'
+                        }`;
+                        chip.innerHTML = `
+                            <div class="font-bold text-sm">#${idx+1} ${escapeHtml(run.name || 'Player')}</div>
+                            <div class="font-black text-lg text-pktOrange">${run.score}</div>
+                            ${playerScore > 0 ? `<div class="text-xs ${deltaColor} font-bold">Δ ${deltaText}</div>` : ''}
+                        `;
+                        inGameLb.appendChild(chip);
                     });
                 }
-                // make chips clickable to view player detail
-                // highlight targeted chip when set
-                if (gameState.targetPlayerId) {
-                    Array.from(chips.children).forEach((chip, idx) => {
-                        const r = top5[idx];
-                        if (!r) return;
-                        if (r.id === gameState.targetPlayerId) {
-                            chip.classList.add('ring-2', 'ring-pktBlue', 'scale-[1.02]');
-                        }
-                    });
-                }
-
-                inGameLb.appendChild(chips);
-                Array.from(chips.children).forEach((chip, idx) => {
-                    const run = top5[idx];
-                    if (!run) return;
-                    chip.style.cursor = 'pointer';
-                    chip.addEventListener('click', (ev) => {
-                        ev.stopPropagation();
-                        showPlayerDetail(run);
-                    });
-                });
-
-                // animate progress when it increases
-                try {
-                    if (progressPct > lastInGameProgress) {
-                        wrapper.classList.add('progress-pulse');
-                        setTimeout(() => wrapper.classList.remove('progress-pulse'), 520);
+                
+                // Update Proximity Scoring: identify nearest rival above player
+                let nextHigher = null;
+                for (let i = 0; i < fullLeaderboardData.length; i++) {
+                    if (fullLeaderboardData[i].score > playerScore) {
+                        nextHigher = fullLeaderboardData[i];
+                        break;
                     }
-                } catch(e) {}
-                lastInGameProgress = progressPct;
+                }
+                
+                // Store nearest rival for use in updateScoreUI
+                nearestRival = nextHigher;
             }
 
             if (leaderboardData.length === 0) {
@@ -1017,7 +913,7 @@
             }
         }
 
-        // Show a modal with player details (invoked from top5 chips)
+        // Show a modal with player details
         function showPlayerDetail(record) {
             // Remove existing modal if present
             const existing = document.getElementById('player-detail-modal');
@@ -1034,7 +930,6 @@
                     <div class="meta">Level: <strong>${record.difficulty || '-'}</strong> &nbsp; • &nbsp; Percobaan: <strong>${record.attempts || 1}x</strong></div>
                     <div class="meta">Waktu: <strong>${record.timestamp ? new Date(record.timestamp).toLocaleString() : '-'}</strong></div>
                     <div style="margin-top:12px; display:flex; gap:8px; align-items:center;">
-                        <button id="challenge-btn" class="bg-pktBlue text-white px-3 py-2 rounded-md font-bold">Tantang</button>
                         <button id="close-info-btn" class="bg-gray-100 px-3 py-2 rounded-md">Tutup</button>
                     </div>
                     <div style="margin-top:12px; color:#334155;">Klik di luar kotak untuk menutup.</div>
@@ -1045,15 +940,6 @@
             modal.querySelector('.close-btn').addEventListener('click', () => modal.remove());
             modal.querySelector('#close-info-btn').addEventListener('click', () => modal.remove());
             modal.addEventListener('click', (ev) => { if (ev.target === modal) modal.remove(); });
-
-            // Challenge button: set target to this player
-            const challengeBtn = modal.querySelector('#challenge-btn');
-            if (challengeBtn) {
-                challengeBtn.addEventListener('click', () => {
-                    setChallengeTarget(record);
-                    modal.remove();
-                });
-            }
 
             document.body.appendChild(modal);
         }
@@ -1072,26 +958,6 @@
         }
 
         function escapeHtml(s) { return (s+'').replace(/[&<>"']/g, function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[m]; }); }
-
-                // Set the selected challenge target (highlight + store)
-                function setChallengeTarget(record) {
-                    if (!record || !record.id) return;
-                    gameState.targetPlayerId = record.id;
-                    gameState.targetScore = record.score || 0;
-                    gameState.targetReached = false;
-                    showFeedback('Target diset ke ' + record.name, 'text-pktBlue');
-
-                    // Refresh leaderboard rendering (read current DB snapshot and re-render)
-                    leaderboardRef.once('value').then(snapshot => {
-                        const data = snapshot.val();
-                        let arrData = [];
-                        if (data) for (let k in data) arrData.push({ id: k, ...data[k] });
-                        arrData.sort((a,b) => b.score - a.score);
-                        // persist challenge target
-                        try { saveChallengeTargetToStorage(); } catch(e) {}
-                        renderLeaderboardTable(arrData.slice(0,10), arrData);
-                    }).catch(() => {});
-                }
 
                 // Simple confetti effect (DOM-based, lightweight)
                 function launchConfetti() {
@@ -1124,27 +990,7 @@
                     root.appendChild(frag);
                 }
 
-                // Wire up the "Batal Tantangan" button to clear the persisted challenge
-                try {
-                    const clearBtn = document.getElementById('clear-target-btn');
-                    if (clearBtn) clearBtn.addEventListener('click', (ev) => { ev.stopPropagation(); clearChallengeTarget(); });
-                } catch(e) {}
 
-                // Toggle visibility for the clear-target button based on whether a challenge is active
-                function updateClearTargetButtonUI() {
-                    try {
-                        const clearBtn = document.getElementById('clear-target-btn');
-                        if (!clearBtn) return;
-                        if (gameState.targetPlayerId) {
-                            clearBtn.style.display = '';
-                        } else {
-                            clearBtn.style.display = 'none';
-                        }
-                    } catch(e) {}
-                }
-
-                // ensure UI initial state
-                try { updateClearTargetButtonUI(); } catch(e) {}
 
         // ==========================================
         // 4. GAME ENGINE LOGIC
@@ -1167,6 +1013,10 @@
             // Validasi nama tidak lagi dicek di sini karena sudah dicek di attemptStart()
 
             gameState.playerName = name; gameState.difficulty = diff; gameState.score = 0; gameState.initialTime = time; gameState.timeLeft = time; gameState.totalAnswered = 0; gameState.correctAnswers = 0; gameState.isPlaying = true; gameState.paused = false; gameState.currentSessionId = null; gameState.combo = 0; gameState.bestCombo = 0; gameState.questionQueue = [];
+
+            // Reset Proximity Scoring state
+            nearestRival = null;
+            nearestRivalReached = false;
 
             const comboDisp = document.getElementById('combo-display');
             comboDisp.textContent = '';
@@ -1210,13 +1060,13 @@
         function updateScoreUI() {
             uis.scoreDisp.textContent = gameState.score;
             if(document.getElementById('ingame-score')) document.getElementById('ingame-score').textContent = gameState.score;
-            // Check if a challenge target exists and whether we've reached it
-            if (gameState.targetScore && !gameState.targetReached && gameState.score >= gameState.targetScore) {
-                gameState.targetReached = true;
-                showFeedback('Target Tercapai! 🎉', 'text-green-500');
+            
+            // Proximity Scoring: Check if we've reached the nearest rival above us
+            if (nearestRival && !nearestRivalReached && gameState.score >= nearestRival.score) {
+                nearestRivalReached = true;
+                showFeedback('Rival Terlampaui! 🎉 ' + nearestRival.name, 'text-green-500');
                 try { launchConfetti(); } catch(e) {}
-                // optional: clear target after reached
-                // gameState.targetPlayerId = null; gameState.targetScore = null;
+                // The leaderboard will re-render on next Firebase update to find the next nearest rival
             }
         }
 
