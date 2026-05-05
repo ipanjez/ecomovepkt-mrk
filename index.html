@@ -290,7 +290,7 @@
                     <h3 class="font-bold text-gray-900 mb-2 border-l-4 border-pktOrange pl-3 flex items-center gap-2">🏅 Badge Performa</h3>
                         <p class="text-[0.85rem] md:text-sm leading-relaxed">Sistem badge utama memakai metrik komposit dari skor, akurasi, combo terbaik, dan ketekunan. Bobotnya: skor 45%, akurasi 27%, combo 20%, dan jumlah percobaan 8%. Semakin besar nilainya, semakin tinggi tier badge utama.</p>
                         <ul class="list-disc pl-6 mt-2 text-[0.8rem] md:text-sm space-y-1.5">
-                            <li><b>Pemula</b>: pemain baru dengan &lt;2 percobaan dan skor sangat rendah.</li>
+                            <li><b>Iron</b>: pemain baru dengan &lt;2 percobaan dan skor sangat rendah.</li>
                             <li><b>Warrior</b>: performa terendah, biasanya skor rendah atau akurasi &lt;50%.</li>
                             <li><b>Bronze</b>: sekitar 200–400 poin atau akurasi 50–65%.</li>
                             <li><b>Silver</b>: sekitar 400–600 poin atau akurasi 65–75% dengan combo masih rendah.</li>
@@ -1239,7 +1239,7 @@
             const baseBadge = badgeLabel.split(' (')[0].toLowerCase();
             
             const tierMap = {
-                'pemula': 'badge-warrior',
+                'Iron': 'badge-warrior',
                 'warrior': 'badge-warrior',
                 'bronze': 'badge-bronze',
                 'silver': 'badge-silver',
@@ -1265,7 +1265,7 @@
             const tot = Number(total) || (Number(correct) || 0) + (Number(wrong) || 0);
 
             // Beginner detection
-            if (tot <= 1 && (score || 0) < 60) return 'Pemula';
+            if (tot <= 1 && (score || 0) < 60) return 'Iron';
 
             // Normalize inputs
             const s = Math.min(Math.max(Number(score) || 0, 0), 1200) / 1200;
