@@ -1084,7 +1084,7 @@
             leaderboardEndFilter = value || 'All';
             syncLeaderboardFilterRadios('leaderboard-end-filter', leaderboardEndFilter);
             if (window.__latestLeaderboardData && Array.isArray(window.__latestLeaderboardData)) {
-                renderLeaderboardTable(window.__latestLeaderboardData.slice(0, 10), window.__latestLeaderboardData);
+                renderLeaderboardTable(window.__latestLeaderboardData, window.__latestLeaderboardData);
             }
         }
 
