@@ -692,56 +692,54 @@
         }
 
         function getPerformanceBadge(score, accuracy, bestCombo, prevBest, correct = 0, wrong = 0, total = 0) {
-            // Revamped badge system — ordered from rarest (highest) to common (lowest).
+            // Practical badge thresholds tuned to per-session limits (30s/45s/60s)
+            // Estimates: realistic answers per session ~30-70 depending on difficulty and speed.
             const combo = bestCombo || 0;
             const tot = total || (correct + wrong) || 0;
 
-            // Ultra-rare: supreme all-rounder (very hard)
-            if (combo >= 50 && score >= 1400 && accuracy >= 98 && correct >= Math.max(250, Math.floor(tot * 0.97))) return 'MYTHIC SUPREME ✪';
+            // Top rare badges (require exceptional performance within a session)
+            if (combo >= 30 && score >= 1500 && accuracy >= 98 && correct >= 50) return 'MYTHIC SUPREME ✪';
+            if (combo >= 22 && score >= 1000 && accuracy >= 96) return 'MYTHIC ✪';
 
-            // Extremely rare combined feats
-            if (combo >= 35 && score >= 1000 && accuracy >= 96) return 'MYTHIC ✪';
-            if (score >= 1100 && accuracy >= 97 && correct >= 200) return 'MYTHIC ✪';
+            // High tier mixes
+            if (score >= 800 && accuracy >= 94 && combo >= 18) return 'GRANDMASTER 🧠';
+            if (score >= 650 && accuracy >= 92 && combo >= 14) return 'LEGEND ♛';
 
-            // High tier skill + combo mixes
-            if (score >= 900 && accuracy >= 94 && combo >= 25) return 'GRANDMASTER 🧠';
-            if (score >= 800 && accuracy >= 92 && combo >= 18) return 'LEGEND ♛';
+            // Volume badges (realistic per-session totals)
+            if (tot >= 120) return 'ULTRA MARATHONER 🏃‍♂️';
+            if (tot >= 70) return 'MARATHONER 🏃';
 
-            // Marathon / volume badges (answered many questions)
-            if (tot >= 500) return 'ULTRA MARATHONER 🏃‍♂️';
-            if (tot >= 300) return 'MARATHONER 🏃';
-
-            // Perseverance / many wrongs (fun badge)
-            if (wrong >= 200) return 'PERSEVERER 🔁';
-            if (wrong >= 100) return 'HARD-TRIER ⚠️';
+            // Perseverance / many wrongs (encourage retrying)
+            if (wrong >= 40) return 'PERSEVERER 🔁';
+            if (wrong >= 20) return 'HARD-TRIER ⚠️';
 
             // Combo-first tiers (reward streak specialists)
-            if (combo >= 30) return 'MYTHIC COMBO ✪';
-            if (combo >= 22) return 'GRAND COMBO 🧨';
-            if (combo >= 16) return 'COMBO LEGEND 🔱';
-            if (combo >= 12) return 'COMBO MASTER 🔥';
-            if (combo >= 8) return 'COMBO TITAN 🔥';
-            if (combo >= 5) return 'COMBO HUNTER 🎯';
+            if (combo >= 20) return 'MYTHIC COMBO ✪';
+            if (combo >= 15) return 'GRAND COMBO 🧨';
+            if (combo >= 11) return 'COMBO LEGEND 🔱';
+            if (combo >= 8) return 'COMBO MASTER 🔥';
+            if (combo >= 6) return 'COMBO TITAN 🔥';
+            if (combo >= 4) return 'COMBO HUNTER 🎯';
 
-            // Correct-answer volume badges
-            if (correct >= 300) return 'TRUE CHAMP ✅';
-            if (correct >= 150) return 'TRUE HITTER ✅';
+            // Correct-answer volume badges (realistic)
+            if (correct >= 60) return 'TRUE CHAMP ✅';
+            if (correct >= 30) return 'TRUE HITTER ✅';
 
             // Precision and score-focused badges
             if (accuracy >= 97 && score >= 450) return 'PRECISION ACE 🎯';
             if (score >= 1000 && accuracy >= 95) return 'MASTER OF EARTH ⚡';
-            if (score >= 560 && accuracy >= 84) return 'MASTER ⚡';
+            if (score >= 500 && accuracy >= 84) return 'MASTER ⚡';
 
             // Balanced performance badges
-            if (score >= 420 && accuracy >= 76) return 'EXPLORER 🌱';
-            if (score >= 280 && accuracy >= 72) return 'ECO CHAMPION 🌿';
-            if (accuracy >= 92 && score >= 250) return 'SUSTAINER ♻️';
-            if (accuracy >= 85 && score >= 180) return 'STEADY HAND 🛡️';
+            if (score >= 350 && accuracy >= 76) return 'EXPLORER 🌱';
+            if (score >= 250 && accuracy >= 72) return 'ECO CHAMPION 🌿';
+            if (accuracy >= 92 && score >= 220) return 'SUSTAINER ♻️';
+            if (accuracy >= 85 && score >= 150) return 'STEADY HAND 🛡️';
 
             // Rising Star (improvement-based)
             if (typeof prevBest === 'number' && prevBest > 0 && score >= (prevBest + 50) && accuracy >= 75) return 'RISING STAR ✨';
 
-            if (score >= 120 && accuracy >= 65) return 'GREEN APPRENTICE 🌿';
+            if (score >= 90 && accuracy >= 60) return 'GREEN APPRENTICE 🌿';
             return 'NOVICE 🟢';
         }
 
