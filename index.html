@@ -330,8 +330,8 @@
                         <p class="text-[0.85rem] md:text-sm font-bold text-gray-900 mt-4 mb-2">🎖️ Badge Bonus</p>
                         <p class="text-[0.8rem] md:text-sm text-gray-700 mb-2">Badge ini opsional dan cuma muncul <b>1</b> di bawah badge utama. Urutannya: <b>Top 10</b>, lalu <b>Versatile</b>, lalu <b>Rising Star</b>.</p>
                         <ul class="list-disc pl-6 text-[0.75rem] md:text-sm space-y-1">
-                            <li><b>Top 10</b>: kalau kamu masuk <b>10 besar</b>, run pertama atau bukan tetap dihitung.</li>
-                            <li><b>Versatile</b>: akurasi tiap kategori harus seimbang, beda antar kategori kecil, dan semua kategori yang kepake minimal <b>70%</b>.</li>
+                            <li><b>Top 10</b>: kalau kamu masuk <b>10 besar</b></li>
+                            <li><b>Versatile</b>: akurasi tiap kategori sampah harus seimbang, dan semua kategori yang benar minimal <b>70%</b>.</li>
                             <li><b>Rising Star</b>: skor kamu sekarang harus naik <b>75 poin atau lebih</b> dari best score sebelumnya, dan performanya masih oke.</li>
                         </ul>
 
@@ -1383,7 +1383,7 @@
         }
 
         // Get secondary badge (one per player, if qualifying)
-        function getSecondaryBadge(score, accuracy, bestCombo, prevBest, correct = 0, wrong = 0, total = 0, categoryStats = {}, leaderboardRank = null, attempts = 0) {
+        function getSecondaryBadge(score, accuracy, bestCombo, prevBest, correct = 0, wrong = 0, total = 0, categoryStats = {}, leaderboardRank = null, attempts = 0, secondaryProgress = 0) {
             const combo = Math.max(0, Number(bestCombo) || 0);
             const tot = Number(total) || (Number(correct) || 0) + (Number(wrong) || 0);
             const scorePts = Math.min(Math.max(Number(score) || 0, 0), 1300) / 13;
@@ -1400,12 +1400,21 @@
                 : [];
             const isVersatile = accs.length > 0 && Math.max(...accs) - Math.min(...accs) <= 15 && Math.min(...accs) >= 70;
 
-            // Secondary badges (mutually exclusive, returned in priority order)
+            const progress = Number(secondaryProgress) || 0;
+
+            // Secondary badges are sequential: Top 10 -> Versatile -> Rising Star
             if (Number.isFinite(Number(leaderboardRank)) && Number(leaderboardRank) > 0 && Number(leaderboardRank) <= 10) return 'Top 10';
-            if (isVersatile) return 'Versatile';
-            if (typeof prevBest === 'number' && prevBest > 0 && score >= (prevBest + 75) && composite >= 45) return 'Rising Star';
+            if (progress >= 1 && isVersatile) return 'Versatile';
+            if (progress >= 2 && typeof prevBest === 'number' && prevBest > 0 && score >= (prevBest + 75) && composite >= 45) return 'Rising Star';
 
             return null; // No secondary badge
+        }
+
+        function getSecondaryBadgeTier(badge) {
+            if (badge === 'Top 10') return 1;
+            if (badge === 'Versatile') return 2;
+            if (badge === 'Rising Star') return 3;
+            return 0;
         }
 
         // Get tags (multiple, 0-many per player)
@@ -1444,10 +1453,10 @@
         }
 
         // Get full badge data: primary, secondary, tags, and formatted display
-        function getFullBadgeData(score, accuracy, bestCombo, prevBest, correct = 0, wrong = 0, total = 0, categoryStats = {}, leaderboardRank = null, attempts = 0) {
+        function getFullBadgeData(score, accuracy, bestCombo, prevBest, correct = 0, wrong = 0, total = 0, categoryStats = {}, leaderboardRank = null, attempts = 0, secondaryProgress = 0) {
             try {
                 const primary = getPerformanceBadge(score, accuracy, bestCombo, prevBest, correct, wrong, total, attempts);
-                const secondary = getSecondaryBadge(score, accuracy, bestCombo, prevBest, correct, wrong, total, categoryStats, leaderboardRank, attempts);
+            const secondary = getSecondaryBadge(score, accuracy, bestCombo, prevBest, correct, wrong, total, categoryStats, leaderboardRank, attempts, secondaryProgress);
                 const tags = getSpecialtyTags(score, accuracy, bestCombo, prevBest, correct, wrong, total, categoryStats, leaderboardRank, attempts);
 
                 // Format display string
