@@ -130,7 +130,6 @@
         }
 
         /* Badge tier styling */
-        .badge-warrior { background: #d1d5db; color: #374151; border: 1px solid #9ca3af; }
         .badge-bronze { background: linear-gradient(135deg, #cd7f32 0%, #b8860b 100%); color: #fff; border: 1px solid #8b7700; box-shadow: 0 4px 12px rgba(139, 119, 0, 0.3); }
         .badge-silver { background: linear-gradient(135deg, #c0c0c0 0%, #a9a9a9 100%); color: #fff; border: 1px solid #696969; box-shadow: 0 4px 12px rgba(105, 105, 105, 0.3); }
         .badge-gold { background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%); color: #333; border: 1px solid #daa520; box-shadow: 0 4px 15px rgba(218, 165, 32, 0.4), inset 0 1px 0 rgba(255,255,255,0.5); }
@@ -1351,6 +1350,7 @@
             if (combo >= 25) tags.push('Combo Pro');
             if (att >= 100) tags.push('Grinder');
             if (Number(accuracy) >= 100) tags.push('God Aim');
+            if (Number(score) >= 1300) tags.push('Performer');
             if (att >= 50 && Number(leaderboardRank) !== 1) tags.push('Persistence');
 
             return tags;
