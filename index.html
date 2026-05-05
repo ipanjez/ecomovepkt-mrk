@@ -332,8 +332,8 @@
                             <li><b>Residu Expert</b>, <b>Sisa Makanan Expert</b>, <b>Layak Jual Expert</b>: akurasi kategori masing-masing ≥95%.</li>
                             <li><b>Combo Pro</b>: combo ≥25.</li>
                             <li><b>Grinder</b>: ≥25 percobaan.</li>
-                            <li><b>Akurasi 100%</b>: akurasi tepat 100%.</li>
-                            <li><b>Pantang Menyerah</b>: ≥50 percobaan namun bukan juara 1.</li>
+                            <li><b>God Aim</b>: akurasi tepat 100%.</li>
+                            <li><b>Persistence</b>: ≥50 percobaan namun bukan juara 1.</li>
                         </ul>
 
                         <p class="text-[0.75rem] md:text-xs text-gray-600 mt-3"><b>Format tampil:</b> <code style="background:#f3f4f6; padding:2px 6px; border-radius:3px;">Primary [Secondary] {Tag1, Tag2, ...}</code>. Contoh: <code style="background:#f3f4f6; padding:2px 6px; border-radius:3px;">Platinum [Versatile] {Layak Jual Expert, Grinder}</code>.</p>
@@ -1349,8 +1349,8 @@
 
             if (combo >= 25) tags.push('Combo Pro');
             if (att >= 25) tags.push('Grinder');
-            if (Number(accuracy) >= 100) tags.push('Akurasi 100%');
-            if (att >= 50 && Number(leaderboardRank) !== 1) tags.push('Pantang Menyerah');
+            if (Number(accuracy) >= 100) tags.push('God Aim');
+            if (att >= 50 && Number(leaderboardRank) !== 1) tags.push('Persistence');
 
             return tags;
         }
