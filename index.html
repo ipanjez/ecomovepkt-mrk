@@ -216,9 +216,9 @@
 
                 <!-- Proximity Scoring Section -->
                 <div>
-                    <h3 class="font-bold text-gray-900 mb-2 border-l-4 border-blue-400 pl-3 flex items-center gap-2">🏁 Proximity Scoring (Delta Timing)</h3>
-                    <p class="text-[0.85rem] md:text-sm leading-relaxed">Sistem <b>Proximity Scoring</b> secara otomatis melacak pemain terdekat yang berada di atas skor Anda saat bermain. Fitur ini seperti sistem <b>Delta Timing</b> pada game balap — menampilkan <b>siapa yang harus kamu balap</b> dan <b>seberapa jauh jarak Anda dari rivalnya</b>.</p>
-                    <p class="text-[0.85rem] md:text-sm leading-relaxed">Leaderboard Top menampilkan semua pemain secara horizontal di bagian atas layar (dapat digeser kiri-kanan). Sistem akan menyoroti pemain terdekat di atas skor Anda sebagai <b>Rival Target</b>. Ketika Anda mencapai atau melampaui skor rival tersebut, sistem secara otomatis memilih rival berikutnya dan merayakannya dengan konfeti!</p>
+                    <h3 class="font-bold text-gray-900 mb-2 border-l-4 border-blue-400 pl-3 flex items-center gap-2">🏁 Dynamic Leaderboard (Proximity Scoring)</h3>
+                    <p class="text-[0.85rem] md:text-sm leading-relaxed">Sistem <b>Proximity Scoring</b> atau <b>Delta Timing</b> secara otomatis melacak dan menampilkan hanya <b>pemain terdekat di atas skor Anda</b> yang harus Anda kejar. Ini seperti game balap — Anda tahu persis siapa yang perlu Anda lampaui dan seberapa jauh jarak Anda darinya.</p>
+                    <p class="text-[0.85rem] md:text-sm leading-relaxed">Di bagian atas layar, Anda akan melihat pertandingan satu-lawan-satu antara skor Anda dan skor rival terdekat (dengan delta/jarak yang ditampilkan). Ketika Anda mencapai atau melampaui skor rival, sistem secara otomatis memilih rival berikutnya dan merayakannya dengan <b>konfeti</b>! Jika Anda peringkat 1, layar akan menampilkan pesan kemenangan.</p>
                 </div>
             </div>
 
@@ -776,51 +776,70 @@
             tbody.innerHTML = '';
             const rankDisplay = document.getElementById('final-rank');
             
-            // Render horizontal in-game leaderboard with Proximity Scoring (Delta Timing)
+            // Render Dynamic Leaderboard with Proximity Scoring (show only nearest rival)
             const inGameLb = document.getElementById('ingame-leaderboard');
             if (inGameLb) {
                 inGameLb.innerHTML = '';
                 const playerScore = (typeof gameState.score === 'number') ? gameState.score : 0;
                 
-                // Render all players as horizontal scrollable chips
-                if (fullLeaderboardData.length === 0) {
-                    const note = document.createElement('div');
-                    note.className = 'text-gray-400 italic text-sm';
-                    note.textContent = 'Belum ada skor. Mulai bermain untuk melihat leaderboard!';
-                    inGameLb.appendChild(note);
-                } else {
-                    fullLeaderboardData.forEach((run, idx) => {
-                        const chip = document.createElement('div');
-                        const isCurrentPlayer = (run.id === gameState.currentSessionId);
-                        const delta = playerScore > 0 ? (run.score - playerScore) : run.score;
-                        const deltaText = delta > 0 ? `+${delta}` : (delta === 0 ? '0' : `${delta}`);
-                        const deltaColor = delta > 0 ? 'text-red-500' : (delta === 0 ? 'text-green-600' : 'text-green-600');
-                        
-                        chip.className = `flex flex-col items-center px-3 py-2 rounded-lg border shadow-sm min-w-[110px] text-center flex-shrink-0 transition-all ${
-                            isCurrentPlayer ? 'bg-blue-100 text-pktBlue border-pktBlue ring-2 ring-pktBlue' : 
-                            idx === 0 ? 'bg-yellow-100 text-yellow-700 border-yellow-300' : 
-                            'bg-white text-gray-700 border-gray-200'
-                        }`;
-                        chip.innerHTML = `
-                            <div class="font-bold text-sm">#${idx+1} ${escapeHtml(run.name || 'Player')}</div>
-                            <div class="font-black text-lg text-pktOrange">${run.score}</div>
-                            ${playerScore > 0 ? `<div class="text-xs ${deltaColor} font-bold">Δ ${deltaText}</div>` : ''}
-                        `;
-                        inGameLb.appendChild(chip);
-                    });
-                }
-                
-                // Update Proximity Scoring: identify nearest rival above player
-                let nextHigher = null;
+                // Identify nearest rival above player's current score
+                let nearestRivalDisplay = null;
                 for (let i = 0; i < fullLeaderboardData.length; i++) {
                     if (fullLeaderboardData[i].score > playerScore) {
-                        nextHigher = fullLeaderboardData[i];
+                        nearestRivalDisplay = fullLeaderboardData[i];
+                        nearestRival = fullLeaderboardData[i];
                         break;
                     }
                 }
                 
-                // Store nearest rival for use in updateScoreUI
-                nearestRival = nextHigher;
+                // Display only the nearest rival (Dynamic/Proximity Scoring)
+                if (nearestRivalDisplay) {
+                    // Rival ahead of player - show race display
+                    const delta = nearestRivalDisplay.score - playerScore;
+                    const container = document.createElement('div');
+                    container.className = 'w-full flex items-center justify-center gap-4 px-3 py-3 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl border-2 border-blue-200 shadow-md';
+                    
+                    const playerCard = document.createElement('div');
+                    playerCard.className = 'flex flex-col items-center px-4 py-2 bg-blue-100 rounded-lg border-2 border-pktBlue ring-2 ring-blue-300';
+                    playerCard.innerHTML = `
+                        <div class="text-xs font-bold text-pktBlue uppercase">Anda</div>
+                        <div class="text-2xl font-black text-pktBlue">${playerScore}</div>
+                    `;
+                    
+                    const vs = document.createElement('div');
+                    vs.className = 'text-sm font-black text-gray-600 px-2';
+                    vs.textContent = '⚡ vs ⚡';
+                    
+                    const rivalCard = document.createElement('div');
+                    rivalCard.className = 'flex flex-col items-center px-4 py-2 bg-orange-100 rounded-lg border-2 border-pktOrange';
+                    rivalCard.innerHTML = `
+                        <div class="text-xs font-bold text-pktOrange uppercase truncate max-w-[120px]">${escapeHtml(nearestRivalDisplay.name)}</div>
+                        <div class="text-2xl font-black text-pktOrange">${nearestRivalDisplay.score}</div>
+                        <div class="text-[10px] font-bold text-red-500 mt-1">Δ +${delta}</div>
+                    `;
+                    
+                    container.appendChild(playerCard);
+                    container.appendChild(vs);
+                    container.appendChild(rivalCard);
+                    inGameLb.appendChild(container);
+                } else if (playerScore > 0) {
+                    // Player is in 1st place
+                    const container = document.createElement('div');
+                    container.className = 'w-full flex items-center justify-center px-4 py-3 bg-gradient-to-r from-yellow-50 to-amber-50 rounded-xl border-2 border-yellow-300 shadow-md';
+                    container.innerHTML = `
+                        <div class="text-center">
+                            <div class="text-2xl font-black text-yellow-600">🏆 ANDA PERINGKAT 1! 🏆</div>
+                            <div class="text-sm text-gray-600 mt-1">Tidak ada rival yang mengalahkan skor Anda!</div>
+                        </div>
+                    `;
+                    inGameLb.appendChild(container);
+                } else {
+                    // Game just started, no scores yet
+                    const note = document.createElement('div');
+                    note.className = 'w-full text-center text-gray-400 italic text-sm py-3';
+                    note.textContent = 'Mulai jawab untuk melihat rival terdekat Anda!';
+                    inGameLb.appendChild(note);
+                }
             }
 
             if (leaderboardData.length === 0) {
