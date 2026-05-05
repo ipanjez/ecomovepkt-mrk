@@ -220,6 +220,20 @@
                     <p class="text-[0.85rem] md:text-sm leading-relaxed">Sistem <b>Proximity Scoring</b> atau <b>Delta Timing</b> secara otomatis melacak dan menampilkan hanya <b>pemain terdekat di atas skor Anda</b> yang harus Anda kejar. Ini seperti game balap — Anda tahu persis siapa yang perlu Anda lampaui dan seberapa jauh jarak Anda darinya.</p>
                     <p class="text-[0.85rem] md:text-sm leading-relaxed">Di bagian atas layar, Anda akan melihat pertandingan satu-lawan-satu antara skor Anda dan skor rival terdekat (dengan delta/jarak yang ditampilkan). Ketika Anda mencapai atau melampaui skor rival, sistem secara otomatis memilih rival berikutnya dan merayakannya dengan <b>konfeti</b>! Jika Anda peringkat 1, layar akan menampilkan pesan kemenangan.</p>
                 </div>
+
+                <!-- Badge Rules -->
+                <div>
+                    <h3 class="font-bold text-gray-900 mb-2 border-l-4 border-pktOrange pl-3 flex items-center gap-2">🏅 Badge Performa</h3>
+                    <p class="text-[0.85rem] md:text-sm leading-relaxed">Dapatkan badge performa setelah permainan berakhir berdasarkan kombinasi skor, akurasi, dan combo:</p>
+                    <ul class="list-disc pl-6 mt-2 text-[0.85rem] md:text-sm space-y-1">
+                        <li><b>LEGEND ♛</b> — Skor sangat tinggi (≥700) dan akurasi ≥90%.</li>
+                        <li><b>MASTER ⚡</b> — Skor tinggi (≥500) dan akurasi ≥80%.</li>
+                        <li><b>EXPLORER 🌱</b> — Skor menengah (≥300) dan akurasi ≥70%.</li>
+                        <li><b>COMBO HUNTER 🔥</b> — Pencapaian combo 3x atau lebih selama sesi.</li>
+                        <li><b>RISING PLAYER 🚀</b> — Default badge untuk pemain yang menunjukkan peningkatan.</li>
+                    </ul>
+                    <p class="text-[0.8rem] md:text-sm text-gray-600 mt-2">Badge akan terlihat di kolom <b>Badge</b> pada Leaderboard dan juga ditampilkan di ringkasan hasil akhir.</p>
+                </div>
             </div>
 
             <button onclick="document.getElementById('how-to-play-modal').classList.add('hidden')" class="w-full mt-8 bg-gradient-to-r from-pktGreen to-green-500 text-white font-black py-4 rounded-xl shadow-[0_4px_15px_rgba(122,184,0,0.4)] hover:-translate-y-1 active:scale-95 transition text-lg tracking-wide">Paham, Ayo Mulai!</button>
@@ -262,9 +276,9 @@
 
         <!-- Centered Top Leaderboard (moved to top of screen) -->
         <div class="w-full flex justify-center mt-3 relative z-40">
-            <div class="w-full max-w-3xl bg-white/95 backdrop-blur rounded-2xl p-3 shadow-lg border border-blue-100 text-sm">
+            <div class="w-full max-w-2xl bg-white/95 backdrop-blur rounded-xl p-2 shadow-md border border-blue-50 text-sm">
                 <div class="flex items-center justify-between mb-2">
-                    <div class="font-bold text-gray-700 uppercase tracking-wider">Top 5 Leaderboard</div>
+                    <div class="font-bold text-gray-700 uppercase tracking-wider">Rival Terdekat</div>
                     <div class="text-xs text-gray-600">Skor Anda: <span id="ingame-score">0</span></div>
                 </div>
                 <div id="ingame-leaderboard" class="flex gap-2 overflow-x-auto pb-1 no-scrollbar text-sm">
@@ -377,6 +391,7 @@
                             <tr>
                                 <th class="px-2 py-3 w-8 text-center">#</th>
                                 <th class="px-3 py-3">Nama Pemain</th>
+                                    <th class="px-3 py-3 text-center">Badge</th>
                                 <th class="px-3 py-3 text-center">Skor</th>
                                 <th class="px-3 py-3 text-center hidden md:table-cell" title="Akurasi Jawaban">Akurasi</th>
                                 <th class="px-3 py-3 text-center hidden lg:table-cell" title="Dijawab / Benar / Salah">D/B/S</th>
@@ -386,7 +401,7 @@
                             </tr>
                         </thead>
                         <tbody id="leaderboard-body" class="divide-y divide-gray-200">
-                            <tr><td colspan="8" class="text-center py-4 text-gray-500">Memuat data secara Real-time...</td></tr>
+                            <tr><td colspan="9" class="text-center py-4 text-gray-500">Memuat data secara Real-time...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -658,6 +673,9 @@
                 return;
             }
             bestEl.textContent = `Skor terbaik: ${leaderboardRecord.score} | Akurasi: ${leaderboardRecord.accuracy || 0}% | D/B/S: ${leaderboardRecord.total || 0}/${leaderboardRecord.correct || 0}/${leaderboardRecord.wrong || 0}`;
+            // Also set final badge label
+            const finalBadgeEl = document.getElementById('final-badge');
+            if (finalBadgeEl) finalBadgeEl.textContent = getPerformanceBadge(leaderboardRecord.score || 0, leaderboardRecord.accuracy || 0, leaderboardRecord.bestCombo || 0);
         }
 
         function copyResultSummary() {
@@ -781,13 +799,21 @@
             if (inGameLb) {
                 inGameLb.innerHTML = '';
                 const playerScore = (typeof gameState.score === 'number') ? gameState.score : 0;
-                
-                // Identify nearest rival above player's current score
+                // Make sure the top header score reflects current score
+                const ingameEl = document.getElementById('ingame-score');
+                if (ingameEl) ingameEl.textContent = playerScore;
+
+                // Identify nearest rival above player's current score, but skip our own record
                 let nearestRivalDisplay = null;
                 for (let i = 0; i < fullLeaderboardData.length; i++) {
-                    if (fullLeaderboardData[i].score > playerScore) {
-                        nearestRivalDisplay = fullLeaderboardData[i];
-                        nearestRival = fullLeaderboardData[i];
+                    const candidate = fullLeaderboardData[i];
+                    if (!candidate) continue;
+                    // Skip if this is our own saved record (match by session id or by name)
+                    if (gameState.currentSessionId && candidate.id === gameState.currentSessionId) continue;
+                    if (candidate.name && gameState.playerName && candidate.name === gameState.playerName) continue;
+                    if (candidate.score > playerScore) {
+                        nearestRivalDisplay = candidate;
+                        nearestRival = candidate;
                         break;
                     }
                 }
@@ -797,13 +823,13 @@
                     // Rival ahead of player - show race display
                     const delta = nearestRivalDisplay.score - playerScore;
                     const container = document.createElement('div');
-                    container.className = 'w-full flex items-center justify-center gap-4 px-3 py-3 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl border-2 border-blue-200 shadow-md';
+                    container.className = 'w-full flex items-center justify-center gap-3 px-2 py-2 bg-gradient-to-r from-blue-50 to-purple-50 rounded-md border border-blue-100 shadow-sm';
                     
                     const playerCard = document.createElement('div');
-                    playerCard.className = 'flex flex-col items-center px-4 py-2 bg-blue-100 rounded-lg border-2 border-pktBlue ring-2 ring-blue-300';
+                    playerCard.className = 'flex flex-col items-center px-3 py-1 bg-blue-100 rounded-lg border border-pktBlue';
                     playerCard.innerHTML = `
-                        <div class="text-xs font-bold text-pktBlue uppercase">Anda</div>
-                        <div class="text-2xl font-black text-pktBlue">${playerScore}</div>
+                        <div class="text-[0.65rem] font-bold text-pktBlue uppercase">Anda</div>
+                        <div class="text-xl font-black text-pktBlue">${playerScore}</div>
                     `;
                     
                     const vs = document.createElement('div');
@@ -811,11 +837,11 @@
                     vs.textContent = '⚡ vs ⚡';
                     
                     const rivalCard = document.createElement('div');
-                    rivalCard.className = 'flex flex-col items-center px-4 py-2 bg-orange-100 rounded-lg border-2 border-pktOrange';
+                    rivalCard.className = 'flex flex-col items-center px-3 py-1 bg-orange-100 rounded-lg border border-pktOrange';
                     rivalCard.innerHTML = `
-                        <div class="text-xs font-bold text-pktOrange uppercase truncate max-w-[120px]">${escapeHtml(nearestRivalDisplay.name)}</div>
-                        <div class="text-2xl font-black text-pktOrange">${nearestRivalDisplay.score}</div>
-                        <div class="text-[10px] font-bold text-red-500 mt-1">Δ +${delta}</div>
+                        <div class="text-[0.65rem] font-bold text-pktOrange uppercase truncate max-w-[120px]">${escapeHtml(nearestRivalDisplay.name)}</div>
+                        <div class="text-xl font-black text-pktOrange">${nearestRivalDisplay.score}</div>
+                        <div class="text-xs font-bold text-red-500 mt-1">Δ +${delta}</div>
                     `;
                     
                     container.appendChild(playerCard);
@@ -843,7 +869,7 @@
             }
 
             if (leaderboardData.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="8" class="text-center py-4 text-gray-500">Belum ada skor yang dicatat.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="9" class="text-center py-4 text-gray-500">Belum ada skor yang dicatat.</td></tr>';
                 if (rankDisplay) rankDisplay.textContent = '-';
                 return;
             }
@@ -856,6 +882,12 @@
             if (gameState.currentSessionId) {
                 const myRecord = fullLeaderboardData.find(run => run.id === gameState.currentSessionId);
                 renderPersonalBestSummaryFromLeaderboard(myRecord || null);
+                // Update final badge display as well
+                const finalBadgeEl = document.getElementById('final-badge');
+                if (finalBadgeEl) {
+                    const r = myRecord || {};
+                    finalBadgeEl.textContent = getPerformanceBadge(r.score || 0, r.accuracy || 0, r.bestCombo || 0);
+                }
             }
             
             leaderboardData.forEach((run, index) => {
@@ -870,12 +902,14 @@
                 // Highlight skor pemain saat ini (berdasarkan Session ID)
                 const isCurrentPlayer = (run.id === gameState.currentSessionId);
                 if(isCurrentPlayer) tr.classList.add('bg-blue-50', 'border-l-4', 'border-pktBlue');
+                const badgeLabel = getPerformanceBadge(run.score || 0, run.accuracy || 0, run.bestCombo || 0);
 
                 tr.innerHTML = `
                     <td class="px-2 py-2 text-center ${rankStyle}">${index + 1}</td>
                     <td class="px-2 py-2 font-semibold ${isCurrentPlayer ? 'text-pktBlue' : 'text-gray-800'} break-all leading-tight">
                         ${run.name} <br> <span class="md:hidden text-[0.6rem] ${run.difficulty === 'Hard' ? 'text-blue-500' : run.difficulty === 'Medium' ? 'text-orange-500' : 'text-green-500'}">${run.difficulty}</span>
                     </td>
+                    <td class="px-3 py-2 text-center"><span class="inline-block px-2 py-1 rounded-full text-[0.68rem] font-bold bg-gray-50 border border-gray-200 text-gray-700">${escapeHtml(badgeLabel)}</span></td>
                     <td class="px-2 py-2 text-center font-bold text-pktOrange">${run.score}</td>
                     <td class="px-2 py-2 text-center text-xs hidden md:table-cell font-bold text-gray-600">${run.accuracy || 0}%</td>
                     <td class="px-2 py-2 text-center text-xs hidden lg:table-cell text-gray-600 font-bold">${run.total || 0}/${run.correct || 0}/${run.wrong || 0}
@@ -1032,6 +1066,11 @@
             // Validasi nama tidak lagi dicek di sini karena sudah dicek di attemptStart()
 
             gameState.playerName = name; gameState.difficulty = diff; gameState.score = 0; gameState.initialTime = time; gameState.timeLeft = time; gameState.totalAnswered = 0; gameState.correctAnswers = 0; gameState.isPlaying = true; gameState.paused = false; gameState.currentSessionId = null; gameState.combo = 0; gameState.bestCombo = 0; gameState.questionQueue = [];
+
+            // Set session id early so leaderboard excludes our own DB record while playing
+            try {
+                gameState.currentSessionId = name.replace(/[.#$\[\]\/\s]/g, "_").toUpperCase();
+            } catch(e) { gameState.currentSessionId = null; }
 
             // Reset Proximity Scoring state
             nearestRival = null;
