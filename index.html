@@ -288,23 +288,23 @@
                 <!-- Badge Rules -->
                 <div>
                     <h3 class="font-bold text-gray-900 mb-2 border-l-4 border-pktOrange pl-3 flex items-center gap-2">🏅 Badge Performa</h3>
-                        <p class="text-[0.85rem] md:text-sm leading-relaxed">Sistem badge utama memakai metrik komposit dari skor, akurasi, combo terbaik, dan ketekunan. Bobotnya: skor 45%, akurasi 27%, combo 20%, dan jumlah percobaan 8%. Semakin besar nilainya, semakin tinggi tier badge utama.</p>
+                        <p class="text-[0.85rem] md:text-sm text-gray-700 mb-2">Sistem badge utama memakai komposit skala 0-100 dari skor, akurasi, combo terbaik, dan jumlah percobaan. Bobotnya: skor 50%, akurasi 30%, combo 15%, percobaan 5%.</p>
                         <ul class="list-disc pl-6 mt-2 text-[0.8rem] md:text-sm space-y-1.5">
-                            <li><b>Iron</b>: pemain baru dengan &lt;2 percobaan dan skor sangat rendah.</li>
-                            <li><b>Warrior</b>: performa terendah, biasanya skor rendah atau akurasi &lt;50%.</li>
-                            <li><b>Bronze</b>: sekitar 200–400 poin atau akurasi 50–65%.</li>
-                            <li><b>Silver</b>: sekitar 400–600 poin atau akurasi 65–75% dengan combo masih rendah.</li>
-                            <li><b>Gold</b>: sekitar 600–850 poin dengan akurasi 70–80% atau combo mulai stabil.</li>
-                            <li><b>Platinum</b>: di atas 850 poin atau akurasi di atas 80% dengan combo 15–25.</li>
-                            <li><b>Epic</b>: di atas 900 poin, akurasi di atas 82%, atau combo 25–35.</li>
-                            <li><b>Grandmaster</b>: di atas 950 poin, akurasi di atas 85%, atau combo 35+.</li>
-                            <li><b>Diamond</b>: di atas 1000 poin atau combo ekstrem di atas 40.</li>
-                            <li><b>Legend</b>: composite score sekitar 0.90–0.95; biasanya skor tinggi, akurasi kuat, dan combo stabil.</li>
-                            <li><b>Master</b>: composite score sekitar 0.95–0.99; performa elite yang sudah sangat mendekati puncak.</li>
-                            <li><b>Immortal</b>: composite score ≥0.99; performa paling atas dengan hampir semua metrik mendekati sempurna.</li>
-                            <li><b>Mythic</b> (spesial): combo ≥40 dan performa komposit sangat tinggi.</li>
+                            <li><b>Iron</b>: percobaan &lt;2 dan skor &lt;60.</li>
+                            <li><b>Warrior</b>: komposit &lt;15.</li>
+                            <li><b>Bronze</b>: komposit 15–29.</li>
+                            <li><b>Silver</b>: komposit 30–44.</li>
+                            <li><b>Gold</b>: komposit 45–57.</li>
+                            <li><b>Platinum</b>: komposit 58–69.</li>
+                            <li><b>Epic</b>: komposit 70–79.</li>
+                            <li><b>Grandmaster</b>: komposit 80–87.</li>
+                            <li><b>Diamond</b>: komposit 88–92.</li>
+                            <li><b>Legend</b>: komposit 93–95.</li>
+                            <li><b>Master</b>: komposit 96–98.</li>
+                            <li><b>Immortal</b>: komposit 99–100.</li>
+                            <li><b>Mythic</b> (spesial): combo ≥40 dan komposit ≥88.</li>
                             <li><b>Radiant</b> (spesial): akurasi ≥99% dan skor ≥950.</li>
-                            <li><b>Veteran</b> (spesial): ≥200 percobaan dan performa tetap solid.</li>
+                            <li><b>Veteran</b> (spesial): ≥200 percobaan dan komposit ≥60.</li>
                         </ul>
 
                         <p class="text-[0.85rem] md:text-sm font-bold text-gray-900 mt-4 mb-2">🎯 Secondary Badge</p>
@@ -1257,40 +1257,39 @@
         }
 
         function getPerformanceBadge(score, accuracy, bestCombo, prevBest, correct = 0, wrong = 0, total = 0) {
-            // Adjusted combined-metric badge system (tighter thresholds)
+            // Simple composite score on a 0-100 scale: score, accuracy, combo, and attempts.
             const combo = Math.max(0, Number(bestCombo) || 0);
             const tot = Number(total) || (Number(correct) || 0) + (Number(wrong) || 0);
 
             // Beginner detection
             if (tot <= 1 && (score || 0) < 60) return 'Iron';
 
-            // Normalize inputs
-            const s = Math.min(Math.max(Number(score) || 0, 0), 1200) / 1200;
-            const a = Math.min(Math.max(Number(accuracy) || 0, 0), 100) / 100;
-            const c = Math.min(combo, 80) / 80; // slightly larger cap to reward long combos
-            const t = Math.min(tot, 300) / 300; // persistence cap
+            const scorePts = Math.min(Math.max(Number(score) || 0, 0), 1200) / 12; // 0-100
+            const accuracyPts = Math.min(Math.max(Number(accuracy) || 0, 0), 100); // 0-100
+            const comboPts = Math.min(combo, 50) * 2; // 0-100
+            const attemptPts = Math.min(tot, 100); // 0-100
 
-            // Composite with slightly reduced score dominance to allow combo/accuracy influence
-            const composite = s * 0.45 + a * 0.27 + c * 0.20 + t * 0.08;
+            // Weighted composite: score 50%, accuracy 30%, combo 15%, attempts 5%
+            const composite = scorePts * 0.50 + accuracyPts * 0.30 + comboPts * 0.15 + attemptPts * 0.05;
 
-            // New tier cutoffs (more selective for top tiers)
+            // Quantitative tier cutoffs (0-100 composite scale)
             let badge = 'Warrior';
-            if (composite < 0.10) badge = 'Warrior';
-            else if (composite < 0.24) badge = 'Bronze';
-            else if (composite < 0.40) badge = 'Silver';
-            else if (composite < 0.55) badge = 'Gold';
-            else if (composite < 0.68) badge = 'Platinum';
-            else if (composite < 0.78) badge = 'Epic';
-            else if (composite < 0.85) badge = 'Grandmaster';
-            else if (composite < 0.90) badge = 'Diamond';
-            else if (composite < 0.95) badge = 'Legend';
-            else if (composite < 0.99) badge = 'Master';
+            if (composite < 15) badge = 'Warrior';
+            else if (composite < 30) badge = 'Bronze';
+            else if (composite < 45) badge = 'Silver';
+            else if (composite < 58) badge = 'Gold';
+            else if (composite < 70) badge = 'Platinum';
+            else if (composite < 80) badge = 'Epic';
+            else if (composite < 88) badge = 'Grandmaster';
+            else if (composite < 93) badge = 'Diamond';
+            else if (composite < 96) badge = 'Legend';
+            else if (composite < 99) badge = 'Master';
             else badge = 'Immortal';
 
             // Promote for extreme achievements (rarer now)
-            if (combo >= 40 && composite >= 0.80) badge = 'Mythic';
+            if (combo >= 40 && composite >= 88) badge = 'Mythic';
             if (accuracy >= 99 && score >= 950) badge = 'Radiant';
-            if (tot >= 200 && composite >= 0.60) badge = 'Veteran';
+            if (tot >= 200 && composite >= 60) badge = 'Veteran';
             return badge;
         }
 
@@ -1298,11 +1297,11 @@
         function getSecondaryBadge(score, accuracy, bestCombo, prevBest, correct = 0, wrong = 0, total = 0, categoryStats = {}, leaderboardRank = null, attempts = 0) {
             const combo = Math.max(0, Number(bestCombo) || 0);
             const tot = Number(total) || (Number(correct) || 0) + (Number(wrong) || 0);
-            const s = Math.min(Math.max(Number(score) || 0, 0), 1200) / 1200;
-            const a = Math.min(Math.max(Number(accuracy) || 0, 0), 100) / 100;
-            const c = Math.min(combo, 80) / 80;
-            const t = Math.min(tot, 300) / 300;
-            const composite = s * 0.45 + a * 0.27 + c * 0.20 + t * 0.08;
+            const scorePts = Math.min(Math.max(Number(score) || 0, 0), 1200) / 12;
+            const accuracyPts = Math.min(Math.max(Number(accuracy) || 0, 0), 100);
+            const comboPts = Math.min(combo, 50) * 2;
+            const attemptPts = Math.min(tot, 100);
+            const composite = scorePts * 0.50 + accuracyPts * 0.30 + comboPts * 0.15 + attemptPts * 0.05;
 
             const accs = categoryStats && Object.keys(categoryStats).length > 0
                 ? Object.values(categoryStats)
@@ -1314,7 +1313,7 @@
             // Secondary badges (mutually exclusive, returned in priority order)
             if (Number(attempts) === 1 && Number.isFinite(Number(leaderboardRank)) && Number(leaderboardRank) > 0 && Number(leaderboardRank) <= 10) return 'Debut Top 10';
             if (isVersatile) return 'Versatile';
-            if (typeof prevBest === 'number' && prevBest > 0 && score >= (prevBest + 75) && composite >= 0.45) return 'Rising Star';
+            if (typeof prevBest === 'number' && prevBest > 0 && score >= (prevBest + 75) && composite >= 45) return 'Rising Star';
 
             return null; // No secondary badge
         }
