@@ -549,7 +549,6 @@
                 <div class="flex justify-between items-start mb-3 border-b-2 border-gray-200 pb-2">
                     <div class="flex items-center gap-3">
                         <h3 class="text-sm md:text-lg font-bold text-gray-700">Leaderboard</h3>
-                        <div class="text-xs text-gray-500 font-semibold ml-2">Max: Skor 1300 | Akurasi 100% | Combo 25x | Percobaan 100x</div>
                         <button id="export-pdf-btn" title="Export PDF" onclick="exportLeaderboardPdf()" class="ml-2 p-1 rounded-md hover:bg-gray-100 transition" style="border:1px solid transparent">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M19 21H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h3V3h8v2h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2z" stroke="#0f172a" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/><path d="M17 17H7V7h10v10z" stroke="#0f172a" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/></svg>
                         </button>
@@ -1720,10 +1719,10 @@
                 else if (index === 2) rankStyle = 'font-bold text-orange-700 text-base';
 
                 // Determine position change indicator (▲ up, ▼ down, — same, ★ new)
-                if (typeof window.__prevLeaderboardRanks === 'undefined') window.__prevLeaderboardRanks = {};
+                if (typeof window.__prevAllRanks === 'undefined') window.__prevAllRanks = {};
                 let prevIndex = undefined;
-                if (run && run.id && window.__prevLeaderboardRanks.hasOwnProperty(`id:${run.id}`)) prevIndex = window.__prevLeaderboardRanks[`id:${run.id}`];
-                else if (run && run.name && window.__prevLeaderboardRanks.hasOwnProperty(`name:${String(run.name).toLowerCase()}`)) prevIndex = window.__prevLeaderboardRanks[`name:${String(run.name).toLowerCase()}`];
+                if (run && run.id && window.__prevAllRanks.hasOwnProperty(`id:${run.id}`)) prevIndex = window.__prevAllRanks[`id:${run.id}`];
+                else if (run && run.name && window.__prevAllRanks.hasOwnProperty(`name:${String(run.name).toLowerCase()}`)) prevIndex = window.__prevAllRanks[`name:${String(run.name).toLowerCase()}`];
                 let posChange = '—';
                 let posClass = 'text-gray-400';
                 if (typeof prevIndex === 'undefined') { posChange = '★'; posClass = 'text-blue-500'; }
@@ -1758,8 +1757,15 @@
                 tbody.appendChild(tr);
             });
 
-            // persist current ranks for next render comparison
-            try { window.__prevLeaderboardRanks = currentRanks; } catch(e) { window.__prevLeaderboardRanks = {}; }
+            // persist full leaderboard ranks (from filteredFullLeaderboardData) for next render comparison
+            try {
+                const fullRanks = {};
+                (filteredFullLeaderboardData || []).forEach((r, i) => {
+                    if (r && r.id) fullRanks[`id:${r.id}`] = i;
+                    if (r && r.name) fullRanks[`name:${String(r.name).toLowerCase()}`] = i;
+                });
+                window.__prevAllRanks = fullRanks;
+            } catch(e) { window.__prevAllRanks = {}; }
 
             const previewModal = document.getElementById('leaderboard-preview-modal');
             if (previewModal && !previewModal.classList.contains('hidden')) {
@@ -1885,10 +1891,10 @@
             body.innerHTML = '';
             snapshot.forEach((run, index) => {
                 // determine pos change using last saved ranks (support id and name fallback)
-                if (typeof window.__prevLeaderboardRanks === 'undefined') window.__prevLeaderboardRanks = {};
+                if (typeof window.__prevAllRanks === 'undefined') window.__prevAllRanks = {};
                 let prevIdx = undefined;
-                if (run && run.id && window.__prevLeaderboardRanks.hasOwnProperty(`id:${run.id}`)) prevIdx = window.__prevLeaderboardRanks[`id:${run.id}`];
-                else if (run && run.name && window.__prevLeaderboardRanks.hasOwnProperty(`name:${String(run.name).toLowerCase()}`)) prevIdx = window.__prevLeaderboardRanks[`name:${String(run.name).toLowerCase()}`];
+                if (run && run.id && window.__prevAllRanks.hasOwnProperty(`id:${run.id}`)) prevIdx = window.__prevAllRanks[`id:${run.id}`];
+                else if (run && run.name && window.__prevAllRanks.hasOwnProperty(`name:${String(run.name).toLowerCase()}`)) prevIdx = window.__prevAllRanks[`name:${String(run.name).toLowerCase()}`];
                 let pChange = '—';
                 let pClass = 'text-gray-400';
                 if (typeof prevIdx === 'undefined') { pChange = '★'; pClass = 'text-blue-500'; }
