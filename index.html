@@ -279,6 +279,16 @@
                 <button onclick="closeLeaderboardPreviewModal()" class="text-gray-400 hover:text-red-500 transition text-3xl font-bold leading-none">&times;</button>
             </div>
 
+            <div class="mb-4 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+                <label for="leaderboard-preview-filter" class="text-xs md:text-sm font-bold text-gray-600 uppercase tracking-wider">Filter Level</label>
+                <select id="leaderboard-preview-filter" onchange="setLeaderboardPreviewFilter(this.value)" class="w-full sm:w-auto px-3 py-2 rounded-xl border border-blue-200 bg-white text-sm font-semibold text-gray-700 focus:outline-none focus:border-pktBlue">
+                    <option value="All">All</option>
+                    <option value="Bumi Lestari">Bumi Lestari</option>
+                    <option value="Eko Aktif">Eko Aktif</option>
+                    <option value="Penjaga Bumi">Penjaga Bumi</option>
+                </select>
+            </div>
+
             <div class="max-h-[65vh] overflow-y-auto overflow-x-auto rounded-2xl border border-blue-100 bg-gradient-to-b from-white to-blue-50/40 shadow-sm">
                 <table class="w-full text-sm text-left" style="min-width: 820px;">
                     <thead class="sticky top-0 z-10 bg-gradient-to-r from-blue-600 to-blue-500 text-white uppercase text-[0.58rem] md:text-[0.65rem]">
@@ -446,6 +456,15 @@
                     <div class="flex items-center justify-end gap-2 md:gap-3 flex-wrap">
                         <span id="db-status" class="text-[0.65rem] md:text-xs font-bold text-gray-400">Menghubungkan...</span>
                     </div>
+                </div>
+                <div class="mb-3 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+                    <label for="leaderboard-end-filter" class="text-xs md:text-sm font-bold text-gray-600 uppercase tracking-wider">Filter Level</label>
+                    <select id="leaderboard-end-filter" onchange="setLeaderboardEndFilter(this.value)" class="w-full sm:w-auto px-3 py-2 rounded-xl border border-blue-200 bg-white text-sm font-semibold text-gray-700 focus:outline-none focus:border-pktBlue">
+                        <option value="All">All</option>
+                        <option value="Bumi Lestari">Bumi Lestari</option>
+                        <option value="Eko Aktif">Eko Aktif</option>
+                        <option value="Penjaga Bumi">Penjaga Bumi</option>
+                    </select>
                 </div>
                 <div class="max-h-[38vh] sm:max-h-[42vh] overflow-y-auto overflow-x-auto rounded-xl border border-blue-100 mb-4 bg-gradient-to-b from-white to-blue-50/40 shadow-md">
                     <div class="overflow-x-auto">
@@ -1009,9 +1028,36 @@
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         
         let selectedDiffObj = null;
+        let leaderboardPreviewFilter = 'All';
+        let leaderboardEndFilter = 'All';
         // Proximity Scoring state: nearest rival above current player
         let nearestRival = null;
         let nearestRivalReached = false;
+
+        function getLeaderboardDifficultyLabel(record) {
+            return getDifficultyDisplayName(record && record.difficulty ? record.difficulty : '');
+        }
+
+        function filterLeaderboardByDifficulty(records, filterValue) {
+            if (!Array.isArray(records)) return [];
+            if (!filterValue || filterValue === 'All') return records;
+            return records.filter((record) => getLeaderboardDifficultyLabel(record) === filterValue);
+        }
+
+        function setLeaderboardPreviewFilter(value) {
+            leaderboardPreviewFilter = value || 'All';
+            const modal = document.getElementById('leaderboard-preview-modal');
+            if (modal && !modal.classList.contains('hidden')) {
+                renderLeaderboardPreviewModal();
+            }
+        }
+
+        function setLeaderboardEndFilter(value) {
+            leaderboardEndFilter = value || 'All';
+            if (window.__latestLeaderboardData && Array.isArray(window.__latestLeaderboardData)) {
+                renderLeaderboardTable(window.__latestLeaderboardData.slice(0, 10), window.__latestLeaderboardData);
+            }
+        }
 
         function selectDifficulty(diffName, time, btnEl) {
             selectedDiffObj = { name: diffName, time: time };
@@ -1283,6 +1329,8 @@
             const tbody = document.getElementById('leaderboard-body');
             tbody.innerHTML = '';
             const rankDisplay = document.getElementById('final-rank');
+            const filteredLeaderboardData = filterLeaderboardByDifficulty(leaderboardData, leaderboardEndFilter);
+            const filteredFullLeaderboardData = filterLeaderboardByDifficulty(fullLeaderboardData, leaderboardEndFilter);
             
             // Render Dynamic Leaderboard with Proximity Scoring (show only nearest rival)
             const inGameLb = document.getElementById('ingame-leaderboard');
@@ -1397,19 +1445,19 @@
                 }
             }
 
-            if (leaderboardData.length === 0) {
+            if (filteredLeaderboardData.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="10" class="text-center py-4 text-gray-500">Belum ada skor yang dicatat.</td></tr>';
                 if (rankDisplay) rankDisplay.textContent = '-';
                 return;
             }
 
             if (rankDisplay) {
-                const myRankIndex = fullLeaderboardData.findIndex(run => run.id === gameState.currentSessionId);
+                const myRankIndex = filteredFullLeaderboardData.findIndex(run => run.id === gameState.currentSessionId);
                 rankDisplay.textContent = myRankIndex >= 0 ? `#${myRankIndex + 1}` : '-';
             }
 
             if (gameState.currentSessionId) {
-                const myRecord = fullLeaderboardData.find(run => run.id === gameState.currentSessionId);
+                const myRecord = filteredFullLeaderboardData.find(run => run.id === gameState.currentSessionId);
                 renderPersonalBestSummaryFromLeaderboard(myRecord || null);
                 // Update final badge display as well
                 const finalBadgeEl = document.getElementById('final-badge');
@@ -1419,7 +1467,7 @@
                 }
             }
             
-            leaderboardData.forEach((run, index) => {
+            filteredLeaderboardData.forEach((run, index) => {
                 const tr = document.createElement('tr');
                 tr.className = index % 2 === 0 ? 'bg-white' : 'bg-blue-50/30';
                 
@@ -1554,7 +1602,7 @@
             const body = document.getElementById('leaderboard-preview-body');
             if (!body) return;
 
-            const snapshot = Array.isArray(window.__latestLeaderboardData) ? window.__latestLeaderboardData : [];
+            const snapshot = filterLeaderboardByDifficulty(Array.isArray(window.__latestLeaderboardData) ? window.__latestLeaderboardData : [], leaderboardPreviewFilter);
             if (snapshot.length === 0) {
                 body.innerHTML = '<tr><td colspan="10" class="text-center py-4 text-gray-500">Belum ada skor yang dicatat.</td></tr>';
                 return;
