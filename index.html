@@ -535,6 +535,9 @@
                         <button id="export-pdf-btn" title="Export PDF" onclick="exportLeaderboardPdf()" class="ml-2 p-1 rounded-md hover:bg-gray-100 transition" style="border:1px solid transparent">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M19 21H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h3V3h8v2h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2z" stroke="#0f172a" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/><path d="M17 17H7V7h10v10z" stroke="#0f172a" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/></svg>
                         </button>
+                        <button id="export-excel-btn" title="Export Excel" onclick="exportLeaderboardExcel()" class="ml-1 p-1 rounded-md hover:bg-gray-100 transition" style="border:1px solid transparent">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4h13A1.5 1.5 0 0 1 20 5.5v13a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 18.5v-13Z" stroke="#0f172a" stroke-width="1"/><path d="M8 8h8M8 12h8M8 16h8" stroke="#0f172a" stroke-width="1" stroke-linecap="round"/><path d="M6 8l2.4 4L6 16" stroke="#0f172a" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </button>
                     </div>
                     <div class="flex items-center justify-end gap-2 md:gap-3 flex-wrap">
                         <span id="db-status" class="text-[0.65rem] md:text-xs font-bold text-gray-400">Menghubungkan...</span>
@@ -1877,7 +1880,7 @@
                 }
 
                 const now = new Date();
-                const headerTitle = 'Leaderboard - EcoMove';
+                const headerTitle = 'Ecomove: Trash Sorting Challenge - Leaderboard';
                 const generatedAt = now.toLocaleString('id-ID');
 
                 // Columns: #, Name + Badge, Score, Combo / Akurasi, D/B/S • Waktu, Percobaan
@@ -1939,6 +1942,91 @@
             } catch (err) {
                 console.error('Export PDF failed', err);
                 alert('Gagal mengekspor PDF: ' + (err && err.message ? err.message : 'unknown'));
+            }
+        }
+
+        function exportLeaderboardExcel() {
+            try {
+                const snapshot = filterLeaderboardByDifficulty(Array.isArray(window.__latestLeaderboardData) ? window.__latestLeaderboardData : [], leaderboardEndFilter);
+                if (!Array.isArray(snapshot) || snapshot.length === 0) {
+                    alert('Tidak ada skor untuk diekspor.');
+                    return;
+                }
+
+                const generatedAt = new Date().toLocaleString('id-ID');
+                const rows = snapshot.map((run, i) => {
+                    const badgeData = getFullBadgeData(run.score || 0, run.accuracy || 0, run.bestCombo || 0, 0, run.correct || 0, run.wrong || 0, run.total || 0, run.categoryStats || {}, i + 1, run.attempts || 0);
+                    const time = run.timestamp ? new Date(run.timestamp).toLocaleString('id-ID', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : '-';
+                    return [
+                        i + 1,
+                        escapeHtml(run.name || '-'),
+                        escapeHtml(badgeData.display),
+                        run.score || 0,
+                        `${run.bestCombo || 0} / ${run.accuracy || 0}%`,
+                        `${(run.total || 0)}/${(run.correct || 0)}/${(run.wrong || 0)} • ${time}`,
+                        `${run.attempts || 1}x`
+                    ];
+                });
+
+                const html = `
+                    <html>
+                    <head>
+                        <meta charset="utf-8">
+                        <style>
+                            body{font-family:Arial,Helvetica,sans-serif;font-size:10pt;}
+                            .title{font-size:16pt;font-weight:700;margin-bottom:4pt;}
+                            .meta{font-size:9pt;color:#555;margin-bottom:8pt;}
+                            table{border-collapse:collapse;width:100%;table-layout:fixed;}
+                            th,td{border:1px solid #d1d5db;padding:4pt;vertical-align:top;white-space:normal;word-break:break-word;}
+                            th{background:#e5e7eb;font-weight:700;}
+                            .num{text-align:right;}
+                            .name{font-weight:700;}
+                        </style>
+                    </head>
+                    <body>
+                        <div class="title">Ecomove: Trash Sorting Challenge - Leaderboard</div>
+                        <div class="meta">Filter: ${escapeHtml(leaderboardEndFilter || 'All')} | Generated: ${escapeHtml(generatedAt)}</div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th style="width:5%">#</th>
+                                    <th style="width:28%">Nama Pemain</th>
+                                    <th style="width:24%">Badge</th>
+                                    <th style="width:10%">Skor</th>
+                                    <th style="width:15%">Combo / Akurasi</th>
+                                    <th style="width:13%">D/B/S • Waktu</th>
+                                    <th style="width:5%">Percobaan</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${rows.map(row => `
+                                    <tr>
+                                        <td class="num">${row[0]}</td>
+                                        <td class="name">${row[1]}</td>
+                                        <td>${row[2]}</td>
+                                        <td class="num">${row[3]}</td>
+                                        <td class="num">${row[4]}</td>
+                                        <td class="num">${row[5]}</td>
+                                        <td class="num">${row[6]}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </body>
+                    </html>`;
+
+                const blob = new Blob([html], { type: 'application/vnd.ms-excel;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `leaderboard_${leaderboardEndFilter || 'all'}.xls`;
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+                setTimeout(() => URL.revokeObjectURL(url), 1000);
+            } catch (err) {
+                console.error('Export Excel failed', err);
+                alert('Gagal mengekspor Excel: ' + (err && err.message ? err.message : 'unknown'));
             }
         }
 
