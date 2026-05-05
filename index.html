@@ -1316,7 +1316,7 @@
         }
 
         // Get specialty tags (multiple, 0-many per player)
-        function getSpecialtyTags(score, accuracy, bestCombo, prevBest, correct = 0, wrong = 0, total = 0, categoryStats = {}) {
+        function getSpecialtyTags(score, accuracy, bestCombo, prevBest, correct = 0, wrong = 0, total = 0, categoryStats = {}, leaderboardRank = null, attempts = 0) {
             const tags = [];
             const combo = Math.max(0, Number(bestCombo) || 0);
             const tot = Number(total) || (Number(correct) || 0) + (Number(wrong) || 0);
@@ -1325,6 +1325,7 @@
             const c = Math.min(combo, 80) / 80;
             const t = Math.min(tot, 300) / 300;
             const composite = s * 0.45 + a * 0.27 + c * 0.20 + t * 0.08;
+            const att = Number(attempts) || 0;
 
             // Category mastery tags
             if (categoryStats && categoryStats['RESIDU']) {
@@ -1344,10 +1345,10 @@
             if (combo >= 50) tags.push('Chain Master');
             if (combo >= 40 && combo < 50) tags.push('Combo Beast');
 
-            // Engagement tags
-            if (tot >= 100) tags.push('Grinder');
-            else if (tot >= 50) tags.push('Hardcore');
-            else if (tot >= 5) tags.push('Engaged');
+            // Engagement tags (based on attempts - how many times player has played)
+            if (att >= 20) tags.push('Grinder');
+            else if (att >= 10) tags.push('Hardcore');
+            else if (att >= 5) tags.push('Engaged');
 
             // Versatile (balanced accuracy across categories)
             if (categoryStats && Object.keys(categoryStats).length > 0) {
@@ -1369,7 +1370,7 @@
             try {
                 const primary = getPerformanceBadge(score, accuracy, bestCombo, prevBest, correct, wrong, total);
                 const secondary = getSecondaryBadge(score, accuracy, bestCombo, prevBest, correct, wrong, total, leaderboardRank, attempts);
-                const tags = getSpecialtyTags(score, accuracy, bestCombo, prevBest, correct, wrong, total, categoryStats || {});
+                const tags = getSpecialtyTags(score, accuracy, bestCombo, prevBest, correct, wrong, total, categoryStats, leaderboardRank, attempts);
 
                 // Format display string
                 let display = primary;
