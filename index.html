@@ -335,6 +335,7 @@
                             <li><b>Grinder</b>: ≥100 percobaan.</li>
                             <li><b>Hardcore</b>: ≥50 percobaan.</li>
                             <li><b>Engaged</b>: ≥5 percobaan.</li>
+                            <li><b>Catatan</b>: tag engagement ini bertumpuk, jadi pemain dengan 50+ percobaan akan tetap menampilkan <b>Engaged</b> dan <b>Hardcore</b>.</li>
                             <li><b>Versatile</b>: akurasi antar-kategori seimbang, selisih &lt;15% dan minimum 70%.</li>
                         </ul>
 
@@ -1348,9 +1349,10 @@
             if (combo >= 40 && combo < 50) tags.push('Combo Beast');
 
             // Engagement tags (based on attempts - how many times player has played)
+            // These stack so higher dedication still keeps the lower engagement badges.
+            if (att >= 5) tags.push('Engaged');
+            if (att >= 50) tags.push('Hardcore');
             if (att >= 100) tags.push('Grinder');
-            else if (att >= 50) tags.push('Hardcore');
-            else if (att >= 5) tags.push('Engaged');
 
             // Versatile (balanced accuracy across categories)
             if (categoryStats && Object.keys(categoryStats).length > 0) {
