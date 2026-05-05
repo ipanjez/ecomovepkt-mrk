@@ -522,9 +522,10 @@
                 </div>
             </div>
 
-            <div class="mb-3 grid grid-cols-1 md:grid-cols-2 gap-2">
+            <div class="mb-3 grid grid-cols-1 md:grid-cols-3 gap-2">
                 <button type="button" onclick="copyResultSummary()" class="bg-indigo-50 border border-indigo-200 text-indigo-700 text-sm md:text-base font-bold px-3 py-2.5 rounded-xl shadow-sm hover:bg-indigo-100 transition">📋 Copy Hasil</button>
                 <button type="button" onclick="saveResultImage()" class="bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm md:text-base font-bold px-3 py-2.5 rounded-xl shadow-sm hover:bg-emerald-100 transition">🖼️ Simpan Gambar</button>
+                <button type="button" onclick="exportLeaderboardPdf()" class="bg-gray-50 border border-gray-200 text-gray-700 text-sm md:text-base font-bold px-3 py-2.5 rounded-xl shadow-sm hover:bg-gray-100 transition">📄 Export PDF</button>
             </div>
 
             <div class="text-left w-full relative">
@@ -1861,6 +1862,76 @@
                 `;
                 body.appendChild(tr);
             });
+        }
+
+        function exportLeaderboardPdf() {
+            try {
+                const snapshot = filterLeaderboardByDifficulty(Array.isArray(window.__latestLeaderboardData) ? window.__latestLeaderboardData : [], leaderboardEndFilter);
+                if (!Array.isArray(snapshot) || snapshot.length === 0) {
+                    alert('Tidak ada skor untuk diekspor.');
+                    return;
+                }
+
+                const now = new Date();
+                const headerTitle = 'Leaderboard - EcoMove';
+                const generatedAt = now.toLocaleString('id-ID');
+
+                const cols = ['#','Nama Pemain','Skor','Combo','Akurasi','D/B/S','Waktu Bermain','Percobaan'];
+
+                let rowsHtml = '';
+                snapshot.forEach((run, i) => {
+                    const time = run.timestamp ? new Date(run.timestamp).toLocaleString('id-ID', {day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit'}) : '-';
+                    rowsHtml += `<tr>
+                        <td>${i+1}</td>
+                        <td>${escapeHtml(run.name || '-')}</td>
+                        <td style="text-align:right">${run.score || 0}</td>
+                        <td style="text-align:right">${run.bestCombo || 0}</td>
+                        <td style="text-align:right">${run.accuracy || 0}%</td>
+                        <td style="text-align:right">${(run.total||0)}/${(run.correct||0)}/${(run.wrong||0)}</td>
+                        <td style="text-align:right">${time}</td>
+                        <td style="text-align:right">${run.attempts || 1}x</td>
+                    </tr>`;
+                });
+
+                const style = `
+                    <style>
+                        @page { size: A4 portrait; margin: 12mm; }
+                        html,body{height:100%;}
+                        body{font-family: Arial, Helvetica, sans-serif; margin:0; padding:12mm; box-sizing:border-box;}
+                        .container{width:100%; display:flex; justify-content:flex-end;}
+                        .sheet{width:190mm;}
+                        h1{font-size:16px; margin:0 0 8px 0}
+                        .meta{font-size:11px; color:#555; margin-bottom:8px}
+                        table{width:100%; border-collapse:collapse; table-layout:fixed; font-size:10px}
+                        th,td{border:1px solid #ddd; padding:4px 6px; vertical-align:top; word-wrap:break-word}
+                        thead th{background:#f3f4f6; font-weight:700}
+                        td{white-space:nowrap}
+                        @media print { td{font-size:10px} }
+                    </style>`;
+
+                const doc = `<!doctype html><html><head><meta charset="utf-8"><title>${headerTitle}</title>${style}</head><body>
+                    <div class="container"><div class="sheet">
+                        <h1>${headerTitle}</h1>
+                        <div class="meta">Filter: ${escapeHtml(leaderboardEndFilter || 'All')} • Generated: ${escapeHtml(generatedAt)}</div>
+                        <table>
+                            <thead><tr>` + cols.map(c => `<th>${c}</th>`).join('') + `</tr></thead>
+                            <tbody>${rowsHtml}</tbody>
+                        </table>
+                    </div></div>
+                </body></html>`;
+
+                const w = window.open('', '_blank');
+                if (!w) { alert('Popup blocker mencegah pembuatan PDF. Izinkan popup untuk situs ini.'); return; }
+                w.document.open();
+                w.document.write(doc);
+                w.document.close();
+                // Wait for styles/images to apply then print
+                w.focus();
+                setTimeout(() => { w.print(); /* optionally close after print dialog */ }, 600);
+            } catch (err) {
+                console.error('Export PDF failed', err);
+                alert('Gagal mengekspor PDF: ' + (err && err.message ? err.message : 'unknown'));
+            }
         }
 
         function openLeaderboardPreviewModal() {
