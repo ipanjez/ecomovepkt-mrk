@@ -304,7 +304,7 @@
                             <li><b>Immortal</b>: komposit 99–100.</li>
                             <li><b>Mythic</b> (spesial): combo ≥40 dan komposit ≥88.</li>
                             <li><b>Radiant</b> (spesial): akurasi ≥99% dan skor ≥950.</li>
-                            <li><b>Veteran</b> (spesial): ≥200 percobaan dan komposit ≥60.</li>
+                            <li><b>Veteran</b> (spesial): ≥100 percobaan.</li>
                         </ul>
 
                         <p class="text-[0.85rem] md:text-sm font-bold text-gray-900 mt-4 mb-2">🎯 Secondary Badge</p>
@@ -1289,7 +1289,7 @@
             // Promote for extreme achievements (rarer now)
             if (combo >= 40 && composite >= 88) badge = 'Mythic';
             if (accuracy >= 99 && score >= 950) badge = 'Radiant';
-            if (tot >= 200 && composite >= 60) badge = 'Veteran';
+            if (tot >= 100) badge = 'Veteran';
             return badge;
         }
 
