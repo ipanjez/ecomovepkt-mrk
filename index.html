@@ -1253,7 +1253,7 @@
             return tierMap[baseBadge] || 'badge-warrior';
         }
 
-        function getPerformanceBadge(score, accuracy, bestCombo, prevBest, correct = 0, wrong = 0, total = 0) {
+        function getPerformanceBadge(score, accuracy, bestCombo, prevBest, correct = 0, wrong = 0, total = 0, attempts = 0) {
             // Simple composite score on a 0-100 scale: score, accuracy, combo, and attempts.
             const combo = Math.max(0, Number(bestCombo) || 0);
             const tot = Number(total) || (Number(correct) || 0) + (Number(wrong) || 0);
@@ -1284,7 +1284,7 @@
             // Promote for extreme achievements (rarer now)
             if (combo >= 40 && composite >= 88) badge = 'Mythic';
             if (accuracy >= 99 && score >= 950) badge = 'Radiant';
-            if (tot >= 100) badge = 'Veteran';
+            if (Number(attempts) >= 100) badge = 'Veteran';
             return badge;
         }
 
@@ -1350,7 +1350,7 @@
         // Get full badge data: primary, secondary, tags, and formatted display
         function getFullBadgeData(score, accuracy, bestCombo, prevBest, correct = 0, wrong = 0, total = 0, categoryStats = {}, leaderboardRank = null, attempts = 0) {
             try {
-                const primary = getPerformanceBadge(score, accuracy, bestCombo, prevBest, correct, wrong, total);
+                const primary = getPerformanceBadge(score, accuracy, bestCombo, prevBest, correct, wrong, total, attempts);
                 const secondary = getSecondaryBadge(score, accuracy, bestCombo, prevBest, correct, wrong, total, categoryStats, leaderboardRank, attempts);
                 const tags = getSpecialtyTags(score, accuracy, bestCombo, prevBest, correct, wrong, total, categoryStats, leaderboardRank, attempts);
 
