@@ -995,6 +995,9 @@
                 return;
             }
             uis.startError.classList.add('hidden');
+            // persist chosen name and set into game state
+            try { localStorage.setItem('eco_player_name', name); } catch (e) {}
+            gameState.playerName = name;
             startGame(selectedDiffObj.time, selectedDiffObj.name);
         }
 
@@ -1021,6 +1024,21 @@
         // DOM ELEMENTS
         const screens = { start: document.getElementById('start-screen'), game: document.getElementById('game-screen'), end: document.getElementById('end-screen') };
         const uis = { playerNameInput: document.getElementById('player-name'), startError: document.getElementById('start-error'), scoreDisp: document.getElementById('score-display'), timerDisp: document.getElementById('timer-text'), gamePlayerName: document.getElementById('game-player-name'), gameDifficulty: document.getElementById('game-difficulty'), trashName: document.getElementById('trash-name'), trashContainer: document.getElementById('trash-container') };
+
+        // Persist player name across page reloads using localStorage
+        try {
+            const savedName = localStorage.getItem('eco_player_name');
+            if (savedName && uis.playerNameInput) {
+                uis.playerNameInput.value = savedName;
+            }
+            if (uis.playerNameInput) {
+                uis.playerNameInput.addEventListener('input', (e) => {
+                    try { localStorage.setItem('eco_player_name', e.target.value || ''); } catch (err) { /* ignore storage errors */ }
+                });
+            }
+        } catch (e) {
+            console.warn('localStorage not available for player name persistence');
+        }
 
         function getDifficultyDisplayName(diff) {
             if (diff === 'Hard') return 'Penjaga Bumi';
