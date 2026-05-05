@@ -189,13 +189,6 @@
                 </div>
             </div>
 
-            <div id="secondary-info" class="bg-white rounded-xl p-3 mt-3 border border-gray-100 shadow-sm text-left" style="display:none">
-                <p class="text-sm font-bold text-gray-700 mb-1">Info Badge Bonus & Tag</p>
-                <div id="secondary-current" class="text-[0.9rem] text-gray-800 mb-1">Secondary: -</div>
-                <div id="secondary-next" class="text-[0.85rem] text-gray-600 mb-1">Selanjutnya: -</div>
-                <div id="missing-tags" class="text-[0.85rem] text-gray-600">Tag belum diperoleh: -</div>
-            </div>
-            
             <div class="p-6 md:p-8 overflow-y-auto no-scrollbar">
                 <input type="text" id="player-name" placeholder="Masukkan Nama Pemain..." class="w-full px-5 py-4 bg-gray-50 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-pktBlue focus:bg-white mb-6 transition shadow-inner font-semibold text-center text-lg" autocomplete="off">
                 
@@ -335,9 +328,9 @@
                         </ul>
 
                         <p class="text-[0.85rem] md:text-sm font-bold text-gray-900 mt-4 mb-2">🎖️ Badge Bonus</p>
-                        <p class="text-[0.8rem] md:text-sm text-gray-700 mb-2">Badge ini opsional dan cuma muncul <b>1</b> di bawah badge utama. Urutannya: <b>Debut Top 10</b>, lalu <b>Versatile</b>, lalu <b>Rising Star</b>.</p>
+                        <p class="text-[0.8rem] md:text-sm text-gray-700 mb-2">Badge ini opsional dan cuma muncul <b>1</b> di bawah badge utama. Urutannya: <b>Top 10</b>, lalu <b>Versatile</b>, lalu <b>Rising Star</b>.</p>
                         <ul class="list-disc pl-6 text-[0.75rem] md:text-sm space-y-1">
-                            <li><b>Debut Top 10</b>: kalau ini run pertama kamu (<b>percobaan ke-1</b>) dan langsung finish di <b>10 besar</b>.</li>
+                            <li><b>Top 10</b>: kalau kamu masuk <b>10 besar</b>, run pertama atau bukan tetap dihitung.</li>
                             <li><b>Versatile</b>: akurasi tiap kategori harus seimbang, beda antar kategori kecil, dan semua kategori yang kepake minimal <b>70%</b>.</li>
                             <li><b>Rising Star</b>: skor kamu sekarang harus naik <b>75 poin atau lebih</b> dari best score sebelumnya, dan performanya masih oke.</li>
                         </ul>
@@ -355,7 +348,7 @@
                         <p class="text-[0.85rem] md:text-sm font-bold text-gray-900 mt-4 mb-2">📏 Rule Badge</p>
                         <ul class="list-disc pl-6 text-[0.75rem] md:text-sm space-y-1">
                             <li><b>Badge utama</b> full komposit 0-100, jadi nggak ada badge spesial di tier utama.</li>
-                            <li><b>Badge bonus</b> opsional dan cuma tampil satu: Debut Top 10, Versatile, atau Rising Star.</li>
+                            <li><b>Badge bonus</b> opsional dan cuma tampil satu: Top 10, Versatile, atau Rising Star.</li>
                             <li><b>Tag</b> bisa lebih dari satu dan tampil sebagai hashtag <b>#...</b>.</li>
                         </ul>
                 </div>
@@ -537,6 +530,13 @@
                         <p class="text-[0.72rem] md:text-sm font-bold text-gray-700" id="final-personal-best">Skor terbaik: -</p>
                     </div>
                 </div>
+            </div>
+
+            <div id="secondary-info" class="bg-white rounded-xl p-3 mt-3 border border-gray-100 shadow-sm text-left" style="display:none">
+                <p class="text-sm font-bold text-gray-700 mb-1">Info Badge Bonus & Tag</p>
+                <div id="secondary-current" class="text-[0.9rem] text-gray-800 mb-1">Secondary: -</div>
+                <div id="secondary-next" class="text-[0.85rem] text-gray-600 mb-1">Selanjutnya: -</div>
+                <div id="missing-tags" class="text-[0.85rem] text-gray-600">Tag belum diperoleh: -</div>
             </div>
 
             <div class="mb-3 grid grid-cols-1 md:grid-cols-2 gap-2">
@@ -1293,6 +1293,64 @@
             return badgeData.display;
         }
 
+        function getLeaderboardMovement(run) {
+            const snapshotReady = !!window.__leaderboardComparisonReady;
+            const prevState = Array.isArray(window.__prevLeaderboardState) ? window.__prevLeaderboardState : [];
+            const currentState = Array.isArray(window.__currentLeaderboardState) ? window.__currentLeaderboardState : [];
+            const currentSize = currentState.length || 0;
+            const currentIndexMap = window.__currentLeaderboardIndexMap || {};
+
+            const resolveCurrentIndex = () => {
+                if (run && run.id) {
+                    const idKey = `id:${run.id}`;
+                    if (Object.prototype.hasOwnProperty.call(currentIndexMap, idKey)) return currentIndexMap[idKey];
+                }
+                if (run && run.name) {
+                    const nameKey = `name:${String(run.name).toLowerCase()}`;
+                    if (Object.prototype.hasOwnProperty.call(currentIndexMap, nameKey)) return currentIndexMap[nameKey];
+                }
+                if (run && run.id) {
+                    const found = currentState.findIndex(item => item && item.id === run.id);
+                    if (found >= 0) return found;
+                }
+                if (run && run.name) {
+                    return currentState.findIndex(item => item && String(item.name || '').toLowerCase() === String(run.name).toLowerCase());
+                }
+                return undefined;
+            };
+
+            const currentIndex = resolveCurrentIndex();
+
+            const findPrevIndex = () => {
+                if (!snapshotReady) return undefined;
+                if (run && run.id) {
+                    const idKey = `id:${run.id}`;
+                    const found = prevState.findIndex(item => item && item.id === run.id);
+                    if (found >= 0) return found;
+                    if (window.__prevLeaderboardIndexMap && Object.prototype.hasOwnProperty.call(window.__prevLeaderboardIndexMap, idKey)) return window.__prevLeaderboardIndexMap[idKey];
+                }
+                if (run && run.name) {
+                    const nameKey = `name:${String(run.name).toLowerCase()}`;
+                    const found = prevState.findIndex(item => item && String(item.name || '').toLowerCase() === String(run.name).toLowerCase());
+                    if (found >= 0) return found;
+                    if (window.__prevLeaderboardIndexMap && Object.prototype.hasOwnProperty.call(window.__prevLeaderboardIndexMap, nameKey)) return window.__prevLeaderboardIndexMap[nameKey];
+                }
+                return undefined;
+            };
+
+            const prevIndex = findPrevIndex();
+            if (!snapshotReady || typeof prevIndex === 'undefined' || typeof currentIndex === 'undefined') {
+                if (snapshotReady && typeof currentIndex !== 'undefined' && currentSize > 1 && currentIndex < currentSize - 1) {
+                    return { symbol: '★▲', className: 'text-blue-500', title: 'Pemain baru' };
+                }
+                return { symbol: snapshotReady ? '★' : '—', className: snapshotReady ? 'text-blue-500' : 'text-gray-400', title: snapshotReady ? 'Pemain baru' : 'Belum ada pembanding' };
+            }
+
+            if (currentIndex < prevIndex) return { symbol: '▲', className: 'text-green-600', title: 'Naik peringkat' };
+            if (currentIndex > prevIndex) return { symbol: '▼', className: 'text-red-600', title: 'Turun peringkat' };
+            return { symbol: '—', className: 'text-gray-400', title: 'Posisi tetap' };
+        }
+
         function getPerformanceBadge(score, accuracy, bestCombo, prevBest, correct = 0, wrong = 0, total = 0, attempts = 0) {
             // Simple composite score on a 0-100 scale: score, accuracy, combo, and attempts.
             const combo = Math.max(0, Number(bestCombo) || 0);
@@ -1343,7 +1401,7 @@
             const isVersatile = accs.length > 0 && Math.max(...accs) - Math.min(...accs) <= 15 && Math.min(...accs) >= 70;
 
             // Secondary badges (mutually exclusive, returned in priority order)
-            if (Number(attempts) === 1 && Number.isFinite(Number(leaderboardRank)) && Number(leaderboardRank) > 0 && Number(leaderboardRank) <= 10) return 'Debut Top 10';
+            if (Number.isFinite(Number(leaderboardRank)) && Number(leaderboardRank) > 0 && Number(leaderboardRank) <= 10) return 'Top 10';
             if (isVersatile) return 'Versatile';
             if (typeof prevBest === 'number' && prevBest > 0 && score >= (prevBest + 75) && composite >= 45) return 'Rising Star';
 
@@ -1534,7 +1592,23 @@
                 return (a.timestamp || 0) - (b.timestamp || 0);
             });
             // Cache latest leaderboard data so other parts of the app can re-render immediately
+            const previousState = Array.isArray(window.__currentLeaderboardState) ? window.__currentLeaderboardState.slice() : [];
+            const hasPreviousSnapshot = previousState.length > 0;
+            window.__leaderboardComparisonReady = hasPreviousSnapshot;
+            if (!window.__leaderboardSnapshotReady) {
+                window.__prevLeaderboardState = [];
+                window.__leaderboardSnapshotReady = true;
+            } else {
+                window.__prevLeaderboardState = previousState;
+            }
+            window.__currentLeaderboardState = arrData.slice();
             window.__latestLeaderboardData = arrData;
+            window.__prevLeaderboardIndexMap = {};
+            window.__currentLeaderboardIndexMap = {};
+            arrData.forEach((r, i) => {
+                if (r && r.id) window.__currentLeaderboardIndexMap[`id:${r.id}`] = i;
+                if (r && r.name) window.__currentLeaderboardIndexMap[`name:${String(r.name).toLowerCase()}`] = i;
+            });
             // Cache our saved record (if any) and expose previous best to gameState
             try {
                 window.__mySavedRecord = (gameState.currentSessionId) ? arrData.find(r => r.id === gameState.currentSessionId) || null : null;
@@ -1705,11 +1779,7 @@
                     }
             }
             
-            // Build current ranks map for this render (map by id and by lowercase name as fallback)
-            const currentRanks = {};
             filteredLeaderboardData.forEach((run, index) => {
-                if (run && run.id) currentRanks[`id:${run.id}`] = index;
-                if (run && run.name) currentRanks[`name:${String(run.name).toLowerCase()}`] = index;
                 const tr = document.createElement('tr');
                 tr.className = index % 2 === 0 ? 'bg-white' : 'bg-blue-50/30';
                 
@@ -1718,16 +1788,8 @@
                 else if (index === 1) rankStyle = 'font-bold text-gray-500 text-base';
                 else if (index === 2) rankStyle = 'font-bold text-orange-700 text-base';
 
-                // Determine position change indicator (▲ up, ▼ down, — same, ★ new)
-                if (typeof window.__prevAllRanks === 'undefined') window.__prevAllRanks = {};
-                let prevIndex = undefined;
-                if (run && run.id && window.__prevAllRanks.hasOwnProperty(`id:${run.id}`)) prevIndex = window.__prevAllRanks[`id:${run.id}`];
-                else if (run && run.name && window.__prevAllRanks.hasOwnProperty(`name:${String(run.name).toLowerCase()}`)) prevIndex = window.__prevAllRanks[`name:${String(run.name).toLowerCase()}`];
-                let posChange = '—';
-                let posClass = 'text-gray-400';
-                if (typeof prevIndex === 'undefined') { posChange = '★'; posClass = 'text-blue-500'; }
-                else if (index < prevIndex) { posChange = '▲'; posClass = 'text-green-600'; }
-                else if (index > prevIndex) { posChange = '▼'; posClass = 'text-red-600'; }
+                // Determine position change indicator based on the previous full leaderboard snapshot
+                const movement = getLeaderboardMovement(run);
 
                 // Highlight skor pemain saat ini (berdasarkan Session ID)
                 const isCurrentPlayer = (run.id === gameState.currentSessionId);
@@ -1735,7 +1797,7 @@
                 const badgeData = getFullBadgeData(run.score || 0, run.accuracy || 0, run.bestCombo || 0, 0, run.correct || 0, run.wrong || 0, run.total || 0, run.categoryStats || {}, index + 1, run.attempts || 0);
                 tr.innerHTML = `
                     <td class="px-2 py-2 text-center ${rankStyle}">
-                        <div class="flex items-center justify-center gap-2"><span>${index + 1}</span><span class="text-[0.65rem] font-bold ${posClass}">${posChange}</span></div>
+                        <div class="flex items-center justify-center gap-2" title="${escapeHtml(movement.title)}"><span>${index + 1}</span><span class="text-[0.65rem] font-bold ${movement.className}">${movement.symbol}</span></div>
                     </td>
                     <td class="px-2 py-2 font-semibold ${isCurrentPlayer ? 'text-pktBlue' : 'text-gray-800'} break-all leading-tight">
                         <div class="flex flex-col gap-0.5">
@@ -1756,16 +1818,6 @@
                 `;
                 tbody.appendChild(tr);
             });
-
-            // persist full leaderboard ranks (from filteredFullLeaderboardData) for next render comparison
-            try {
-                const fullRanks = {};
-                (filteredFullLeaderboardData || []).forEach((r, i) => {
-                    if (r && r.id) fullRanks[`id:${r.id}`] = i;
-                    if (r && r.name) fullRanks[`name:${String(r.name).toLowerCase()}`] = i;
-                });
-                window.__prevAllRanks = fullRanks;
-            } catch(e) { window.__prevAllRanks = {}; }
 
             const previewModal = document.getElementById('leaderboard-preview-modal');
             if (previewModal && !previewModal.classList.contains('hidden')) {
@@ -1890,21 +1942,12 @@
 
             body.innerHTML = '';
             snapshot.forEach((run, index) => {
-                // determine pos change using last saved ranks (support id and name fallback)
-                if (typeof window.__prevAllRanks === 'undefined') window.__prevAllRanks = {};
-                let prevIdx = undefined;
-                if (run && run.id && window.__prevAllRanks.hasOwnProperty(`id:${run.id}`)) prevIdx = window.__prevAllRanks[`id:${run.id}`];
-                else if (run && run.name && window.__prevAllRanks.hasOwnProperty(`name:${String(run.name).toLowerCase()}`)) prevIdx = window.__prevAllRanks[`name:${String(run.name).toLowerCase()}`];
-                let pChange = '—';
-                let pClass = 'text-gray-400';
-                if (typeof prevIdx === 'undefined') { pChange = '★'; pClass = 'text-blue-500'; }
-                else if (index < prevIdx) { pChange = '▲'; pClass = 'text-green-600'; }
-                else if (index > prevIdx) { pChange = '▼'; pClass = 'text-red-600'; }
+                const movement = getLeaderboardMovement(run);
                 const tr = document.createElement('tr');
                 tr.className = index % 2 === 0 ? 'bg-white' : 'bg-blue-50/30';
                     const badgeData = getFullBadgeData(run.score || 0, run.accuracy || 0, run.bestCombo || 0, 0, run.correct || 0, run.wrong || 0, run.total || 0, run.categoryStats || {}, index + 1, run.attempts || 0);
                 tr.innerHTML = `
-                    <td class="px-2 py-2 text-center font-normal"><div class="flex items-center justify-center gap-2"><span>${index + 1}</span><span class="text-[0.65rem] font-bold ${pClass}">${pChange}</span></div></td>
+                    <td class="px-2 py-2 text-center font-normal"><div class="flex items-center justify-center gap-2" title="${escapeHtml(movement.title)}"><span>${index + 1}</span><span class="text-[0.65rem] font-bold ${movement.className}">${movement.symbol}</span></div></td>
                     <td class="px-2 py-2 font-semibold text-gray-800 break-all leading-tight">
                         <div class="flex flex-col gap-0.5">
                             <div class="flex flex-wrap items-center gap-2">
@@ -2402,7 +2445,7 @@
                 const secNextEl = document.getElementById('secondary-next');
                 const missingTagsEl = document.getElementById('missing-tags');
 
-                const secondaryOrder = ['Debut Top 10', 'Versatile', 'Rising Star'];
+                const secondaryOrder = ['Top 10', 'Versatile', 'Rising Star'];
                 const obtainedSecondary = finalBadgeData.secondary || null;
                 let nextSecondary = 'Tidak ada';
                 if (!obtainedSecondary) nextSecondary = secondaryOrder[0];
@@ -2420,7 +2463,7 @@
                 secCurrentEl.textContent = `Secondary yang diperoleh saat ini: ${obtainedSecondary || 'Tidak ada'}`;
                 // Provide brief guidance on next secondary
                 let nextDesc = '';
-                if (nextSecondary === 'Debut Top 10') nextDesc = 'Run pertama & finish di Top 10.';
+                if (nextSecondary === 'Top 10') nextDesc = 'Masuk 10 besar, run pertama atau bukan tetap dihitung.';
                 else if (nextSecondary === 'Versatile') nextDesc = 'Akurasi seimbang tiap kategori, minimal 70% dan perbedaan antar kategori ≤15%.';
                 else if (nextSecondary === 'Rising Star') nextDesc = 'Skor ≥ (prevBest + 75) dan komposit ≥45.';
                 else nextDesc = nextSecondary;
