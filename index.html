@@ -397,8 +397,9 @@
                         </button>
                     </div>
                 </div>
-                <div class="max-h-[38vh] sm:max-h-[42vh] overflow-y-auto overflow-x-hidden rounded-xl border border-blue-100 mb-4 bg-gradient-to-b from-white to-blue-50/40 shadow-md no-scrollbar">
-                    <table class="w-full text-sm text-left">
+                <div class="max-h-[38vh] sm:max-h-[42vh] overflow-y-auto overflow-x-auto rounded-xl border border-blue-100 mb-4 bg-gradient-to-b from-white to-blue-50/40 shadow-md">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-left" style="min-width:1100px">
                         <thead class="sticky top-0 z-10 bg-gradient-to-r from-blue-600 to-blue-500 text-white uppercase text-[0.58rem] md:text-[0.65rem]">
                             <tr>
                                 <th class="px-2 py-3 w-8 text-center">#</th>
@@ -416,7 +417,8 @@
                         <tbody id="leaderboard-body" class="divide-y divide-gray-200">
                             <tr><td colspan="10" class="text-center py-4 text-gray-500">Memuat data secara Real-time...</td></tr>
                         </tbody>
-                    </table>
+                        </table>
+                    </div>
                 </div>
             </div>
 
@@ -677,19 +679,31 @@
         }
 
         function getPerformanceBadge(score, accuracy, bestCombo, prevBest) {
-            // Rarer, multi-tier badge hierarchy
-            if (score >= 1000 && accuracy >= 96 && bestCombo >= 5) return 'MYTHIC ✪';
-            if (score >= 850 && accuracy >= 92 && bestCombo >= 4) return 'GRANDMASTER 🧠';
+            // Expanded combo-first badge hierarchy to reward combo hunters
+            const combo = bestCombo || 0;
+            if (combo >= 25) return 'MYTHIC COMBO ✪';
+            if (combo >= 15) return 'GRAND COMBO 🧨';
+            if (combo >= 10) return 'COMBO LEGEND 🔱';
+            if (combo >= 7) return 'COMBO MASTER 🔥';
+            if (combo >= 5) return 'COMBO TITAN 🔥';
+            if (combo >= 3) return 'COMBO HUNTER 🎯';
+
+            // High-skill score/accuracy badges
+            if (score >= 1000 && accuracy >= 96) return 'MYTHIC ✪';
+            if (score >= 850 && accuracy >= 92) return 'GRANDMASTER 🧠';
             if (score >= 700 && accuracy >= 90) return 'LEGEND ♛';
             if (accuracy >= 97 && score >= 450) return 'PRECISION ACE 🎯';
             if (score >= 560 && accuracy >= 84) return 'MASTER ⚡';
-            if (bestCombo >= 5 && score >= 350) return 'COMBO TITAN 🔥';
+
+            // Balanced performance badges
             if (score >= 420 && accuracy >= 76) return 'EXPLORER 🌱';
-            if (score >= 280 && accuracy >= 72 && bestCombo >= 2) return 'ECO CHAMPION 🌿';
+            if (score >= 280 && accuracy >= 72) return 'ECO CHAMPION 🌿';
             if (accuracy >= 92 && score >= 250) return 'SUSTAINER ♻️';
             if (accuracy >= 85 && score >= 180) return 'STEADY HAND 🛡️';
-            // Rising Star is improvement-based, not default
+
+            // Rising Star is improvement-based (session beats previous best by a margin)
             if (typeof prevBest === 'number' && prevBest > 0 && score >= (prevBest + 50) && accuracy >= 75) return 'RISING STAR ✨';
+
             if (score >= 120 && accuracy >= 65) return 'GREEN APPRENTICE 🌿';
             return 'NOVICE 🟢';
         }
