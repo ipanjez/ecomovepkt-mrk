@@ -1264,6 +1264,28 @@
             return tierMap[baseBadge] || 'badge-bronze';
         }
 
+        function getBadgeOrdinal(primary) {
+            const map = {
+                'Bronze': 1,
+                'Silver': 2,
+                'Gold': 3,
+                'Platinum': 4,
+                'Epic': 5,
+                'Grandmaster': 6,
+                'Diamond': 7,
+                'Legend': 8,
+                'Master': 9,
+                'Immortal': 10
+            };
+            return map[String(primary)] || null;
+        }
+
+        function formatBadgeDisplay(badgeData) {
+            const ord = getBadgeOrdinal(badgeData.primary);
+            if (ord) return `*${ord} ${badgeData.display}`;
+            return badgeData.display;
+        }
+
         function getPerformanceBadge(score, accuracy, bestCombo, prevBest, correct = 0, wrong = 0, total = 0, attempts = 0) {
             // Simple composite score on a 0-100 scale: score, accuracy, combo, and attempts.
             const combo = Math.max(0, Number(bestCombo) || 0);
@@ -1668,12 +1690,12 @@
                 renderPersonalBestSummaryFromLeaderboard(myRecord || null);
                 // Update final badge display as well
                 const finalBadgeEl = document.getElementById('final-badge');
-                if (finalBadgeEl) {
-                    const r = myRecord || {};
-                    const badgeData = getFullBadgeData(r.score || 0, r.accuracy || 0, r.bestCombo || 0, 0, r.correct || 0, r.wrong || 0, r.total || 0, r.categoryStats || {}, myRankIndex >= 0 ? myRankIndex + 1 : null, r.attempts || 0);
-                    finalBadgeEl.textContent = badgeData.display;
-                    finalBadgeEl.className = 'inline-flex items-center rounded-full px-3 py-1.5 text-sm md:text-base font-bold ' + getBadgeStyleClass(badgeData.primary);
-                }
+                    if (finalBadgeEl) {
+                        const r = myRecord || {};
+                        const badgeData = getFullBadgeData(r.score || 0, r.accuracy || 0, r.bestCombo || 0, 0, r.correct || 0, r.wrong || 0, r.total || 0, r.categoryStats || {}, myRankIndex >= 0 ? myRankIndex + 1 : null, r.attempts || 0);
+                        finalBadgeEl.textContent = formatBadgeDisplay(badgeData);
+                        finalBadgeEl.className = 'inline-flex items-center rounded-full px-3 py-1.5 text-sm md:text-base font-bold ' + getBadgeStyleClass(badgeData.primary);
+                    }
             }
             
             filteredLeaderboardData.forEach((run, index) => {
@@ -1696,7 +1718,7 @@
                         <div class="flex flex-col gap-0.5">
                             <div class="flex flex-wrap items-center gap-2">
                                 <span>${escapeHtml(run.name)}</span>
-                                <span class="inline-flex items-center whitespace-nowrap rounded-full px-2 py-1 text-[0.6rem] leading-none font-bold ${getBadgeStyleClass(badgeData.primary)}">${escapeHtml(badgeData.display)}</span>
+                                <span class="inline-flex items-center whitespace-nowrap rounded-full px-2 py-1 text-[0.6rem] leading-none font-bold ${getBadgeStyleClass(badgeData.primary)}">${escapeHtml(formatBadgeDisplay(badgeData))}</span>
                             </div>
                             <span class="text-[0.6rem] ${run.difficulty === 'Hard' ? 'text-blue-500' : run.difficulty === 'Medium' ? 'text-orange-500' : 'text-green-500'}">${getDifficultyDisplayName(run.difficulty)}</span>
                         </div>
@@ -1844,7 +1866,7 @@
                         <div class="flex flex-col gap-0.5">
                             <div class="flex flex-wrap items-center gap-2">
                                 <span>${escapeHtml(run.name || '-')}</span>
-                                <span class="inline-flex items-center whitespace-nowrap rounded-full px-2 py-1 text-[0.6rem] leading-none font-bold ${getBadgeStyleClass(badgeData.primary)}">${escapeHtml(badgeData.display)}</span>
+                                <span class="inline-flex items-center whitespace-nowrap rounded-full px-2 py-1 text-[0.6rem] leading-none font-bold ${getBadgeStyleClass(badgeData.primary)}">${escapeHtml(formatBadgeDisplay(badgeData))}</span>
                             </div>
                             <span class="text-[0.6rem] ${run.difficulty === 'Hard' ? 'text-blue-500' : run.difficulty === 'Medium' ? 'text-orange-500' : 'text-green-500'}">${escapeHtml(getDifficultyDisplayName(run.difficulty))}</span>
                         </div>
@@ -1879,7 +1901,7 @@
                 snapshot.forEach((run, i) => {
                     const time = run.timestamp ? new Date(run.timestamp).toLocaleString('id-ID', {day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit'}) : '-';
                     const badgeData = getFullBadgeData(run.score || 0, run.accuracy || 0, run.bestCombo || 0, 0, run.correct || 0, run.wrong || 0, run.total || 0, run.categoryStats || {}, i+1, run.attempts || 0);
-                    const badgeHtml = `<div style="font-size:9px; display:inline-block; padding:2px 6px; border-radius:10px; background:#fff7ed; color:#92400e; border:1px solid #fcd34d">${escapeHtml(badgeData.display)}</div>`;
+                    const badgeHtml = `<div style="font-size:9px; display:inline-block; padding:2px 6px; border-radius:10px; background:#fff7ed; color:#92400e; border:1px solid #fcd34d">${escapeHtml(formatBadgeDisplay(badgeData))}</div>`;
                     rowsHtml += `<tr>
                         <td style="width:4%; text-align:center">${i+1}</td>
                         <td style="width:38%; vertical-align:top">
@@ -1949,7 +1971,7 @@
                     return [
                         i + 1,
                         escapeHtml(run.name || '-'),
-                        escapeHtml(badgeData.display),
+                        escapeHtml(formatBadgeDisplay(badgeData)),
                         run.score || 0,
                         `${run.bestCombo || 0} / ${run.accuracy || 0}%`,
                         `${(run.total || 0)}/${(run.correct || 0)}/${(run.wrong || 0)} • ${time}`,
