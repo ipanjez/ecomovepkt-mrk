@@ -376,7 +376,10 @@
             <div class="w-full max-w-2xl bg-white/95 backdrop-blur rounded-xl p-2 shadow-md border border-blue-50 text-sm">
                 <div class="flex items-center justify-between mb-2">
                     <div class="font-bold text-gray-700 uppercase tracking-wider">Rival Terdekat</div>
-                    <div class="text-xs text-gray-600">Skor Anda: <span id="ingame-score">0</span></div>
+                    <div class="text-xs text-gray-600 flex flex-col items-end">
+                        <div>Skor Anda: <span id="ingame-score">0</span></div>
+                        <div id="below-personal-best-note" class="text-[0.68rem] text-yellow-700 hidden" aria-live="polite"></div>
+                    </div>
                 </div>
                 <div id="ingame-leaderboard" class="flex gap-2 overflow-x-auto pb-1 no-scrollbar text-sm">
                     <div class="text-gray-400 italic">Memuat Leaderboard...</div>
@@ -1818,7 +1821,23 @@
 
         function updateScoreUI() {
             uis.scoreDisp.textContent = gameState.score;
-            if(document.getElementById('ingame-score')) document.getElementById('ingame-score').textContent = gameState.score;
+            if (document.getElementById('ingame-score')) document.getElementById('ingame-score').textContent = gameState.score;
+
+            // Show/hide personal-best warning: if player has a stored personal best and
+            // current session score is still below it, warn that lower scores won't replace leaderboard entry
+            try {
+                const prev = gameState.previousBest || 0;
+                const noteEl = document.getElementById('below-personal-best-note');
+                if (noteEl) {
+                    if (prev > 0 && gameState.score < prev) {
+                        noteEl.textContent = `Perhatian: Skor saat ini masih di bawah Personal Best Anda (${prev}). Skor lebih rendah tidak akan masuk leaderboard.`;
+                        noteEl.classList.remove('hidden');
+                    } else {
+                        noteEl.classList.add('hidden');
+                    }
+                }
+            } catch(e) { /* ignore UI note errors */ }
+
             // Re-render in-game leaderboard using latest cached DB snapshot so rival delta updates live
             try {
                 if (window.__latestLeaderboardData && Array.isArray(window.__latestLeaderboardData)) {
