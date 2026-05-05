@@ -403,8 +403,9 @@
                             <tr>
                                 <th class="px-2 py-3 w-8 text-center">#</th>
                                 <th class="px-3 py-3">Nama Pemain</th>
-                                    <th class="px-3 py-3 text-center">Badge</th>
+                                <th class="px-3 py-3 text-center">Badge</th>
                                 <th class="px-3 py-3 text-center">Skor</th>
+                                <th class="px-3 py-3 text-center">Combo</th>
                                 <th class="px-3 py-3 text-center hidden md:table-cell" title="Akurasi Jawaban">Akurasi</th>
                                 <th class="px-3 py-3 text-center hidden lg:table-cell" title="Dijawab / Benar / Salah">D/B/S</th>
                                 <th class="px-3 py-3 text-center hidden md:table-cell">Level</th>
@@ -413,7 +414,7 @@
                             </tr>
                         </thead>
                         <tbody id="leaderboard-body" class="divide-y divide-gray-200">
-                            <tr><td colspan="9" class="text-center py-4 text-gray-500">Memuat data secara Real-time...</td></tr>
+                            <tr><td colspan="10" class="text-center py-4 text-gray-500">Memuat data secara Real-time...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -808,8 +809,16 @@
                 }
             }
 
-            // Urutkan berdasarkan skor tertinggi (DESC)
-            arrData.sort((a, b) => b.score - a.score);
+            // Urutkan berdasarkan skor tertinggi (DESC), lalu bestCombo, lalu akurasi, lalu timestamp
+            arrData.sort((a, b) => {
+                const sa = a.score || 0, sb = b.score || 0;
+                if (sb !== sa) return sb - sa;
+                const ca = a.bestCombo || 0, cb = b.bestCombo || 0;
+                if (cb !== ca) return cb - ca;
+                const aa = a.accuracy || 0, ab = b.accuracy || 0;
+                if (ab !== aa) return ab - aa;
+                return (a.timestamp || 0) - (b.timestamp || 0);
+            });
             // Cache latest leaderboard data so other parts of the app can re-render immediately
             window.__latestLeaderboardData = arrData;
             // Cache our saved record (if any) and expose previous best to gameState
@@ -945,7 +954,7 @@
             }
 
             if (leaderboardData.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="9" class="text-center py-4 text-gray-500">Belum ada skor yang dicatat.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="10" class="text-center py-4 text-gray-500">Belum ada skor yang dicatat.</td></tr>';
                 if (rankDisplay) rankDisplay.textContent = '-';
                 return;
             }
@@ -987,6 +996,7 @@
                     </td>
                     <td class="px-3 py-2 text-center"><span class="inline-block px-2 py-1 rounded-full text-[0.68rem] font-bold bg-gray-50 border border-gray-200 text-gray-700">${escapeHtml(badgeLabel)}</span></td>
                     <td class="px-2 py-2 text-center font-bold text-pktOrange">${run.score}</td>
+                    <td class="px-2 py-2 text-center font-bold text-pktBlue">${run.bestCombo || 0}</td>
                     <td class="px-2 py-2 text-center text-xs hidden md:table-cell font-bold text-gray-600">${run.accuracy || 0}%</td>
                     <td class="px-2 py-2 text-center text-xs hidden lg:table-cell text-gray-600 font-bold">${run.total || 0}/${run.correct || 0}/${run.wrong || 0}
                     </td>
