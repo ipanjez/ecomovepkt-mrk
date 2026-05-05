@@ -319,7 +319,6 @@
                         <tr>
                             <th class="px-2 py-3 w-8 text-center">#</th>
                             <th class="px-3 py-3">Nama Pemain</th>
-                            <th class="px-3 py-3 text-center">Badge</th>
                             <th class="px-3 py-3 text-center">Skor</th>
                             <th class="px-3 py-3 text-center">Combo</th>
                             <th class="px-3 py-3 text-center hidden md:table-cell">Akurasi</th>
@@ -329,7 +328,7 @@
                         </tr>
                     </thead>
                     <tbody id="leaderboard-preview-body" class="divide-y divide-gray-200">
-                        <tr><td colspan="9" class="text-center py-4 text-gray-500">Memuat leaderboard...</td></tr>
+                        <tr><td colspan="8" class="text-center py-4 text-gray-500">Memuat leaderboard...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -496,7 +495,6 @@
                             <tr>
                                 <th class="px-2 py-3 w-8 text-center">#</th>
                                 <th class="px-3 py-3">Nama Pemain</th>
-                                <th class="px-3 py-3 text-center">Badge</th>
                                 <th class="px-3 py-3 text-center">Skor</th>
                                 <th class="px-3 py-3 text-center">Combo</th>
                                 <th class="px-3 py-3 text-center hidden md:table-cell" title="Akurasi Jawaban">Akurasi</th>
@@ -506,7 +504,7 @@
                             </tr>
                         </thead>
                         <tbody id="leaderboard-body" class="divide-y divide-gray-200">
-                            <tr><td colspan="9" class="text-center py-4 text-gray-500">Memuat data secara Real-time...</td></tr>
+                            <tr><td colspan="8" class="text-center py-4 text-gray-500">Memuat data secara Real-time...</td></tr>
                         </tbody>
                         </table>
                     </div>
@@ -1516,11 +1514,13 @@
                     <td class="px-2 py-2 text-center ${rankStyle}">${index + 1}</td>
                     <td class="px-2 py-2 font-semibold ${isCurrentPlayer ? 'text-pktBlue' : 'text-gray-800'} break-all leading-tight">
                         <div class="flex flex-col gap-0.5">
-                            <span>${run.name}</span>
+                            <div class="flex flex-wrap items-center gap-2">
+                                <span>${run.name}</span>
+                                <span class="inline-flex items-center whitespace-nowrap rounded-full px-2 py-1 text-[0.6rem] leading-none font-bold bg-gray-50 border border-gray-200 text-gray-700">${escapeHtml(badgeLabel)}</span>
+                            </div>
                             <span class="text-[0.6rem] ${run.difficulty === 'Hard' ? 'text-blue-500' : run.difficulty === 'Medium' ? 'text-orange-500' : 'text-green-500'}">${getDifficultyDisplayName(run.difficulty)}</span>
                         </div>
                     </td>
-                    <td class="px-3 py-2 text-center"><span class="inline-block px-2 py-1 rounded-full text-[0.68rem] font-bold bg-gray-50 border border-gray-200 text-gray-700">${escapeHtml(badgeLabel)}</span></td>
                     <td class="px-2 py-2 text-center font-bold text-pktOrange">${run.score}</td>
                     <td class="px-2 py-2 text-center font-bold text-pktBlue">${run.bestCombo || 0}</td>
                     <td class="px-2 py-2 text-center text-xs hidden md:table-cell font-bold text-gray-600">${run.accuracy || 0}%</td>
@@ -1646,11 +1646,13 @@
                     <td class="px-2 py-2 text-center font-normal">${index + 1}</td>
                     <td class="px-2 py-2 font-semibold text-gray-800 break-all leading-tight">
                         <div class="flex flex-col gap-0.5">
-                            <span>${escapeHtml(run.name || '-')}</span>
+                            <div class="flex flex-wrap items-center gap-2">
+                                <span>${escapeHtml(run.name || '-')}</span>
+                                <span class="inline-flex items-center whitespace-nowrap rounded-full px-2 py-1 text-[0.6rem] leading-none font-bold bg-gray-50 border border-gray-200 text-gray-700">${escapeHtml(badgeLabel)}</span>
+                            </div>
                             <span class="text-[0.6rem] ${run.difficulty === 'Hard' ? 'text-blue-500' : run.difficulty === 'Medium' ? 'text-orange-500' : 'text-green-500'}">${escapeHtml(getDifficultyDisplayName(run.difficulty))}</span>
                         </div>
                     </td>
-                    <td class="px-3 py-2 text-center"><span class="inline-block px-2 py-1 rounded-full text-[0.68rem] font-bold bg-gray-50 border border-gray-200 text-gray-700">${escapeHtml(badgeLabel)}</span></td>
                     <td class="px-2 py-2 text-center font-bold text-pktOrange">${run.score || 0}</td>
                     <td class="px-2 py-2 text-center font-bold text-pktBlue">${run.bestCombo || 0}</td>
                     <td class="px-2 py-2 text-center text-xs hidden md:table-cell font-bold text-gray-600">${run.accuracy || 0}%</td>
