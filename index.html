@@ -224,13 +224,15 @@
                 <!-- Badge Rules -->
                 <div>
                     <h3 class="font-bold text-gray-900 mb-2 border-l-4 border-pktOrange pl-3 flex items-center gap-2">🏅 Badge Performa</h3>
-                    <p class="text-[0.85rem] md:text-sm leading-relaxed">Dapatkan badge performa setelah permainan berakhir berdasarkan kombinasi skor, akurasi, dan combo:</p>
+                    <p class="text-[0.85rem] md:text-sm leading-relaxed">Badge performa sekarang lebih berjenjang dan beberapa bersifat <b>langka</b>. Tidak semua pemain bisa langsung mendapat badge tinggi.</p>
                     <ul class="list-disc pl-6 mt-2 text-[0.85rem] md:text-sm space-y-1">
-                        <li><b>LEGEND ♛</b> — Skor sangat tinggi (≥700) dan akurasi ≥90%.</li>
-                        <li><b>MASTER ⚡</b> — Skor tinggi (≥500) dan akurasi ≥80%.</li>
-                        <li><b>EXPLORER 🌱</b> — Skor menengah (≥300) dan akurasi ≥70%.</li>
-                        <li><b>COMBO HUNTER 🔥</b> — Pencapaian combo 3x atau lebih selama sesi.</li>
-                        <li><b>RISING PLAYER 🚀</b> — Default badge untuk pemain yang menunjukkan peningkatan.</li>
+                        <li><b>MYTHIC ✪</b> / <b>GRANDMASTER 🧠</b> — Badge puncak dengan syarat sangat ketat (skor, akurasi, dan combo).</li>
+                        <li><b>LEGEND ♛</b> / <b>MASTER ⚡</b> — Untuk performa tinggi dengan akurasi stabil.</li>
+                        <li><b>PRECISION ACE 🎯</b> — Akurasi sangat tinggi (hampir sempurna).</li>
+                        <li><b>COMBO TITAN 🔥</b> — Fokus pada kemampuan menjaga combo panjang.</li>
+                        <li><b>EXPLORER 🌱</b> / <b>ECO CHAMPION 🌿</b> / <b>SUSTAINER ♻️</b> / <b>STEADY HAND 🛡️</b> — Tier menengah dengan kombinasi syarat berbeda.</li>
+                        <li><b>RISING STAR ✨</b> — Bukan default; hanya jika skor Anda naik signifikan dibanding best sebelumnya.</li>
+                        <li><b>GREEN APPRENTICE 🌿</b> / <b>NOVICE 🟢</b> — Tier awal untuk progres awal.</li>
                     </ul>
                     <p class="text-[0.8rem] md:text-sm text-gray-600 mt-2">Badge akan terlihat di kolom <b>Badge</b> pada Leaderboard dan juga ditampilkan di ringkasan hasil akhir.</p>
                 </div>
@@ -658,20 +660,20 @@
         const uis = { playerNameInput: document.getElementById('player-name'), startError: document.getElementById('start-error'), scoreDisp: document.getElementById('score-display'), timerDisp: document.getElementById('timer-text'), gamePlayerName: document.getElementById('game-player-name'), gameDifficulty: document.getElementById('game-difficulty'), trashName: document.getElementById('trash-name'), trashContainer: document.getElementById('trash-container') };
 
         function getPerformanceBadge(score, accuracy, bestCombo, prevBest) {
-            // New badge hierarchy with rarer badges and no generic 'RISING PLAYER' default
-            // If we have a previous best and this session improved, award Rising Star (rare)
-            if (typeof prevBest === 'number' && prevBest > 0 && score > prevBest) {
-                // require at least +1 or a relative improvement for Rising to be meaningful
-                if (score - prevBest >= 1) return 'RISING STAR ✨';
-            }
-            if (score >= 900 && accuracy >= 95) return 'MYTHIC ✪';
-            if (score >= 750 && accuracy >= 92) return 'LEGEND ♛';
-            if (score >= 600 && accuracy >= 85) return 'MASTER ⚡';
-            if (bestCombo >= 4) return 'COMBO HUNTER 🔥';
-            if (score >= 400 && accuracy >= 75) return 'EXPLORER 🌱';
-            if (score >= 250 && accuracy >= 70 && bestCombo >= 2) return 'ECO CHAMPION 🌿';
-            if (accuracy >= 92 && score >= 220) return 'SUSTAINER ♻️';
-            // Less common achievement based on improvement (Rising) is handled when prevBest is provided
+            // Rarer, multi-tier badge hierarchy
+            if (score >= 1000 && accuracy >= 96 && bestCombo >= 5) return 'MYTHIC ✪';
+            if (score >= 850 && accuracy >= 92 && bestCombo >= 4) return 'GRANDMASTER 🧠';
+            if (score >= 700 && accuracy >= 90) return 'LEGEND ♛';
+            if (accuracy >= 97 && score >= 450) return 'PRECISION ACE 🎯';
+            if (score >= 560 && accuracy >= 84) return 'MASTER ⚡';
+            if (bestCombo >= 5 && score >= 350) return 'COMBO TITAN 🔥';
+            if (score >= 420 && accuracy >= 76) return 'EXPLORER 🌱';
+            if (score >= 280 && accuracy >= 72 && bestCombo >= 2) return 'ECO CHAMPION 🌿';
+            if (accuracy >= 92 && score >= 250) return 'SUSTAINER ♻️';
+            if (accuracy >= 85 && score >= 180) return 'STEADY HAND 🛡️';
+            // Rising Star is improvement-based, not default
+            if (typeof prevBest === 'number' && prevBest > 0 && score >= (prevBest + 50) && accuracy >= 75) return 'RISING STAR ✨';
+            if (score >= 120 && accuracy >= 65) return 'GREEN APPRENTICE 🌿';
             return 'NOVICE 🟢';
         }
 
