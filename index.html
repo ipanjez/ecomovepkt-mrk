@@ -750,22 +750,73 @@
             tbody.innerHTML = '';
             const rankDisplay = document.getElementById('final-rank');
             
-            // Render In-Game Top 5 Leaderboard
+            // Render In-Game Top 5 Leaderboard as progress-style target
             const inGameLb = document.getElementById('ingame-leaderboard');
             if (inGameLb) {
                 inGameLb.innerHTML = '';
-                const top5 = leaderboardData.slice(0, 5);
-                if(top5.length === 0) inGameLb.innerHTML = '<div class="text-gray-400 italic w-full text-center">Belum ada skor</div>';
-                top5.forEach((run, idx) => {
-                    const isPlayer = (run.id === gameState.currentSessionId) || (run.name === gameState.playerName);
-                    const style = isPlayer ? 'bg-blue-100 text-pktBlue border-blue-300 shadow-sm' : 
-                                  idx === 0 ? 'bg-yellow-100 text-yellow-700 border-yellow-300 shadow-sm' : 
-                                  'bg-white text-gray-600 border-gray-200 opacity-80';
-                    const el = document.createElement('div');
-                    el.className = `flex-shrink-0 px-2 py-1 rounded-lg border min-w-[76px] text-center flex flex-col justify-center ${style}`;
-                    el.innerHTML = `<span class="font-bold truncate max-w-[80px]">#${idx+1} ${run.name}</span><span class="font-black text-sm">${run.score}</span>`;
-                    inGameLb.appendChild(el);
-                });
+
+                // Determine player's current score (use session score if playing)
+                const playerScore = (typeof gameState.score === 'number') ? gameState.score : 0;
+
+                // Find next higher score (smallest score > playerScore) from fullLeaderboardData
+                let nextHigher = null; let nextHigherIdx = -1;
+                for (let i = 0; i < fullLeaderboardData.length; i++) {
+                    if (fullLeaderboardData[i].score > playerScore) { nextHigher = fullLeaderboardData[i]; nextHigherIdx = i; break; }
+                }
+
+                // Find previous lower bound (largest score <= playerScore) or 0
+                let prevLower = { score: 0, name: 'Anda' };
+                for (let i = fullLeaderboardData.length - 1; i >= 0; i--) {
+                    if (fullLeaderboardData[i].score <= playerScore) { prevLower = fullLeaderboardData[i]; break; }
+                }
+
+                // Progress calculation
+                let progressPct = 0;
+                if (!nextHigher) {
+                    // Player is at top (or no higher exists)
+                    progressPct = 100;
+                } else {
+                    const low = prevLower.score || 0;
+                    const high = nextHigher.score;
+                    const range = Math.max(1, high - low);
+                    progressPct = Math.max(0, Math.min(100, Math.round(((playerScore - low) / range) * 100)));
+                }
+
+                // Build progress UI
+                const wrapper = document.createElement('div');
+                wrapper.className = 'w-full bg-white rounded-lg p-3 border shadow-sm';
+                wrapper.innerHTML = `
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="text-sm font-bold text-gray-700">Target Terdekat</div>
+                        <div class="text-sm font-extrabold text-pktBlue">Skor Anda: ${playerScore}</div>
+                    </div>
+                    <div class="w-full bg-gray-100 rounded-full h-3 overflow-hidden mb-2">
+                        <div class="h-full bg-gradient-to-r from-pktGreen via-yellow-400 to-pktOrange" style="width: ${progressPct}%; transition: width 300ms;"></div>
+                    </div>
+                    <div class="flex items-center justify-between text-[0.78rem] text-gray-600">
+                        <div>${prevLower.name || 'Terendah'}: ${prevLower.score || 0}</div>
+                        <div>${nextHigher ? `#${nextHigherIdx+1} ${nextHigher.name}: ${nextHigher.score}` : 'Anda di Peringkat 1'} </div>
+                    </div>
+                `;
+
+                inGameLb.appendChild(wrapper);
+
+                // Also render compact top5 chips below progress for context
+                const chips = document.createElement('div');
+                chips.className = 'flex gap-2 mt-3 overflow-x-auto no-scrollbar';
+                const top5 = leaderboardData.slice(0,5);
+                if (top5.length === 0) {
+                    const note = document.createElement('div'); note.className = 'text-gray-400 italic'; note.textContent = 'Belum ada skor'; chips.appendChild(note);
+                } else {
+                    top5.forEach((run, idx) => {
+                        const chip = document.createElement('div');
+                        const isPlayer = (run.id === gameState.currentSessionId) || (run.name === gameState.playerName);
+                        chip.className = `px-3 py-1 rounded-lg border shadow-sm min-w-[88px] text-center ${isPlayer ? 'bg-blue-100 text-pktBlue border-blue-300' : (idx===0 ? 'bg-yellow-100 text-yellow-700 border-yellow-300' : 'bg-white text-gray-600 border-gray-200')}`;
+                        chip.innerHTML = `<div class="font-bold truncate">#${idx+1} ${run.name}</div><div class="font-black">${run.score}</div>`;
+                        chips.appendChild(chip);
+                    });
+                }
+                inGameLb.appendChild(chips);
             }
 
             if (leaderboardData.length === 0) {
