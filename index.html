@@ -247,9 +247,9 @@
                 <div>
                     <h3 class="font-bold text-gray-900 mb-2 border-l-4 border-pktGreen pl-3 flex items-center gap-2">🎯 Cara Bermain</h3>
                     <ul class="list-decimal pl-6 space-y-1">
-                        <li>Masukkan nama Anda dan pilih tingkat: <b>Bumi Lestari</b>, <b>Eko Aktif</b>, atau <b>Penjaga Bumi</b>.</li>
+                        <li>Masukkan nama kamu dan pilih tingkat: <b>Bumi Lestari</b>, <b>Eko Aktif</b>, atau <b>Penjaga Bumi</b>.</li>
                         <li>Tebak kategori sampah yang muncul dengan mengklik ikon tong yang sesuai: <b>Sisa Makanan</b>, <b>Laku Jual</b>, atau <b>Residu</b>.</li>
-                        <li class="text-red-600 font-bold">Hati-hati! Memilih tong yang salah akan memotong batas waktu Anda sebanyak 5 detik!</li>
+                        <li class="text-red-600 font-bold">Hati-hati! Kalau salah pilih tong, waktumu bakal kepotong 5 detik!</li>
                     </ul>
                 </div>
 
@@ -266,13 +266,13 @@
                 <!-- Combo -->
                 <div>
                     <h3 class="font-bold text-gray-900 mb-2 border-l-4 border-yellow-400 pl-3 flex items-center gap-2">⚡ Sistem Combo</h3>
-                    <p class="text-[0.85rem] md:text-sm leading-relaxed">Menjawab benar berturut-turut tanpa salah akan mengaktifkan kemampuan <b>Combo (hingga 3x lipat)</b>. Poin dasar Anda akan dikalikan sesuai panjang rentetan combo. Kesalahan 1 kali saja akan langsung me-reset combo kembali ke nol.</p>
+                    <p class="text-[0.85rem] md:text-sm leading-relaxed">Jawab benar terus tanpa salah biar <b>Combo</b> nyala sampai 3x lipat. Poin dasar kamu bakal ikut naik sesuai panjang combo. Salah sekali aja, combo langsung reset ke nol.</p>
                 </div>
 
                 <!-- Leaderboard -->
                 <div>
                     <h3 class="font-bold text-gray-900 mb-2 border-l-4 border-purple-500 pl-3 flex items-center gap-2">🏆 Sistem Leaderboard</h3>
-                    <p class="text-[0.85rem] md:text-sm leading-relaxed">Leaderboard bersifat <b>global</b> dan diperbarui <i>real-time</i> di semua device. Jika Anda bermain lagi dengan nama yang sama, sistem menyimpan <b>skor tertinggi</b> dan jumlah <b>Coba</b>. Di mode <b>dynamic</b> / <b>Proximity Scoring</b>, panel atas hanya menampilkan <b>rival terdekat di atas skor Anda</b> beserta jaraknya, lalu otomatis berganti ke rival berikutnya saat Anda melewatinya.</p>
+                    <p class="text-[0.85rem] md:text-sm leading-relaxed">Leaderboard ini <b>global</b> dan update <i>real-time</i> di semua device. Kalau kamu main lagi pakai nama yang sama, sistem bakal simpan <b>skor tertinggi</b> plus jumlah <b>Coba</b>. Di mode <b>dynamic</b> / <b>Proximity Scoring</b>, panel atas cuma nunjukin <b>rival terdekat di atas skor kamu</b> beserta jaraknya, lalu auto pindah ke rival berikutnya pas kamu nyalip.</p>
                 </div>
 
                 <!-- Badge Rules -->
@@ -1567,7 +1567,7 @@
                     const playerCard = document.createElement('div');
                     playerCard.className = 'flex flex-col items-center px-3 py-1 bg-blue-100 rounded-lg border border-pktBlue';
                     playerCard.innerHTML = `
-                        <div class="text-[0.65rem] font-bold text-pktBlue uppercase">Anda</div>
+                        <div class="text-[0.65rem] font-bold text-pktBlue uppercase">Kamu</div>
                         <div class="text-xl font-black text-pktBlue">${playerScore}</div>
                     `;
                     
@@ -1595,8 +1595,8 @@
                     container.className = 'w-full flex items-center justify-center px-4 py-3 bg-gradient-to-r from-yellow-50 to-amber-50 rounded-xl border-2 border-yellow-300 shadow-md';
                     container.innerHTML = `
                         <div class="text-center">
-                            <div class="text-2xl font-black text-yellow-600">🏆 ANDA PERINGKAT 1! 🏆</div>
-                            <div class="text-sm text-gray-600 mt-1">Tidak ada rival yang mengalahkan skor Anda!</div>
+                            <div class="text-2xl font-black text-yellow-600">🏆 KAMU PERINGKAT 1! 🏆</div>
+                            <div class="text-sm text-gray-600 mt-1">Nggak ada rival yang ngalahin skor kamu!</div>
                         </div>
                     `;
                     inGameLb.appendChild(container);
@@ -1604,7 +1604,7 @@
                     // Game just started, no scores yet
                     const note = document.createElement('div');
                     note.className = 'w-full text-center text-gray-400 italic text-sm py-3';
-                    note.textContent = 'Mulai jawab untuk melihat rival terdekat Anda!';
+                    note.textContent = 'Mulai jawab buat lihat rival terdekat kamu!';
                     inGameLb.appendChild(note);
                 }
             }
@@ -2266,7 +2266,7 @@
         }
 
         function clearDatabase() {
-            if(confirm("AWAS! Apakah Anda yakin ingin menghapus SELURUH data Leaderboard di server Firebase?")) {
+            if(confirm("AWAS! Kamu yakin mau hapus SELURUH data Leaderboard di server Firebase?")) {
                 database.ref('leaderboard').remove()
                     .then(() => alert("Database berhasil dikosongkan!"))
                     .catch(err => alert("Gagal menghapus data: " + err));
