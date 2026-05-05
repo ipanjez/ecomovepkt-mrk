@@ -299,9 +299,9 @@
                             <li><b>Epic</b>: di atas 900 poin, akurasi di atas 82%, atau combo 25–35.</li>
                             <li><b>Grandmaster</b>: di atas 950 poin, akurasi di atas 85%, atau combo 35+.</li>
                             <li><b>Diamond</b>: di atas 1000 poin atau combo ekstrem di atas 40.</li>
-                            <li><b>Legend</b>: performa sangat tinggi dengan konsistensi kuat di semua metrik.</li>
-                            <li><b>Master</b>: performa elite dengan akurasi di atas 90% dan skor sangat tinggi.</li>
-                            <li><b>Immortal</b>: tier paling atas untuk performa nyaris sempurna.</li>
+                            <li><b>Legend</b>: composite score sekitar 0.90–0.95; biasanya skor tinggi, akurasi kuat, dan combo stabil.</li>
+                            <li><b>Master</b>: composite score sekitar 0.95–0.99; performa elite yang sudah sangat mendekati puncak.</li>
+                            <li><b>Immortal</b>: composite score ≥0.99; performa paling atas dengan hampir semua metrik mendekati sempurna.</li>
                             <li><b>Mythic</b> (spesial): combo ≥40 dan performa komposit sangat tinggi.</li>
                             <li><b>Radiant</b> (spesial): akurasi ≥99% dan skor ≥950.</li>
                             <li><b>Veteran</b> (spesial): ≥200 percobaan dan performa tetap solid.</li>
@@ -309,10 +309,7 @@
 
                         <p class="text-[0.85rem] md:text-sm font-bold text-gray-900 mt-4 mb-2">🎯 Secondary Badge</p>
                         <p class="text-[0.8rem] md:text-sm text-gray-700 mb-2">Secondary badge bersifat opsional, jadi tidak selalu muncul. Kalau memenuhi syarat, hanya satu secondary badge yang ditampilkan di samping badge utama.</p>
-<<<<<<< HEAD
                         <p class="text-[0.75rem] md:text-xs text-gray-500 mb-2">Prioritasnya: Debut Top 10 diperiksa dulu untuk attempt pertama, lalu Combo Beast, Rising Star, Combo-Pro, dan Persistent.</p>
-=======
->>>>>>> ff14cff66771682731ad1518609441f10ab3b90a
                         <ul class="list-disc pl-6 text-[0.75rem] md:text-sm space-y-1">
                             <li><b>Debut Top 10</b>: percobaan pertama dan langsung masuk 10 besar leaderboard saat ini.</li>
                             <li><b>Combo Beast</b>: combo ≥40 dan performa komposit sangat kuat.</li>
@@ -321,8 +318,6 @@
                             <li><b>Persistent</b>: percobaan tinggi tapi performa masih rendah, menandakan ketekunan.</li>
                         </ul>
 
-<<<<<<< HEAD
-=======
                         <p class="text-[0.85rem] md:text-sm font-bold text-gray-900 mt-4 mb-2">📏 Aturan Badge Baru</p>
                         <ul class="list-disc pl-6 text-[0.75rem] md:text-sm space-y-1">
                             <li><b>Badge utama</b> selalu satu dan ditentukan dari metrik komposit performa.</li>
@@ -332,7 +327,6 @@
                             <li><b>Ranking</b> untuk Debut Top 10 dihitung dari leaderboard aktif saat sesi berakhir, jadi hasilnya mengikuti kondisi pemain lain pada saat itu.</li>
                         </ul>
 
->>>>>>> ff14cff66771682731ad1518609441f10ab3b90a
                         <p class="text-[0.85rem] md:text-sm font-bold text-gray-900 mt-4 mb-2">✨ Specialty Tags</p>
                         <p class="text-[0.8rem] md:text-sm text-gray-700 mb-2">Specialty tags bisa lebih dari satu. Ini dipakai untuk memberi apresiasi tambahan pada kemampuan tertentu dan bisa tampil bersamaan di badge utama.</p>
                         <ul class="list-disc pl-6 text-[0.75rem] md:text-sm space-y-1">
@@ -1692,11 +1686,7 @@
                     <td class="px-2 py-2 font-semibold ${isCurrentPlayer ? 'text-pktBlue' : 'text-gray-800'} break-all leading-tight">
                         <div class="flex flex-col gap-0.5">
                             <div class="flex flex-wrap items-center gap-2">
-<<<<<<< HEAD
-                                <span>${run.name}</span>
-=======
                                 <span>${escapeHtml(run.name)}</span>
->>>>>>> ff14cff66771682731ad1518609441f10ab3b90a
                                 <span class="inline-flex items-center whitespace-nowrap rounded-full px-2 py-1 text-[0.6rem] leading-none font-bold ${getBadgeStyleClass(badgeData.primary)}">${escapeHtml(badgeData.display)}</span>
                             </div>
                             <span class="text-[0.6rem] ${run.difficulty === 'Hard' ? 'text-blue-500' : run.difficulty === 'Medium' ? 'text-orange-500' : 'text-green-500'}">${getDifficultyDisplayName(run.difficulty)}</span>
