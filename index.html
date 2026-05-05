@@ -309,12 +309,11 @@
 
                         <p class="text-[0.85rem] md:text-sm font-bold text-gray-900 mt-4 mb-2">🎯 Secondary Badge</p>
                         <p class="text-[0.8rem] md:text-sm text-gray-700 mb-2">Secondary badge bersifat opsional, jadi tidak selalu muncul. Kalau memenuhi syarat, hanya satu secondary badge yang ditampilkan di samping badge utama.</p>
-                        <p class="text-[0.75rem] md:text-xs text-gray-500 mb-2">Prioritasnya: Debut Top 10, lalu Versatile, Rising Star, dan Persistent. Secondary badge hanya satu yang tampil.</p>
+                        <p class="text-[0.75rem] md:text-xs text-gray-500 mb-2">Prioritasnya: Debut Top 10, lalu Versatile, dan Rising Star. Secondary badge hanya satu yang tampil.</p>
                         <ul class="list-disc pl-6 text-[0.75rem] md:text-sm space-y-1">
                             <li><b>Debut Top 10</b>: percobaan pertama dan langsung masuk 10 besar leaderboard saat ini.</li>
                             <li><b>Versatile</b>: akurasi antar-kategori seimbang, selisih &lt;15% dan minimum 70%.</li>
                             <li><b>Rising Star</b>: skor sesi melampaui personal best minimal 75 poin.</li>
-                            <li><b>Persistent</b>: percobaan tinggi tapi performa masih rendah, menandakan ketekunan.</li>
                         </ul>
 
                         <p class="text-[0.85rem] md:text-sm font-bold text-gray-900 mt-4 mb-2">📏 Aturan Badge Baru</p>
@@ -1316,7 +1315,6 @@
             if (Number(attempts) === 1 && Number.isFinite(Number(leaderboardRank)) && Number(leaderboardRank) > 0 && Number(leaderboardRank) <= 10) return 'Debut Top 10';
             if (isVersatile) return 'Versatile';
             if (typeof prevBest === 'number' && prevBest > 0 && score >= (prevBest + 75) && composite >= 0.45) return 'Rising Star';
-            if (tot >= 75 && composite < 0.28) return 'Persistent';
 
             return null; // No secondary badge
         }
