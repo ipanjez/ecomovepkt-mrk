@@ -152,8 +152,36 @@
                 display: none;
             }
             .mobile-leaderboard-table {
-                min-width: 720px;
+                min-width: 640px;
             }
+            /* Tighten leaderboard table spacing on small screens */
+            .mobile-leaderboard-table th,
+            .mobile-leaderboard-table td {
+                padding-top: 0.45rem;
+                padding-bottom: 0.45rem;
+                padding-left: 0.4rem;
+                padding-right: 0.4rem;
+                font-size: 0.72rem;
+            }
+            .mobile-leaderboard-table thead th {
+                font-size: 0.68rem;
+                padding-top: 0.35rem;
+                padding-bottom: 0.35rem;
+            }
+            /* Result summary card: reduce padding and gaps on very small screens */
+            #result-summary-card .grid {
+                gap: 0.45rem;
+            }
+            #result-summary-card .bg-white.rounded-xl.p-2.5,
+            #result-summary-card .bg-white.rounded-xl.p-2.5.border {
+                padding: 0.6rem;
+            }
+            #result-summary-card #final-badge {
+                padding: 0.5rem 0.9rem;
+                font-size: 0.85rem;
+            }
+            /* Ensure Hasil Permainan title stays on one line */
+            .mobile-compact-title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         }
 
         /* Badge tier styling */
@@ -427,9 +455,9 @@
                 <button onclick="closeLeaderboardPreviewModal()" class="text-gray-400 hover:text-red-500 transition text-3xl font-bold leading-none">&times;</button>
             </div>
 
-                <div class="mb-4 flex flex-col gap-2 sm:gap-3">
+            <div class="mb-4 flex flex-col gap-2 sm:gap-3">
                 <div class="text-xs md:text-sm font-bold text-gray-600 uppercase tracking-wider">Filter Level</div>
-                    <div class="mobile-chip-row flex flex-wrap gap-2">
+                <div class="mobile-chip-row flex flex-wrap gap-2">
                     <label class="filter-chip"><input type="radio" name="leaderboard-preview-filter" value="All" checked onchange="setLeaderboardPreviewFilter(this.value)"><span>All</span></label>
                     <label class="filter-chip"><input type="radio" name="leaderboard-preview-filter" value="Bumi Lestari" onchange="setLeaderboardPreviewFilter(this.value)"><span>Bumi Lestari</span></label>
                     <label class="filter-chip"><input type="radio" name="leaderboard-preview-filter" value="Eko Aktif" onchange="setLeaderboardPreviewFilter(this.value)"><span>Eko Aktif</span></label>
@@ -445,10 +473,10 @@
                             <th class="px-3 py-3">Nama Pemain</th>
                             <th class="px-3 py-3 text-center">Skor</th>
                             <th class="px-3 py-3 text-center">Combo</th>
-                            <th class="px-3 py-3 text-center hidden md:table-cell">Akurasi</th>
-                            <th class="px-3 py-3 text-center hidden lg:table-cell">D/B/S</th>
-                            <th class="px-2 py-3 text-center hidden sm:table-cell">Waktu Bermain</th>
-                            <th class="px-2 py-3 text-center hidden sm:table-cell">Percobaan</th>
+                            <th class="px-3 py-3 text-center">Akurasi</th>
+                            <th class="px-3 py-3 text-center">D/B/S</th>
+                            <th class="px-2 py-3 text-center">Waktu Bermain</th>
+                            <th class="px-2 py-3 text-center">Percobaan</th>
                         </tr>
                     </thead>
                     <tbody id="leaderboard-preview-body" class="divide-y divide-gray-200">
@@ -649,10 +677,10 @@
                                 <th class="px-3 py-3">Nama Pemain</th>
                                 <th class="px-3 py-3 text-center">Skor</th>
                                 <th class="px-3 py-3 text-center">Combo</th>
-                                <th class="px-3 py-3 text-center hidden md:table-cell" title="Akurasi Jawaban">Akurasi</th>
-                                <th class="px-3 py-3 text-center hidden lg:table-cell" title="Dijawab / Benar / Salah">D/B/S</th>
-                                <th class="px-2 py-3 text-center hidden sm:table-cell">Waktu Bermain</th>
-                                <th class="px-2 py-3 text-center hidden sm:table-cell" title="Berapa kali beralih">Percobaan</th>
+                                        <th class="px-3 py-3 text-center" title="Akurasi Jawaban">Akurasi</th>
+                                        <th class="px-3 py-3 text-center" title="Dijawab / Benar / Salah">D/B/S</th>
+                                        <th class="px-2 py-3 text-center">Waktu Bermain</th>
+                                        <th class="px-2 py-3 text-center" title="Berapa kali beralih">Percobaan</th>
                             </tr>
                         </thead>
                         <tbody id="leaderboard-body" class="divide-y divide-gray-200">
@@ -2387,11 +2415,11 @@
                     </td>
                     <td class="px-2 py-2 text-center font-bold text-pktOrange">${run.score}</td>
                     <td class="px-2 py-2 text-center font-bold text-pktBlue">${run.bestCombo || 0}</td>
-                    <td class="px-2 py-2 text-center text-xs hidden md:table-cell font-bold text-gray-600">${run.accuracy || 0}%</td>
-                    <td class="px-2 py-2 text-center text-xs hidden lg:table-cell text-gray-600 font-bold">${run.total || 0}/${run.correct || 0}/${run.wrong || 0}
+                    <td class="px-2 py-2 text-center text-xs font-bold text-gray-600">${run.accuracy || 0}%</td>
+                    <td class="px-2 py-2 text-center text-xs text-gray-600 font-bold">${run.total || 0}/${run.correct || 0}/${run.wrong || 0}
                     </td>
-                    <td class="px-2 py-2 text-center text-[0.65rem] text-gray-500 hidden sm:table-cell">${run.timestamp ? new Date(run.timestamp).toLocaleString('id-ID', {day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit', second:'2-digit'}) : '-'}</td>
-                    <td class="px-2 py-2 text-center text-xs font-bold text-gray-600 hidden sm:table-cell">${run.attempts || 1}x</td>
+                    <td class="px-2 py-2 text-center text-[0.65rem] text-gray-500">${run.timestamp ? new Date(run.timestamp).toLocaleString('id-ID', {day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit', second:'2-digit'}) : '-'}</td>
+                    <td class="px-2 py-2 text-center text-xs font-bold text-gray-600">${run.attempts || 1}x</td>
                 `;
                 tbody.appendChild(tr);
             });
@@ -2540,10 +2568,10 @@
                     </td>
                     <td class="px-2 py-2 text-center font-bold text-pktOrange">${run.score || 0}</td>
                     <td class="px-2 py-2 text-center font-bold text-pktBlue">${run.bestCombo || 0}</td>
-                    <td class="px-2 py-2 text-center text-xs hidden md:table-cell font-bold text-gray-600">${run.accuracy || 0}%</td>
-                    <td class="px-2 py-2 text-center text-xs hidden lg:table-cell text-gray-600 font-bold">${run.total || 0}/${run.correct || 0}/${run.wrong || 0}</td>
-                    <td class="px-2 py-2 text-center text-[0.65rem] text-gray-500 hidden sm:table-cell">${run.timestamp ? new Date(run.timestamp).toLocaleString('id-ID', {day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit', second:'2-digit'}) : '-'}</td>
-                    <td class="px-2 py-2 text-center text-xs font-bold text-gray-600 hidden sm:table-cell">${run.attempts || 1}x</td>
+                    <td class="px-2 py-2 text-center text-xs font-bold text-gray-600">${run.accuracy || 0}%</td>
+                    <td class="px-2 py-2 text-center text-xs text-gray-600 font-bold">${run.total || 0}/${run.correct || 0}/${run.wrong || 0}</td>
+                    <td class="px-2 py-2 text-center text-[0.65rem] text-gray-500">${run.timestamp ? new Date(run.timestamp).toLocaleString('id-ID', {day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit', second:'2-digit'}) : '-'}</td>
+                    <td class="px-2 py-2 text-center text-xs font-bold text-gray-600">${run.attempts || 1}x</td>
                 `;
                 body.appendChild(tr);
             });
