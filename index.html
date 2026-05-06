@@ -1960,9 +1960,20 @@
         // initialize music toggle state from localStorage
         try {
             const key = 'eco_ambient_enabled';
-            const val = localStorage.getItem(key);
-            if (val === '1') { setTimeout(()=>{ try { startAmbientMusic(); } catch(e){} }, 300); const b=document.getElementById('music-toggle-btn'); if(b){ b.textContent='🎶 Music'; b.className='text-xs font-bold px-2 py-1 rounded-md bg-green-50 text-pktGreen border border-green-100 hover:bg-green-100 transition'; } }
-            else { const b=document.getElementById('music-toggle-btn'); if(b){ b.textContent='🔕 Music'; b.className='text-xs font-bold px-2 py-1 rounded-md bg-gray-100 text-gray-600 border border-gray-200 hover:bg-gray-200 transition'; } }
+            let val = localStorage.getItem(key);
+            // Default to on for first-time visitors so the ambient bed is present without extra steps.
+            if (val === null) {
+                val = '1';
+                localStorage.setItem(key, val);
+            }
+            if (val === '1') {
+                setTimeout(()=>{ try { startAmbientMusic(); } catch(e){} }, 300);
+                const b=document.getElementById('music-toggle-btn');
+                if(b){ b.textContent='🎶 Music'; b.className='text-xs font-bold px-2 py-1 rounded-md bg-green-50 text-pktGreen border border-green-100 hover:bg-green-100 transition'; }
+            } else {
+                const b=document.getElementById('music-toggle-btn');
+                if(b){ b.textContent='🔕 Music'; b.className='text-xs font-bold px-2 py-1 rounded-md bg-gray-100 text-gray-600 border border-gray-200 hover:bg-gray-200 transition'; }
+            }
         } catch(e) {}
 
         document.addEventListener('keydown', (event) => {
