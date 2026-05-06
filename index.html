@@ -172,8 +172,7 @@
             #result-summary-card .grid {
                 gap: 0.45rem;
             }
-            #result-summary-card .bg-white.rounded-xl.p-2.5,
-            #result-summary-card .bg-white.rounded-xl.p-2.5.border {
+            #result-summary-card .grid > div {
                 padding: 0.6rem;
             }
             #result-summary-card #final-badge {
@@ -1568,7 +1567,7 @@
                                 badgeEl.appendChild(clone);
                             } else {
                                 const accuracy = Math.round(((gameState.correctAnswers||0) / Math.max(1, (gameState.totalAnswered||0))) * 100) || 0;
-                                const badgeData = getFullBadgeData(gameState.score || 0, accuracy, gameState.bestCombo || 0, gameState.previousBest || 0, gameState.correctAnswers || 0, (gameState.totalAnswered || 0) - (gameState.correctAnswers || 0), gameState.totalAnswered || 0, gameState.categoryStats || {}, (typeof idx === 'number' ? idx+1 : null), gameState.attempts || 0, (window.__mySavedRecord && window.__mySavedRecord.secondaryProgress) || 0);
+                                const badgeData = getFullBadgeData(gameState.score || 0, accuracy, gameState.bestCombo || 0, gameState.previousBest || 0, gameState.correctAnswers || 0, (gameState.totalAnswered || 0) - (gameState.correctAnswers || 0), gameState.totalAnswered || 0, gameState.categoryStats || {}, (typeof idx === 'number' ? idx+1 : null), gameState.attempts || 0, getPersistedSecondaryBadges(gameState.playerName, window.__mySavedRecord));
                                 badgeEl.innerHTML = `<span class="inline-flex items-center rounded-full px-3 py-1.5 text-sm font-bold ${getBadgeStyleClass(badgeData.primary)}">${escapeHtml(formatBadgeDisplay(badgeData))}</span>`;
                             }
                         }
@@ -1621,7 +1620,7 @@
                 // Compute badge for this record
                 let badgeHtml = '';
                 try {
-                    const badgeData = getFullBadgeData(rec.score || 0, rec.accuracy || 0, rec.bestCombo || 0, 0, rec.correct || 0, rec.wrong || 0, rec.total || 0, rec.categoryStats || {}, idx + 1, rec.attempts || 0, rec.secondaryProgress || 0);
+                    const badgeData = getFullBadgeData(rec.score || 0, rec.accuracy || 0, rec.bestCombo || 0, 0, rec.correct || 0, rec.wrong || 0, rec.total || 0, rec.categoryStats || {}, idx + 1, rec.attempts || 0, rec.secondaryBadges || []);
                     const badgeClass = getBadgeStyleClass(badgeData.primary);
                     badgeHtml = `<span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-bold mr-2 ${badgeClass}">${escapeHtml(badgeData.display)}</span>`;
                 } catch (e) { badgeHtml = ''; }
@@ -1634,10 +1633,10 @@
                 try {
                     const saved = (window.__mySavedRecord && window.__mySavedRecord.name && String(window.__mySavedRecord.name).toLowerCase() === String(name).toLowerCase()) ? window.__mySavedRecord : null;
                     if (saved) {
-                        const bd = getFullBadgeData(saved.score || 0, saved.accuracy || 0, saved.bestCombo || 0, 0, saved.correct || 0, saved.wrong || 0, saved.total || 0, saved.categoryStats || {}, saved.leaderboardRank || null, saved.attempts || 0, saved.secondaryProgress || 0);
+                        const bd = getFullBadgeData(saved.score || 0, saved.accuracy || 0, saved.bestCombo || 0, 0, saved.correct || 0, saved.wrong || 0, saved.total || 0, saved.categoryStats || {}, saved.leaderboardRank || null, saved.attempts || 0, saved.secondaryBadges || []);
                         badgeHtml = `<span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-bold mr-2 ${getBadgeStyleClass(bd.primary)}">${escapeHtml(bd.display)}</span>`;
                     } else if (gameState && gameState.playerName && String(gameState.playerName).toLowerCase() === String(name).toLowerCase()) {
-                        const bd2 = getFullBadgeData(gameState.score || 0, Math.round(((gameState.correctAnswers||0) / Math.max(1, (gameState.totalAnswered||0))) * 100) || 0, gameState.bestCombo || 0, gameState.previousBest || 0, gameState.correctAnswers || 0, (gameState.totalAnswered || 0) - (gameState.correctAnswers || 0), gameState.totalAnswered || 0, gameState.categoryStats || {}, null, gameState.attempts || 0, (window.__mySavedRecord && window.__mySavedRecord.secondaryProgress) || 0);
+                        const bd2 = getFullBadgeData(gameState.score || 0, Math.round(((gameState.correctAnswers||0) / Math.max(1, (gameState.totalAnswered||0))) * 100) || 0, gameState.bestCombo || 0, gameState.previousBest || 0, gameState.correctAnswers || 0, (gameState.totalAnswered || 0) - (gameState.correctAnswers || 0), gameState.totalAnswered || 0, gameState.categoryStats || {}, null, gameState.attempts || 0, getPersistedSecondaryBadges(gameState.playerName, window.__mySavedRecord));
                         badgeHtml = `<span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-bold mr-2 ${getBadgeStyleClass(bd2.primary)}">${escapeHtml(bd2.display)}</span>`;
                     }
                 } catch(e) { badgeHtml = ''; }
@@ -1734,6 +1733,64 @@
             return tierMap[baseBadge] || 'badge-bronze';
         }
 
+        const SECONDARY_BADGE_STORAGE_KEY = 'eco_secondary_badges_v1';
+        const VALID_SECONDARY_BADGES = ['Top 10', 'Versatile', 'Rising Star'];
+
+        function normalizeSecondaryBadgeList(value) {
+            if (!value) return [];
+            const list = Array.isArray(value) ? value : [value];
+            const unique = [];
+            list.forEach((item) => {
+                const label = String(item || '').trim();
+                if (VALID_SECONDARY_BADGES.includes(label) && !unique.includes(label)) unique.push(label);
+            });
+            return unique;
+        }
+
+        function mergeSecondaryBadgeLists(...lists) {
+            const merged = [];
+            lists.forEach((list) => {
+                normalizeSecondaryBadgeList(list).forEach((badge) => {
+                    if (!merged.includes(badge)) merged.push(badge);
+                });
+            });
+            return merged;
+        }
+
+        function getSecondaryBadgeStore() {
+            try {
+                const raw = localStorage.getItem(SECONDARY_BADGE_STORAGE_KEY);
+                const parsed = raw ? JSON.parse(raw) : {};
+                return parsed && typeof parsed === 'object' ? parsed : {};
+            } catch (e) {
+                return {};
+            }
+        }
+
+        function saveSecondaryBadgeStore(store) {
+            try {
+                localStorage.setItem(SECONDARY_BADGE_STORAGE_KEY, JSON.stringify(store || {}));
+            } catch (e) { /* ignore storage errors */ }
+        }
+
+        function getPersistedSecondaryBadges(playerName, fallbackRecord = null) {
+            const nameKey = String(playerName || (fallbackRecord && fallbackRecord.name) || '').trim().toLowerCase();
+            const recordBadges = normalizeSecondaryBadgeList(fallbackRecord && fallbackRecord.secondaryBadges);
+            if (!nameKey) return recordBadges;
+            const store = getSecondaryBadgeStore();
+            return mergeSecondaryBadgeLists(recordBadges, store[nameKey]);
+        }
+
+        function persistSecondaryBadges(playerName, badges) {
+            const nameKey = String(playerName || '').trim().toLowerCase();
+            const normalized = normalizeSecondaryBadgeList(badges);
+            if (!nameKey) return normalized;
+            const store = getSecondaryBadgeStore();
+            store[nameKey] = mergeSecondaryBadgeLists(store[nameKey], normalized);
+            saveSecondaryBadgeStore(store);
+            return store[nameKey];
+        }
+
         function getBadgeOrdinal(primary) {
             const map = {
                 'Bronze': 1,
@@ -1828,7 +1885,7 @@
         }
 
         // Get secondary badges (0-3) — allow multiple bonuses (Top 10, Versatile, Rising Star)
-        function getSecondaryBadge(score, accuracy, bestCombo, prevBest, correct = 0, wrong = 0, total = 0, categoryStats = {}, leaderboardRank = null, attempts = 0, secondaryProgress = 0) {
+        function getSecondaryBadge(score, accuracy, bestCombo, prevBest, correct = 0, wrong = 0, total = 0, categoryStats = {}, leaderboardRank = null, attempts = 0, secondaryBadges = []) {
             const combo = Math.max(0, Number(bestCombo) || 0);
             const tot = Number(total) || (Number(correct) || 0) + (Number(wrong) || 0);
             const scorePts = Math.min(Math.max(Number(score) || 0, 0), 1300) / 13;
@@ -1846,50 +1903,15 @@
                 : [];
             const isVersatile = accs.length > 0 && Math.max(...accs) - Math.min(...accs) <= 15 && Math.min(...accs) >= 70;
 
-            const progress = Number(secondaryProgress) || 0;
+            const persistedBadges = normalizeSecondaryBadgeList(secondaryBadges);
 
             const badges = [];
             const isTop10 = Number.isFinite(Number(leaderboardRank)) && Number(leaderboardRank) > 0 && Number(leaderboardRank) <= 10;
-            if (isTop10) badges.push('Top 10');
-            if (progress >= 1 && isVersatile) badges.push('Versatile');
-            if (progress >= 2 && typeof prevBest === 'number' && prevBest > 0 && score >= (prevBest + 75) && composite >= 45) badges.push('Rising Star');
+            if (isTop10 || persistedBadges.includes('Top 10')) badges.push('Top 10');
+            if (isVersatile || persistedBadges.includes('Versatile')) badges.push('Versatile');
+            if ((typeof prevBest === 'number' && prevBest > 0 && score >= (prevBest + 75) && composite >= 45) || persistedBadges.includes('Rising Star')) badges.push('Rising Star');
 
             return badges.length > 0 ? badges : null;
-        }
-
-        function computeSecondaryProgress(record, leaderboardRank) {
-            const combo = Math.max(0, Number(record && record.bestCombo) || 0);
-            const total = Number(record && record.total) || 0;
-            const correct = Number(record && record.correct) || 0;
-            const wrong = Number(record && record.wrong) || 0;
-            const score = Number(record && record.score) || 0;
-            const accuracy = Number(record && record.accuracy) || 0;
-            const previousBest = Number(record && record.previousBest) || 0;
-            const categoryStats = (record && record.categoryStats) || {};
-            const accs = categoryStats && Object.keys(categoryStats).length > 0
-                ? Object.values(categoryStats)
-                    .filter(cat => cat && cat.total > 0)
-                    .map(cat => (cat.correct / cat.total * 100))
-                : [];
-            const isVersatile = accs.length > 0 && Math.max(...accs) - Math.min(...accs) <= 15 && Math.min(...accs) >= 70;
-            const scorePts = Math.min(Math.max(score, 0), 1300) / 13;
-            const accuracyPts = Math.min(Math.max(accuracy, 0), 100);
-            const comboPts = Math.min(combo, 25) * 4;
-            const attemptPts = Math.min(total || (correct + wrong), 100);
-            const attemptWeight = (attemptPts / 100) * 0.05;
-            const composite = scorePts * 0.50 + accuracyPts * 0.30 + comboPts * 0.15 + attemptPts * attemptWeight;
-
-            let progress = Math.max(0, Number(record && record.secondaryProgress) || 0);
-            if (Number.isFinite(Number(leaderboardRank)) && Number(leaderboardRank) > 0 && Number(leaderboardRank) <= 10) {
-                progress = Math.max(progress, 1);
-            }
-            if (progress >= 1 && isVersatile) {
-                progress = Math.max(progress, 2);
-            }
-            if (progress >= 2 && previousBest > 0 && score >= (previousBest + 75) && composite >= 45) {
-                progress = Math.max(progress, 3);
-            }
-            return progress;
         }
 
         function getSecondaryBadgeTier(badge) {
@@ -1940,10 +1962,10 @@
         }
 
         // Get full badge data: primary, secondary, tags, and formatted display
-        function getFullBadgeData(score, accuracy, bestCombo, prevBest, correct = 0, wrong = 0, total = 0, categoryStats = {}, leaderboardRank = null, attempts = 0, secondaryProgress = 0) {
+        function getFullBadgeData(score, accuracy, bestCombo, prevBest, correct = 0, wrong = 0, total = 0, categoryStats = {}, leaderboardRank = null, attempts = 0, secondaryBadges = []) {
             try {
                 const primary = getPerformanceBadge(score, accuracy, bestCombo, prevBest, correct, wrong, total, attempts);
-                const secondary = getSecondaryBadge(score, accuracy, bestCombo, prevBest, correct, wrong, total, categoryStats, leaderboardRank, attempts, secondaryProgress);
+            const secondary = getSecondaryBadge(score, accuracy, bestCombo, prevBest, correct, wrong, total, categoryStats, leaderboardRank, attempts, secondaryBadges);
                 const tags = getSpecialtyTags(score, accuracy, bestCombo, prevBest, correct, wrong, total, categoryStats, leaderboardRank, attempts);
 
                 // Format display string
@@ -1969,7 +1991,7 @@
             // Also set final badge label
             const finalBadgeEl = document.getElementById('final-badge');
             if (finalBadgeEl) {
-                const badgeData = getFullBadgeData(leaderboardRecord.score || 0, leaderboardRecord.accuracy || 0, leaderboardRecord.bestCombo || 0, 0, leaderboardRecord.correct || 0, leaderboardRecord.wrong || 0, leaderboardRecord.total || 0, leaderboardRecord.categoryStats || {}, leaderboardRecord.leaderboardRank || null, leaderboardRecord.attempts || 0, leaderboardRecord.secondaryProgress || 0);
+                const badgeData = getFullBadgeData(leaderboardRecord.score || 0, leaderboardRecord.accuracy || 0, leaderboardRecord.bestCombo || 0, 0, leaderboardRecord.correct || 0, leaderboardRecord.wrong || 0, leaderboardRecord.total || 0, leaderboardRecord.categoryStats || {}, leaderboardRecord.leaderboardRank || null, leaderboardRecord.attempts || 0, leaderboardRecord.secondaryBadges || []);
                 finalBadgeEl.textContent = badgeData.display;
                 finalBadgeEl.className = 'inline-flex items-center rounded-full px-3 py-1.5 text-sm md:text-base font-bold ' + getBadgeStyleClass(badgeData.primary);
             }
@@ -2169,7 +2191,7 @@
                     }
                 }
                 r.__movement = { symbol, className, title };
-                r.secondaryProgress = computeSecondaryProgress(r, i + 1);
+                r.secondaryBadges = getSecondaryBadge(r.score || 0, r.accuracy || 0, r.bestCombo || 0, 0, r.correct || 0, r.wrong || 0, r.total || 0, r.categoryStats || {}, i + 1, r.attempts || 0, r.secondaryBadges || []) || [];
             });
 
             // Cache latest leaderboard data so other parts of the app can re-render immediately
@@ -2206,10 +2228,10 @@
             const progressUpdates = [];
             arrData.forEach((r) => {
                 if (!r || !r.id) return;
-                const storedProgress = Number(r.secondaryProgress) || 0;
-                const computedProgress = computeSecondaryProgress(r, (window.__currentLeaderboardIndexMap[`id:${r.id}`] || 0) + 1);
-                if (computedProgress !== storedProgress) {
-                    progressUpdates.push(database.ref('leaderboard/' + r.id).update({ secondaryProgress: computedProgress, previousBest: Number(r.previousBest) || 0 }));
+                const storedBadges = JSON.stringify(normalizeSecondaryBadgeList(r.secondaryBadges));
+                const computedBadges = JSON.stringify(normalizeSecondaryBadgeList(getSecondaryBadge(r.score || 0, r.accuracy || 0, r.bestCombo || 0, 0, r.correct || 0, r.wrong || 0, r.total || 0, r.categoryStats || {}, (window.__currentLeaderboardIndexMap[`id:${r.id}`] || 0) + 1, r.attempts || 0, r.secondaryBadges || [])));
+                if (computedBadges !== storedBadges) {
+                    progressUpdates.push(database.ref('leaderboard/' + r.id).update({ secondaryBadges: JSON.parse(computedBadges), previousBest: Number(r.previousBest) || 0 }));
                 }
             });
             if (progressUpdates.length > 0) {
@@ -2380,7 +2402,7 @@
                 const finalBadgeEl = document.getElementById('final-badge');
                     if (finalBadgeEl) {
                         const r = myRecord || {};
-                        const badgeData = getFullBadgeData(r.score || 0, r.accuracy || 0, r.bestCombo || 0, 0, r.correct || 0, r.wrong || 0, r.total || 0, r.categoryStats || {}, myRankIndex >= 0 ? myRankIndex + 1 : null, r.attempts || 0, r.secondaryProgress || 0);
+                        const badgeData = getFullBadgeData(r.score || 0, r.accuracy || 0, r.bestCombo || 0, 0, r.correct || 0, r.wrong || 0, r.total || 0, r.categoryStats || {}, myRankIndex >= 0 ? myRankIndex + 1 : null, r.attempts || 0, r.secondaryBadges || []);
                         finalBadgeEl.textContent = formatBadgeDisplay(badgeData);
                         finalBadgeEl.className = 'inline-flex items-center rounded-full px-3 py-1.5 text-sm md:text-base font-bold ' + getBadgeStyleClass(badgeData.primary);
                     }
@@ -2401,7 +2423,7 @@
                 // Highlight skor pemain saat ini (berdasarkan Session ID)
                 const isCurrentPlayer = (run.id === gameState.currentSessionId);
                 if(isCurrentPlayer) tr.classList.add('bg-blue-50', 'border-l-4', 'border-pktBlue');
-                const badgeData = getFullBadgeData(run.score || 0, run.accuracy || 0, run.bestCombo || 0, 0, run.correct || 0, run.wrong || 0, run.total || 0, run.categoryStats || {}, index + 1, run.attempts || 0, run.secondaryProgress || 0);
+                const badgeData = getFullBadgeData(run.score || 0, run.accuracy || 0, run.bestCombo || 0, 0, run.correct || 0, run.wrong || 0, run.total || 0, run.categoryStats || {}, index + 1, run.attempts || 0, run.secondaryBadges || []);
                 tr.innerHTML = `
                     <td class="px-2 py-2 text-center ${rankStyle}">
                         <div class="flex items-center justify-center gap-2" title="${escapeHtml(movement.title)}"><span>${index + 1}</span><span class="text-[0.65rem] font-bold ${movement.className}">${movement.symbol}</span></div>
@@ -2462,7 +2484,7 @@
                             bestCombo: gameState.bestCombo || 0,
                             categoryStats: gameState.categoryStats,
                             previousBest: existingData ? (existingData.score || 0) : 0,
-                            secondaryProgress: existingData ? (existingData.secondaryProgress || 0) : 0
+                            secondaryBadges: persistSecondaryBadges(gameState.playerName, getSecondaryBadge(gameState.score || 0, accuracyCalc, gameState.bestCombo || 0, existingData ? (existingData.score || 0) : 0, gameState.correctAnswers || 0, wrongCalc, gameState.totalAnswered || 0, gameState.categoryStats || {}, null, attemptCount, existingData ? existingData.secondaryBadges || [] : [] ) || [])
                         }).then(() => {
                             // After write completes, try render leaderboard with latest cached data
                             if (window.__latestLeaderboardData && Array.isArray(window.__latestLeaderboardData)) {
@@ -2482,7 +2504,7 @@
                             updates.categoryStats = gameState.categoryStats;
                         }
                         updates.previousBest = existingData.previousBest || existingData.score || 0;
-                        updates.secondaryProgress = existingData.secondaryProgress || 0;
+                        updates.secondaryBadges = persistSecondaryBadges(gameState.playerName, getSecondaryBadge(gameState.score || 0, accuracyCalc, gameState.bestCombo || 0, updates.previousBest, gameState.correctAnswers || 0, wrongCalc, gameState.totalAnswered || 0, gameState.categoryStats || {}, null, attemptCount, existingData.secondaryBadges || []) || []);
                         userRef.update(updates).then(() => {
                             if (window.__latestLeaderboardData && Array.isArray(window.__latestLeaderboardData)) {
                                 renderLeaderboardTable(window.__latestLeaderboardData, window.__latestLeaderboardData);
@@ -2556,7 +2578,7 @@
                 const movement = run.__movement || getLeaderboardMovement(run);
                 const tr = document.createElement('tr');
                 tr.className = index % 2 === 0 ? 'bg-white' : 'bg-blue-50/30';
-                    const badgeData = getFullBadgeData(run.score || 0, run.accuracy || 0, run.bestCombo || 0, 0, run.correct || 0, run.wrong || 0, run.total || 0, run.categoryStats || {}, index + 1, run.attempts || 0, run.secondaryProgress || 0);
+                    const badgeData = getFullBadgeData(run.score || 0, run.accuracy || 0, run.bestCombo || 0, 0, run.correct || 0, run.wrong || 0, run.total || 0, run.categoryStats || {}, index + 1, run.attempts || 0, run.secondaryBadges || []);
                 tr.innerHTML = `
                     <td class="px-2 py-2 text-center font-normal"><div class="flex items-center justify-center gap-2" title="${escapeHtml(movement.title)}"><span>${index + 1}</span><span class="text-[0.65rem] font-bold ${movement.className}">${movement.symbol}</span></div></td>
                     <td class="px-2 py-2 font-semibold text-gray-800 break-all leading-tight">
@@ -2597,7 +2619,7 @@
                 let rowsHtml = '';
                 snapshot.forEach((run, i) => {
                     const time = run.timestamp ? new Date(run.timestamp).toLocaleString('id-ID', {day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit'}) : '-';
-                    const badgeData = getFullBadgeData(run.score || 0, run.accuracy || 0, run.bestCombo || 0, 0, run.correct || 0, run.wrong || 0, run.total || 0, run.categoryStats || {}, i+1, run.attempts || 0, run.secondaryProgress || 0);
+                    const badgeData = getFullBadgeData(run.score || 0, run.accuracy || 0, run.bestCombo || 0, 0, run.correct || 0, run.wrong || 0, run.total || 0, run.categoryStats || {}, i+1, run.attempts || 0, run.secondaryBadges || []);
                     const badgeHtml = `<div style="font-size:9px; display:inline-block; padding:2px 6px; border-radius:10px; background:#fff7ed; color:#92400e; border:1px solid #fcd34d">${escapeHtml(formatBadgeDisplay(badgeData))}</div>`;
                     rowsHtml += `<tr>
                         <td style="width:4%; text-align:center">${i+1}</td>
@@ -2663,7 +2685,7 @@
 
                 const generatedAt = new Date().toLocaleString('id-ID');
                 const rows = snapshot.map((run, i) => {
-                    const badgeData = getFullBadgeData(run.score || 0, run.accuracy || 0, run.bestCombo || 0, 0, run.correct || 0, run.wrong || 0, run.total || 0, run.categoryStats || {}, i + 1, run.attempts || 0, run.secondaryProgress || 0);
+                    const badgeData = getFullBadgeData(run.score || 0, run.accuracy || 0, run.bestCombo || 0, 0, run.correct || 0, run.wrong || 0, run.total || 0, run.categoryStats || {}, i + 1, run.attempts || 0, run.secondaryBadges || []);
                     const time = run.timestamp ? new Date(run.timestamp).toLocaleString('id-ID', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : '-';
                     return [
                         i + 1,
@@ -3057,7 +3079,7 @@
                 if (window.__mySavedRecord && typeof window.__mySavedRecord === 'object') {
                     badgeSource = window.__mySavedRecord;
                 } else {
-                    badgeSource = { score: gameState.score || 0, accuracy: accuracy || 0, bestCombo: gameState.bestCombo || 0, previousBest: gameState.previousBest || 0, correct: gameState.correctAnswers || 0, wrong: wrongAnswers || 0, total: gameState.totalAnswered || 0, categoryStats: gameState.categoryStats || {}, attempts: 1, secondaryProgress: (window.__mySavedRecord && window.__mySavedRecord.secondaryProgress) || 0 };
+                    badgeSource = { score: gameState.score || 0, accuracy: accuracy || 0, bestCombo: gameState.bestCombo || 0, previousBest: gameState.previousBest || 0, correct: gameState.correctAnswers || 0, wrong: wrongAnswers || 0, total: gameState.totalAnswered || 0, categoryStats: gameState.categoryStats || {}, attempts: 1, secondaryBadges: getPersistedSecondaryBadges(gameState.playerName, window.__mySavedRecord) };
                 }
                 const badgeFromSource = getFullBadgeData(
                     Number(badgeSource.score) || 0,
@@ -3070,7 +3092,7 @@
                     badgeSource.categoryStats || {},
                     badgeSource.leaderboardRank || null,
                     Number(badgeSource.attempts) || 0,
-                    Number(badgeSource.secondaryProgress) || 0
+                    badgeSource.secondaryBadges || []
                 );
                 if (finalBadgeEl && badgeFromSource) {
                     finalBadgeEl.textContent = formatBadgeDisplay(badgeFromSource);
