@@ -1293,6 +1293,7 @@
         }
 
         function getLeaderboardMovement(run) {
+            if (run && run.__movement) return run.__movement;
             const snapshotReady = !!window.__leaderboardComparisonReady;
             const prevState = Array.isArray(window.__prevLeaderboardState) ? window.__prevLeaderboardState : [];
             const currentState = Array.isArray(window.__currentLeaderboardState) ? window.__currentLeaderboardState : [];
@@ -1304,16 +1305,9 @@
                     const idKey = `id:${run.id}`;
                     if (Object.prototype.hasOwnProperty.call(currentIndexMap, idKey)) return currentIndexMap[idKey];
                 }
-                if (run && run.name) {
-                    const nameKey = `name:${String(run.name).toLowerCase()}`;
-                    if (Object.prototype.hasOwnProperty.call(currentIndexMap, nameKey)) return currentIndexMap[nameKey];
-                }
                 if (run && run.id) {
                     const found = currentState.findIndex(item => item && item.id === run.id);
                     if (found >= 0) return found;
-                }
-                if (run && run.name) {
-                    return currentState.findIndex(item => item && String(item.name || '').toLowerCase() === String(run.name).toLowerCase());
                 }
                 return undefined;
             };
@@ -1327,12 +1321,6 @@
                     const found = prevState.findIndex(item => item && item.id === run.id);
                     if (found >= 0) return found;
                     if (window.__prevLeaderboardIndexMap && Object.prototype.hasOwnProperty.call(window.__prevLeaderboardIndexMap, idKey)) return window.__prevLeaderboardIndexMap[idKey];
-                }
-                if (run && run.name) {
-                    const nameKey = `name:${String(run.name).toLowerCase()}`;
-                    const found = prevState.findIndex(item => item && String(item.name || '').toLowerCase() === String(run.name).toLowerCase());
-                    if (found >= 0) return found;
-                    if (window.__prevLeaderboardIndexMap && Object.prototype.hasOwnProperty.call(window.__prevLeaderboardIndexMap, nameKey)) return window.__prevLeaderboardIndexMap[nameKey];
                 }
                 return undefined;
             };
@@ -1481,7 +1469,7 @@
             // Also set final badge label
             const finalBadgeEl = document.getElementById('final-badge');
             if (finalBadgeEl) {
-                const badgeData = getFullBadgeData(leaderboardRecord.score || 0, leaderboardRecord.accuracy || 0, leaderboardRecord.bestCombo || 0, 0, leaderboardRecord.correct || 0, leaderboardRecord.wrong || 0, leaderboardRecord.total || 0, leaderboardRecord.categoryStats || {}, leaderboardRecord.leaderboardRank || null, leaderboardRecord.attempts || 0);
+                const badgeData = getFullBadgeData(leaderboardRecord.score || 0, leaderboardRecord.accuracy || 0, leaderboardRecord.bestCombo || 0, 0, leaderboardRecord.correct || 0, leaderboardRecord.wrong || 0, leaderboardRecord.total || 0, leaderboardRecord.categoryStats || {}, leaderboardRecord.leaderboardRank || null, leaderboardRecord.attempts || 0, leaderboardRecord.secondaryProgress || 0);
                 finalBadgeEl.textContent = badgeData.display;
                 finalBadgeEl.className = 'inline-flex items-center rounded-full px-3 py-1.5 text-sm md:text-base font-bold ' + getBadgeStyleClass(badgeData.primary);
             }
@@ -1599,8 +1587,49 @@
                 if (ab !== aa) return ab - aa;
                 return (a.timestamp || 0) - (b.timestamp || 0);
             });
-            // Cache latest leaderboard data so other parts of the app can re-render immediately
             const previousState = Array.isArray(window.__currentLeaderboardState) ? window.__currentLeaderboardState.slice() : [];
+            const prevIndexMap = {};
+            const prevNameMap = {};
+            previousState.forEach((r, i) => {
+                if (r && r.id) prevIndexMap[`id:${r.id}`] = i;
+                if (r && r.name) prevNameMap[`name:${String(r.name).toLowerCase()}`] = i;
+            });
+
+            arrData.forEach((r, i) => {
+                let prevIndex = undefined;
+                if (r && r.id && Object.prototype.hasOwnProperty.call(prevIndexMap, `id:${r.id}`)) prevIndex = prevIndexMap[`id:${r.id}`];
+                else if (r && r.name && Object.prototype.hasOwnProperty.call(prevNameMap, `name:${String(r.name).toLowerCase()}`)) prevIndex = prevNameMap[`name:${String(r.name).toLowerCase()}`];
+
+                let symbol = '—';
+                let className = 'text-gray-400';
+                let title = 'Posisi tetap';
+                if (typeof prevIndex === 'undefined') {
+                    if (previousState.length > 0 && i < arrData.length - 1) {
+                        symbol = '★▲';
+                        className = 'text-blue-500';
+                        title = 'Pemain baru naik peringkat';
+                    } else if (previousState.length > 0) {
+                        symbol = '★';
+                        className = 'text-blue-500';
+                        title = 'Pemain baru';
+                    } else {
+                        symbol = '—';
+                        className = 'text-gray-400';
+                        title = 'Belum ada pembanding';
+                    }
+                } else if (i < prevIndex) {
+                    symbol = '▲';
+                    className = 'text-green-600';
+                    title = 'Naik peringkat';
+                } else if (i > prevIndex) {
+                    symbol = '▼';
+                    className = 'text-red-600';
+                    title = 'Turun peringkat';
+                }
+                r.__movement = { symbol, className, title };
+            });
+
+            // Cache latest leaderboard data so other parts of the app can re-render immediately
             const hasPreviousSnapshot = previousState.length > 0;
             window.__leaderboardComparisonReady = hasPreviousSnapshot;
             if (!window.__leaderboardSnapshotReady) {
@@ -1781,7 +1810,7 @@
                 const finalBadgeEl = document.getElementById('final-badge');
                     if (finalBadgeEl) {
                         const r = myRecord || {};
-                        const badgeData = getFullBadgeData(r.score || 0, r.accuracy || 0, r.bestCombo || 0, 0, r.correct || 0, r.wrong || 0, r.total || 0, r.categoryStats || {}, myRankIndex >= 0 ? myRankIndex + 1 : null, r.attempts || 0);
+                        const badgeData = getFullBadgeData(r.score || 0, r.accuracy || 0, r.bestCombo || 0, 0, r.correct || 0, r.wrong || 0, r.total || 0, r.categoryStats || {}, myRankIndex >= 0 ? myRankIndex + 1 : null, r.attempts || 0, r.secondaryProgress || 0);
                         finalBadgeEl.textContent = formatBadgeDisplay(badgeData);
                         finalBadgeEl.className = 'inline-flex items-center rounded-full px-3 py-1.5 text-sm md:text-base font-bold ' + getBadgeStyleClass(badgeData.primary);
                     }
@@ -1797,12 +1826,12 @@
                 else if (index === 2) rankStyle = 'font-bold text-orange-700 text-base';
 
                 // Determine position change indicator based on the previous full leaderboard snapshot
-                const movement = getLeaderboardMovement(run);
+                const movement = run.__movement || getLeaderboardMovement(run);
 
                 // Highlight skor pemain saat ini (berdasarkan Session ID)
                 const isCurrentPlayer = (run.id === gameState.currentSessionId);
                 if(isCurrentPlayer) tr.classList.add('bg-blue-50', 'border-l-4', 'border-pktBlue');
-                const badgeData = getFullBadgeData(run.score || 0, run.accuracy || 0, run.bestCombo || 0, 0, run.correct || 0, run.wrong || 0, run.total || 0, run.categoryStats || {}, index + 1, run.attempts || 0);
+                const badgeData = getFullBadgeData(run.score || 0, run.accuracy || 0, run.bestCombo || 0, 0, run.correct || 0, run.wrong || 0, run.total || 0, run.categoryStats || {}, index + 1, run.attempts || 0, run.secondaryProgress || 0);
                 tr.innerHTML = `
                     <td class="px-2 py-2 text-center ${rankStyle}">
                         <div class="flex items-center justify-center gap-2" title="${escapeHtml(movement.title)}"><span>${index + 1}</span><span class="text-[0.65rem] font-bold ${movement.className}">${movement.symbol}</span></div>
@@ -1950,10 +1979,10 @@
 
             body.innerHTML = '';
             snapshot.forEach((run, index) => {
-                const movement = getLeaderboardMovement(run);
+                const movement = run.__movement || getLeaderboardMovement(run);
                 const tr = document.createElement('tr');
                 tr.className = index % 2 === 0 ? 'bg-white' : 'bg-blue-50/30';
-                    const badgeData = getFullBadgeData(run.score || 0, run.accuracy || 0, run.bestCombo || 0, 0, run.correct || 0, run.wrong || 0, run.total || 0, run.categoryStats || {}, index + 1, run.attempts || 0);
+                    const badgeData = getFullBadgeData(run.score || 0, run.accuracy || 0, run.bestCombo || 0, 0, run.correct || 0, run.wrong || 0, run.total || 0, run.categoryStats || {}, index + 1, run.attempts || 0, run.secondaryProgress || 0);
                 tr.innerHTML = `
                     <td class="px-2 py-2 text-center font-normal"><div class="flex items-center justify-center gap-2" title="${escapeHtml(movement.title)}"><span>${index + 1}</span><span class="text-[0.65rem] font-bold ${movement.className}">${movement.symbol}</span></div></td>
                     <td class="px-2 py-2 font-semibold text-gray-800 break-all leading-tight">
@@ -1994,7 +2023,7 @@
                 let rowsHtml = '';
                 snapshot.forEach((run, i) => {
                     const time = run.timestamp ? new Date(run.timestamp).toLocaleString('id-ID', {day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit'}) : '-';
-                    const badgeData = getFullBadgeData(run.score || 0, run.accuracy || 0, run.bestCombo || 0, 0, run.correct || 0, run.wrong || 0, run.total || 0, run.categoryStats || {}, i+1, run.attempts || 0);
+                    const badgeData = getFullBadgeData(run.score || 0, run.accuracy || 0, run.bestCombo || 0, 0, run.correct || 0, run.wrong || 0, run.total || 0, run.categoryStats || {}, i+1, run.attempts || 0, run.secondaryProgress || 0);
                     const badgeHtml = `<div style="font-size:9px; display:inline-block; padding:2px 6px; border-radius:10px; background:#fff7ed; color:#92400e; border:1px solid #fcd34d">${escapeHtml(formatBadgeDisplay(badgeData))}</div>`;
                     rowsHtml += `<tr>
                         <td style="width:4%; text-align:center">${i+1}</td>
@@ -2060,7 +2089,7 @@
 
                 const generatedAt = new Date().toLocaleString('id-ID');
                 const rows = snapshot.map((run, i) => {
-                    const badgeData = getFullBadgeData(run.score || 0, run.accuracy || 0, run.bestCombo || 0, 0, run.correct || 0, run.wrong || 0, run.total || 0, run.categoryStats || {}, i + 1, run.attempts || 0);
+                    const badgeData = getFullBadgeData(run.score || 0, run.accuracy || 0, run.bestCombo || 0, 0, run.correct || 0, run.wrong || 0, run.total || 0, run.categoryStats || {}, i + 1, run.attempts || 0, run.secondaryProgress || 0);
                     const time = run.timestamp ? new Date(run.timestamp).toLocaleString('id-ID', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : '-';
                     return [
                         i + 1,
@@ -2442,7 +2471,7 @@
             document.getElementById('final-total-answered').textContent = gameState.totalAnswered;
             document.getElementById('final-correct').textContent = gameState.correctAnswers;
             document.getElementById('final-wrong').textContent = wrongAnswers;
-            const finalBadgeData = getFullBadgeData(gameState.score, accuracy, gameState.bestCombo, gameState.previousBest || 0, gameState.correctAnswers || 0, wrongAnswers || 0, gameState.totalAnswered || 0, gameState.categoryStats, null, 1);
+            const finalBadgeData = getFullBadgeData(gameState.score, accuracy, gameState.bestCombo, gameState.previousBest || 0, gameState.correctAnswers || 0, wrongAnswers || 0, gameState.totalAnswered || 0, gameState.categoryStats, null, 1, (window.__mySavedRecord && window.__mySavedRecord.secondaryProgress) || 0);
             const finalBadgeEl = document.getElementById('final-badge');
             finalBadgeEl.textContent = formatBadgeDisplay(finalBadgeData);
             finalBadgeEl.className = 'inline-flex items-center rounded-full px-3 py-1.5 text-sm md:text-base font-bold ' + getBadgeStyleClass(finalBadgeData.primary);
