@@ -159,6 +159,17 @@
             50% { box-shadow: 0 10px 35px rgba(6, 182, 212, 0.95), 0 0 40px rgba(6, 182, 212, 0.7); }
         }
     </style>
+    <style>
+        /* Bounce animation for the globe */
+        .char-bounce { animation: ecoBounce 2.2s ease-in-out infinite; }
+        @keyframes ecoBounce {
+            0% { transform: translateY(0); }
+            10% { transform: translateY(-6px); }
+            30% { transform: translateY(0); }
+            60% { transform: translateY(-3px); }
+            100% { transform: translateY(0); }
+        }
+    </style>
 </head>
 <body class="bg-gray-100 min-h-[100dvh] w-screen text-gray-800 flex flex-col font-sans select-none bg-pattern overflow-y-auto overflow-x-hidden">
 
@@ -182,19 +193,21 @@
                 <div class="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -mr-10 -mt-10 blur-xl"></div>
                 <div class="absolute bottom-0 left-0 w-24 h-24 bg-pktGreen opacity-30 rounded-full -ml-8 -mb-8 blur-lg"></div>
                 
-                <div id="eco-character" class="mx-auto relative z-10" style="width:88px;height:88px;">
-                    <!-- Interactive character (SVG) -->
-                    <svg id="eco-char-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" class="w-full h-full cursor-grab" style="touch-action: none;">
+                <div id="eco-character" class="mx-auto relative z-10 char-bounce" style="width:88px;height:88px; touch-action:none;">
+                    <!-- Smiling globe SVG (bouncing) -->
+                    <svg id="eco-char-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" class="w-full h-full cursor-pointer">
                         <defs>
-                            <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%"><feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#000" flood-opacity="0.15"/></filter>
+                            <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%"><feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#000" flood-opacity="0.18"/></filter>
                         </defs>
-                        <g id="char" filter="url(#shadow)" transform="translate(50 50)">
-                            <circle id="body" r="26" cx="0" cy="0" fill="#7BCFA6" />
-                            <ellipse id="leaf-left" cx="-22" cy="-20" rx="10" ry="6" fill="#6FBF95" transform="rotate(-20)" />
-                            <ellipse id="leaf-right" cx="22" cy="-20" rx="10" ry="6" fill="#6FBF95" transform="rotate(20)" />
-                            <circle id="eye-left" cx="-8" cy="-4" r="3" fill="#072A1A" />
-                            <circle id="eye-right" cx="8" cy="-4" r="3" fill="#072A1A" />
-                            <path id="smile" d="M -10 8 q 10 12 20 0" stroke="#072A1A" stroke-width="2" fill="none" stroke-linecap="round" />
+                        <g id="char" filter="url(#shadow)" transform="translate(0,0)">
+                            <circle cx="50" cy="50" r="34" fill="#2DA7F5" />
+                            <!-- simple continents -->
+                            <path d="M34 44c6-6 12-6 18-4s8 6 6 10-8 8-14 6-10-6-10-12z" fill="#2FA36B" opacity="0.95" />
+                            <path d="M62 32c4 2 8 6 6 10s-6 4-10 2-6-6-4-10 6-4 8-2z" fill="#2FA36B" opacity="0.95" />
+                            <!-- eyes and smile -->
+                            <circle cx="40" cy="46" r="3" fill="#072A1A" />
+                            <circle cx="60" cy="46" r="3" fill="#072A1A" />
+                            <path d="M38 56 q12 10 24 0" stroke="#072A1A" stroke-width="2" fill="none" stroke-linecap="round" />
                         </g>
                     </svg>
                 </div>
@@ -1282,12 +1295,15 @@
             if (__ambientNodes) return; // already started
             try {
                 const ctx = audioCtx;
-                const master = ctx.createGain(); master.gain.value = 0.06; master.connect(ctx.destination);
+                // resume if suspended (browser autoplay policy)
+                if (ctx.state === 'suspended') {
+                    try { ctx.resume(); } catch(e) { /* ignore */ }
+                }
+                const master = ctx.createGain(); master.gain.value = 0.08; master.connect(ctx.destination);
 
                 // Two detuned oscillators for pad
                 const oscA = ctx.createOscillator(); oscA.type = 'sine'; oscA.frequency.value = 220;
                 const oscB = ctx.createOscillator(); oscB.type = 'sine'; oscB.frequency.value = 277;
-                const detune = ctx.createGain(); detune.gain.value = 0.001;
 
                 const filter = ctx.createBiquadFilter(); filter.type = 'lowpass'; filter.frequency.value = 1200;
 
@@ -1298,13 +1314,13 @@
                 // slow attack to avoid clicks
                 const now = ctx.currentTime;
                 amp.gain.setValueAtTime(0.0, now);
-                amp.gain.linearRampToValueAtTime(0.8, now + 4);
+                amp.gain.linearRampToValueAtTime(0.6, now + 4);
 
                 oscA.start(); oscB.start();
 
-                // gentle LFO on detune/frequency to create movement
+                // gentle LFO on frequency to create movement
                 const lfo = ctx.createOscillator(); lfo.type = 'sine'; lfo.frequency.value = 0.07;
-                const lfoGain = ctx.createGain(); lfoGain.gain.value = 6; // cents
+                const lfoGain = ctx.createGain(); lfoGain.gain.value = 6;
                 lfo.connect(lfoGain);
                 lfoGain.connect(oscA.frequency);
                 lfoGain.connect(oscB.frequency);
@@ -1460,28 +1476,62 @@
             }
         }
 
-        // Interactive character: click to animate, drag to move
+        // Interactive character: click to animate, drag to move (improved)
         (function initInteractiveCharacter(){
             try {
+                const container = document.getElementById('eco-character');
                 const svg = document.getElementById('eco-char-svg');
-                const char = document.getElementById('char');
-                if (!svg || !char) return;
-                let dragging = false; let startX=0, startY=0, curX=0, curY=0;
-                svg.addEventListener('pointerdown', (ev) => {
-                    svg.setPointerCapture(ev.pointerId);
-                    dragging = true; startX = ev.clientX; startY = ev.clientY;
-                    svg.classList.remove('cursor-grab'); svg.classList.add('cursor-grabbing');
-                    // small pop animation
-                    char.style.transition = 'transform 120ms ease-out';
-                    char.style.transform = 'translate(0px,-6px) scale(1.05)';
-                    try { playSound('correct'); } catch(e){}
+                if (!container || !svg) return;
+                container.dataset.tx = container.dataset.tx || '0';
+                container.dataset.ty = container.dataset.ty || '0';
+                let dragging = false;
+                let startX = 0, startY = 0, startTx = 0, startTy = 0;
+
+                const clamp = (v, a=-60, b=60) => Math.max(a, Math.min(b, v));
+
+                container.addEventListener('pointerdown', (ev) => {
+                    ev.preventDefault();
+                    container.setPointerCapture && container.setPointerCapture(ev.pointerId);
+                    dragging = true;
+                    startX = ev.clientX; startY = ev.clientY;
+                    startTx = parseFloat(container.dataset.tx) || 0; startTy = parseFloat(container.dataset.ty) || 0;
+                    container.classList.remove('char-bounce');
                 });
-                svg.addEventListener('pointermove', (ev) => {
-                    if (!dragging) return; const dx = ev.clientX - startX; const dy = ev.clientY - startY; curX = dx; curY = dy; char.setAttribute('transform', `translate(${50 + curX/6} ${50 + curY/6})`);
+
+                container.addEventListener('pointermove', (ev) => {
+                    if (!dragging) return;
+                    const dx = ev.clientX - startX; const dy = ev.clientY - startY;
+                    const tx = clamp(startTx + dx, -60, 60);
+                    const ty = clamp(startTy + dy, -40, 40);
+                    container.style.transition = 'transform 0s';
+                    container.style.transform = `translate(${tx}px, ${ty}px)`;
+                    container.dataset.tx = tx; container.dataset.ty = ty;
                 });
-                const endDrag = (ev) => { if (!dragging) return; dragging=false; svg.releasePointerCapture && svg.releasePointerCapture(ev && ev.pointerId); svg.classList.remove('cursor-grabbing'); svg.classList.add('cursor-grab'); char.style.transition = 'transform 300ms cubic-bezier(.2,.9,.3,1)'; char.style.transform = 'translate(0px,0px) scale(1)'; char.setAttribute('transform', 'translate(50 50)'); };
-                svg.addEventListener('pointerup', endDrag); svg.addEventListener('pointercancel', endDrag); svg.addEventListener('pointerleave', endDrag);
-                svg.addEventListener('click', (ev) => { try { char.style.transition = 'transform 220ms ease-out'; char.style.transform = 'translate(0px,-10px) scale(1.08)'; setTimeout(()=>{ char.style.transform='translate(0px,0px) scale(1)'; },220); playSound('correct'); } catch(e){} });
+
+                const endDrag = (ev) => {
+                    if (!dragging) return;
+                    dragging = false;
+                    try { container.releasePointerCapture && container.releasePointerCapture(ev && ev.pointerId); } catch(e){}
+                    container.style.transition = 'transform 420ms cubic-bezier(.2,.9,.3,1)';
+                    container.style.transform = 'translate(0px, 0px)';
+                    container.dataset.tx = '0'; container.dataset.ty = '0';
+                    setTimeout(()=>{ container.style.transition = ''; container.classList.add('char-bounce'); }, 440);
+                };
+
+                container.addEventListener('pointerup', endDrag);
+                container.addEventListener('pointercancel', endDrag);
+                container.addEventListener('pointerleave', endDrag);
+
+                // click/tap animation (short jump)
+                svg.addEventListener('click', (ev) => {
+                    try {
+                        container.classList.remove('char-bounce');
+                        container.style.transition = 'transform 220ms ease-out';
+                        container.style.transform = 'translateY(-12px)';
+                        try { playSound('correct'); } catch(e){}
+                        setTimeout(()=>{ container.style.transform = 'translateY(0px)'; setTimeout(()=>{ container.style.transition=''; container.classList.add('char-bounce'); }, 220); }, 220);
+                    } catch(e) { console.warn(e); }
+                });
             } catch(e) { console.warn('initCharacter failed', e); }
         })();
 
