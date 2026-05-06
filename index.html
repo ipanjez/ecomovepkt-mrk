@@ -544,9 +544,13 @@
                 <div id="missing-tags" class="text-[0.82rem] text-gray-600">Tag Spesial yang belum diperoleh: -</div>
             </div>
 
-            <div class="mb-3 grid grid-cols-1 md:grid-cols-2 gap-2">
-                <button type="button" onclick="copyResultSummary()" class="bg-indigo-50 border border-indigo-200 text-indigo-700 text-sm md:text-base font-bold px-3 py-2.5 rounded-xl shadow-sm hover:bg-indigo-100 transition">📋 Copy Hasil</button>
-                <button type="button" onclick="saveResultImage()" class="bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm md:text-base font-bold px-3 py-2.5 rounded-xl shadow-sm hover:bg-emerald-100 transition">🖼️ Simpan Gambar</button>
+            <div class="mb-3 flex gap-2 justify-center md:justify-start">
+                <button type="button" onclick="copyResultSummary()" title="Copy Hasil" aria-label="Copy Hasil" class="bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-bold px-2 py-2 rounded-md shadow-sm hover:bg-indigo-100 transition"> 
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="9" width="9" height="11" rx="2" stroke="#3730a3" stroke-width="1.2"/><path d="M5 15V6a2 2 0 0 1 2-2h8" stroke="#3730a3" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+                <button type="button" onclick="saveResultImage()" title="Simpan Gambar" aria-label="Simpan Gambar" class="bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold px-2 py-2 rounded-md shadow-sm hover:bg-emerald-100 transition">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 7h16v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7z" stroke="#065f46" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 3h8v4H8z" stroke="#065f46" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 11v6" stroke="#065f46" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
             </div>
 
             <div class="text-left w-full relative">
@@ -2577,8 +2581,31 @@
                 const secNextEl = document.getElementById('secondary-next');
                 const missingTagsEl = document.getElementById('missing-tags');
 
+                // Prefer using saved leaderboard record (personal best) when available for Badge Bonus info
+                let badgeSource = null;
+                if (window.__mySavedRecord && typeof window.__mySavedRecord === 'object') {
+                    badgeSource = window.__mySavedRecord;
+                } else {
+                    // fallback to current session calculation
+                    badgeSource = { score: gameState.score || 0, accuracy: accuracy || 0, bestCombo: gameState.bestCombo || 0, previousBest: gameState.previousBest || 0, correct: gameState.correctAnswers || 0, wrong: wrongAnswers || 0, total: gameState.totalAnswered || 0, categoryStats: gameState.categoryStats || {}, attempts: 1, secondaryProgress: (window.__mySavedRecord && window.__mySavedRecord.secondaryProgress) || 0 };
+                }
+
+                const badgeFromSource = getFullBadgeData(
+                    Number(badgeSource.score) || 0,
+                    Number(badgeSource.accuracy) || 0,
+                    Number(badgeSource.bestCombo) || 0,
+                    Number(badgeSource.previousBest) || 0,
+                    Number(badgeSource.correct) || 0,
+                    Number(badgeSource.wrong) || 0,
+                    Number(badgeSource.total) || 0,
+                    badgeSource.categoryStats || {},
+                    badgeSource.leaderboardRank || null,
+                    Number(badgeSource.attempts) || 0,
+                    Number(badgeSource.secondaryProgress) || 0
+                );
+
                 const secondaryOrder = ['Top 10', 'Versatile', 'Rising Star'];
-                const obtainedSecondary = finalBadgeData.secondary || null;
+                const obtainedSecondary = badgeFromSource.secondary || null;
                 // Compute next secondary by tier to avoid string-matching quirks
                 let nextSecondary = 'Tidak ada';
                 if (!obtainedSecondary) {
@@ -2594,7 +2621,7 @@
 
                 // All possible tags
                 const allTags = ['Residu Expert','Sisa Makanan Expert','Layak Jual Expert','Combo Pro','Grinder','God Aim','Persistence','Performer'];
-                const obtainedTags = Array.isArray(finalBadgeData.tags) ? finalBadgeData.tags : [];
+                const obtainedTags = Array.isArray(badgeFromSource.tags) ? badgeFromSource.tags : [];
                 const missingTags = allTags.filter(t => !obtainedTags.includes(t));
 
                 secCurrentEl.textContent = `Badge Bonus yang diperoleh saat ini: ${obtainedSecondary || 'Tidak ada'}`;
