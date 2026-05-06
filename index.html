@@ -182,7 +182,22 @@
                 <div class="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -mr-10 -mt-10 blur-xl"></div>
                 <div class="absolute bottom-0 left-0 w-24 h-24 bg-pktGreen opacity-30 rounded-full -ml-8 -mb-8 blur-lg"></div>
                 
-                <div class="text-6xl md:text-7xl mb-3 animate-bounce drop-shadow-lg mx-auto relative z-10">🌍</div>
+                <div id="eco-character" class="mx-auto relative z-10" style="width:88px;height:88px;">
+                    <!-- Interactive character (SVG) -->
+                    <svg id="eco-char-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" class="w-full h-full cursor-grab" style="touch-action: none;">
+                        <defs>
+                            <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%"><feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#000" flood-opacity="0.15"/></filter>
+                        </defs>
+                        <g id="char" filter="url(#shadow)" transform="translate(50 50)">
+                            <circle id="body" r="26" cx="0" cy="0" fill="#7BCFA6" />
+                            <ellipse id="leaf-left" cx="-22" cy="-20" rx="10" ry="6" fill="#6FBF95" transform="rotate(-20)" />
+                            <ellipse id="leaf-right" cx="22" cy="-20" rx="10" ry="6" fill="#6FBF95" transform="rotate(20)" />
+                            <circle id="eye-left" cx="-8" cy="-4" r="3" fill="#072A1A" />
+                            <circle id="eye-right" cx="8" cy="-4" r="3" fill="#072A1A" />
+                            <path id="smile" d="M -10 8 q 10 12 20 0" stroke="#072A1A" stroke-width="2" fill="none" stroke-linecap="round" />
+                        </g>
+                    </svg>
+                </div>
                 <h1 class="text-4xl md:text-5xl font-black text-white mb-1 drop-shadow-md tracking-wide relative z-10">ECO<span class="text-pktOrange">MOVE</span></h1>
                 <p class="text-xs md:text-sm font-bold text-blue-100 uppercase tracking-widest relative z-10">Trash Sorting Challenge</p>
                 <div class="mt-4 inline-block bg-white/20 text-white px-4 py-1.5 rounded-full text-[0.65rem] md:text-xs font-semibold backdrop-blur-md border border-white/20 relative z-10 shadow-sm">
@@ -1260,6 +1275,67 @@
             }
         }
 
+        // Ambient music (simple synthesized pad) using WebAudio
+        let __ambientNodes = null;
+        function startAmbientMusic() {
+            if (!window.audioCtx) return;
+            if (__ambientNodes) return; // already started
+            try {
+                const ctx = audioCtx;
+                const master = ctx.createGain(); master.gain.value = 0.06; master.connect(ctx.destination);
+
+                // Two detuned oscillators for pad
+                const oscA = ctx.createOscillator(); oscA.type = 'sine'; oscA.frequency.value = 220;
+                const oscB = ctx.createOscillator(); oscB.type = 'sine'; oscB.frequency.value = 277;
+                const detune = ctx.createGain(); detune.gain.value = 0.001;
+
+                const filter = ctx.createBiquadFilter(); filter.type = 'lowpass'; filter.frequency.value = 1200;
+
+                const amp = ctx.createGain(); amp.gain.value = 0.0;
+                oscA.connect(amp); oscB.connect(amp);
+                amp.connect(filter); filter.connect(master);
+
+                // slow attack to avoid clicks
+                const now = ctx.currentTime;
+                amp.gain.setValueAtTime(0.0, now);
+                amp.gain.linearRampToValueAtTime(0.8, now + 4);
+
+                oscA.start(); oscB.start();
+
+                // gentle LFO on detune/frequency to create movement
+                const lfo = ctx.createOscillator(); lfo.type = 'sine'; lfo.frequency.value = 0.07;
+                const lfoGain = ctx.createGain(); lfoGain.gain.value = 6; // cents
+                lfo.connect(lfoGain);
+                lfoGain.connect(oscA.frequency);
+                lfoGain.connect(oscB.frequency);
+                lfo.start();
+
+                __ambientNodes = { master, oscA, oscB, amp, filter, lfo, lfoGain };
+            } catch (e) { console.warn('Ambient music start failed', e); }
+        }
+
+        function stopAmbientMusic() {
+            if (!__ambientNodes) return;
+            try {
+                const n = __ambientNodes;
+                n.amp.gain.cancelScheduledValues(audioCtx.currentTime);
+                n.amp.gain.linearRampToValueAtTime(0.0001, audioCtx.currentTime + 0.5);
+                setTimeout(() => {
+                    try { n.oscA.stop(); n.oscB.stop(); n.lfo.stop(); } catch(e) {}
+                }, 600);
+            } catch (e) {}
+            __ambientNodes = null;
+        }
+
+        // Start ambient on first user interaction if autoplay blocked
+        (function attachAmbientStarter(){
+            const startOnce = () => { try { startAmbientMusic(); document.removeEventListener('pointerdown', startOnce); document.removeEventListener('click', startOnce); } catch(e){} };
+            document.addEventListener('pointerdown', startOnce, { once: true });
+            document.addEventListener('click', startOnce, { once: true });
+            // also try immediate start (may be suspended)
+            try { startAmbientMusic(); } catch(e) {}
+        })();
+
         function showGameOverPopup(durationMs = 2500) {
             try {
                 const popup = document.getElementById('gameover-popup');
@@ -1362,6 +1438,31 @@
                 hintEl.innerHTML = `Nama belum ditemukan di leaderboard. Total pemain: <span class="font-bold">${total}</span>.`;
             }
         }
+
+        // Interactive character: click to animate, drag to move
+        (function initInteractiveCharacter(){
+            try {
+                const svg = document.getElementById('eco-char-svg');
+                const char = document.getElementById('char');
+                if (!svg || !char) return;
+                let dragging = false; let startX=0, startY=0, curX=0, curY=0;
+                svg.addEventListener('pointerdown', (ev) => {
+                    svg.setPointerCapture(ev.pointerId);
+                    dragging = true; startX = ev.clientX; startY = ev.clientY;
+                    svg.classList.remove('cursor-grab'); svg.classList.add('cursor-grabbing');
+                    // small pop animation
+                    char.style.transition = 'transform 120ms ease-out';
+                    char.style.transform = 'translate(0px,-6px) scale(1.05)';
+                    try { playSound('correct'); } catch(e){}
+                });
+                svg.addEventListener('pointermove', (ev) => {
+                    if (!dragging) return; const dx = ev.clientX - startX; const dy = ev.clientY - startY; curX = dx; curY = dy; char.setAttribute('transform', `translate(${50 + curX/6} ${50 + curY/6})`);
+                });
+                const endDrag = (ev) => { if (!dragging) return; dragging=false; svg.releasePointerCapture && svg.releasePointerCapture(ev && ev.pointerId); svg.classList.remove('cursor-grabbing'); svg.classList.add('cursor-grab'); char.style.transition = 'transform 300ms cubic-bezier(.2,.9,.3,1)'; char.style.transform = 'translate(0px,0px) scale(1)'; char.setAttribute('transform', 'translate(50 50)'); };
+                svg.addEventListener('pointerup', endDrag); svg.addEventListener('pointercancel', endDrag); svg.addEventListener('pointerleave', endDrag);
+                svg.addEventListener('click', (ev) => { try { char.style.transition = 'transform 220ms ease-out'; char.style.transform = 'translate(0px,-10px) scale(1.08)'; setTimeout(()=>{ char.style.transform='translate(0px,0px) scale(1)'; },220); playSound('correct'); } catch(e){} });
+            } catch(e) { console.warn('initCharacter failed', e); }
+        })();
 
         if (uis.playerNameInput) uis.playerNameInput.addEventListener('input', updateNameLeaderboardHint);
 
