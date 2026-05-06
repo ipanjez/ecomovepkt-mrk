@@ -1431,11 +1431,32 @@
                 if (String(movement).includes('▼')) colorClass = 'text-red-600';
                 if (String(movement).includes('★')) colorClass = 'text-blue-500';
                 const movementTitle = (rec && rec.__movement && rec.__movement.title) ? rec.__movement.title : (window.__leaderboardLatestMoverIndex === idx ? 'Pemain terbaru' : 'Posisi tetap');
+                // Compute badge for this record
+                let badgeHtml = '';
+                try {
+                    const badgeData = getFullBadgeData(rec.score || 0, rec.accuracy || 0, rec.bestCombo || 0, 0, rec.correct || 0, rec.wrong || 0, rec.total || 0, rec.categoryStats || {}, idx + 1, rec.attempts || 0, rec.secondaryProgress || 0);
+                    const badgeClass = getBadgeStyleClass(badgeData.primary);
+                    badgeHtml = `<span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-bold mr-2 ${badgeClass}">${escapeHtml(badgeData.display)}</span>`;
+                } catch (e) { badgeHtml = ''; }
+
                 hintEl.classList.remove('hidden');
-                hintEl.innerHTML = `${escapeHtml(name)} ada di leaderboard: <span class="font-bold">#${idx + 1}</span> dari <span class="font-bold">${total}</span> — <span class="text-sm ${colorClass}">${escapeHtml(movementTitle)}</span>`;
+                hintEl.innerHTML = `${badgeHtml}${escapeHtml(name)} ada di leaderboard: <span class="font-bold">#${idx + 1}</span> dari <span class="font-bold">${total}</span> — <span class="text-sm ${colorClass}">${escapeHtml(movementTitle)}</span>`;
             } else {
+                // If not in leaderboard, try to show badge from saved personal record or current session
+                let badgeHtml = '';
+                try {
+                    const saved = (window.__mySavedRecord && window.__mySavedRecord.name && String(window.__mySavedRecord.name).toLowerCase() === String(name).toLowerCase()) ? window.__mySavedRecord : null;
+                    if (saved) {
+                        const bd = getFullBadgeData(saved.score || 0, saved.accuracy || 0, saved.bestCombo || 0, 0, saved.correct || 0, saved.wrong || 0, saved.total || 0, saved.categoryStats || {}, saved.leaderboardRank || null, saved.attempts || 0, saved.secondaryProgress || 0);
+                        badgeHtml = `<span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-bold mr-2 ${getBadgeStyleClass(bd.primary)}">${escapeHtml(bd.display)}</span>`;
+                    } else if (gameState && gameState.playerName && String(gameState.playerName).toLowerCase() === String(name).toLowerCase()) {
+                        const bd2 = getFullBadgeData(gameState.score || 0, Math.round(((gameState.correctAnswers||0) / Math.max(1, (gameState.totalAnswered||0))) * 100) || 0, gameState.bestCombo || 0, gameState.previousBest || 0, gameState.correctAnswers || 0, (gameState.totalAnswered || 0) - (gameState.correctAnswers || 0), gameState.totalAnswered || 0, gameState.categoryStats || {}, null, gameState.attempts || 0, (window.__mySavedRecord && window.__mySavedRecord.secondaryProgress) || 0);
+                        badgeHtml = `<span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-bold mr-2 ${getBadgeStyleClass(bd2.primary)}">${escapeHtml(bd2.display)}</span>`;
+                    }
+                } catch(e) { badgeHtml = ''; }
+
                 hintEl.classList.remove('hidden');
-                hintEl.innerHTML = `Nama belum ditemukan di leaderboard. Total pemain: <span class="font-bold">${total}</span>.`;
+                hintEl.innerHTML = `${badgeHtml}Nama belum ditemukan di leaderboard. Total pemain: <span class="font-bold">${total}</span>.`;
             }
         }
 
