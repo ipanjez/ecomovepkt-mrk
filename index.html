@@ -273,6 +273,7 @@
                 <div>
                     <h3 class="font-bold text-gray-900 mb-2 border-l-4 border-purple-500 pl-3 flex items-center gap-2">🏆 Papan Skor Rival</h3>
                     <p class="text-[0.85rem] md:text-sm leading-relaxed">Leaderboard ini <b>global</b> dan update <i>real-time</i> di semua device. Kalau kamu main lagi pakai nama yang sama, sistem bakal simpan <b>skor tertinggi</b> plus jumlah <b>Coba</b>. Di mode <b>dynamic</b> / <b>Proximity Scoring</b>, panel atas cuma nampilin <b>rival terdekat di atas skor kamu</b> beserta jaraknya, lalu auto pindah ke rival berikutnya pas kamu nyalip.</p>
+                    <p class="text-[0.85rem] md:text-sm leading-relaxed">Indikator di leaderboard menunjukkan pergerakan singkat: <span class="text-blue-500 font-bold">★▲</span> pemain baru yang masuk dan naik, <span class="text-blue-500 font-bold">★</span> pemain baru, <span class="text-green-600 font-bold">▲</span> naik peringkat, <span class="text-red-600 font-bold">▼</span> turun peringkat, dan <span class="text-gray-400 font-bold">—</span> posisi tetap.</p>
                 </div>
 
                 <!-- Badge Rules -->
@@ -1271,9 +1272,14 @@
             if (Object.prototype.hasOwnProperty.call(map, key)) {
                 const idx = map[key];
                 const rec = (Array.isArray(window.__latestLeaderboardData) ? window.__latestLeaderboardData[idx] : null) || {};
+                const movement = (rec && rec.__movement && rec.__movement.symbol) ? rec.__movement.symbol : (window.__leaderboardLatestMoverIndex === idx ? '★▲' : '—');
+                let colorClass = 'text-gray-600';
+                if (String(movement).includes('▲') && !String(movement).includes('★')) colorClass = 'text-green-600';
+                if (String(movement).includes('▼')) colorClass = 'text-red-600';
+                if (String(movement).includes('★')) colorClass = 'text-blue-500';
                 const movementTitle = (rec && rec.__movement && rec.__movement.title) ? rec.__movement.title : (window.__leaderboardLatestMoverIndex === idx ? 'Pemain terbaru' : 'Posisi tetap');
                 hintEl.classList.remove('hidden');
-                hintEl.innerHTML = `${escapeHtml(name)} ada di leaderboard: <span class="font-bold">#${idx + 1}</span> dari <span class="font-bold">${total}</span> — <span class="text-sm text-gray-700">${escapeHtml(movementTitle)}</span>`;
+                hintEl.innerHTML = `${escapeHtml(name)} ada di leaderboard: <span class="font-bold">#${idx + 1}</span> dari <span class="font-bold">${total}</span> — <span class="text-sm ${colorClass}">${escapeHtml(movementTitle)}</span>`;
             } else {
                 hintEl.classList.remove('hidden');
                 hintEl.innerHTML = `Nama belum ditemukan di leaderboard. Total pemain: <span class="font-bold">${total}</span>.`;
