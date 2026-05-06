@@ -1301,6 +1301,7 @@
             const currentState = Array.isArray(window.__currentLeaderboardState) ? window.__currentLeaderboardState : [];
             const currentSize = currentState.length || 0;
             const currentIndexMap = window.__currentLeaderboardIndexMap || {};
+            const currentPlayerId = gameState && gameState.currentSessionId ? gameState.currentSessionId : null;
 
             const resolveCurrentIndex = () => {
                 if (run && run.id) {
@@ -1314,7 +1315,16 @@
                 return undefined;
             };
 
+            const resolveCurrentPlayerIndex = () => {
+                if (!currentPlayerId) return undefined;
+                const idKey = `id:${currentPlayerId}`;
+                if (Object.prototype.hasOwnProperty.call(currentIndexMap, idKey)) return currentIndexMap[idKey];
+                const found = currentState.findIndex(item => item && item.id === currentPlayerId);
+                return found >= 0 ? found : undefined;
+            };
+
             const currentIndex = resolveCurrentIndex();
+            const currentPlayerIndex = resolveCurrentPlayerIndex();
 
             const findPrevIndex = () => {
                 if (!snapshotReady) return undefined;
@@ -1329,6 +1339,15 @@
 
             const prevIndex = findPrevIndex();
             if (!snapshotReady || typeof prevIndex === 'undefined' || typeof currentIndex === 'undefined') {
+                if (typeof currentPlayerIndex !== 'undefined' && typeof currentIndex !== 'undefined') {
+                    if (currentIndex < currentPlayerIndex) {
+                        return { symbol: '—', className: 'text-gray-400', title: 'Posisi tetap' };
+                    }
+                    if (currentIndex === currentPlayerIndex) {
+                        return { symbol: '★▲', className: 'text-blue-500', title: 'Pemain baru' };
+                    }
+                    return { symbol: '▼', className: 'text-red-600', title: 'Turun peringkat' };
+                }
                 if (snapshotReady && typeof currentIndex !== 'undefined' && currentSize > 1 && currentIndex < currentSize - 1) {
                     return { symbol: '★▲', className: 'text-blue-500', title: 'Pemain baru' };
                 }
