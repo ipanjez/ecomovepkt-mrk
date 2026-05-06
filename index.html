@@ -1397,6 +1397,41 @@
             return null; // No secondary badge
         }
 
+        function computeSecondaryProgress(record, leaderboardRank) {
+            const combo = Math.max(0, Number(record && record.bestCombo) || 0);
+            const total = Number(record && record.total) || 0;
+            const correct = Number(record && record.correct) || 0;
+            const wrong = Number(record && record.wrong) || 0;
+            const score = Number(record && record.score) || 0;
+            const accuracy = Number(record && record.accuracy) || 0;
+            const previousBest = Number(record && record.previousBest) || 0;
+            const categoryStats = (record && record.categoryStats) || {};
+            const accs = categoryStats && Object.keys(categoryStats).length > 0
+                ? Object.values(categoryStats)
+                    .filter(cat => cat && cat.total > 0)
+                    .map(cat => (cat.correct / cat.total * 100))
+                : [];
+            const isVersatile = accs.length > 0 && Math.max(...accs) - Math.min(...accs) <= 15 && Math.min(...accs) >= 70;
+            const scorePts = Math.min(Math.max(score, 0), 1300) / 13;
+            const accuracyPts = Math.min(Math.max(accuracy, 0), 100);
+            const comboPts = Math.min(combo, 25) * 4;
+            const attemptPts = Math.min(total || (correct + wrong), 100);
+            const attemptWeight = (attemptPts / 100) * 0.05;
+            const composite = scorePts * 0.50 + accuracyPts * 0.30 + comboPts * 0.15 + attemptPts * attemptWeight;
+
+            let progress = Math.max(0, Number(record && record.secondaryProgress) || 0);
+            if (Number.isFinite(Number(leaderboardRank)) && Number(leaderboardRank) > 0 && Number(leaderboardRank) <= 10) {
+                progress = Math.max(progress, 1);
+            }
+            if (progress >= 1 && isVersatile) {
+                progress = Math.max(progress, 2);
+            }
+            if (progress >= 2 && previousBest > 0 && score >= (previousBest + 75) && composite >= 45) {
+                progress = Math.max(progress, 3);
+            }
+            return progress;
+        }
+
         function getSecondaryBadgeTier(badge) {
             if (badge === 'Top 10') return 1;
             if (badge === 'Versatile') return 2;
@@ -1627,6 +1662,7 @@
                     title = 'Turun peringkat';
                 }
                 r.__movement = { symbol, className, title };
+                r.secondaryProgress = computeSecondaryProgress(r, i + 1);
             });
 
             // Cache latest leaderboard data so other parts of the app can re-render immediately
@@ -1646,6 +1682,20 @@
                 if (r && r.id) window.__currentLeaderboardIndexMap[`id:${r.id}`] = i;
                 if (r && r.name) window.__currentLeaderboardIndexMap[`name:${String(r.name).toLowerCase()}`] = i;
             });
+
+            const progressUpdates = [];
+            arrData.forEach((r) => {
+                if (!r || !r.id) return;
+                const storedProgress = Number(r.secondaryProgress) || 0;
+                const computedProgress = computeSecondaryProgress(r, (window.__currentLeaderboardIndexMap[`id:${r.id}`] || 0) + 1);
+                if (computedProgress !== storedProgress) {
+                    progressUpdates.push(database.ref('leaderboard/' + r.id).update({ secondaryProgress: computedProgress, previousBest: Number(r.previousBest) || 0 }));
+                }
+            });
+            if (progressUpdates.length > 0) {
+                Promise.all(progressUpdates).catch(err => console.error('Gagal sinkron progress badge bonus', err));
+            }
+
             // Cache our saved record (if any) and expose previous best to gameState
             try {
                 window.__mySavedRecord = (gameState.currentSessionId) ? arrData.find(r => r.id === gameState.currentSessionId) || null : null;
@@ -1890,7 +1940,9 @@
                             wrong: wrongCalc,
                             accuracy: accuracyCalc,
                             bestCombo: gameState.bestCombo || 0,
-                            categoryStats: gameState.categoryStats
+                            categoryStats: gameState.categoryStats,
+                            previousBest: existingData ? (existingData.score || 0) : 0,
+                            secondaryProgress: existingData ? (existingData.secondaryProgress || 0) : 0
                         }).then(() => {
                             // After write completes, try render leaderboard with latest cached data
                             if (window.__latestLeaderboardData && Array.isArray(window.__latestLeaderboardData)) {
@@ -1909,6 +1961,8 @@
                         if (gameState.categoryStats) {
                             updates.categoryStats = gameState.categoryStats;
                         }
+                        updates.previousBest = existingData.previousBest || existingData.score || 0;
+                        updates.secondaryProgress = existingData.secondaryProgress || 0;
                         userRef.update(updates).then(() => {
                             if (window.__latestLeaderboardData && Array.isArray(window.__latestLeaderboardData)) {
                                 renderLeaderboardTable(window.__latestLeaderboardData, window.__latestLeaderboardData);
