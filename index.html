@@ -535,6 +535,7 @@
                 <div class="text-center text-white px-6 py-4 rounded-lg">
                     <div class="text-5xl sm:text-6xl font-extrabold">GAME OVER</div>
                     <div id="gameover-position" class="text-xl mt-3 font-semibold">Posisi: -</div>
+                    <div id="gameover-badge" class="text-md mt-2 font-semibold inline-block"></div>
                 </div>
             </div>
             <div class="flex items-center justify-between gap-3">
@@ -1255,6 +1256,7 @@
                 return;
             }
             uis.startError.classList.add('hidden');
+            try { playSound('start'); } catch(e){}
             // persist chosen name and set into game state
             try { localStorage.setItem('eco_player_name', name); } catch (e) {}
             gameState.playerName = name;
@@ -1285,6 +1287,47 @@
                 osc.frequency.exponentialRampToValueAtTime(120, audioCtx.currentTime + 0.6);
                 gain.gain.setValueAtTime(0.12, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.6);
                 osc.start(); osc.stop(audioCtx.currentTime + 0.65);
+            } else if (type === 'bin-sisa') {
+                // bright short chirp
+                osc.type = 'triangle'; osc.frequency.setValueAtTime(900, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(1400, audioCtx.currentTime + 0.06);
+                gain.gain.setValueAtTime(0.12, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.08);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.08);
+            } else if (type === 'bin-laku') {
+                // plucky descending
+                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(700, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(300, audioCtx.currentTime + 0.12);
+                gain.gain.setValueAtTime(0.12, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.14);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.14);
+            } else if (type === 'bin-residu') {
+                // low thud + short click
+                osc.type = 'sine'; osc.frequency.setValueAtTime(220, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.08, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.12);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.12);
+            } else if (type === 'start') {
+                // small rising chime
+                osc.type = 'sine'; osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(900, audioCtx.currentTime + 0.12);
+                gain.gain.setValueAtTime(0.12, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.16);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.16);
+            } else if (type === 'tryagain') {
+                // upbeat small motif
+                const now = audioCtx.currentTime;
+                const g2 = audioCtx.createGain(); const o2 = audioCtx.createOscillator();
+                o2.type = 'square'; o2.frequency.setValueAtTime(600, now);
+                o2.connect(g2); g2.connect(audioCtx.destination);
+                g2.gain.setValueAtTime(0.08, now);
+                o2.start(); o2.frequency.exponentialRampToValueAtTime(800, now + 0.06);
+                o2.stop(now + 0.12);
+                // also play main osc for body
+                osc.type = 'sine'; osc.frequency.setValueAtTime(360, now);
+                gain.gain.setValueAtTime(0.1, now); gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+                osc.start(); osc.stop(now + 0.18);
+            } else if (type === 'gameover-click' || type === 'click') {
+                // click feedback
+                osc.type = 'square'; osc.frequency.setValueAtTime(1200, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.06, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.06);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.06);
             }
         }
 
@@ -1385,10 +1428,11 @@
                     } catch(e) { /* ignore */ }
                 };
 
-                const onClick = () => { hide(); };
+                const onClick = () => { try { playSound('gameover-click'); } catch(e){}; hide(); };
                 // Attempt to populate position info inside popup
                 try {
                     const posEl = document.getElementById('gameover-position');
+                    const badgeEl = document.getElementById('gameover-badge');
                     const totalPlayers = Array.isArray(window.__latestLeaderboardData) ? window.__latestLeaderboardData.length : 0;
                     let posText = 'Posisi: -';
                     const map = window.__currentLeaderboardIndexMap || {};
@@ -1402,6 +1446,12 @@
                     if (typeof idx === 'number' && totalPlayers > 0) posText = `Posisi: #${idx + 1} dari ${totalPlayers} pemain`;
                     else posText = `Posisi: - dari ${totalPlayers} pemain`;
                     if (posEl) posEl.textContent = posText;
+                    // compute badge for current session and show
+                    try {
+                        const accuracy = Math.round(((gameState.correctAnswers||0) / Math.max(1, (gameState.totalAnswered||0))) * 100) || 0;
+                        const badgeData = getFullBadgeData(gameState.score || 0, accuracy, gameState.bestCombo || 0, gameState.previousBest || 0, gameState.correctAnswers || 0, (gameState.totalAnswered || 0) - (gameState.correctAnswers || 0), gameState.totalAnswered || 0, gameState.categoryStats || {}, (typeof idx === 'number' ? idx+1 : null), gameState.attempts || 0, (window.__mySavedRecord && window.__mySavedRecord.secondaryProgress) || 0);
+                        if (badgeEl) { badgeEl.innerHTML = `<span class="inline-flex items-center rounded-full px-3 py-1.5 text-sm font-bold ${getBadgeStyleClass(badgeData.primary)}">${escapeHtml(badgeData.display)}</span>`; }
+                    } catch(e) {}
                 } catch(e) { /* ignore */ }
 
                 popup.addEventListener('click', onClick);
@@ -2612,6 +2662,7 @@
             gameState.paused = false;
             const pauseOverlay = document.getElementById('pause-overlay');
             if (pauseOverlay) pauseOverlay.classList.add('hidden');
+            try { playSound('tryagain'); } catch(e) {}
         }
 
         function startGame(time, diff) {
@@ -2753,7 +2804,11 @@
             gameState.categoryStats[trashCategory].total++;
 
             if (trashCategory === category) { // Benar
-                playSound('correct');
+                // Play category-specific correct sound
+                if (category === 'SISA MAKANAN') playSound('bin-sisa');
+                else if (category === 'LAKU JUAL') playSound('bin-laku');
+                else if (category === 'RESIDU') playSound('bin-residu');
+                else playSound('correct');
                 gameState.combo++;
                 gameState.bestCombo = Math.max(gameState.bestCombo, gameState.combo);
                 document.getElementById('streak-display').textContent = `Best Combo: x${gameState.bestCombo}`;
