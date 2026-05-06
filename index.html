@@ -1791,6 +1791,33 @@
             return store[nameKey];
         }
 
+        function mergeCategoryStatEntry(existingEntry, incomingEntry) {
+            const existingCorrect = Number(existingEntry && existingEntry.correct) || 0;
+            const existingTotal = Number(existingEntry && existingEntry.total) || 0;
+            const incomingCorrect = Number(incomingEntry && incomingEntry.correct) || 0;
+            const incomingTotal = Number(incomingEntry && incomingEntry.total) || 0;
+
+            const existingAccuracy = existingTotal > 0 ? (existingCorrect / existingTotal) : 0;
+            const incomingAccuracy = incomingTotal > 0 ? (incomingCorrect / incomingTotal) : 0;
+
+            if (incomingAccuracy > existingAccuracy) return { correct: incomingCorrect, total: incomingTotal };
+            if (incomingAccuracy < existingAccuracy) return { correct: existingCorrect, total: existingTotal };
+            if (incomingTotal > existingTotal) return { correct: incomingCorrect, total: incomingTotal };
+            return { correct: existingCorrect, total: existingTotal };
+        }
+
+        function mergeCategoryStats(existingStats, incomingStats) {
+            const merged = {};
+            const keys = new Set([
+                ...Object.keys(existingStats || {}),
+                ...Object.keys(incomingStats || {})
+            ]);
+            keys.forEach((key) => {
+                merged[key] = mergeCategoryStatEntry(existingStats && existingStats[key], incomingStats && incomingStats[key]);
+            });
+            return merged;
+        }
+
         function getBadgeOrdinal(primary) {
             const map = {
                 'Bronze': 1,
@@ -2468,6 +2495,8 @@
                     const attemptCount = existingData ? (existingData.attempts || 1) + 1 : 1;
                     const accuracyCalc = gameState.totalAnswered === 0 ? 0 : Math.round((gameState.correctAnswers / gameState.totalAnswered) * 100);
                     const wrongCalc = gameState.totalAnswered - gameState.correctAnswers;
+                    const mergedCategoryStats = mergeCategoryStats(existingData ? existingData.categoryStats || {} : {}, gameState.categoryStats || {});
+                    const persistedSecondaryBadges = persistSecondaryBadges(gameState.playerName, getSecondaryBadge(gameState.score || 0, accuracyCalc, gameState.bestCombo || 0, existingData ? (existingData.score || 0) : 0, gameState.correctAnswers || 0, wrongCalc, gameState.totalAnswered || 0, mergedCategoryStats, null, attemptCount, existingData ? existingData.secondaryBadges || [] : []) || []);
 
                     // Simpan JIKA belum ada data, ATAU skor baru >= skor lama
                     if (!existingData || gameState.score >= existingData.score) {
@@ -2482,9 +2511,9 @@
                             wrong: wrongCalc,
                             accuracy: accuracyCalc,
                             bestCombo: gameState.bestCombo || 0,
-                            categoryStats: gameState.categoryStats,
+                            categoryStats: mergedCategoryStats,
                             previousBest: existingData ? (existingData.score || 0) : 0,
-                            secondaryBadges: persistSecondaryBadges(gameState.playerName, getSecondaryBadge(gameState.score || 0, accuracyCalc, gameState.bestCombo || 0, existingData ? (existingData.score || 0) : 0, gameState.correctAnswers || 0, wrongCalc, gameState.totalAnswered || 0, gameState.categoryStats || {}, null, attemptCount, existingData ? existingData.secondaryBadges || [] : [] ) || [])
+                            secondaryBadges: persistedSecondaryBadges
                         }).then(() => {
                             // After write completes, try render leaderboard with latest cached data
                             if (window.__latestLeaderboardData && Array.isArray(window.__latestLeaderboardData)) {
@@ -2500,11 +2529,9 @@
                             updates.bestCombo = gameState.bestCombo;
                         }
                         // Update categoryStats
-                        if (gameState.categoryStats) {
-                            updates.categoryStats = gameState.categoryStats;
-                        }
+                        updates.categoryStats = mergedCategoryStats;
                         updates.previousBest = existingData.previousBest || existingData.score || 0;
-                        updates.secondaryBadges = persistSecondaryBadges(gameState.playerName, getSecondaryBadge(gameState.score || 0, accuracyCalc, gameState.bestCombo || 0, updates.previousBest, gameState.correctAnswers || 0, wrongCalc, gameState.totalAnswered || 0, gameState.categoryStats || {}, null, attemptCount, existingData.secondaryBadges || []) || []);
+                        updates.secondaryBadges = persistedSecondaryBadges;
                         userRef.update(updates).then(() => {
                             if (window.__latestLeaderboardData && Array.isArray(window.__latestLeaderboardData)) {
                                 renderLeaderboardTable(window.__latestLeaderboardData, window.__latestLeaderboardData);
@@ -3076,11 +3103,7 @@
             // Determine badge display from saved personal-best if available, otherwise use session
             try {
                 let badgeSource = null;
-                if (window.__mySavedRecord && typeof window.__mySavedRecord === 'object') {
-                    badgeSource = window.__mySavedRecord;
-                } else {
-                    badgeSource = { score: gameState.score || 0, accuracy: accuracy || 0, bestCombo: gameState.bestCombo || 0, previousBest: gameState.previousBest || 0, correct: gameState.correctAnswers || 0, wrong: wrongAnswers || 0, total: gameState.totalAnswered || 0, categoryStats: gameState.categoryStats || {}, attempts: 1, secondaryBadges: getPersistedSecondaryBadges(gameState.playerName, window.__mySavedRecord) };
-                }
+                badgeSource = { score: gameState.score || 0, accuracy: accuracy || 0, bestCombo: gameState.bestCombo || 0, previousBest: gameState.previousBest || 0, correct: gameState.correctAnswers || 0, wrong: wrongAnswers || 0, total: gameState.totalAnswered || 0, categoryStats: gameState.categoryStats || {}, attempts: gameState.attempts || 1, secondaryBadges: getPersistedSecondaryBadges(gameState.playerName, window.__mySavedRecord) };
                 const badgeFromSource = getFullBadgeData(
                     Number(badgeSource.score) || 0,
                     Number(badgeSource.accuracy) || 0,
