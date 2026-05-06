@@ -2603,10 +2603,7 @@
             document.getElementById('final-total-answered').textContent = gameState.totalAnswered;
             document.getElementById('final-correct').textContent = gameState.correctAnswers;
             document.getElementById('final-wrong').textContent = wrongAnswers;
-            const finalBadgeData = getFullBadgeData(gameState.score, accuracy, gameState.bestCombo, gameState.previousBest || 0, gameState.correctAnswers || 0, wrongAnswers || 0, gameState.totalAnswered || 0, gameState.categoryStats, null, 1, (window.__mySavedRecord && window.__mySavedRecord.secondaryProgress) || 0);
             const finalBadgeEl = document.getElementById('final-badge');
-            finalBadgeEl.textContent = formatBadgeDisplay(finalBadgeData);
-            finalBadgeEl.className = 'inline-flex items-center rounded-full px-3 py-1.5 text-sm md:text-base font-bold ' + getBadgeStyleClass(finalBadgeData.primary);
             // Secondary badge info + missing tags
             try {
                 const secInfo = document.getElementById('secondary-info');
@@ -2636,6 +2633,14 @@
                     Number(badgeSource.attempts) || 0,
                     Number(badgeSource.secondaryProgress) || 0
                 );
+
+                // Ensure the final badge display uses the same source as the Badge Bonus info
+                try {
+                    if (finalBadgeEl && badgeFromSource) {
+                        finalBadgeEl.textContent = formatBadgeDisplay(badgeFromSource);
+                        finalBadgeEl.className = 'inline-flex items-center rounded-full px-3 py-1.5 text-sm md:text-base font-bold ' + getBadgeStyleClass(badgeFromSource.primary);
+                    }
+                } catch(e) { console.warn('Could not set final badge from source', e); }
 
                 const secondaryOrder = ['Top 10', 'Versatile', 'Rising Star'];
                 const obtainedSecondary = badgeFromSource.secondary || null;
