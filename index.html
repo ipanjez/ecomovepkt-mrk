@@ -1810,6 +1810,13 @@
             // Weighted composite: score 50%, accuracy 30%, combo 15%, attempts 0-5% (dynamic)
             const composite = scorePts * 0.50 + accuracyPts * 0.30 + comboPts * 0.15 + attemptPts * attemptWeight;
 
+            // Override: treat a perfect run as top-tier (Immortal)
+            // Rationale: when player achieves max score, 100% accuracy and max combo,
+            // they should receive the highest badge regardless of low attempt count.
+            if (Math.round(scorePts) === 100 && Math.round(accuracyPts) === 100 && Math.round(comboPts) === 100) {
+                return 'Immortal';
+            }
+
             // Quantitative tier cutoffs (0-100 composite scale)
             let badge = 'Bronze';
             if (composite < 30) badge = 'Bronze';
