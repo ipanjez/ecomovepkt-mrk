@@ -380,7 +380,6 @@
                         <p class="text-[0.85rem] md:text-sm font-bold text-gray-900 mt-4 mb-2">📏 Rule Badge</p>
                         <ul class="list-disc pl-6 text-[0.75rem] md:text-sm space-y-1">
                             <li><b>Badge utama</b> full komposit 0-100, jadi nggak ada badge spesial di tier utama.</li>
-                            <li><b>Badge bonus</b> opsional dan cuma tampil satu: Top 10, Versatile, atau Rising Star.</li>
                             <li><b>Badge bonus</b> sifatnya berurutan: Top 10 dulu, baru Versatile, lalu Rising Star.</li>
                             <li><b>Tag</b> bisa lebih dari satu dan tampil sebagai hashtag <b>#...</b>.</li>
                         </ul>
@@ -1248,6 +1247,14 @@
             let colorClass = diffName === 'Hard' ? ['border-pktBlue', 'bg-blue-50'] : diffName === 'Medium' ? ['border-pktOrange', 'bg-orange-50'] : ['border-pktGreen', 'bg-green-50'];
             btnEl.classList.remove('border-gray-200');
             btnEl.classList.add(...colorClass, 'scale-[1.03]', 'shadow-md');
+
+            // ensure audio context resumed on this user gesture, then play difficulty-specific click sound
+            try { if (typeof audioCtx !== 'undefined' && audioCtx && audioCtx.state === 'suspended') audioCtx.resume(); } catch(e){}
+            try {
+                if (diffName === 'Easy') playSound('diff-easy');
+                else if (diffName === 'Medium') playSound('diff-medium');
+                else if (diffName === 'Hard') playSound('diff-hard');
+            } catch (e) { /* ignore if audio not ready */ }
         }
 
         function attemptStart() {
@@ -1329,6 +1336,35 @@
                 osc.type = 'square'; osc.frequency.setValueAtTime(1200, audioCtx.currentTime);
                 gain.gain.setValueAtTime(0.06, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.06);
                 osc.start(); osc.stop(audioCtx.currentTime + 0.06);
+            } else if (type === 'diff-easy') {
+                // simple soft chime
+                const now = audioCtx.currentTime;
+                const o1 = audioCtx.createOscillator(); const g1 = audioCtx.createGain();
+                o1.type = 'sine'; o1.frequency.setValueAtTime(880, now);
+                o1.connect(g1); g1.connect(audioCtx.destination);
+                g1.gain.setValueAtTime(0.06, now); g1.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+                o1.start(); o1.stop(now + 0.18);
+            } else if (type === 'diff-medium') {
+                // two-tone medium click
+                const now = audioCtx.currentTime;
+                const oA = audioCtx.createOscillator(); const gA = audioCtx.createGain();
+                const oB = audioCtx.createOscillator(); const gB = audioCtx.createGain();
+                oA.type = 'triangle'; oA.frequency.setValueAtTime(660, now); oA.connect(gA); gA.connect(audioCtx.destination);
+                oB.type = 'sine'; oB.frequency.setValueAtTime(990, now); oB.connect(gB); gB.connect(audioCtx.destination);
+                gA.gain.setValueAtTime(0.07, now); gA.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+                gB.gain.setValueAtTime(0.05, now); gB.gain.exponentialRampToValueAtTime(0.001, now + 0.24);
+                oA.start(); oB.start(); oA.stop(now + 0.20); oB.stop(now + 0.24);
+            } else if (type === 'diff-hard') {
+                // short descending minor motif
+                const now = audioCtx.currentTime;
+                const freqs = [880, 740, 622];
+                freqs.forEach((f, i) => {
+                    const o = audioCtx.createOscillator(); const g = audioCtx.createGain();
+                    o.type = 'sawtooth'; o.frequency.setValueAtTime(f, now + i * 0.06);
+                    o.connect(g); g.connect(audioCtx.destination);
+                    g.gain.setValueAtTime(0.08, now + i * 0.06); g.gain.exponentialRampToValueAtTime(0.001, now + i * 0.06 + 0.14);
+                    o.start(now + i * 0.06); o.stop(now + i * 0.06 + 0.16);
+                });
             }
         }
 
@@ -1414,14 +1450,7 @@
             globalThis.__ambientNodes = null;
         }
 
-        // Start ambient on first user interaction if autoplay blocked
-        (function attachAmbientStarter(){
-            const startOnce = () => { try { startAmbientMusic(); document.removeEventListener('pointerdown', startOnce); document.removeEventListener('click', startOnce); } catch(e){} };
-            document.addEventListener('pointerdown', startOnce, { once: true });
-            document.addEventListener('click', startOnce, { once: true });
-            // also try immediate start (may be suspended)
-            try { startAmbientMusic(); } catch(e) {}
-        })();
+        // Ambient will only start when user explicitly toggles the Music button.
 
         function showGameOverPopup(durationMs = 2500) {
             try {
@@ -1988,13 +2017,13 @@
         try {
             const key = 'eco_ambient_enabled';
             let val = localStorage.getItem(key);
-            // Default to on for first-time visitors so the ambient bed is present without extra steps.
+            // Default to OFF for first-time visitors per user preference.
             if (val === null) {
-                val = '1';
+                val = '0';
                 localStorage.setItem(key, val);
             }
             if (val === '1') {
-                setTimeout(()=>{ try { startAmbientMusic(); } catch(e){} }, 300);
+                // User has previously enabled ambient; set toggle UI but do NOT auto-start audio.
                 const b=document.getElementById('music-toggle-btn');
                 if(b){ b.textContent='🎶 Music'; b.className='text-xs font-bold px-2 py-1 rounded-md bg-green-50 text-pktGreen border border-green-100 hover:bg-green-100 transition'; }
             } else {
