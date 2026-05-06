@@ -447,9 +447,10 @@
                 <p class="text-[0.65rem] md:text-xs text-gray-500 font-bold uppercase"><span id="game-difficulty">Bumi Lestari</span> Mode</p>
                 <p id="timer-text" class="text-lg md:text-xl font-bold text-pktOrange">00:00</p>
                 <div class="flex items-center gap-1.5">
-                    <button id="pause-btn" type="button" onclick="togglePause()" class="text-[0.65rem] md:text-xs font-bold px-2 py-1 rounded-md bg-blue-50 text-pktBlue border border-blue-100 hover:bg-blue-100 transition">⏸ Pause</button>
-                    <button id="restart-btn" type="button" onclick="restartGame()" class="text-[0.65rem] md:text-xs font-bold px-2 py-1 rounded-md bg-red-50 text-red-600 border border-red-100 hover:bg-red-100 transition">↺ Restart</button>
-                    <button id="mute-btn" type="button" onclick="toggleMute()" class="text-[0.65rem] md:text-xs font-bold px-2 py-1 rounded-md bg-orange-50 text-pktOrange border border-orange-100 hover:bg-orange-100 transition">🔊 Sound</button>
+                        <button id="pause-btn" type="button" onclick="togglePause()" class="text-[0.65rem] md:text-xs font-bold px-2 py-1 rounded-md bg-blue-50 text-pktBlue border border-blue-100 hover:bg-blue-100 transition">⏸ Pause</button>
+                        <button id="restart-btn" type="button" onclick="restartGame()" class="text-[0.65rem] md:text-xs font-bold px-2 py-1 rounded-md bg-red-50 text-red-600 border border-red-100 hover:bg-red-100 transition">↺ Restart</button>
+                        <button id="mute-btn" type="button" onclick="toggleMute()" class="text-[0.65rem] md:text-xs font-bold px-2 py-1 rounded-md bg-orange-50 text-pktOrange border border-orange-100 hover:bg-orange-100 transition">🔊 Sound</button>
+                        <button id="music-toggle-btn" type="button" onclick="toggleAmbient()" class="text-[0.65rem] md:text-xs font-bold px-2 py-1 rounded-md bg-green-50 text-pktGreen border border-green-100 hover:bg-green-100 transition">🎵 Music</button>
                 </div>
             </div>
         </div>
@@ -1939,6 +1940,30 @@
             muteBtn.textContent = '🔊 Sound';
             muteBtn.className = 'text-xs font-bold px-2 py-1 rounded-md bg-orange-50 text-pktOrange border border-orange-100 hover:bg-orange-100 transition';
         }
+
+        function toggleAmbient() {
+            const btn = document.getElementById('music-toggle-btn');
+            const key = 'eco_ambient_enabled';
+            const enabled = localStorage.getItem(key) === '1' || false;
+            if (enabled) {
+                // disable
+                try { stopAmbientMusic(); } catch(e) {}
+                localStorage.setItem(key, '0');
+                if (btn) { btn.textContent = '🔕 Music'; btn.className = 'text-xs font-bold px-2 py-1 rounded-md bg-gray-100 text-gray-600 border border-gray-200 hover:bg-gray-200 transition'; }
+            } else {
+                try { startAmbientMusic(); } catch(e) {}
+                localStorage.setItem(key, '1');
+                if (btn) { btn.textContent = '🎶 Music'; btn.className = 'text-xs font-bold px-2 py-1 rounded-md bg-green-50 text-pktGreen border border-green-100 hover:bg-green-100 transition'; }
+            }
+        }
+
+        // initialize music toggle state from localStorage
+        try {
+            const key = 'eco_ambient_enabled';
+            const val = localStorage.getItem(key);
+            if (val === '1') { setTimeout(()=>{ try { startAmbientMusic(); } catch(e){} }, 300); const b=document.getElementById('music-toggle-btn'); if(b){ b.textContent='🎶 Music'; b.className='text-xs font-bold px-2 py-1 rounded-md bg-green-50 text-pktGreen border border-green-100 hover:bg-green-100 transition'; } }
+            else { const b=document.getElementById('music-toggle-btn'); if(b){ b.textContent='🔕 Music'; b.className='text-xs font-bold px-2 py-1 rounded-md bg-gray-100 text-gray-600 border border-gray-200 hover:bg-gray-200 transition'; } }
+        } catch(e) {}
 
         document.addEventListener('keydown', (event) => {
             const key = event.key.toLowerCase();
