@@ -1332,7 +1332,7 @@
             }
         }
 
-        // Ambient music (simple synthesized pad) using WebAudio
+        // Ambient music (soft chord pad) using WebAudio
         globalThis.__ambientNodes = null;
         function startAmbientMusic() {
             if (typeof audioCtx === 'undefined' || !audioCtx) return;
@@ -1343,34 +1343,59 @@
                 if (ctx.state === 'suspended') {
                     try { ctx.resume(); } catch(e) { /* ignore */ }
                 }
-                const master = ctx.createGain(); master.gain.value = 0.08; master.connect(ctx.destination);
+                const master = ctx.createGain(); master.gain.value = 0.045; master.connect(ctx.destination);
 
-                // Two detuned oscillators for pad
-                const oscA = ctx.createOscillator(); oscA.type = 'sine'; oscA.frequency.value = 220;
-                const oscB = ctx.createOscillator(); oscB.type = 'sine'; oscB.frequency.value = 277;
+                const delay = ctx.createDelay(2.0); delay.delayTime.value = 0.18;
+                const feedback = ctx.createGain(); feedback.gain.value = 0.2;
+                const wet = ctx.createGain(); wet.gain.value = 0.16;
+                delay.connect(feedback); feedback.connect(delay);
 
-                const filter = ctx.createBiquadFilter(); filter.type = 'lowpass'; filter.frequency.value = 1200;
-
+                const filter = ctx.createBiquadFilter(); filter.type = 'lowpass'; filter.frequency.value = 900; filter.Q.value = 0.7;
                 const amp = ctx.createGain(); amp.gain.value = 0.0;
-                oscA.connect(amp); oscB.connect(amp);
-                amp.connect(filter); filter.connect(master);
+                const tremolo = ctx.createOscillator(); tremolo.type = 'sine'; tremolo.frequency.value = 0.12;
+                const tremoloGain = ctx.createGain(); tremoloGain.gain.value = 0.03;
+                tremolo.connect(tremoloGain); tremoloGain.connect(amp.gain);
 
-                // slow attack to avoid clicks
+                // Warm chord pad: root, third, fifth, octave
+                const voices = [
+                    { osc: ctx.createOscillator(), gain: ctx.createGain(), detune: -4 },
+                    { osc: ctx.createOscillator(), gain: ctx.createGain(), detune: 0 },
+                    { osc: ctx.createOscillator(), gain: ctx.createGain(), detune: 4 },
+                    { osc: ctx.createOscillator(), gain: ctx.createGain(), detune: 9 }
+                ];
+                voices.forEach(v => { v.osc.type = 'sine'; v.gain.gain.value = 0.22; v.osc.connect(v.gain); v.gain.connect(amp); v.osc.start(); });
+                amp.connect(filter); filter.connect(wet); wet.connect(delay); wet.connect(master); filter.connect(master);
+
+                const chords = [
+                    [261.63, 329.63, 392.00, 523.25], // Cmaj7
+                    [196.00, 246.94, 293.66, 392.00], // G major
+                    [220.00, 261.63, 329.63, 440.00],  // A minor 7
+                    [174.61, 220.00, 261.63, 349.23]   // F major 7
+                ];
+                let chordIndex = 0;
                 const now = ctx.currentTime;
+                const setChord = (idx) => {
+                    const chord = chords[idx % chords.length];
+                    chord.forEach((freq, i) => {
+                        const voice = voices[i];
+                        voice.osc.frequency.setTargetAtTime(freq * Math.pow(2, voice.detune / 1200), ctx.currentTime, 0.12);
+                    });
+                };
+
+                // gentle fade in
                 amp.gain.setValueAtTime(0.0, now);
-                amp.gain.linearRampToValueAtTime(0.6, now + 4);
+                amp.gain.linearRampToValueAtTime(0.95, now + 3.5);
+                setChord(chordIndex);
 
-                oscA.start(); oscB.start();
+                // slow chord progression loop
+                const chordTimer = setInterval(() => {
+                    chordIndex = (chordIndex + 1) % chords.length;
+                    setChord(chordIndex);
+                }, 8000);
 
-                // gentle LFO on frequency to create movement
-                const lfo = ctx.createOscillator(); lfo.type = 'sine'; lfo.frequency.value = 0.07;
-                const lfoGain = ctx.createGain(); lfoGain.gain.value = 6;
-                lfo.connect(lfoGain);
-                lfoGain.connect(oscA.frequency);
-                lfoGain.connect(oscB.frequency);
-                lfo.start();
+                tremolo.start();
 
-                globalThis.__ambientNodes = { master, oscA, oscB, amp, filter, lfo, lfoGain };
+                globalThis.__ambientNodes = { master, delay, feedback, wet, filter, amp, tremolo, tremoloGain, voices, chordTimer };
             } catch (e) { console.warn('Ambient music start failed', e); }
         }
 
@@ -1383,7 +1408,7 @@
                     n.amp.gain.linearRampToValueAtTime(0.0001, audioCtx.currentTime + 0.5);
                 }
                 setTimeout(() => {
-                    try { n.oscA.stop(); n.oscB.stop(); n.lfo.stop(); } catch(e) {}
+                    try { n.voices.forEach(v => v.osc.stop()); n.tremolo.stop(); clearInterval(n.chordTimer); } catch(e) {}
                 }, 600);
             } catch (e) {}
             globalThis.__ambientNodes = null;
