@@ -506,6 +506,7 @@
             <div id="gameover-popup" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-red-600 bg-opacity-95">
                 <div class="text-center text-white px-6 py-4 rounded-lg">
                     <div class="text-5xl sm:text-6xl font-extrabold">GAME OVER</div>
+                    <div id="gameover-position" class="text-xl mt-3 font-semibold">Posisi: -</div>
                 </div>
             </div>
             <div class="flex items-center justify-between gap-3">
@@ -553,12 +554,7 @@
                 </div>
             </div>
 
-            <div id="secondary-info" class="bg-white rounded-xl p-3 mt-3 border border-gray-100 shadow-sm text-left" style="display:none">
-                <p class="text-sm font-bold text-gray-700 mb-1">Info Badge Bonus dan Tags</p>
-                <div id="secondary-current" class="text-[0.9rem] text-gray-800 mb-1">Secondary: -</div>
-                <div id="secondary-next" class="text-[0.85rem] text-gray-600 mb-1">Selanjutnya: -</div>
-                <div id="missing-tags" class="text-[0.82rem] text-gray-600">Tag Spesial yang belum diperoleh: -</div>
-            </div>
+            <!-- Info Badge Bonus removed per user request -->
 
             <!-- icon buttons moved to header -->
 
@@ -1298,8 +1294,25 @@
                 };
 
                 const onClick = () => { hide(); };
-                popup.addEventListener('click', onClick);
+                // Attempt to populate position info inside popup
+                try {
+                    const posEl = document.getElementById('gameover-position');
+                    const totalPlayers = Array.isArray(window.__latestLeaderboardData) ? window.__latestLeaderboardData.length : 0;
+                    let posText = 'Posisi: -';
+                    const map = window.__currentLeaderboardIndexMap || {};
+                    let idx;
+                    if (gameState && gameState.currentSessionId && Object.prototype.hasOwnProperty.call(map, `id:${gameState.currentSessionId}`)) {
+                        idx = map[`id:${gameState.currentSessionId}`];
+                    } else if (gameState && gameState.playerName) {
+                        const nk = `name:${String(gameState.playerName).toLowerCase()}`;
+                        if (Object.prototype.hasOwnProperty.call(map, nk)) idx = map[nk];
+                    }
+                    if (typeof idx === 'number' && totalPlayers > 0) posText = `Posisi: #${idx + 1} dari ${totalPlayers} pemain`;
+                    else posText = `Posisi: - dari ${totalPlayers} pemain`;
+                    if (posEl) posEl.textContent = posText;
+                } catch(e) { /* ignore */ }
 
+                popup.addEventListener('click', onClick);
                 window.__gameoverTimeoutId = setTimeout(hide, durationMs);
             } catch (e) { console.warn('popup error', e); }
         }
@@ -2647,22 +2660,14 @@
             document.getElementById('final-correct').textContent = gameState.correctAnswers;
             document.getElementById('final-wrong').textContent = wrongAnswers;
             const finalBadgeEl = document.getElementById('final-badge');
-            // Secondary badge info + missing tags
+            // Determine badge display from saved personal-best if available, otherwise use session
             try {
-                const secInfo = document.getElementById('secondary-info');
-                const secCurrentEl = document.getElementById('secondary-current');
-                const secNextEl = document.getElementById('secondary-next');
-                const missingTagsEl = document.getElementById('missing-tags');
-
-                // Prefer using saved leaderboard record (personal best) when available for Badge Bonus info
                 let badgeSource = null;
                 if (window.__mySavedRecord && typeof window.__mySavedRecord === 'object') {
                     badgeSource = window.__mySavedRecord;
                 } else {
-                    // fallback to current session calculation
                     badgeSource = { score: gameState.score || 0, accuracy: accuracy || 0, bestCombo: gameState.bestCombo || 0, previousBest: gameState.previousBest || 0, correct: gameState.correctAnswers || 0, wrong: wrongAnswers || 0, total: gameState.totalAnswered || 0, categoryStats: gameState.categoryStats || {}, attempts: 1, secondaryProgress: (window.__mySavedRecord && window.__mySavedRecord.secondaryProgress) || 0 };
                 }
-
                 const badgeFromSource = getFullBadgeData(
                     Number(badgeSource.score) || 0,
                     Number(badgeSource.accuracy) || 0,
@@ -2676,55 +2681,11 @@
                     Number(badgeSource.attempts) || 0,
                     Number(badgeSource.secondaryProgress) || 0
                 );
-
-                // Ensure the final badge display uses the same source as the Badge Bonus info
-                try {
-                    if (finalBadgeEl && badgeFromSource) {
-                        finalBadgeEl.textContent = formatBadgeDisplay(badgeFromSource);
-                        finalBadgeEl.className = 'inline-flex items-center rounded-full px-3 py-1.5 text-sm md:text-base font-bold ' + getBadgeStyleClass(badgeFromSource.primary);
-                    }
-                } catch(e) { console.warn('Could not set final badge from source', e); }
-
-                const secondaryOrder = ['Top 10', 'Versatile', 'Rising Star'];
-                const obtainedSecondary = badgeFromSource.secondary || null;
-                // Compute next secondary by tier to avoid string-matching quirks
-                let nextSecondary = 'Tidak ada';
-                if (!obtainedSecondary) {
-                    nextSecondary = secondaryOrder[0];
-                } else {
-                    const currentTier = getSecondaryBadgeTier(obtainedSecondary); // 1..3
-                    if (currentTier > 0 && currentTier < secondaryOrder.length) {
-                        nextSecondary = secondaryOrder[currentTier];
-                    } else {
-                        nextSecondary = 'Semua secondary badge sudah tercapai';
-                    }
+                if (finalBadgeEl && badgeFromSource) {
+                    finalBadgeEl.textContent = formatBadgeDisplay(badgeFromSource);
+                    finalBadgeEl.className = 'inline-flex items-center rounded-full px-3 py-1.5 text-sm md:text-base font-bold ' + getBadgeStyleClass(badgeFromSource.primary);
                 }
-
-                // All possible tags
-                const allTags = ['Residu Expert','Sisa Makanan Expert','Layak Jual Expert','Combo Pro','Grinder','God Aim','Persistence','Performer'];
-                const obtainedTags = Array.isArray(badgeFromSource.tags) ? badgeFromSource.tags : [];
-                const missingTags = allTags.filter(t => !obtainedTags.includes(t));
-
-                secCurrentEl.textContent = `Badge Bonus yang diperoleh saat ini: ${obtainedSecondary || 'Tidak ada'}`;
-                // Provide brief guidance on next secondary
-                let nextDesc = '';
-                if (nextSecondary === 'Top 10') nextDesc = 'Masuk 10 besar';
-                else if (nextSecondary === 'Versatile') nextDesc = 'Akurasi seimbang tiap kategori, minimal 70% dan perbedaan antar kategori ≤15%.';
-                else if (nextSecondary === 'Rising Star') nextDesc = 'Skor ≥ (prevBest + 75) dan komposit ≥45.';
-                else nextDesc = nextSecondary;
-                secNextEl.textContent = `Selanjutnya: ${nextSecondary} — ${nextDesc}`;
-
-                // Render missing special tags (that user hasn't obtained yet)
-                if (missingTagsEl) {
-                    if (missingTags.length === 0) {
-                        missingTagsEl.textContent = 'Tag Spesial yang belum diperoleh: Tidak ada';
-                    } else {
-                        missingTagsEl.textContent = 'Tag Spesial yang belum diperoleh: ' + missingTags.join(', ');
-                    }
-                }
-
-                if (secInfo) secInfo.style.display = 'block';
-            } catch (e) { console.warn('Could not render secondary info', e); }
+            } catch (e) { console.warn('Could not render badge display', e); }
             renderPersonalBestSummaryFromLeaderboard(null);
             updateSessionUniqueProgressUI();
 
