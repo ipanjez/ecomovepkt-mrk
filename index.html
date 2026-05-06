@@ -359,8 +359,9 @@
                         </ul>
 
                         <p class="text-[0.85rem] md:text-sm font-bold text-gray-900 mt-4 mb-2">🎖️ Badge Bonus</p>
-                        <p class="text-[0.8rem] md:text-sm text-gray-700 mb-2">Badge ini opsional dan cuma muncul <b>1</b> di bawah badge utama. Urutannya: <b>Top 10</b>, lalu <b>Versatile</b>, lalu <b>Rising Star</b>.</p>
-                        <p class="text-[0.75rem] md:text-sm text-gray-600 mb-2">Kalau belum pernah dapat <b>Top 10</b>, badge <b>Versatile</b> dan <b>Rising Star</b> masih terkunci. Kalau sudah sempat dapat <b>Top 10</b> lalu turun dari 10 besar, badge <b>Top 10</b> bakal hilang lagi.</p>
+                        <p class="text-[0.8rem] md:text-sm text-gray-700 mb-2">Badge bonus dapat muncul lebih dari satu (maksimal 3) di bawah badge utama. Jika pemain memenuhi beberapa syarat, badge akan ditampilkan bergabung, mis. <b>Top 10 &amp; Versatile</b>.</p>
+                        <p class="text-[0.75rem] md:text-sm text-gray-600 mb-2">Beberapa badge memerlukan progres tertentu untuk terbuka (mis. Top 10 atau progres in-game). Sistem menampilkan kombinasi badge yang diperoleh sesuai prioritas: <b>Top 10</b>, <b>Versatile</b>, <b>Rising Star</b>.</p>
+                        <p class="text-[0.75rem] md:text-sm text-gray-600 mb-2">Catatan audio: backsound default <b>OFF</b> — gunakan tombol <b>Music</b> di header untuk mengaktifkan. Memilih tingkat kesulitan sekarang juga menghasilkan suara klik berbeda untuk setiap level.</p>
                         <ul class="list-disc pl-6 text-[0.75rem] md:text-sm space-y-1">
                             <li><b>Top 10</b>: kalau kamu masuk <b>10 besar</b></li>
                             <li><b>Versatile</b>: akurasi tiap kategori sampah harus seimbang, dan semua kategori yang benar minimal <b>70%</b>.</li>
@@ -1762,7 +1763,7 @@
             return badge;
         }
 
-        // Get secondary badge (one per player, if qualifying)
+        // Get secondary badges (0-3) — allow multiple bonuses (Top 10, Versatile, Rising Star)
         function getSecondaryBadge(score, accuracy, bestCombo, prevBest, correct = 0, wrong = 0, total = 0, categoryStats = {}, leaderboardRank = null, attempts = 0, secondaryProgress = 0) {
             const combo = Math.max(0, Number(bestCombo) || 0);
             const tot = Number(total) || (Number(correct) || 0) + (Number(wrong) || 0);
@@ -1782,12 +1783,13 @@
 
             const progress = Number(secondaryProgress) || 0;
 
-            // Secondary badges are sequential: Top 10 -> Versatile -> Rising Star
-            if (Number.isFinite(Number(leaderboardRank)) && Number(leaderboardRank) > 0 && Number(leaderboardRank) <= 10) return 'Top 10';
-            if (progress >= 1 && isVersatile) return 'Versatile';
-            if (progress >= 2 && typeof prevBest === 'number' && prevBest > 0 && score >= (prevBest + 75) && composite >= 45) return 'Rising Star';
+            const badges = [];
+            const isTop10 = Number.isFinite(Number(leaderboardRank)) && Number(leaderboardRank) > 0 && Number(leaderboardRank) <= 10;
+            if (isTop10) badges.push('Top 10');
+            if (progress >= 1 && isVersatile) badges.push('Versatile');
+            if (progress >= 2 && typeof prevBest === 'number' && prevBest > 0 && score >= (prevBest + 75) && composite >= 45) badges.push('Rising Star');
 
-            return null; // No secondary badge
+            return badges.length > 0 ? badges : null;
         }
 
         function computeSecondaryProgress(record, leaderboardRank) {
@@ -1826,10 +1828,15 @@
         }
 
         function getSecondaryBadgeTier(badge) {
-            if (badge === 'Top 10') return 1;
-            if (badge === 'Versatile') return 2;
-            if (badge === 'Rising Star') return 3;
-            return 0;
+            // Accept single badge or array of badges; return highest tier number
+            const map = { 'Top 10': 1, 'Versatile': 2, 'Rising Star': 3 };
+            if (!badge) return 0;
+            if (Array.isArray(badge)) {
+                let max = 0;
+                badge.forEach(b => { const v = map[b] || 0; if (v > max) max = v; });
+                return max;
+            }
+            return map[badge] || 0;
         }
 
         // Get tags (multiple, 0-many per player)
@@ -1871,12 +1878,12 @@
         function getFullBadgeData(score, accuracy, bestCombo, prevBest, correct = 0, wrong = 0, total = 0, categoryStats = {}, leaderboardRank = null, attempts = 0, secondaryProgress = 0) {
             try {
                 const primary = getPerformanceBadge(score, accuracy, bestCombo, prevBest, correct, wrong, total, attempts);
-            const secondary = getSecondaryBadge(score, accuracy, bestCombo, prevBest, correct, wrong, total, categoryStats, leaderboardRank, attempts, secondaryProgress);
+                const secondary = getSecondaryBadge(score, accuracy, bestCombo, prevBest, correct, wrong, total, categoryStats, leaderboardRank, attempts, secondaryProgress);
                 const tags = getSpecialtyTags(score, accuracy, bestCombo, prevBest, correct, wrong, total, categoryStats, leaderboardRank, attempts);
 
                 // Format display string
                 let display = primary;
-                if (secondary) display += ` [${secondary}]`;
+                if (secondary) display += ` [${Array.isArray(secondary) ? secondary.join(' & ') : secondary}]`;
                 if (tags.length > 0) display += ` ${tags.map(tag => `#${String(tag).replace(/[^A-Za-z0-9]+/g, '')}`).join(' ')}`;
 
                 return { primary, secondary, tags, display };
