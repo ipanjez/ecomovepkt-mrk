@@ -541,6 +541,7 @@
                 <p class="text-sm font-bold text-gray-700 mb-1">Info Badge Bonus</p>
                 <div id="secondary-current" class="text-[0.9rem] text-gray-800 mb-1">Secondary: -</div>
                 <div id="secondary-next" class="text-[0.85rem] text-gray-600 mb-1">Selanjutnya: -</div>
+                <div id="missing-tags" class="text-[0.82rem] text-gray-600">Tag Spesial yang belum diperoleh: -</div>
             </div>
 
             <div class="mb-3 grid grid-cols-1 md:grid-cols-2 gap-2">
@@ -2557,12 +2558,17 @@
 
                 const secondaryOrder = ['Top 10', 'Versatile', 'Rising Star'];
                 const obtainedSecondary = finalBadgeData.secondary || null;
+                // Compute next secondary by tier to avoid string-matching quirks
                 let nextSecondary = 'Tidak ada';
-                if (!obtainedSecondary) nextSecondary = secondaryOrder[0];
-                else {
-                    const i = secondaryOrder.indexOf(obtainedSecondary);
-                    if (i >= 0 && i < secondaryOrder.length - 1) nextSecondary = secondaryOrder[i+1];
-                    else nextSecondary = 'Semua secondary badge sudah tercapai';
+                if (!obtainedSecondary) {
+                    nextSecondary = secondaryOrder[0];
+                } else {
+                    const currentTier = getSecondaryBadgeTier(obtainedSecondary); // 1..3
+                    if (currentTier > 0 && currentTier < secondaryOrder.length) {
+                        nextSecondary = secondaryOrder[currentTier];
+                    } else {
+                        nextSecondary = 'Semua secondary badge sudah tercapai';
+                    }
                 }
 
                 // All possible tags
@@ -2578,6 +2584,15 @@
                 else if (nextSecondary === 'Rising Star') nextDesc = 'Skor ≥ (prevBest + 75) dan komposit ≥45.';
                 else nextDesc = nextSecondary;
                 secNextEl.textContent = `Selanjutnya: ${nextSecondary} — ${nextDesc}`;
+
+                // Render missing special tags (that user hasn't obtained yet)
+                if (missingTagsEl) {
+                    if (missingTags.length === 0) {
+                        missingTagsEl.textContent = 'Tag Spesial yang belum diperoleh: Tidak ada';
+                    } else {
+                        missingTagsEl.textContent = 'Tag Spesial yang belum diperoleh: ' + missingTags.join(', ');
+                    }
+                }
 
                 if (secInfo) secInfo.style.display = 'block';
             } catch (e) { console.warn('Could not render secondary info', e); }
