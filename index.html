@@ -191,6 +191,7 @@
 
             <div class="p-6 md:p-8 overflow-y-auto no-scrollbar">
                 <input type="text" id="player-name" placeholder="Masukkan Nama Pemain..." class="w-full px-5 py-4 bg-gray-50 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-pktBlue focus:bg-white mb-6 transition shadow-inner font-semibold text-center text-lg" autocomplete="off">
+                <div id="name-leaderboard-hint" class="text-sm text-gray-500 mb-4 hidden">Loading...</div>
                 
                 <p class="mb-3 text-xs font-bold text-gray-400 uppercase tracking-widest">Pilih Tingkat Kesulitan</p>
                 <div class="grid grid-cols-3 gap-2 mb-6" id="diff-selector">
@@ -1257,6 +1258,30 @@
             console.warn('localStorage not available for player name persistence');
         }
 
+        // Show live hint for typed name if it exists on the leaderboard
+        function updateNameLeaderboardHint() {
+            const hintEl = document.getElementById('name-leaderboard-hint');
+            if (!hintEl || !uis || !uis.playerNameInput) return;
+            const name = (uis.playerNameInput.value || '').trim();
+            if (!name) { hintEl.classList.add('hidden'); hintEl.textContent = ''; return; }
+
+            const map = window.__currentLeaderboardIndexMap || {};
+            const total = Array.isArray(window.__latestLeaderboardData) ? window.__latestLeaderboardData.length : 0;
+            const key = `name:${String(name).toLowerCase()}`;
+            if (Object.prototype.hasOwnProperty.call(map, key)) {
+                const idx = map[key];
+                const rec = (Array.isArray(window.__latestLeaderboardData) ? window.__latestLeaderboardData[idx] : null) || {};
+                const movementTitle = (rec && rec.__movement && rec.__movement.title) ? rec.__movement.title : (window.__leaderboardLatestMoverIndex === idx ? 'Pemain terbaru' : 'Posisi tetap');
+                hintEl.classList.remove('hidden');
+                hintEl.innerHTML = `${escapeHtml(name)} ada di leaderboard: <span class="font-bold">#${idx + 1}</span> dari <span class="font-bold">${total}</span> — <span class="text-sm text-gray-700">${escapeHtml(movementTitle)}</span>`;
+            } else {
+                hintEl.classList.remove('hidden');
+                hintEl.innerHTML = `Nama belum ditemukan di leaderboard. Total pemain: <span class="font-bold">${total}</span>.`;
+            }
+        }
+
+        if (uis.playerNameInput) uis.playerNameInput.addEventListener('input', updateNameLeaderboardHint);
+
         function getDifficultyDisplayName(diff) {
             if (diff === 'Hard') return 'Penjaga Bumi';
             if (diff === 'Medium') return 'Eko Aktif';
@@ -1666,6 +1691,9 @@
                 if (r && r.id) window.__currentLeaderboardIndexMap[`id:${r.id}`] = i;
                 if (r && r.name) window.__currentLeaderboardIndexMap[`name:${String(r.name).toLowerCase()}`] = i;
             });
+
+            // Update name hint (if player is typing a name on start-screen)
+            try { updateNameLeaderboardHint(); } catch(e) {}
 
             const progressUpdates = [];
             arrData.forEach((r) => {
