@@ -1269,16 +1269,38 @@
                 const popup = document.getElementById('gameover-popup');
                 if (!popup) return;
                 popup.classList.remove('hidden');
+                popup.style.cursor = 'pointer';
                 // Smooth fade in
                 popup.style.opacity = '0';
                 popup.style.transition = 'opacity 150ms ease-out';
                 requestAnimationFrame(() => { popup.style.opacity = '1'; });
                 playSound('gameover');
-                setTimeout(() => {
-                    // fade out then hide
-                    popup.style.opacity = '0';
-                    setTimeout(() => popup.classList.add('hidden'), 220);
-                }, durationMs);
+
+                // Clear any previous timeout
+                if (window.__gameoverTimeoutId) {
+                    clearTimeout(window.__gameoverTimeoutId);
+                    window.__gameoverTimeoutId = null;
+                }
+
+                const hide = () => {
+                    try {
+                        popup.style.opacity = '0';
+                        if (window.__gameoverTimeoutId) {
+                            clearTimeout(window.__gameoverTimeoutId);
+                            window.__gameoverTimeoutId = null;
+                        }
+                        setTimeout(() => {
+                            popup.classList.add('hidden');
+                            popup.style.cursor = 'auto';
+                            popup.removeEventListener('click', onClick);
+                        }, 220);
+                    } catch(e) { /* ignore */ }
+                };
+
+                const onClick = () => { hide(); };
+                popup.addEventListener('click', onClick);
+
+                window.__gameoverTimeoutId = setTimeout(hide, durationMs);
             } catch (e) { console.warn('popup error', e); }
         }
 
