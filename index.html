@@ -588,7 +588,6 @@
                 <div class="text-center text-white px-6 py-4 rounded-lg">
                     <div class="text-5xl sm:text-6xl font-extrabold">GAME OVER</div>
                     <div id="gameover-position" class="text-xl mt-3 font-semibold">Posisi: -</div>
-                    <div id="gameover-badge" class="text-md mt-2 font-semibold inline-block"></div>
                 </div>
             </div>
             <div class="flex items-center justify-between gap-3">
@@ -1542,8 +1541,6 @@
                 // Attempt to populate position info inside popup
                 try {
                     const posEl = document.getElementById('gameover-position');
-                    const badgeEl = document.getElementById('gameover-badge');
-                    const finalBadgeEl = document.getElementById('final-badge');
                     const totalPlayers = Array.isArray(window.__latestLeaderboardData) ? window.__latestLeaderboardData.length : 0;
                     let posText = 'Posisi: -';
                     const map = window.__currentLeaderboardIndexMap || {};
@@ -1557,21 +1554,6 @@
                     if (typeof idx === 'number' && totalPlayers > 0) posText = `Posisi: #${idx + 1} dari ${totalPlayers} pemain`;
                     else posText = `Posisi: - dari ${totalPlayers} pemain`;
                     if (posEl) posEl.textContent = posText;
-                    // show exactly the same badge content as the final screen when available
-                    try {
-                        if (badgeEl) {
-                            badgeEl.innerHTML = '';
-                            if (finalBadgeEl) {
-                                const clone = finalBadgeEl.cloneNode(true);
-                                clone.removeAttribute('id');
-                                badgeEl.appendChild(clone);
-                            } else {
-                                const accuracy = Math.round(((gameState.correctAnswers||0) / Math.max(1, (gameState.totalAnswered||0))) * 100) || 0;
-                                const badgeData = getFullBadgeData(gameState.score || 0, accuracy, gameState.bestCombo || 0, gameState.previousBest || 0, gameState.correctAnswers || 0, (gameState.totalAnswered || 0) - (gameState.correctAnswers || 0), gameState.totalAnswered || 0, gameState.categoryStats || {}, (typeof idx === 'number' ? idx+1 : null), gameState.attempts || 0, getPersistedSecondaryBadges(gameState.playerName, window.__mySavedRecord));
-                                badgeEl.innerHTML = `<span class="inline-flex items-center rounded-full px-3 py-1.5 text-sm font-bold ${getBadgeStyleClass(badgeData.primary)}">${escapeHtml(formatBadgeDisplay(badgeData))}</span>`;
-                            }
-                        }
-                    } catch(e) {}
                 } catch(e) { /* ignore */ }
 
                 popup.addEventListener('click', onClick);
