@@ -1804,18 +1804,12 @@
             const scorePts = Math.min(Math.max(Number(score) || 0, 0), 1300) / 13; // 0-100
             const accuracyPts = Math.min(Math.max(Number(accuracy) || 0, 0), 100); // 0-100
             const comboPts = Math.min(combo, 25) * 4; // 0-100
-            const attemptPts = Math.min(tot, 100); // 0-100
+            // Use the larger of session `total` and lifetime `attempts` (capped at 100)
+            const attemptPts = Math.min(Math.max(Number(attempts) || 0, tot), 100); // 0-100
             const attemptWeight = (attemptPts / 100) * 0.05; // dynamic weight 0-5%
 
             // Weighted composite: score 50%, accuracy 30%, combo 15%, attempts 0-5% (dynamic)
             const composite = scorePts * 0.50 + accuracyPts * 0.30 + comboPts * 0.15 + attemptPts * attemptWeight;
-
-            // Override: treat a perfect run as top-tier (Immortal)
-            // Rationale: when player achieves max score, 100% accuracy and max combo,
-            // they should receive the highest badge regardless of low attempt count.
-            if (Math.round(scorePts) === 100 && Math.round(accuracyPts) === 100 && Math.round(comboPts) === 100) {
-                return 'Immortal';
-            }
 
             // Quantitative tier cutoffs (0-100 composite scale)
             let badge = 'Bronze';
@@ -1840,7 +1834,8 @@
             const scorePts = Math.min(Math.max(Number(score) || 0, 0), 1300) / 13;
             const accuracyPts = Math.min(Math.max(Number(accuracy) || 0, 0), 100);
             const comboPts = Math.min(combo, 25) * 4;
-            const attemptPts = Math.min(tot, 100);
+            // Prefer the larger of session total and lifetime attempts when computing attempt contribution
+            const attemptPts = Math.min(Math.max(Number(attempts) || 0, tot), 100);
             const attemptWeight = (attemptPts / 100) * 0.05; // dynamic weight 0-5%
             const composite = scorePts * 0.50 + accuracyPts * 0.30 + comboPts * 0.15 + attemptPts * attemptWeight;
 
