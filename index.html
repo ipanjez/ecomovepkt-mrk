@@ -1296,12 +1296,9 @@
 
         function getLeaderboardMovement(run) {
             if (run && run.__movement) return run.__movement;
-            const snapshotReady = !!window.__leaderboardComparisonReady;
-            const prevState = Array.isArray(window.__prevLeaderboardState) ? window.__prevLeaderboardState : [];
             const currentState = Array.isArray(window.__currentLeaderboardState) ? window.__currentLeaderboardState : [];
-            const currentSize = currentState.length || 0;
             const currentIndexMap = window.__currentLeaderboardIndexMap || {};
-            const currentPlayerId = gameState && gameState.currentSessionId ? gameState.currentSessionId : null;
+            const latestMoverIndex = Number.isInteger(window.__leaderboardLatestMoverIndex) ? window.__leaderboardLatestMoverIndex : -1;
 
             const resolveCurrentIndex = () => {
                 if (run && run.id) {
@@ -1324,38 +1321,15 @@
             };
 
             const currentIndex = resolveCurrentIndex();
-            const currentPlayerIndex = resolveCurrentPlayerIndex();
-
-            const findPrevIndex = () => {
-                if (!snapshotReady) return undefined;
-                if (run && run.id) {
-                    const idKey = `id:${run.id}`;
-                    const found = prevState.findIndex(item => item && item.id === run.id);
-                    if (found >= 0) return found;
-                    if (window.__prevLeaderboardIndexMap && Object.prototype.hasOwnProperty.call(window.__prevLeaderboardIndexMap, idKey)) return window.__prevLeaderboardIndexMap[idKey];
-                }
-                return undefined;
-            };
-
-            const prevIndex = findPrevIndex();
-            if (!snapshotReady || typeof prevIndex === 'undefined' || typeof currentIndex === 'undefined') {
-                if (typeof currentPlayerIndex !== 'undefined' && typeof currentIndex !== 'undefined') {
-                    if (currentIndex < currentPlayerIndex) {
-                        return { symbol: '—', className: 'text-gray-400', title: 'Posisi tetap' };
-                    }
-                    if (currentIndex === currentPlayerIndex) {
-                        return { symbol: '★▲', className: 'text-blue-500', title: 'Pemain baru' };
-                    }
-                    return { symbol: '▼', className: 'text-red-600', title: 'Turun peringkat' };
-                }
-                if (snapshotReady && typeof currentIndex !== 'undefined' && currentSize > 1 && currentIndex < currentSize - 1) {
-                    return { symbol: '★▲', className: 'text-blue-500', title: 'Pemain baru' };
-                }
-                return { symbol: snapshotReady ? '★' : '—', className: snapshotReady ? 'text-blue-500' : 'text-gray-400', title: snapshotReady ? 'Pemain baru' : 'Belum ada pembanding' };
+            if (typeof currentIndex === 'undefined' || latestMoverIndex < 0) {
+                return { symbol: '—', className: 'text-gray-400', title: 'Posisi tetap' };
             }
 
-            if (currentIndex < prevIndex) return { symbol: '▲', className: 'text-green-600', title: 'Naik peringkat' };
-            if (currentIndex > prevIndex) return { symbol: '▼', className: 'text-red-600', title: 'Turun peringkat' };
+            if (currentIndex === latestMoverIndex) {
+                return { symbol: currentState.length > 1 ? '★▲' : '★', className: 'text-blue-500', title: 'Pemain terbaru' };
+            }
+
+            if (currentIndex > latestMoverIndex) return { symbol: '▼', className: 'text-red-600', title: 'Turun peringkat' };
             return { symbol: '—', className: 'text-gray-400', title: 'Posisi tetap' };
         }
 
@@ -1643,61 +1617,39 @@
                 if (ab !== aa) return ab - aa;
                 return (a.timestamp || 0) - (b.timestamp || 0);
             });
-            const previousState = Array.isArray(window.__currentLeaderboardState) ? window.__currentLeaderboardState.slice() : [];
-            const prevIndexMap = {};
-            const prevNameMap = {};
-            previousState.forEach((r, i) => {
-                if (r && r.id) prevIndexMap[`id:${r.id}`] = i;
-                if (r && r.name) prevNameMap[`name:${String(r.name).toLowerCase()}`] = i;
+            let latestMoverIndex = -1;
+            let latestTimestamp = -1;
+            arrData.forEach((r, i) => {
+                const rowTimestamp = Number(r && r.timestamp) || 0;
+                if (rowTimestamp >= latestTimestamp) {
+                    latestTimestamp = rowTimestamp;
+                    latestMoverIndex = i;
+                }
             });
+            window.__leaderboardLatestMoverIndex = latestMoverIndex;
 
             arrData.forEach((r, i) => {
-                let prevIndex = undefined;
-                if (r && r.id && Object.prototype.hasOwnProperty.call(prevIndexMap, `id:${r.id}`)) prevIndex = prevIndexMap[`id:${r.id}`];
-                else if (r && r.name && Object.prototype.hasOwnProperty.call(prevNameMap, `name:${String(r.name).toLowerCase()}`)) prevIndex = prevNameMap[`name:${String(r.name).toLowerCase()}`];
-
                 let symbol = '—';
                 let className = 'text-gray-400';
                 let title = 'Posisi tetap';
-                if (typeof prevIndex === 'undefined') {
-                    if (previousState.length > 0 && i < arrData.length - 1) {
-                        symbol = '★▲';
+                if (latestMoverIndex >= 0) {
+                    if (i === latestMoverIndex) {
+                        symbol = arrData.length > 1 ? '★▲' : '★';
                         className = 'text-blue-500';
-                        title = 'Pemain baru naik peringkat';
-                    } else if (previousState.length > 0) {
-                        symbol = '★';
-                        className = 'text-blue-500';
-                        title = 'Pemain baru';
-                    } else {
-                        symbol = '—';
-                        className = 'text-gray-400';
-                        title = 'Belum ada pembanding';
+                        title = 'Pemain terbaru';
+                    } else if (i > latestMoverIndex) {
+                        symbol = '▼';
+                        className = 'text-red-600';
+                        title = 'Turun peringkat';
                     }
-                } else if (i < prevIndex) {
-                    symbol = '▲';
-                    className = 'text-green-600';
-                    title = 'Naik peringkat';
-                } else if (i > prevIndex) {
-                    symbol = '▼';
-                    className = 'text-red-600';
-                    title = 'Turun peringkat';
                 }
                 r.__movement = { symbol, className, title };
                 r.secondaryProgress = computeSecondaryProgress(r, i + 1);
             });
 
             // Cache latest leaderboard data so other parts of the app can re-render immediately
-            const hasPreviousSnapshot = previousState.length > 0;
-            window.__leaderboardComparisonReady = hasPreviousSnapshot;
-            if (!window.__leaderboardSnapshotReady) {
-                window.__prevLeaderboardState = [];
-                window.__leaderboardSnapshotReady = true;
-            } else {
-                window.__prevLeaderboardState = previousState;
-            }
             window.__currentLeaderboardState = arrData.slice();
             window.__latestLeaderboardData = arrData;
-            window.__prevLeaderboardIndexMap = {};
             window.__currentLeaderboardIndexMap = {};
             arrData.forEach((r, i) => {
                 if (r && r.id) window.__currentLeaderboardIndexMap[`id:${r.id}`] = i;
