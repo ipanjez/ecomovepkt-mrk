@@ -420,6 +420,7 @@
                 <p id="timer-text" class="text-lg md:text-xl font-bold text-pktOrange">00:00</p>
                 <div class="flex items-center gap-1.5">
                     <button id="pause-btn" type="button" onclick="togglePause()" class="text-[0.65rem] md:text-xs font-bold px-2 py-1 rounded-md bg-blue-50 text-pktBlue border border-blue-100 hover:bg-blue-100 transition">⏸ Pause</button>
+                    <button id="restart-btn" type="button" onclick="restartGame()" class="text-[0.65rem] md:text-xs font-bold px-2 py-1 rounded-md bg-red-50 text-red-600 border border-red-100 hover:bg-red-100 transition">↺ Restart</button>
                     <button id="mute-btn" type="button" onclick="toggleMute()" class="text-[0.65rem] md:text-xs font-bold px-2 py-1 rounded-md bg-orange-50 text-pktOrange border border-orange-100 hover:bg-orange-100 transition">🔊 Sound</button>
                 </div>
             </div>
@@ -1648,6 +1649,26 @@
                 pauseBtn.textContent = '⏸ Pause';
                 pauseBtn.className = 'text-xs font-bold px-2 py-1 rounded-md bg-blue-50 text-pktBlue border border-blue-100 hover:bg-blue-100 transition';
             }
+        }
+
+        function restartGame() {
+            if (!gameState.isPlaying) return;
+            if (!confirm('Restart permainan? Skor sesi ini TIDAK akan disimpan.')) return;
+            // Mark as aborted so we don't accidentally save
+            gameState.aborted = true;
+            gameState.isPlaying = false;
+            gameState.paused = false;
+            clearInterval(gameState.timerInterval);
+            // clean up UI overlays
+            const pauseOverlay = document.getElementById('pause-overlay'); if (pauseOverlay) pauseOverlay.classList.add('hidden');
+            // reset some runtime fields
+            gameState.timeLeft = 0;
+            // reset current session id so saveToCloudDb won't use it
+            try { gameState.currentSessionId = null; } catch(e) {}
+            // stop any sounds
+            try { if (audioCtx && audioCtx.state === 'running') audioCtx.suspend(); } catch(e) {}
+            // show start screen
+            showStartScreen();
         }
 
         function toggleMute() {
