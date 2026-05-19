@@ -649,8 +649,8 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
           </div>
         </div>
         <div class="chip-row mb-2">
-          <label class="filter-chip mode-ranked"><input type="radio" name="lb-mode" value="ranked" checked onchange="setLbMode('ranked')"><span>Leaderboard Ranked</span></label>
-          <label class="filter-chip mode-curriculum"><input type="radio" name="lb-mode" value="curriculum" onchange="setLbMode('curriculum')"><span>Leaderboard Kurikulum</span></label>
+          <label class="filter-chip mode-ranked"><input type="radio" name="lb-mode" value="ranked" checked onchange="setLbMode('ranked')"><span>Mode Ranked</span></label>
+          <label class="filter-chip mode-curriculum"><input type="radio" name="lb-mode" value="curriculum" onchange="setLbMode('curriculum')"><span>Mode Kurikulum</span></label>
         </div>
         <div class="chip-row mb-3" id="lb-filter-row">
           <label class="filter-chip"><input type="radio" name="lb-filter" value="All" checked onchange="setLbFilter(this.value)"><span>All</span></label>
@@ -749,7 +749,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
         </ul>
         <p class="text-xs mb-2"><b>Badge Bonus</b> dapat muncul bersamaan dengan badge utama. Kriteria utama:</p>
         <ul class="list-disc pl-5 space-y-1 text-xs">
-          <li><b>Top 10</b>: berada dalam peringkat 10 besar leaderboard ranked.</li>
+          <li><b>Top 10</b>: berada dalam peringkat 10 besar leaderboard mode ranked.</li>
           <li><b>Versatile</b>: akurasi setiap kategori seimbang, selisih antar-kategori ≤15%, dan minimal 70% di semua kategori.</li>
           <li><b>Rising Star</b>: skor sesi ini naik ≥75 poin dibanding personal best sebelumnya.</li>
           <li><b>Daily Challenger</b>: menyelesaikan target daily challenge hari ini.</li>
@@ -795,8 +795,8 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
       <button onclick="closeLbModal()" class="text-gray-400 hover:text-red-500 text-2xl font-bold leading-none">&times;</button>
     </div>
     <div class="chip-row mb-2">
-      <label class="filter-chip mode-ranked"><input type="radio" name="lb-prev-mode" value="ranked" checked onchange="setLbPrevMode('ranked')"><span>Leaderboard Ranked</span></label>
-      <label class="filter-chip mode-curriculum"><input type="radio" name="lb-prev-mode" value="curriculum" onchange="setLbPrevMode('curriculum')"><span>Leaderboard Kurikulum</span></label>
+      <label class="filter-chip mode-ranked"><input type="radio" name="lb-prev-mode" value="ranked" checked onchange="setLbPrevMode('ranked')"><span>Mode Ranked</span></label>
+      <label class="filter-chip mode-curriculum"><input type="radio" name="lb-prev-mode" value="curriculum" onchange="setLbPrevMode('curriculum')"><span>Mode Kurikulum</span></label>
     </div>
     <div class="chip-row mb-3" id="lb-prev-filter-row">
       <label class="filter-chip"><input type="radio" name="lb-prev-filter" value="All" checked onchange="setPrevFilter(this.value)"><span>All</span></label>
