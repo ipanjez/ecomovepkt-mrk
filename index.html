@@ -1886,8 +1886,9 @@ DB.ref('leaderboard').on('value', snap=>{
   try {
     const posEl=document.getElementById('lb-position-label');
     if(posEl) {
-      const myIdx=lbCache.findIndex(r=>r.id===GS.currentSessionId);
-      posEl.textContent=myIdx>=0?`#${myIdx+1} dari ${lbCache.length} pemain`:`– dari ${lbCache.length} pemain`;
+      const filtered = filterLb(lbCache, lbFilter, lbMode);
+      const myIdx=filtered.findIndex(r=>r.id===GS.currentSessionId);
+      posEl.textContent=myIdx>=0?`#${myIdx+1} dari ${filtered.length} pemain`:`– dari ${filtered.length} pemain`;
     }
   } catch(e){}
 
@@ -2044,6 +2045,8 @@ function renderLbTable() {
   }
 
   const myIdx=filtered.findIndex(r=>r.id===GS.currentSessionId);
+  const posEl=document.getElementById('lb-position-label');
+  if(posEl) posEl.textContent=myIdx>=0?`#${myIdx+1} dari ${filtered.length} pemain`:`– dari ${filtered.length} pemain`;
   if(document.getElementById('final-rank')) document.getElementById('final-rank').textContent=myIdx>=0?`#${myIdx+1}`:'–';
   renderLbMeta();
 
@@ -2258,13 +2261,14 @@ function updateNameHint() {
   const name=(document.getElementById('player-name').value||'').trim();
   if(!name) { el.textContent=''; return; }
   const key='name:'+name.toLowerCase();
-  if(lbIndexMap[key]!==undefined) {
-    const idx=lbIndexMap[key];
-    const rec=lbCache[idx];
+  const filtered=filterLb(lbCache, lbFilter, lbMode);
+  const idx = filtered.findIndex(r=>r.name&&r.name.toLowerCase()===name.toLowerCase());
+  if(idx>=0) {
+    const rec=filtered[idx];
     const primary=computePrimaryBadge(rec.score||0,rec.accuracy||0,rec.bestCombo||0,rec.attempts||0);
-    el.innerHTML=`✅ Ditemukan di leaderboard: <b>#${idx+1}</b> dari <b>${lbCache.length}</b> — <span class="font-bold">${escHtml(formatBadge(primary))}</span>`;
+    el.innerHTML=`✅ Ditemukan di leaderboard: <b>#${idx+1}</b> dari <b>${filtered.length}</b> pemain — <span class="font-bold">${escHtml(formatBadge(primary))}</span>`;
   } else {
-    el.textContent=`Belum ada di leaderboard. Total: ${lbCache.length} pemain.`;
+    el.textContent=`Belum ada di leaderboard. Total: ${filtered.length} pemain.`;
   }
 }
 
