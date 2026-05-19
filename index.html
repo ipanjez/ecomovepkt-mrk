@@ -62,6 +62,25 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
   min-height:130px;height:min(27vh,190px);
 }
 
+/* ─── CURRICULUM BUTTONS (2 pilihan) ─── */
+.curriculum-buttons{
+  display:flex;gap:16px;justify-content:center;align-items:center;
+  padding:12px;background:rgba(255,255,255,0.95);border-top:1px solid #e2e8f0;
+  min-height:100px;
+}
+.curriculum-btn{
+  flex:1;max-width:180px;border-radius:32px;padding:12px 8px;
+  font-weight:900;font-size:1rem;border:none;cursor:pointer;
+  transition:transform 0.1s,box-shadow 0.1s;
+}
+.curriculum-btn:active{transform:scale(0.96);}
+.btn-match{background:linear-gradient(135deg,#7AB800,#5e9000);color:white;box-shadow:0 4px 12px rgba(122,184,0,0.3);}
+.btn-notmatch{background:linear-gradient(135deg,#F37021,#d65c0a);color:white;box-shadow:0 4px 12px rgba(243,112,33,0.3);}
+.curriculum-focus-badge{
+  background:#005B9F;color:white;border-radius:40px;padding:4px 12px;
+  font-size:0.7rem;font-weight:800;display:inline-block;margin-bottom:6px;
+}
+
 /* ─── TRASH CARD ─── */
 #trash-container{
   background:white;border-radius:20px;border:2px solid #e2e8f0;
@@ -484,6 +503,9 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
     <!-- eco tip strip -->
     <div id="eco-tip-strip" class="text-[0.62rem] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-100 rounded-lg px-3 py-1.5 w-full" style="width:min(86vw,300px);max-width:300px;text-align:center;line-height:1.35;"></div>
 
+    <!-- curriculum focus display (hanya muncul di mode kurikulum) -->
+    <div id="curriculum-focus-badge" class="curriculum-focus-badge hidden"></div>
+
     <!-- trash card -->
     <div id="trash-container">
       <div id="trash-emoji" class="text-5xl mb-2 drop-shadow-md transition-transform hover:scale-110" style="line-height:1">🗑️</div>
@@ -504,8 +526,8 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
     </div>
   </main>
 
-  <!-- ROW 4: Bins -->
-  <div class="game-bins">
+  <!-- ROW 4: Bins (normal mode) & curriculum buttons (akan diganti dinamis) -->
+  <div class="game-bins" id="game-bins-container">
     <button onclick="checkBin('SISA MAKANAN')" class="bin bg-gradient-to-t from-green-200 to-green-50 border-b-[5px] border-pktGreen">
       <span class="text-3xl opacity-60">🍏</span>
       <h3 class="font-black text-pktGreen text-[0.65rem] sm:text-xs bg-white/75 px-2 py-1 rounded-lg border border-green-100 text-center leading-tight">SISA<br>MAKANAN</h3>
@@ -624,7 +646,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
               </tr>
             </thead>
             <tbody id="lb-body">
-              <tr><td colspan="8" class="text-center py-4 text-gray-400 text-xs">Memuat data real-time...</td></tr>
+              <tr><td colspan="8" class="text-center py-4 text-gray-400 text-xs">Memuat data real-time......</td></tr>
             </tbody>
           </table>
         </div>
@@ -677,7 +699,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
       </div>
       <div>
         <h3 class="font-black text-gray-900 mb-1.5 border-l-4 border-pktOrange pl-3">📚 Mode Kurikulum</h3>
-        <p class="text-xs">Latihan fokus per kategori. Pilih SISA MAKANAN, LAKU JUAL, atau RESIDU untuk hanya melihat item dari kategori itu. Setelah mahir, coba mode CAMPURAN. Progress disimpan otomatis.</p>
+        <p class="text-xs">Latihan fokus per kategori. Pilih SISA MAKANAN, LAKU JUAL, atau RESIDU sebagai fokus. Pemain akan mendapat sampah acak dari semua kategori dan harus memutuskan apakah sampah tersebut SESUAI dengan fokus yang dipilih (2 pilihan: Sesuai / Tidak Sesuai). Skor tidak masuk leaderboard.</p>
       </div>
       <div>
         <h3 class="font-black text-gray-900 mb-1.5 border-l-4 border-yellow-400 pl-3">⚡ Combo & Poin</h3>
@@ -736,7 +758,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
           </tr>
         </thead>
         <tbody id="lb-prev-body">
-          <tr><td colspan="8" class="text-center py-4 text-gray-400 text-xs">Memuat leaderboard...</td></tr>
+          <tr><td colspan="8" class="text-center py-4 text-gray-400 text-xs">Memuat leaderboard......</td></tr>
         </tbody>
       </table>
     </div>
@@ -785,7 +807,8 @@ let GS = {
   combo:0, bestCombo:0, previousBest:0,
   categoryStats:{ 'LAKU JUAL':{correct:0,total:0}, 'SISA MAKANAN':{correct:0,total:0}, 'RESIDU':{correct:0,total:0} },
   curriculumFilter:null, // null = mixed, or 'SISA MAKANAN'/'LAKU JUAL'/'RESIDU'
-  isCurriculum:false
+  isCurriculum:false,
+  curriculumFocus:null  // fokus kategori untuk mode kurikulum (SISA MAKANAN/LAKU JUAL/RESIDU)
 };
 
 let selectedDiff = null;
@@ -1030,7 +1053,18 @@ function startCurriculumGame() {
   if(!currSelectedCategory||!currDiff||!name) { errEl.classList.remove('hidden'); return; }
   errEl.classList.add('hidden');
   GS.isCurriculum=true;
-  GS.curriculumFilter=currSelectedCategory==='MIXED'?null:currSelectedCategory;
+  // set fokus kurikulum: jika pilih MIXED, fokus null (berarti semua campuran tapi tetap pakai 2 pilihan? tidak, MIXED berarti semua kategori, tapi fokus null akan membuat game biasa?
+  // Aturan: jika MIXED, maka mode kurikulum berjalan seperti biasa (3 pilihan) tapi tidak masuk leaderboard.
+  // Karena permintaan: "bukan memilih dari 3 pilihan" untuk mode kurikulum, maka kami akan terapkan 2 pilihan hanya jika kategori fokus bukan MIXED.
+  if (currSelectedCategory === 'MIXED') {
+    // Mixed: tetap 3 bins tapi tidak masuk leaderboard
+    GS.curriculumFocus = null;
+    GS.curriculumFilter = null;
+  } else {
+    // Fokus kategori: 2 pilihan (Sesuai/Tidak Sesuai)
+    GS.curriculumFocus = currSelectedCategory;
+    GS.curriculumFilter = null; // tidak memfilter trash, semua muncul
+  }
   playSound('start');
   startGame(currDiff.time, currDiff.name, name, true);
 }
@@ -1072,7 +1106,7 @@ function attemptStart() {
   const err=document.getElementById('start-error');
   if(!name||!selectedDiff) { err.classList.remove('hidden'); return; }
   err.classList.add('hidden');
-  GS.isCurriculum=false; GS.curriculumFilter=null;
+  GS.isCurriculum=false; GS.curriculumFilter=null; GS.curriculumFocus=null;
   try { localStorage.setItem('eco_player_name',name); } catch(e){}
   playSound('start');
   startGame(selectedDiff.time, selectedDiff.name, name, false);
@@ -1087,7 +1121,7 @@ function startGame(time, diff, name, isCurriculum) {
     timerInterval:null, currentTrash:null, totalAnswered:0, correctAnswers:0,
     isPlaying:true, paused:false, currentSessionId:null, combo:0, bestCombo:0, previousBest:0,
     categoryStats:{'LAKU JUAL':{correct:0,total:0},'SISA MAKANAN':{correct:0,total:0},'RESIDU':{correct:0,total:0}},
-    isCurriculum, curriculumFilter: GS.curriculumFilter
+    isCurriculum, curriculumFilter: GS.curriculumFilter, curriculumFocus: GS.curriculumFocus
   };
   sessionQueue=[]; sessionAsked=new Set();
   nearestRival=null; nearestRivalReached=false;
@@ -1101,7 +1135,13 @@ function startGame(time, diff, name, isCurriculum) {
   // UI
   document.getElementById('game-player-label').textContent=name+(isCurriculum?' [Kurikulum]':'');
   const modeMap={'Easy':'Bumi Lestari','Medium':'Eko Aktif','Hard':'Penjaga Bumi'};
-  document.getElementById('game-mode-label').textContent=(modeMap[diff]||diff)+(GS.curriculumFilter?' – '+GS.curriculumFilter:'');
+  let modeText = (modeMap[diff]||diff);
+  if (isCurriculum && GS.curriculumFocus) {
+    modeText = `Kurikulum: ${GS.curriculumFocus}`;
+  } else if (isCurriculum && !GS.curriculumFocus) {
+    modeText = 'Kurikulum Campuran';
+  }
+  document.getElementById('game-mode-label').textContent=modeText;
   document.getElementById('curr-mode-label').classList.toggle('hidden',!isCurriculum);
   document.getElementById('score-display').textContent='0';
   document.getElementById('streak-display').textContent='Combo x0';
@@ -1111,6 +1151,18 @@ function startGame(time, diff, name, isCurriculum) {
   document.getElementById('rival-strip').textContent='⚡ Mulai jawab!';
   document.getElementById('combo-display').style.opacity='0';
   document.getElementById('eco-tip-strip').textContent='Pilah sampah dari sumber untuk kurangi beban TPA.';
+
+  // Tampilkan badge fokus kurikulum jika perlu
+  const focusBadge = document.getElementById('curriculum-focus-badge');
+  if (isCurriculum && GS.curriculumFocus) {
+    focusBadge.textContent = `🎯 Fokus: ${GS.curriculumFocus}`;
+    focusBadge.classList.remove('hidden');
+  } else {
+    focusBadge.classList.add('hidden');
+  }
+
+  // Setup UI untuk mode kurikulum (2 pilihan) atau normal (3 bins)
+  setupGameUI();
 
   const pauseOv=document.getElementById('pause-overlay');
   pauseOv.classList.remove('visible');
@@ -1126,6 +1178,85 @@ function startGame(time, diff, name, isCurriculum) {
     updateTimerUI();
     if(GS.timeLeft<=0) endGame();
   },1000);
+}
+
+function setupGameUI() {
+  const binsContainer = document.getElementById('game-bins-container');
+  const existingCurriculumDiv = document.getElementById('curriculum-buttons-container');
+  if (existingCurriculumDiv) existingCurriculumDiv.remove();
+  
+  if (GS.isCurriculum && GS.curriculumFocus) {
+    // Sembunyikan 3 bins, tampilkan 2 tombol
+    binsContainer.style.display = 'none';
+    const newDiv = document.createElement('div');
+    newDiv.id = 'curriculum-buttons-container';
+    newDiv.className = 'curriculum-buttons';
+    newDiv.innerHTML = `
+      <button id="curr-match-btn" class="curriculum-btn btn-match">✅ Sesuai</button>
+      <button id="curr-notmatch-btn" class="curriculum-btn btn-notmatch">❌ Tidak Sesuai</button>
+    `;
+    binsContainer.parentNode.appendChild(newDiv);
+    document.getElementById('curr-match-btn').onclick = () => handleCurriculumAnswer(true);
+    document.getElementById('curr-notmatch-btn').onclick = () => handleCurriculumAnswer(false);
+  } else {
+    binsContainer.style.display = 'grid';
+    const existing = document.getElementById('curriculum-buttons-container');
+    if (existing) existing.remove();
+  }
+}
+
+function handleCurriculumAnswer(userSaysMatch) {
+  if(!GS.isPlaying||GS.paused||!GS.currentTrash) return;
+  try { if(audioCtx.state==='suspended') audioCtx.resume(); } catch(e){}
+  
+  const actualMatch = (GS.currentTrash.c === GS.curriculumFocus);
+  const isCorrect = (userSaysMatch === actualMatch);
+  
+  GS.totalAnswered++;
+  const tc = GS.currentTrash.c;
+  GS.categoryStats[tc].total++;
+  
+  if (isCorrect) {
+    playSound('correct');
+    GS.combo++;
+    GS.bestCombo = Math.max(GS.bestCombo, GS.combo);
+    GS.correctAnswers++;
+    GS.categoryStats[tc].correct++;
+    document.getElementById('streak-display').textContent = `Combo x${GS.bestCombo}`;
+    
+    let base = {'Easy':10,'Medium':15,'Hard':20}[GS.difficulty] || 10;
+    const mult = Math.min(GS.combo, 3);
+    const pts = base * mult;
+    GS.score += pts;
+    
+    const cd = document.getElementById('combo-display');
+    if(GS.combo>1) {
+      cd.textContent = `${GS.combo}x COMBO!`;
+      cd.style.opacity = '1'; cd.style.transform = 'translate(-50%,-50%) scale(1)';
+      setTimeout(()=>{ cd.style.opacity = '0'; cd.style.transform = 'translate(-50%,-50%) scale(0.5)'; },700);
+    }
+    
+    const tc2 = document.getElementById('trash-container');
+    tc2.classList.add('anim-toss');
+    showFeedback(`+${pts}${mult>1?' ('+mult+'x)':''}`, 'text-green-500');
+    setTimeout(()=>{ tc2.classList.remove('anim-toss'); spawnTrash(); },320);
+    checkRival();
+  } else {
+    playSound('wrong');
+    GS.combo = 0;
+    GS.timeLeft = Math.max(0, GS.timeLeft-5);
+    document.getElementById('trash-name').classList.add('anim-shake');
+    showFeedback('-5s', 'text-red-500');
+    setTimeout(()=>{ 
+      document.getElementById('trash-name').classList.remove('anim-shake'); 
+      updateTimerUI(); 
+      spawnTrash(); 
+    },420);
+  }
+  
+  updateScoreUI();
+  updateTimerUI();
+  updateMissionUI();
 }
 
 function getDifficultyDisplayName(d) {
@@ -1166,9 +1297,8 @@ function restartGame() {
 }
 
 function buildQueue() {
-  const pool = GS.curriculumFilter
-    ? trashData.map((t,i)=>i).filter(i=>trashData[i].c===GS.curriculumFilter)
-    : trashData.map((_,i)=>i);
+  // Untuk mode kurikulum dengan fokus, kita ambil dari semua data (tanpa filter) karena 2 pilihan
+  const pool = trashData.map((_,i)=>i);
   const q=[...pool];
   for(let i=q.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [q[i],q[j]]=[q[j],q[i]]; }
   return q;
@@ -1340,8 +1470,13 @@ function endGame() {
   // Learning report
   renderLearningReport();
 
-  // Save to DB
-  saveToDb(acc, wrong);
+  // Save to DB hanya jika BUKAN mode kurikulum atau jika mode kurikulum tapi campuran? Permintaan: mode kurikulum tidak dimasukkan leaderboard. Jadi skip.
+  if (!GS.isCurriculum) {
+    saveToDb(acc, wrong);
+  } else {
+    // Jika kurikulum campuran (mixed) sekalipun, tidak disimpan.
+    console.log("Mode kurikulum: skor tidak disimpan ke leaderboard.");
+  }
 
   // Game over popup
   showGameOverPopup();
@@ -1422,12 +1557,12 @@ function saveToDb(acc, wrong) {
 
     const payload={
       name:GS.playerName, score:GS.score,
-      difficulty:GS.isCurriculum?('curriculum-'+(GS.curriculumFilter||'mixed')):GS.difficulty,
+      difficulty:GS.isCurriculum?('curriculum-'+(GS.curriculumFocus||'mixed')):GS.difficulty,
       timestamp:firebase.database.ServerValue.TIMESTAMP,
       attempts, total:GS.totalAnswered, correct:GS.correctAnswers, wrong,
       accuracy:acc, bestCombo:GS.bestCombo, categoryStats:merged,
       previousBest:ex?ex.score||0:0, secondaryBadges:secBadges,
-      isCurriculum:GS.isCurriculum, curriculumFilter:GS.curriculumFilter||null
+      isCurriculum:GS.isCurriculum, curriculumFilter:GS.curriculumFocus||null
     };
 
     if(!ex||GS.score>=ex.score) {
@@ -1561,12 +1696,13 @@ const BADGE_ORD={'Bronze':1,'Silver':2,'Gold':3,'Platinum':4,'Epic':5,'Grandmast
 function formatBadge(primary) { const o=BADGE_ORD[primary]||1; return `*${o} ${primary}`; }
 
 // ──────────────────────────────────────────
-//  LEADERBOARD RENDERING
+//  LEADERBOARD RENDERING (Filter exclude curriculum)
 // ──────────────────────────────────────────
 function filterLb(data, filter) {
-  if(!filter||filter==='All') return data;
-  if(filter==='Kurikulum') return data.filter(r=>r&&r.isCurriculum);
+  if(!filter||filter==='All') return data.filter(r=>!r.isCurriculum); // exclude curriculum from All
+  if(filter==='Kurikulum') return data.filter(r=>r.isCurriculum===true);
   return data.filter(r=>{
+    if(r.isCurriculum) return false;
     const d=r&&r.difficulty?r.difficulty:'';
     if(d.startsWith('curriculum-')) return false;
     return getDifficultyDisplayName(d)===filter;
@@ -1586,7 +1722,7 @@ function renderLbTable() {
     tbody.innerHTML='<tr><td colspan="8" class="text-center py-4 text-gray-400 text-xs">Belum ada skor.</td></tr>'; return;
   }
 
-  const myIdx=lbCache.findIndex(r=>r.id===GS.currentSessionId);
+  const myIdx=lbCache.findIndex(r=>r.id===GS.currentSessionId && !r.isCurriculum);
   if(document.getElementById('final-rank')) document.getElementById('final-rank').textContent=myIdx>=0?`#${myIdx+1}`:'–';
 
   filtered.forEach((r,i)=>{
@@ -1625,7 +1761,7 @@ function renderLbTable() {
 
   // render final badge section
   if(GS.currentSessionId) {
-    const myRec=lbCache.find(r=>r.id===GS.currentSessionId);
+    const myRec=lbCache.find(r=>r.id===GS.currentSessionId && !r.isCurriculum);
     if(myRec) renderFinalBadges(myRec);
   }
 }
@@ -1751,9 +1887,9 @@ function updateNameHint() {
 // ──────────────────────────────────────────
 document.addEventListener('keydown', e=>{
   const k=e.key.toLowerCase();
-  if(k==='1') checkBin('SISA MAKANAN');
-  else if(k==='2') checkBin('LAKU JUAL');
-  else if(k==='3') checkBin('RESIDU');
+  if(k==='1') { if (!GS.isCurriculum || !GS.curriculumFocus) checkBin('SISA MAKANAN'); else document.getElementById('curr-match-btn')?.click(); }
+  else if(k==='2') { if (!GS.isCurriculum || !GS.curriculumFocus) checkBin('LAKU JUAL'); else document.getElementById('curr-notmatch-btn')?.click(); }
+  else if(k==='3') { if (!GS.isCurriculum || !GS.curriculumFocus) checkBin('RESIDU'); }
   else if(k==='p') togglePause();
   else if(k==='m') toggleMute();
 });
