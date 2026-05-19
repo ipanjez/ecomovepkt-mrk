@@ -1735,10 +1735,10 @@ async function endGame() {
 
   await saveToDb(acc, wrong);
 
+  setLbMode(GS.isCurriculum ? 'curriculum' : 'ranked');
   showGameOverPopup();
   showScreen('end');
 
-  renderLbTable();
   setTimeout(()=>renderLbTable(), 800);
   setTimeout(()=>renderLbTable(), 2500);
 }
@@ -2003,6 +2003,7 @@ function setPrevFilter(v) { lbPrevFilter=v||'All'; renderLbPrev(); }
 function setLbMode(v) {
   lbMode = v==='curriculum' ? 'curriculum' : 'ranked';
   lbFilter = 'All';
+  document.querySelectorAll('input[name="lb-mode"]').forEach(input => input.checked = input.value === lbMode);
   renderLbFilterChips();
   renderLbTable();
 }
@@ -2010,6 +2011,7 @@ function setLbMode(v) {
 function setLbPrevMode(v) {
   lbPrevMode = v==='curriculum' ? 'curriculum' : 'ranked';
   lbPrevFilter = 'All';
+  document.querySelectorAll('input[name="lb-prev-mode"]').forEach(input => input.checked = input.value === lbPrevMode);
   renderLbPrevFilterChips();
   renderLbPrev();
 }
