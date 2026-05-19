@@ -103,6 +103,9 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
 }
 .bin:hover{transform:translateY(-3px);box-shadow:0 8px 18px rgba(0,0,0,0.12);}
 .bin:active{transform:scale(0.92);}
+.bin.drag-over{outline:2px dashed rgba(16,185,129,0.95);transform:scale(1.02);}
+.curriculum-btn.drag-over{outline:2px dashed rgba(59,130,246,0.95);transform:scale(1.02);}
+#trash-container.dragging{opacity:0.88;box-shadow:0 24px 48px rgba(0,0,0,0.18);}
 
 /* ─── ANIMATIONS ─── */
 @keyframes toss{
@@ -528,15 +531,15 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
 
   <!-- ROW 4: Bins (normal mode) & curriculum buttons (akan diganti dinamis) -->
   <div class="game-bins" id="game-bins-container">
-    <button onclick="checkBin('SISA MAKANAN')" class="bin bg-gradient-to-t from-green-200 to-green-50 border-b-[5px] border-pktGreen">
+    <button onclick="checkBin('SISA MAKANAN')" class="bin bg-gradient-to-t from-green-200 to-green-50 border-b-[5px] border-pktGreen" data-category="SISA MAKANAN">
       <span class="text-3xl opacity-60">🍏</span>
       <h3 class="font-black text-pktGreen text-[0.65rem] sm:text-xs bg-white/75 px-2 py-1 rounded-lg border border-green-100 text-center leading-tight">SISA<br>MAKANAN</h3>
     </button>
-    <button onclick="checkBin('LAKU JUAL')" class="bin bg-gradient-to-t from-orange-200 to-orange-50 border-b-[5px] border-pktOrange">
+    <button onclick="checkBin('LAKU JUAL')" class="bin bg-gradient-to-t from-orange-200 to-orange-50 border-b-[5px] border-pktOrange" data-category="LAKU JUAL">
       <span class="text-3xl opacity-60">♻️</span>
       <h3 class="font-black text-pktOrange text-[0.65rem] sm:text-xs bg-white/75 px-2 py-1 rounded-lg border border-orange-100 text-center leading-tight">LAKU<br>JUAL</h3>
     </button>
-    <button onclick="checkBin('RESIDU')" class="bin bg-gradient-to-t from-blue-200 to-blue-50 border-b-[5px] border-pktBlue">
+    <button onclick="checkBin('RESIDU')" class="bin bg-gradient-to-t from-blue-200 to-blue-50 border-b-[5px] border-pktBlue" data-category="RESIDU">
       <span class="text-3xl opacity-60">🗑️</span>
       <h3 class="font-black text-pktBlue text-[0.65rem] sm:text-xs bg-white/75 px-2 py-1 rounded-lg border border-blue-100 text-center leading-tight">RESIDU</h3>
     </button>
@@ -708,12 +711,14 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
         <ul class="list-decimal pl-5 space-y-1 text-xs">
           <li>Masukkan nama, pilih level atau mode kurikulum, lalu tekan Mulai.</li>
           <li>Tebak kategori sampah yang muncul: <b>Sisa Makanan</b>, <b>Laku Jual</b>, atau <b>Residu</b>.</li>
+          <li>Kamu bisa memilih jawaban dengan <b>klik</b> atau dengan <b>drag</b> kartu sampah ke opsi yang tepat.</li>
           <li class="text-red-600 font-bold">Salah = waktu berkurang 5 detik & combo reset.</li>
         </ul>
       </div>
       <div>
         <h3 class="font-black text-gray-900 mb-1.5 border-l-4 border-pktOrange pl-3">📚 Mode Kurikulum</h3>
         <p class="text-xs">Latihan fokus per kategori. Pilih SISA MAKANAN, LAKU JUAL, atau RESIDU sebagai fokus. Pemain akan mendapat sampah acak dari semua kategori dan harus memutuskan apakah sampah tersebut SESUAI dengan fokus yang dipilih (2 pilihan: Sesuai / Tidak Sesuai).</p>
+        <p class="text-xs mt-1">Kamu dapat menjawab dengan menekan tombol atau menyeret kartu sampah ke pilihan <b>✅ Sesuai</b> atau <b>❌ Tidak Sesuai</b>.</p>
       </div>
       <div>
         <h3 class="font-black text-gray-900 mb-1.5 border-l-4 border-yellow-400 pl-3">⚡ Combo & Poin</h3>
@@ -721,9 +726,18 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
       </div>
       <div>
         <h3 class="font-black text-gray-900 mb-1.5 border-l-4 border-purple-500 pl-3">🏅 Badge Sistem</h3>
-        <p class="text-xs mb-2"><b>Badge Utama</b> (skor komposit 0–100): Bronze → Silver → Gold → Platinum → Epic → Grandmaster → Diamond → Legend → Master → Immortal.</p>
-        <p class="text-xs mb-2"><b>Badge Bonus</b> (bisa kombinasi): Top 10, Versatile, Rising Star, <b>Daily Challenger</b> (selesaikan daily challenge).</p>
-        <p class="text-xs"><b>Streak Badge</b>: Hot Streak (3+ hari), Week Warrior (7+), Monthly Master (30+). Tampil sebagai tag #HotStreak dsb.</p>
+        <p class="text-xs mb-2"><b>Badge Utama</b> dihitung dari skor, akurasi, combo, dan jumlah percobaan. Rangkingnya: Bronze → Silver → Gold → Platinum → Epic → Grandmaster → Diamond → Legend → Master → Immortal.</p>
+        <p class="text-xs mb-2"><b>Badge Bonus</b> dapat dikombinasikan. Cara dapatkan:</p>
+        <ul class="list-disc pl-5 space-y-1 text-xs">
+          <li><b>Top 10</b>: Masuk peringkat 10 besar leaderboard ranked.</li>
+          <li><b>Versatile</b>: Akurasi semua kategori seimbang (spread ≤15%) dan minimal 70% di masing-masing.</li>
+          <li><b>Rising Star</b>: Skor naik setidaknya 75 poin dari personal best sebelumnya.</li>
+          <li><b>Daily Challenger</b>: Selesaikan daily challenge hari ini.</li>
+          <li><b>Accuracy Ace</b>: Akurasi ≥95% dengan minimal 20 jawaban benar.</li>
+          <li><b>Combo King</b>: Mencapai combo x10 atau lebih.</li>
+          <li><b>Category Master</b>: 100% benar dalam satu kategori setidaknya 5 jawaban.</li>
+        </ul>
+        <p class="text-xs"><b>Streak Badge</b>: Hot Streak (3+ hari berturut-turut), Week Warrior (7+), Monthly Master (30+). Tampil sebagai tag #HotStreak dsb.</p>
       </div>
       <div>
         <h3 class="font-black text-gray-900 mb-1.5 border-l-4 border-emerald-500 pl-3">🔥 Daily Challenge & Streak</h3>
@@ -1224,6 +1238,7 @@ function startGame(time, diff, name, isCurriculum) {
   }
 
   setupGameUI();
+  initTrashDragSupport();
 
   const pauseOv=document.getElementById('pause-overlay');
   pauseOv.classList.remove('visible');
@@ -1252,8 +1267,8 @@ function setupGameUI() {
     newDiv.id = 'curriculum-buttons-container';
     newDiv.className = 'curriculum-buttons';
     newDiv.innerHTML = `
-      <button id="curr-match-btn" class="curriculum-btn btn-match">✅ Sesuai</button>
-      <button id="curr-notmatch-btn" class="curriculum-btn btn-notmatch">❌ Tidak Sesuai</button>
+      <button id="curr-match-btn" class="curriculum-btn btn-match" data-match-action="match">✅ Sesuai</button>
+      <button id="curr-notmatch-btn" class="curriculum-btn btn-notmatch" data-match-action="notmatch">❌ Tidak Sesuai</button>
     `;
     binsContainer.parentNode.appendChild(newDiv);
     document.getElementById('curr-match-btn').onclick = () => handleCurriculumAnswer(true);
@@ -1263,6 +1278,7 @@ function setupGameUI() {
     const existing = document.getElementById('curriculum-buttons-container');
     if (existing) existing.remove();
   }
+  setupDragTargets();
 }
 
 function handleCurriculumAnswer(userSaysMatch) {
@@ -1458,6 +1474,117 @@ function showFeedback(text, colorClass) {
 function updateScoreUI() {
   document.getElementById('score-display').textContent=GS.score;
   updateRivalStrip();
+}
+
+function setupDragTargets() {
+  const bins = document.querySelectorAll('.bin');
+  bins.forEach(bin=>{
+    bin.addEventListener('dragover', onDragOver);
+    bin.addEventListener('drop', onDropBin);
+    bin.addEventListener('dragleave', () => bin.classList.remove('drag-over'));
+  });
+  const currBtns = document.querySelectorAll('.curriculum-btn');
+  currBtns.forEach(btn=>{
+    btn.addEventListener('dragover', onDragOver);
+    btn.addEventListener('drop', onDropCurriculum);
+    btn.addEventListener('dragleave', () => btn.classList.remove('drag-over'));
+  });
+}
+
+function onDragOver(e) {
+  e.preventDefault();
+  if (e.currentTarget) e.currentTarget.classList.add('drag-over');
+}
+
+function onDropBin(e) {
+  e.preventDefault();
+  const cat = e.currentTarget.dataset.category;
+  if (cat) checkBin(cat);
+  endDragFeedback();
+}
+
+function onDropCurriculum(e) {
+  e.preventDefault();
+  const action = e.currentTarget.dataset.matchAction;
+  if (action === 'match') handleCurriculumAnswer(true);
+  else if (action === 'notmatch') handleCurriculumAnswer(false);
+  endDragFeedback();
+}
+
+function endDragFeedback() {
+  document.querySelectorAll('.drag-over').forEach(el=>el.classList.remove('drag-over'));
+}
+
+let trashDragState={dragging:false,startX:0,startY:0,currentX:0,currentY:0,pointerId:null};
+function initTrashDragSupport() {
+  const card=document.getElementById('trash-container');
+  if(!card) return;
+  card.setAttribute('draggable','true');
+  card.addEventListener('dragstart', onTrashDragStart);
+  card.addEventListener('dragend', onTrashDragEnd);
+  card.style.touchAction='none';
+  card.addEventListener('pointerdown', startTrashPointerDrag);
+  card.addEventListener('pointermove', moveTrashPointerDrag);
+  card.addEventListener('pointerup', endTrashPointerDrag);
+  card.addEventListener('pointercancel', endTrashPointerDrag);
+}
+
+function onTrashDragStart(e) {
+  if(!GS.isPlaying||GS.paused) { e.preventDefault(); return; }
+  e.dataTransfer.effectAllowed='move';
+  e.dataTransfer.setData('text/plain','trash');
+}
+
+function onTrashDragEnd() {
+  endDragFeedback();
+}
+
+function startTrashPointerDrag(e) {
+  if(!GS.isPlaying||GS.paused) return;
+  trashDragState={dragging:false,startX:e.clientX,startY:e.clientY,currentX:0,currentY:0,pointerId:e.pointerId};
+  e.currentTarget.setPointerCapture?.(e.pointerId);
+}
+
+function moveTrashPointerDrag(e) {
+  if(e.pointerId!==trashDragState.pointerId) return;
+  const dx=e.clientX-trashDragState.startX;
+  const dy=e.clientY-trashDragState.startY;
+  if(!trashDragState.dragging && Math.hypot(dx,dy)>=12) {
+    trashDragState.dragging=true;
+    const card=document.getElementById('trash-container');
+    if(card) card.classList.add('dragging');
+  }
+  if(trashDragState.dragging) {
+    const card=document.getElementById('trash-container');
+    if(card) card.style.transform=`translate(${dx}px,${dy}px) scale(1.03)`;
+  }
+}
+
+function endTrashPointerDrag(e) {
+  if(e.pointerId!==trashDragState.pointerId) return;
+  const card=document.getElementById('trash-container');
+  if(trashDragState.dragging) {
+    const target=document.elementFromPoint(e.clientX,e.clientY);
+    if(target) {
+      const drop = target.closest('.bin, .curriculum-btn');
+      if(drop) {
+        if(drop.classList.contains('bin') && drop.dataset.category) {
+          checkBin(drop.dataset.category);
+        } else if(drop.classList.contains('curriculum-btn')) {
+          const action = drop.dataset.matchAction;
+          if(action==='match') handleCurriculumAnswer(true);
+          else if(action==='notmatch') handleCurriculumAnswer(false);
+        }
+      }
+    }
+  }
+  if(card) {
+    card.classList.remove('dragging');
+    card.style.transform='';
+    card.releasePointerCapture?.(trashDragState.pointerId);
+  }
+  trashDragState={dragging:false,startX:0,startY:0,currentX:0,currentY:0,pointerId:null};
+  endDragFeedback();
 }
 
 function updateMissionUI() {
@@ -1748,6 +1875,7 @@ function computeSecondaryBadges(score,acc,combo,prevBest,correct,wrong,total,cat
 
   const accs=Object.values(catStats||{}).filter(s=>s&&s.total>0).map(s=>s.correct/s.total*100);
   const versatile=accs.length>0&&Math.max(...accs)-Math.min(...accs)<=15&&Math.min(...accs)>=70;
+  const perfectCategory=Object.values(catStats||{}).some(s=>s&&s.total>=5&&s.correct===s.total);
 
   const ex=Array.isArray(existing)?existing:[];
   const badges=[];
@@ -1755,6 +1883,9 @@ function computeSecondaryBadges(score,acc,combo,prevBest,correct,wrong,total,cat
   if(versatile||ex.includes('Versatile')) badges.push('Versatile');
   if((typeof prevBest==='number'&&prevBest>0&&score>=(prevBest+75)&&composite>=45)||ex.includes('Rising Star')) badges.push('Rising Star');
   if(DC.completed||ex.includes('Daily Challenger')) badges.push('Daily Challenger');
+  if((acc>=95&&total>=20)||ex.includes('Accuracy Ace')) badges.push('Accuracy Ace');
+  if((combo>=10)||ex.includes('Combo King')) badges.push('Combo King');
+  if(perfectCategory||ex.includes('Category Master')) badges.push('Category Master');
 
   const streak=getStreak();
   if(streak.current>=30||ex.includes('Monthly Master')) badges.push('Monthly Master');
@@ -1769,6 +1900,7 @@ function computeSpecialTags(score,acc,combo,catStats,rank,attempts) {
   const checkCat=(cat,label)=>{ const s=catStats&&catStats[cat]; if(s&&s.total>0&&(s.correct/s.total*100)>=95) tags.push(label); };
   checkCat('RESIDU','ResiduExpert'); checkCat('SISA MAKANAN','SisaMakananExpert'); checkCat('LAKU JUAL','LayakJualExpert');
   if(combo>=25) tags.push('ComboPro');
+  if(combo>=10) tags.push('ComboKing');
   if((attempts||0)>=100) tags.push('Grinder');
   if(acc>=100) tags.push('GodAim');
   if((attempts||0)>=50&&rank!==1) tags.push('Persistence');
@@ -1785,7 +1917,7 @@ function getBadgeClass(primary) {
 }
 
 function getSecondaryBadgeClass(badge) {
-  const m={'Top 10':'badge-gold','Versatile':'badge-epic','Rising Star':'badge-silver','Daily Challenger':'badge-daily','Hot Streak':'badge-master','Week Warrior':'badge-legend','Monthly Master':'badge-immortal'};
+  const m={'Top 10':'badge-gold','Versatile':'badge-epic','Rising Star':'badge-silver','Daily Challenger':'badge-daily','Accuracy Ace':'badge-platinum','Combo King':'badge-master','Category Master':'badge-grandmaster','Hot Streak':'badge-master','Week Warrior':'badge-legend','Monthly Master':'badge-immortal'};
   return m[badge]||'badge-bronze';
 }
 
