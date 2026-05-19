@@ -1569,9 +1569,6 @@ function showGameOverPopup() {
   ov.style.opacity='0';
   requestAnimationFrame(()=>{ ov.style.transition='opacity 0.15s'; ov.style.opacity='1'; });
 
-  const idx=lbCache.findIndex(r=>r.id===GS.currentSessionId);
-  posEl.textContent=idx>=0?`Peringkat #${idx+1} dari ${lbCache.length}`:`Dari ${lbCache.length} pemain`;
-
   playSound('gameover');
   let tid=setTimeout(hide,2800);
   ov.onclick=()=>{ clearTimeout(tid); hide(); };
