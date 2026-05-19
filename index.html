@@ -624,6 +624,12 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
             </button>
           </div>
         </div>
+        <div class="chip-row mb-3">
+          <label class="filter-chip"><input type="radio" name="lb-filter" value="All" checked onchange="setLbFilter(this.value)"><span>All</span></label>
+          <label class="filter-chip"><input type="radio" name="lb-filter" value="Bumi Lestari" onchange="setLbFilter(this.value)"><span>Bumi Lestari</span></label>
+          <label class="filter-chip"><input type="radio" name="lb-filter" value="Eko Aktif" onchange="setLbFilter(this.value)"><span>Eko Aktif</span></label>
+          <label class="filter-chip"><input type="radio" name="lb-filter" value="Penjaga Bumi" onchange="setLbFilter(this.value)"><span>Penjaga Bumi</span></label>
+        </div>
         <div class="overflow-x-auto rounded-xl border border-blue-50 max-h-[42vh] overflow-y-auto no-scrollbar">
           <table class="lb-table" style="min-width:640px">
             <thead>
@@ -728,6 +734,12 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
         <p class="text-xs text-gray-400 mt-0.5">Semua skor pemain tersimpan di sini.</p>
       </div>
       <button onclick="closeLbModal()" class="text-gray-400 hover:text-red-500 text-2xl font-bold leading-none">&times;</button>
+    </div>
+    <div class="chip-row mb-3">
+      <label class="filter-chip"><input type="radio" name="lb-prev-filter" value="All" checked onchange="setPrevFilter(this.value)"><span>All</span></label>
+      <label class="filter-chip"><input type="radio" name="lb-prev-filter" value="Bumi Lestari" onchange="setPrevFilter(this.value)"><span>Bumi Lestari</span></label>
+      <label class="filter-chip"><input type="radio" name="lb-prev-filter" value="Eko Aktif" onchange="setPrevFilter(this.value)"><span>Eko Aktif</span></label>
+      <label class="filter-chip"><input type="radio" name="lb-prev-filter" value="Penjaga Bumi" onchange="setPrevFilter(this.value)"><span>Penjaga Bumi</span></label>
     </div>
     <div class="overflow-x-auto rounded-xl border border-blue-50 max-h-[60vh] overflow-y-auto no-scrollbar">
       <table class="lb-table" style="min-width:600px">
