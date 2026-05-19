@@ -1825,6 +1825,7 @@
             if (run && run.__movement) return run.__movement;
             const currentIndexMap = window.__currentLeaderboardIndexMap || {};
             const previousIndexMap = window.__previousLeaderboardIndexMap || {};
+            const hasPreviousSnapshot = Object.keys(previousIndexMap).length > 0;
 
             const resolveCurrentIndex = () => {
                 if (run && run.id) {
@@ -1856,6 +1857,9 @@
             }
 
             const previousIndex = resolvePreviousIndex();
+            if (!hasPreviousSnapshot) {
+                return { symbol: '—', className: 'text-gray-400', title: 'Posisi tetap' };
+            }
             if (typeof previousIndex === 'undefined') {
                 return { symbol: '★', className: 'text-blue-500', title: 'Pemain baru' };
             }
@@ -2178,6 +2182,7 @@
                 return (a.timestamp || 0) - (b.timestamp || 0);
             });
             const previousIndexMap = window.__currentLeaderboardIndexMap || {};
+            const hasPreviousSnapshot = Object.keys(previousIndexMap).length > 0;
             window.__previousLeaderboardIndexMap = previousIndexMap;
 
             arrData.forEach((r, i) => {
@@ -2190,7 +2195,11 @@
                     ? previousIndexMap[idKey]
                     : (nameKey && Object.prototype.hasOwnProperty.call(previousIndexMap, nameKey) ? previousIndexMap[nameKey] : undefined);
 
-                if (typeof prevIndex === 'undefined') {
+                if (!hasPreviousSnapshot) {
+                    symbol = '—';
+                    className = 'text-gray-400';
+                    title = 'Posisi tetap';
+                } else if (typeof prevIndex === 'undefined') {
                     symbol = '★';
                     className = 'text-blue-500';
                     title = 'Pemain baru';
