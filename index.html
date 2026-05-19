@@ -739,13 +739,38 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
       </div>
       <div>
         <h3 class="font-black text-gray-900 mb-1.5 border-l-4 border-purple-500 pl-3">🏅 Badge Sistem</h3>
-        <p class="text-xs mb-2"><b>Badge Utama</b> dihitung dari komposit: skor game, akurasi, combo tertinggi, dan jumlah percobaan. Semakin tinggi skor + akurasi + combo, semakin naik level badge:</p>
+        <p class="text-xs mb-2"><b>Badge Utama</b> dihitung dari nilai komposit (c) sebagai berikut:</p>
         <ul class="list-disc pl-5 space-y-1 text-xs mb-2">
-          <li><b>Bronze</b>: level awal.</li>
-          <li><b>Silver / Gold / Platinum</b>: peningkatan bertahap saat skor + akurasi + combo sudah kuat.</li>
-          <li><b>Epic / Grandmaster / Diamond</b>: butuh performa konsisten high-score dan akurasi tinggi.</li>
-          <li><b>Legend / Master</b>: mencapai skor dan combo unggul dengan akurasi sangat baik.</li>
-          <li><b>Immortal</b>: pencapaian tertinggi untuk hasil luar biasa.</li>
+          <li><b>Skor</b>: dibagi 13 lalu dikalikan 0.5 (maks. 50 poin).</li>
+          <li><b>Akurasi</b>: dikalikan 0.3 (maks. 30 poin).</li>
+          <li><b>Combo tertinggi</b>: dikalikan 4 lalu 0.15 (maks. 100 poin jika combo = 25).</li>
+          <li><b>Jumlah percobaan</b>: memberi bonus kecil hingga +5 poin.</li>
+        </ul>
+        <p class="text-xs mb-2">Rentang nilai badge utama:</p>
+        <ul class="list-disc pl-5 space-y-1 text-xs mb-2">
+          <li><b>Bronze</b>: c &lt; 30</li>
+          <li><b>Silver</b>: 30 ≤ c &lt; 45</li>
+          <li><b>Gold</b>: 45 ≤ c &lt; 58</li>
+          <li><b>Platinum</b>: 58 ≤ c &lt; 70</li>
+          <li><b>Epic</b>: 70 ≤ c &lt; 80</li>
+          <li><b>Grandmaster</b>: 80 ≤ c &lt; 88</li>
+          <li><b>Diamond</b>: 88 ≤ c &lt; 93</li>
+          <li><b>Legend</b>: 93 ≤ c &lt; 96</li>
+          <li><b>Master</b>: 96 ≤ c &lt; 99</li>
+          <li><b>Immortal</b>: c ≥ 99</li>
+        </ul>
+        <p class="text-xs mb-2">Contoh perhitungan badge utama:</p>
+        <ul class="list-disc pl-5 space-y-1 text-xs mb-2">
+          <li><b>Bronze</b>: skor 0, akurasi 0%, combo 0, percobaan 0 → c = 0</li>
+          <li><b>Silver</b>: skor 0, akurasi 35%, combo 25, percobaan 100 → c ≈ 30.5</li>
+          <li><b>Gold</b>: skor 0, akurasi 85%, combo 25, percobaan 100 → c ≈ 45.5</li>
+          <li><b>Platinum</b>: skor 225, akurasi 100%, combo 24, percobaan 100 → c ≈ 58.1</li>
+          <li><b>Epic</b>: skor 525, akurasi 100%, combo 25, percobaan 100 → c ≈ 70.2</li>
+          <li><b>Grandmaster</b>: skor 800, akurasi 100%, combo 24, percobaan 100 → c ≈ 80.2</li>
+          <li><b>Diamond</b>: skor 1000, akurasi 100%, combo 25, percobaan 100 → c ≈ 88.5</li>
+          <li><b>Legend</b>: skor 1125, akurasi 100%, combo 25, percobaan 100 → c ≈ 93.3</li>
+          <li><b>Master</b>: skor 1200, akurasi 100%, combo 25, percobaan 100 → c ≈ 96.2</li>
+          <li><b>Immortal</b>: skor 1275, akurasi 100%, combo 25, percobaan 100 → c ≈ 99.0</li>
         </ul>
         <p class="text-xs mb-2"><b>Badge Bonus</b> dapat muncul bersamaan dengan badge utama. Kriteria utama:</p>
         <ul class="list-disc pl-5 space-y-1 text-xs">
@@ -2069,8 +2094,8 @@ function renderLbTable() {
 
 function renderLbMeta() {
   const modeDesc = lbMode === 'curriculum'
-    ? '📚 Mode Kurikulum: fokus materi Kurikulum. Filter spesifik memilih topik Kurikulum.'
-    : '🎯 Mode Ranked: berdasarkan tingkat kesulitan. Filter spesifik memilih level Ranked.';
+    ? '📚 Mode Kurikulum: indikator ini menunjukkan fokus topik Kurikulum dan filter memilih topik atau Mixed.'
+    : '🎯 Mode Ranked: indikator ini menunjukkan pergerakan peringkat (Baru, Naik, Turun, Tetap) dan filter memilih level Ranked.';
   const filterLabel = lbFilter === 'All' ? 'Semua' : lbFilter;
 
   const filterEl = document.getElementById('lb-filter-badge');
@@ -2085,8 +2110,8 @@ function renderLbMeta() {
 
 function renderLbPrevMeta() {
   const modeDesc = lbPrevMode === 'curriculum'
-    ? '📚 Mode Kurikulum: fokus materi Kurikulum. Filter spesifik memilih topik Kurikulum.'
-    : '🎯 Mode Ranked: berdasarkan tingkat kesulitan. Filter spesifik memilih level Ranked.';
+    ? '📚 Mode Kurikulum: indikator ini menunjukkan fokus topik Kurikulum dan filter memilih topik atau Mixed.'
+    : '🎯 Mode Ranked: indikator ini menunjukkan pergerakan peringkat (Baru, Naik, Turun, Tetap) dan filter memilih level Ranked.';
   const filterLabel = lbPrevFilter === 'All' ? 'Semua' : lbPrevFilter;
 
   const filterEl = document.getElementById('lb-prev-filter-badge');
