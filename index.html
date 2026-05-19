@@ -659,7 +659,6 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
           <label class="filter-chip"><input type="radio" name="lb-filter" value="Penjaga Bumi" onchange="setLbFilter(this.value)"><span>Penjaga Bumi</span></label>
         </div>
         <div id="lb-meta" class="flex flex-wrap gap-2 items-center text-[0.72rem] text-gray-500 mb-3">
-          <span id="lb-mode-badge" class="rounded-full px-2 py-1 text-xs font-bold text-white bg-blue-600">Ranked</span>
           <span id="lb-filter-badge" class="rounded-full px-2 py-1 text-xs font-semibold bg-slate-100 text-slate-700">Semua</span>
           <span id="lb-legend-label" class="text-[0.72rem] text-gray-500">🎯 Mode Ranked: kesulitan level. Filter spesifik memilih tingkat Ranked.</span>
         </div>
@@ -807,7 +806,6 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
       <!-- Tab Kurikulum dihapus di modal leaderboard juga -->
     </div>
     <div id="lb-prev-meta" class="flex flex-wrap gap-2 items-center text-[0.72rem] text-gray-500 mb-3">
-      <span id="lb-prev-mode-badge" class="rounded-full px-2 py-1 text-xs font-bold text-white bg-blue-600">Ranked</span>
       <span id="lb-prev-filter-badge" class="rounded-full px-2 py-1 text-xs font-semibold bg-slate-100 text-slate-700">Semua</span>
       <span id="lb-prev-legend-label" class="text-[0.72rem] text-gray-500">🎯 Mode Ranked: berdasarkan tingkat kesulitan. Filter spesifik memilih level Ranked.</span>
     </div>
@@ -2070,20 +2068,13 @@ function renderLbTable() {
 }
 
 function renderLbMeta() {
-  const modeLabel = lbMode === 'curriculum' ? 'Kurikulum' : 'Ranked';
-  const modeClass = lbMode === 'curriculum' ? 'bg-purple-600 text-white' : 'bg-blue-600 text-white';
   const modeDesc = lbMode === 'curriculum'
     ? '📚 Mode Kurikulum: fokus materi Kurikulum. Filter spesifik memilih topik Kurikulum.'
     : '🎯 Mode Ranked: berdasarkan tingkat kesulitan. Filter spesifik memilih level Ranked.';
   const filterLabel = lbFilter === 'All' ? 'Semua' : lbFilter;
 
-  const modeEl = document.getElementById('lb-mode-badge');
   const filterEl = document.getElementById('lb-filter-badge');
   const legendEl = document.getElementById('lb-legend-label');
-  if(modeEl) {
-    modeEl.textContent = modeLabel;
-    modeEl.className = `rounded-full px-2 py-1 text-xs font-bold ${modeClass}`;
-  }
   if(filterEl) {
     filterEl.textContent = filterLabel;
   }
@@ -2093,20 +2084,13 @@ function renderLbMeta() {
 }
 
 function renderLbPrevMeta() {
-  const modeLabel = lbPrevMode === 'curriculum' ? 'Kurikulum' : 'Ranked';
-  const modeClass = lbPrevMode === 'curriculum' ? 'bg-purple-600 text-white' : 'bg-blue-600 text-white';
   const modeDesc = lbPrevMode === 'curriculum'
     ? '📚 Mode Kurikulum: fokus materi Kurikulum. Filter spesifik memilih topik Kurikulum.'
     : '🎯 Mode Ranked: berdasarkan tingkat kesulitan. Filter spesifik memilih level Ranked.';
   const filterLabel = lbPrevFilter === 'All' ? 'Semua' : lbPrevFilter;
 
-  const modeEl = document.getElementById('lb-prev-mode-badge');
   const filterEl = document.getElementById('lb-prev-filter-badge');
   const legendEl = document.getElementById('lb-prev-legend-label');
-  if(modeEl) {
-    modeEl.textContent = modeLabel;
-    modeEl.className = `rounded-full px-2 py-1 text-xs font-bold ${modeClass}`;
-  }
   if(filterEl) {
     filterEl.textContent = filterLabel;
   }
