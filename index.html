@@ -1794,17 +1794,22 @@ function renderCurriculumSummary() {
   card.classList.remove('hidden');
   const total=GS.history.length;
   const wrong=GS.totalAnswered-GS.correctAnswers;
-  let html=`<p class="text-[0.72rem] text-slate-600 mb-2">Total jawaban: <strong>${total}</strong> · Benar: <strong>${GS.correctAnswers}</strong> · Salah: <strong>${wrong}</strong></p>`;
+  const focusLabel = GS.curriculumFocus || 'Mixed';
+  let html=`<p class="text-[0.72rem] text-slate-600 mb-2">Total jawaban: <strong>${total}</strong> · Benar: <strong>${GS.correctAnswers}</strong> · Salah: <strong>${wrong}</strong> · Fokus: <strong>${focusLabel}</strong></p>`;
   const items=GS.history.slice(-5).reverse();
   html += `<div class="space-y-1">${items.map(entry => {
     const status = entry.correct ? 'Benar' : 'Salah';
     const color = entry.correct ? 'text-emerald-700' : 'text-red-600';
     const answered = entry.answeredMatch !== undefined ? (entry.answeredMatch ? 'Sesuai' : 'Tidak Sesuai') : entry.answered;
-    return `<div class="flex items-center justify-between gap-2 text-[0.68rem] border-b border-slate-100 pb-1">
-      <span class="truncate">${escHtml(entry.item)}</span>
-      <span class="font-semibold ${color}">${status}</span>
-      <span class="text-slate-500">${escHtml(answered)} → ${escHtml(entry.correctAnswer||entry.expected||'–')}</span>
-    </div>`;
+    return `<div class="rounded-xl border border-slate-100 bg-slate-50/80 p-2 text-[0.68rem]">` +
+      `<div class="flex items-center justify-between gap-2 font-semibold ${color}">` +
+      `<span class="truncate">${escHtml(entry.item)}</span>` +
+      `<span>${status}</span>` +
+      `</div>` +
+      `<div class="mt-1 text-slate-500 text-[0.65rem] leading-tight">` +
+      `Fokus: <strong>${escHtml(entry.focus||focusLabel)}</strong> · Jawab: <strong>${escHtml(answered)}</strong> · Aktual: <strong>${escHtml(entry.correctAnswer||entry.expected||'–')}</strong>` +
+      `</div>` +
+      `</div>`;
   }).join('')}</div>`;
   if(total>5) html += `<p class="text-[0.65rem] text-slate-500 mt-2">Menampilkan 5 jawaban terakhir.</p>`;
   list.innerHTML=html;
@@ -1822,18 +1827,21 @@ function renderRankedSummary() {
   card.classList.remove('hidden');
   const total=GS.history.length;
   const wrong=GS.totalAnswered-GS.correctAnswers;
+  const difficultyLabel = getDifficultyDisplayName(GS.difficulty);
+  let html=`<p class="text-[0.72rem] text-slate-600 mb-2">Total jawaban: <strong>${total}</strong> · Benar: <strong>${GS.correctAnswers}</strong> · Salah: <strong>${wrong}</strong> · Level: <strong>${difficultyLabel}</strong></p>`;
   const items=GS.history.slice(-5).reverse();
-  let html=`<p class="text-[0.72rem] text-slate-600 mb-2">Total jawaban: <strong>${total}</strong> · Benar: <strong>${GS.correctAnswers}</strong> · Salah: <strong>${wrong}</strong></p>`;
   html += `<div class="space-y-1">${items.map(entry => {
     const status = entry.correct ? 'Benar' : 'Salah';
     const color = entry.correct ? 'text-emerald-700' : 'text-red-600';
-    return `<div class="text-[0.68rem] border-b border-slate-100 pb-1">
-      <div class="flex items-center justify-between gap-2 mb-0.5">
-        <span class="truncate">${escHtml(entry.item)}</span>
-        <span class="font-semibold ${color}">${status}</span>
-      </div>
-      <div class="text-slate-500 text-[0.65rem]">Jawab: <strong>${escHtml(entry.answered)}</strong> · Seharusnya: <strong>${escHtml(entry.expected)}</strong></div>
-    </div>`;
+    return `<div class="rounded-xl border border-slate-100 bg-slate-50/80 p-2 text-[0.68rem]">` +
+      `<div class="flex items-center justify-between gap-2 font-semibold ${color}">` +
+      `<span class="truncate">${escHtml(entry.item)}</span>` +
+      `<span>${status}</span>` +
+      `</div>` +
+      `<div class="mt-1 text-slate-500 text-[0.65rem] leading-tight">` +
+      `Kategori: <strong>${escHtml(entry.category||entry.expected||'–')}</strong> · Jawab: <strong>${escHtml(entry.answered)}</strong> · Seharusnya: <strong>${escHtml(entry.expected)}</strong>` +
+      `</div>` +
+      `</div>`;
   }).join('')}</div>`;
   if(total>5) html += `<p class="text-[0.65rem] text-slate-500 mt-2">Menampilkan 5 jawaban terakhir.</p>`;
   list.innerHTML=html;
