@@ -32,7 +32,7 @@
         }
     </script>
     <style>
-        body { margin: 0; overflow: hidden; }
+        body { margin: 0; overflow-x: hidden; }
         .screen { display: none; }
         .screen.active { display: flex; }
         
@@ -569,7 +569,7 @@
             <!-- removed: mini leaderboard (relocated to top area to avoid overlap) -->
 
             <!-- Trash Item Display -->
-            <div id="trash-container" class="trash-item bg-white border-2 border-gray-200 p-4 sm:p-6 md:p-8 rounded-[2rem] shadow-xl flex flex-col items-center justify-center text-center w-full max-w-[min(88vw,26rem)] lg:max-w-[24rem] md:max-w-sm h-auto min-h-[170px] sm:min-h-[200px] max-h-[320px] sm:max-h-[360px] cursor-pointer z-20 shrink-0 mt-3 lg:mt-4 mb-3 md:mb-4">
+            <div id="trash-container" class="trash-item bg-white border-2 border-gray-200 p-4 sm:p-6 md:p-8 rounded-[2rem] shadow-xl flex flex-col items-center justify-center text-center w-full max-w-[min(88vw,26rem)] lg:max-w-[24rem] md:max-w-sm h-auto min-h-[170px] sm:min-h-[200px] max-h-[min(42vh,320px)] sm:max-h-[min(46vh,360px)] cursor-pointer z-30 shrink-0 mt-3 lg:mt-4 mb-6 md:mb-6">
                 <div id="trash-emoji" class="text-4xl sm:text-5xl md:text-7xl mb-1 sm:mb-1.5 drop-shadow-md transition-transform transform hover:scale-110">🗑️</div>
                 <h2 id="trash-name" class="text-[0.9rem] sm:text-base md:text-3xl font-bold text-gray-900 break-words drop-shadow-md leading-tight max-w-full px-1">Sampah</h2>
             </div>
