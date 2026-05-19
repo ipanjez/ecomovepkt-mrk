@@ -726,18 +726,30 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
       </div>
       <div>
         <h3 class="font-black text-gray-900 mb-1.5 border-l-4 border-purple-500 pl-3">🏅 Badge Sistem</h3>
-        <p class="text-xs mb-2"><b>Badge Utama</b> dihitung dari skor, akurasi, combo, dan jumlah percobaan. Rangkingnya: Bronze → Silver → Gold → Platinum → Epic → Grandmaster → Diamond → Legend → Master → Immortal.</p>
-        <p class="text-xs mb-2"><b>Badge Bonus</b> dapat dikombinasikan. Cara dapatkan:</p>
-        <ul class="list-disc pl-5 space-y-1 text-xs">
-          <li><b>Top 10</b>: Masuk peringkat 10 besar leaderboard ranked.</li>
-          <li><b>Versatile</b>: Akurasi semua kategori seimbang (spread ≤15%) dan minimal 70% di masing-masing.</li>
-          <li><b>Rising Star</b>: Skor naik setidaknya 75 poin dari personal best sebelumnya.</li>
-          <li><b>Daily Challenger</b>: Selesaikan daily challenge hari ini.</li>
-          <li><b>Accuracy Ace</b>: Akurasi ≥95% dengan minimal 20 jawaban benar.</li>
-          <li><b>Combo King</b>: Mencapai combo x10 atau lebih.</li>
-          <li><b>Category Master</b>: 100% benar dalam satu kategori setidaknya 5 jawaban.</li>
+        <p class="text-xs mb-2"><b>Badge Utama</b> dihitung dari komposit: skor game, akurasi, combo tertinggi, dan jumlah percobaan. Semakin tinggi skor + akurasi + combo, semakin naik level badge:</p>
+        <ul class="list-disc pl-5 space-y-1 text-xs mb-2">
+          <li><b>Bronze</b>: level awal.</li>
+          <li><b>Silver / Gold / Platinum</b>: peningkatan bertahap saat skor + akurasi + combo sudah kuat.</li>
+          <li><b>Epic / Grandmaster / Diamond</b>: butuh performa konsisten high-score dan akurasi tinggi.</li>
+          <li><b>Legend / Master</b>: mencapai skor dan combo unggul dengan akurasi sangat baik.</li>
+          <li><b>Immortal</b>: pencapaian tertinggi untuk hasil luar biasa.</li>
         </ul>
-        <p class="text-xs"><b>Streak Badge</b>: Hot Streak (3+ hari berturut-turut), Week Warrior (7+), Monthly Master (30+). Tampil sebagai tag #HotStreak dsb.</p>
+        <p class="text-xs mb-2"><b>Badge Bonus</b> dapat muncul bersamaan dengan badge utama. Kriteria utama:</p>
+        <ul class="list-disc pl-5 space-y-1 text-xs">
+          <li><b>Top 10</b>: berada dalam peringkat 10 besar leaderboard ranked.</li>
+          <li><b>Versatile</b>: akurasi setiap kategori seimbang, selisih antar-kategori ≤15%, dan minimal 70% di semua kategori.</li>
+          <li><b>Rising Star</b>: skor sesi ini naik ≥75 poin dibanding personal best sebelumnya.</li>
+          <li><b>Daily Challenger</b>: menyelesaikan target daily challenge hari ini.</li>
+          <li><b>Accuracy Ace</b>: akurasi ≥95% dengan minimal 20 jawaban benar dalam satu sesi.</li>
+          <li><b>Combo King</b>: mencapai combo x10 atau lebih dalam satu sesi.</li>
+          <li><b>Category Master</b>: 100% benar di satu kategori dengan minimal 5 jawaban di kategori tersebut.</li>
+        </ul>
+        <p class="text-xs"><b>Streak Badge</b> menunjukkan konsistensi harian:</p>
+        <ul class="list-disc pl-5 space-y-1 text-xs">
+          <li><b>Hot Streak</b>: menangani challenge 3 hari berturut-turut.</li>
+          <li><b>Week Warrior</b>: streak 7 hari berturut-turut.</li>
+          <li><b>Monthly Master</b>: streak 30 hari berturut-turut.</li>
+        </ul>
       </div>
       <div>
         <h3 class="font-black text-gray-900 mb-1.5 border-l-4 border-emerald-500 pl-3">🔥 Daily Challenge & Streak</h3>
