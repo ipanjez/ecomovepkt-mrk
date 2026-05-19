@@ -355,7 +355,7 @@
                 <div>
                     <h3 class="font-bold text-gray-900 mb-2 border-l-4 border-purple-500 pl-3 flex items-center gap-2">🏆 Papan Skor Rival</h3>
                     <p class="text-[0.85rem] md:text-sm leading-relaxed">Leaderboard ini <b>global</b> dan update <i>real-time</i> di semua device. Kalau kamu main lagi pakai nama yang sama, sistem bakal simpan <b>skor tertinggi</b> plus jumlah <b>Coba</b>. Di mode <b>dynamic</b> / <b>Proximity Scoring</b>, panel atas cuma nampilin <b>rival terdekat di atas skor kamu</b> beserta jaraknya, lalu auto pindah ke rival berikutnya pas kamu nyalip.</p>
-                    <p class="text-[0.85rem] md:text-sm leading-relaxed">Indikator di leaderboard menunjukkan pergerakan singkat: <span class="text-blue-500 font-bold">★</span> pemain baru, <span class="text-green-600 font-bold">▲</span> naik peringkat, <span class="text-red-600 font-bold">▼</span> turun peringkat, dan <span class="text-gray-400 font-bold">—</span> posisi tetap.</p>
+                    <p class="text-[0.85rem] md:text-sm leading-relaxed">Indikator di leaderboard menunjukkan pergerakan singkat: <span class="text-blue-500 font-bold">★▲</span> pemain baru yang masuk dan naik, <span class="text-blue-500 font-bold">★</span> pemain baru, <span class="text-green-600 font-bold">▲</span> naik peringkat, <span class="text-red-600 font-bold">▼</span> turun peringkat, dan <span class="text-gray-400 font-bold">—</span> posisi tetap.</p>
                 </div>
 
                 <!-- Badge Rules -->
@@ -691,7 +691,8 @@
                 <div class="mb-3 mt-2">
                     <div class="text-[0.7rem] font-semibold text-gray-600 mb-1">Legenda Indikator</div>
                     <div class="flex flex-wrap gap-3 items-center text-[0.72rem]">
-                        <div class="flex items-center gap-2"><span class="text-blue-500 font-bold">★</span><span class="text-gray-700">: Pemain baru</span></div>
+                        <div class="flex items-center gap-2"><span class="text-blue-500 font-bold">★▲</span><span class="text-gray-700">: Pemain baru yang masuk dan naik peringkat</span></div>
+                        <div class="flex items-center gap-2"><span class="text-blue-500 font-bold">★</span><span class="text-gray-700">: Pemain baru (masuk tanpa melewati pemain lain)</span></div>
                         <div class="flex items-center gap-2"><span class="text-green-600 font-bold">▲</span><span class="text-gray-700">: Naik peringkat</span></div>
                         <div class="flex items-center gap-2"><span class="text-red-600 font-bold">▼</span><span class="text-gray-700">: Turun peringkat</span></div>
                         <div class="flex items-center gap-2"><span class="text-gray-400 font-bold">—</span><span class="text-gray-700">: Posisi tetap / belum ada perubahan</span></div>
@@ -1592,12 +1593,12 @@
             if (Object.prototype.hasOwnProperty.call(map, key)) {
                 const idx = map[key];
                 const rec = (Array.isArray(window.__latestLeaderboardData) ? window.__latestLeaderboardData[idx] : null) || {};
-                const movement = (rec && rec.__movement && rec.__movement.symbol) ? rec.__movement.symbol : '—';
+                const movement = (rec && rec.__movement && rec.__movement.symbol) ? rec.__movement.symbol : (window.__leaderboardLatestMoverIndex === idx ? '★▲' : '—');
                 let colorClass = 'text-gray-600';
                 if (String(movement).includes('▲') && !String(movement).includes('★')) colorClass = 'text-green-600';
                 if (String(movement).includes('▼')) colorClass = 'text-red-600';
                 if (String(movement).includes('★')) colorClass = 'text-blue-500';
-                const movementTitle = (rec && rec.__movement && rec.__movement.title) ? rec.__movement.title : 'Posisi tetap';
+                const movementTitle = (rec && rec.__movement && rec.__movement.title) ? rec.__movement.title : (window.__leaderboardLatestMoverIndex === idx ? 'Pemain terbaru' : 'Posisi tetap');
                 // Compute badge for this record
                 let badgeHtml = '';
                 try {
@@ -1823,49 +1824,40 @@
 
         function getLeaderboardMovement(run) {
             if (run && run.__movement) return run.__movement;
+            const currentState = Array.isArray(window.__currentLeaderboardState) ? window.__currentLeaderboardState : [];
             const currentIndexMap = window.__currentLeaderboardIndexMap || {};
-            const previousIndexMap = window.__previousLeaderboardIndexMap || {};
-            const hasPreviousSnapshot = Object.keys(previousIndexMap).length > 0;
+            const latestMoverIndex = Number.isInteger(window.__leaderboardLatestMoverIndex) ? window.__leaderboardLatestMoverIndex : -1;
 
             const resolveCurrentIndex = () => {
                 if (run && run.id) {
                     const idKey = `id:${run.id}`;
                     if (Object.prototype.hasOwnProperty.call(currentIndexMap, idKey)) return currentIndexMap[idKey];
                 }
-                if (run && run.name) {
-                    const nameKey = `name:${String(run.name).toLowerCase()}`;
-                    if (Object.prototype.hasOwnProperty.call(currentIndexMap, nameKey)) return currentIndexMap[nameKey];
+                if (run && run.id) {
+                    const found = currentState.findIndex(item => item && item.id === run.id);
+                    if (found >= 0) return found;
                 }
                 return undefined;
             };
 
-            const resolvePreviousIndex = () => {
-                if (run && run.id) {
-                    const idKey = `id:${run.id}`;
-                    if (Object.prototype.hasOwnProperty.call(previousIndexMap, idKey)) return previousIndexMap[idKey];
-                }
-                if (run && run.name) {
-                    const nameKey = `name:${String(run.name).toLowerCase()}`;
-                    if (Object.prototype.hasOwnProperty.call(previousIndexMap, nameKey)) return previousIndexMap[nameKey];
-                }
-                return undefined;
+            const resolveCurrentPlayerIndex = () => {
+                if (!currentPlayerId) return undefined;
+                const idKey = `id:${currentPlayerId}`;
+                if (Object.prototype.hasOwnProperty.call(currentIndexMap, idKey)) return currentIndexMap[idKey];
+                const found = currentState.findIndex(item => item && item.id === currentPlayerId);
+                return found >= 0 ? found : undefined;
             };
 
             const currentIndex = resolveCurrentIndex();
-            if (typeof currentIndex === 'undefined') {
+            if (typeof currentIndex === 'undefined' || latestMoverIndex < 0) {
                 return { symbol: '—', className: 'text-gray-400', title: 'Posisi tetap' };
             }
 
-            const previousIndex = resolvePreviousIndex();
-            if (!hasPreviousSnapshot) {
-                return { symbol: '—', className: 'text-gray-400', title: 'Posisi tetap' };
-            }
-            if (typeof previousIndex === 'undefined') {
-                return { symbol: '★', className: 'text-blue-500', title: 'Pemain baru' };
+            if (currentIndex === latestMoverIndex) {
+                return { symbol: currentState.length > 1 ? '★▲' : '★', className: 'text-blue-500', title: 'Pemain terbaru' };
             }
 
-            if (currentIndex < previousIndex) return { symbol: '▲', className: 'text-green-600', title: 'Naik peringkat' };
-            if (currentIndex > previousIndex) return { symbol: '▼', className: 'text-red-600', title: 'Turun peringkat' };
+            if (currentIndex > latestMoverIndex) return { symbol: '▼', className: 'text-red-600', title: 'Turun peringkat' };
             return { symbol: '—', className: 'text-gray-400', title: 'Posisi tetap' };
         }
 
@@ -2181,36 +2173,31 @@
                 if (ab !== aa) return ab - aa;
                 return (a.timestamp || 0) - (b.timestamp || 0);
             });
-            const previousIndexMap = window.__currentLeaderboardIndexMap || {};
-            const hasPreviousSnapshot = Object.keys(previousIndexMap).length > 0;
-            window.__previousLeaderboardIndexMap = previousIndexMap;
+            let latestMoverIndex = -1;
+            let latestTimestamp = -1;
+            arrData.forEach((r, i) => {
+                const rowTimestamp = Number(r && r.timestamp) || 0;
+                if (rowTimestamp >= latestTimestamp) {
+                    latestTimestamp = rowTimestamp;
+                    latestMoverIndex = i;
+                }
+            });
+            window.__leaderboardLatestMoverIndex = latestMoverIndex;
 
             arrData.forEach((r, i) => {
                 let symbol = '—';
                 let className = 'text-gray-400';
                 let title = 'Posisi tetap';
-                const idKey = r && r.id ? `id:${r.id}` : null;
-                const nameKey = r && r.name ? `name:${String(r.name).toLowerCase()}` : null;
-                const prevIndex = (idKey && Object.prototype.hasOwnProperty.call(previousIndexMap, idKey))
-                    ? previousIndexMap[idKey]
-                    : (nameKey && Object.prototype.hasOwnProperty.call(previousIndexMap, nameKey) ? previousIndexMap[nameKey] : undefined);
-
-                if (!hasPreviousSnapshot) {
-                    symbol = '—';
-                    className = 'text-gray-400';
-                    title = 'Posisi tetap';
-                } else if (typeof prevIndex === 'undefined') {
-                    symbol = '★';
-                    className = 'text-blue-500';
-                    title = 'Pemain baru';
-                } else if (i < prevIndex) {
-                    symbol = '▲';
-                    className = 'text-green-600';
-                    title = 'Naik peringkat';
-                } else if (i > prevIndex) {
-                    symbol = '▼';
-                    className = 'text-red-600';
-                    title = 'Turun peringkat';
+                if (latestMoverIndex >= 0) {
+                    if (i === latestMoverIndex) {
+                        symbol = arrData.length > 1 ? '★▲' : '★';
+                        className = 'text-blue-500';
+                        title = 'Pemain terbaru';
+                    } else if (i > latestMoverIndex) {
+                        symbol = '▼';
+                        className = 'text-red-600';
+                        title = 'Turun peringkat';
+                    }
                 }
                 r.__movement = { symbol, className, title };
                 r.secondaryBadges = getSecondaryBadge(r.score || 0, r.accuracy || 0, r.bestCombo || 0, 0, r.correct || 0, r.wrong || 0, r.total || 0, r.categoryStats || {}, i + 1, r.attempts || 0, r.secondaryBadges || []) || [];
