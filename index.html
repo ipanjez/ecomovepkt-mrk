@@ -225,6 +225,16 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
   background:linear-gradient(135deg,#005B9F,#2563eb);color:white;
   border-color:#005B9F;box-shadow:0 3px 10px rgba(0,91,159,0.3);
 }
+.filter-chip.mode-ranked input:checked+span{
+  background:linear-gradient(135deg,#dc2626,#991b1b);
+  border-color:#991b1b;
+  box-shadow:0 3px 12px rgba(220,38,38,0.25);
+}
+.filter-chip.mode-curriculum input:checked+span{
+  background:linear-gradient(135deg,#16a34a,#047857);
+  border-color:#047857;
+  box-shadow:0 3px 12px rgba(22,163,74,0.25);
+}
 .chip-row{display:flex;flex-wrap:wrap;gap:6px;}
 @media(max-width:600px){
   .chip-row{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:3px;}
@@ -639,14 +649,19 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
           </div>
         </div>
         <div class="chip-row mb-2">
-          <label class="filter-chip"><input type="radio" name="lb-mode" value="ranked" checked onchange="setLbMode('ranked')"><span>Leaderboard Ranked</span></label>
-          <label class="filter-chip"><input type="radio" name="lb-mode" value="curriculum" onchange="setLbMode('curriculum')"><span>Leaderboard Kurikulum</span></label>
+          <label class="filter-chip mode-ranked"><input type="radio" name="lb-mode" value="ranked" checked onchange="setLbMode('ranked')"><span>Leaderboard Ranked</span></label>
+          <label class="filter-chip mode-curriculum"><input type="radio" name="lb-mode" value="curriculum" onchange="setLbMode('curriculum')"><span>Leaderboard Kurikulum</span></label>
         </div>
         <div class="chip-row mb-3" id="lb-filter-row">
           <label class="filter-chip"><input type="radio" name="lb-filter" value="All" checked onchange="setLbFilter(this.value)"><span>All</span></label>
           <label class="filter-chip"><input type="radio" name="lb-filter" value="Bumi Lestari" onchange="setLbFilter(this.value)"><span>Bumi Lestari</span></label>
           <label class="filter-chip"><input type="radio" name="lb-filter" value="Eko Aktif" onchange="setLbFilter(this.value)"><span>Eko Aktif</span></label>
           <label class="filter-chip"><input type="radio" name="lb-filter" value="Penjaga Bumi" onchange="setLbFilter(this.value)"><span>Penjaga Bumi</span></label>
+        </div>
+        <div id="lb-meta" class="flex flex-wrap gap-2 items-center text-[0.72rem] text-gray-500 mb-3">
+          <span id="lb-mode-badge" class="rounded-full px-2 py-1 text-xs font-bold text-white bg-blue-600">Ranked</span>
+          <span id="lb-filter-badge" class="rounded-full px-2 py-1 text-xs font-semibold bg-slate-100 text-slate-700">Semua</span>
+          <span id="lb-legend-label" class="text-[0.72rem] text-gray-500">🎯 Mode Ranked: kesulitan level. Filter spesifik memilih tingkat Ranked.</span>
         </div>
         <div class="overflow-x-auto rounded-xl border border-blue-50 max-h-[42vh] overflow-y-auto no-scrollbar">
           <table class="lb-table" style="min-width:640px">
@@ -782,8 +797,8 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
       <button onclick="closeLbModal()" class="text-gray-400 hover:text-red-500 text-2xl font-bold leading-none">&times;</button>
     </div>
     <div class="chip-row mb-2">
-      <label class="filter-chip"><input type="radio" name="lb-prev-mode" value="ranked" checked onchange="setLbPrevMode('ranked')"><span>Leaderboard Ranked</span></label>
-      <label class="filter-chip"><input type="radio" name="lb-prev-mode" value="curriculum" onchange="setLbPrevMode('curriculum')"><span>Leaderboard Kurikulum</span></label>
+      <label class="filter-chip mode-ranked"><input type="radio" name="lb-prev-mode" value="ranked" checked onchange="setLbPrevMode('ranked')"><span>Leaderboard Ranked</span></label>
+      <label class="filter-chip mode-curriculum"><input type="radio" name="lb-prev-mode" value="curriculum" onchange="setLbPrevMode('curriculum')"><span>Leaderboard Kurikulum</span></label>
     </div>
     <div class="chip-row mb-3" id="lb-prev-filter-row">
       <label class="filter-chip"><input type="radio" name="lb-prev-filter" value="All" checked onchange="setPrevFilter(this.value)"><span>All</span></label>
@@ -791,6 +806,11 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
       <label class="filter-chip"><input type="radio" name="lb-prev-filter" value="Eko Aktif" onchange="setPrevFilter(this.value)"><span>Eko Aktif</span></label>
       <label class="filter-chip"><input type="radio" name="lb-prev-filter" value="Penjaga Bumi" onchange="setPrevFilter(this.value)"><span>Penjaga Bumi</span></label>
       <!-- Tab Kurikulum dihapus di modal leaderboard juga -->
+    </div>
+    <div id="lb-prev-meta" class="flex flex-wrap gap-2 items-center text-[0.72rem] text-gray-500 mb-3">
+      <span id="lb-prev-mode-badge" class="rounded-full px-2 py-1 text-xs font-bold text-white bg-blue-600">Ranked</span>
+      <span id="lb-prev-filter-badge" class="rounded-full px-2 py-1 text-xs font-semibold bg-slate-100 text-slate-700">Semua</span>
+      <span id="lb-prev-legend-label" class="text-[0.72rem] text-gray-500">🎯 Mode Ranked: berdasarkan tingkat kesulitan. Filter spesifik memilih level Ranked.</span>
     </div>
     <div class="overflow-x-auto rounded-xl border border-blue-50 max-h-[60vh] overflow-y-auto no-scrollbar">
       <table class="lb-table" style="min-width:600px">
@@ -2008,6 +2028,7 @@ function renderLbTable() {
 
   const myIdx=filtered.findIndex(r=>r.id===GS.currentSessionId);
   if(document.getElementById('final-rank')) document.getElementById('final-rank').textContent=myIdx>=0?`#${myIdx+1}`:'–';
+  renderLbMeta();
 
   filtered.forEach((r,i)=>{
     const isMe=r.id===GS.currentSessionId;
@@ -2049,6 +2070,52 @@ function renderLbTable() {
   }
 }
 
+function renderLbMeta() {
+  const modeLabel = lbMode === 'curriculum' ? 'Kurikulum' : 'Ranked';
+  const modeClass = lbMode === 'curriculum' ? 'bg-purple-600 text-white' : 'bg-blue-600 text-white';
+  const modeDesc = lbMode === 'curriculum'
+    ? '📚 Mode Kurikulum: fokus materi Kurikulum. Filter spesifik memilih topik Kurikulum.'
+    : '🎯 Mode Ranked: berdasarkan tingkat kesulitan. Filter spesifik memilih level Ranked.';
+  const filterLabel = lbFilter === 'All' ? 'Semua' : lbFilter;
+
+  const modeEl = document.getElementById('lb-mode-badge');
+  const filterEl = document.getElementById('lb-filter-badge');
+  const legendEl = document.getElementById('lb-legend-label');
+  if(modeEl) {
+    modeEl.textContent = modeLabel;
+    modeEl.className = `rounded-full px-2 py-1 text-xs font-bold ${modeClass}`;
+  }
+  if(filterEl) {
+    filterEl.textContent = filterLabel;
+  }
+  if(legendEl) {
+    legendEl.textContent = modeDesc;
+  }
+}
+
+function renderLbPrevMeta() {
+  const modeLabel = lbPrevMode === 'curriculum' ? 'Kurikulum' : 'Ranked';
+  const modeClass = lbPrevMode === 'curriculum' ? 'bg-purple-600 text-white' : 'bg-blue-600 text-white';
+  const modeDesc = lbPrevMode === 'curriculum'
+    ? '📚 Mode Kurikulum: fokus materi Kurikulum. Filter spesifik memilih topik Kurikulum.'
+    : '🎯 Mode Ranked: berdasarkan tingkat kesulitan. Filter spesifik memilih level Ranked.';
+  const filterLabel = lbPrevFilter === 'All' ? 'Semua' : lbPrevFilter;
+
+  const modeEl = document.getElementById('lb-prev-mode-badge');
+  const filterEl = document.getElementById('lb-prev-filter-badge');
+  const legendEl = document.getElementById('lb-prev-legend-label');
+  if(modeEl) {
+    modeEl.textContent = modeLabel;
+    modeEl.className = `rounded-full px-2 py-1 text-xs font-bold ${modeClass}`;
+  }
+  if(filterEl) {
+    filterEl.textContent = filterLabel;
+  }
+  if(legendEl) {
+    legendEl.textContent = modeDesc;
+  }
+}
+
 function renderFinalBadges(rec) {
   const row=document.getElementById('final-badges-row');
   if(!row) return;
@@ -2069,6 +2136,7 @@ function renderLbPrev() {
   const filtered=filterLb(lbCache, lbPrevFilter, lbPrevMode);
   tbody.innerHTML='';
   if(filtered.length===0) { tbody.innerHTML='<tr><td colspan="8" class="text-center py-4 text-gray-400 text-xs">Belum ada skor.</td></tr>'; return; }
+  renderLbPrevMeta();
   filtered.forEach((r,i)=>{
     const mv=r.__mv||{sym:'—',cls:'text-gray-400',title:'Tetap'};
     const primary=computePrimaryBadge(r.score||0,r.accuracy||0,r.bestCombo||0,r.attempts||0);
