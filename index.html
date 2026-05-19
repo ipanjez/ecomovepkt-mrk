@@ -744,6 +744,18 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
           <li><b>Combo King</b>: mencapai combo x10 atau lebih dalam satu sesi.</li>
           <li><b>Category Master</b>: 100% benar di satu kategori dengan minimal 5 jawaban di kategori tersebut.</li>
         </ul>
+        <p class="text-xs mb-2"><b>Tags</b> memberikan label performa tambahan pada hasil kamu:</p>
+        <ul class="list-disc pl-5 space-y-1 text-xs mb-2">
+          <li><b>#ResiduExpert</b>: akurasi ≥95% pada kategori RESIDU.</li>
+          <li><b>#SisaMakananExpert</b>: akurasi ≥95% pada kategori SISA MAKANAN.</li>
+          <li><b>#LayakJualExpert</b>: akurasi ≥95% pada kategori LAKU JUAL.</li>
+          <li><b>#ComboKing</b>: mencapai combo x10 atau lebih.</li>
+          <li><b>#ComboPro</b>: mencapai combo x25 atau lebih.</li>
+          <li><b>#Grinder</b>: bermain 100+ jawaban.</li>
+          <li><b>#GodAim</b>: meraih 100% akurasi.</li>
+          <li><b>#Persistence</b>: sudah bermain 50+ kali tanpa menempati posisi 1.</li>
+          <li><b>#WeekWarrior</b>, <b>#MonthlyMaster</b>: label streak khusus untuk 7 atau 30 hari berturut-turut.</li>
+        </ul>
         <p class="text-xs"><b>Streak Badge</b> menunjukkan konsistensi harian:</p>
         <ul class="list-disc pl-5 space-y-1 text-xs">
           <li><b>Hot Streak</b>: menangani challenge 3 hari berturut-turut.</li>
@@ -2069,9 +2081,11 @@ function renderLbPrev() {
     const mv=r.__mv||{sym:'—',cls:'text-gray-400',title:'Tetap'};
     const primary=computePrimaryBadge(r.score||0,r.accuracy||0,r.bestCombo||0,r.attempts||0);
     const secArr=r.secondaryBadges||[];
+    const tags=computeSpecialTags(r.score||0,r.accuracy||0,r.bestCombo||0,r.categoryStats||{},i+1,r.attempts||0);
     const ts=r.timestamp?new Date(r.timestamp).toLocaleString('id-ID',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):'-';
     const diffLabel=r.isCurriculum?`📚 ${r.curriculumFilter||'Mixed'}`:getDifficultyDisplayName(r.difficulty);
     const secBadgesHtml=secArr.slice(0,3).map(b=>`<span class="rounded-full px-1.5 py-0.5 text-[0.55rem] font-bold ${getSecondaryBadgeClass(b)}">${escHtml(b)}</span>`).join(' ');
+    const tagsHtml=tags.length>0?`<span class="text-[0.55rem] text-gray-400 font-semibold">${tags.map(t=>'#'+t).join(' ')}</span>`:'';
     const tr=document.createElement('tr');
     tr.className=i%2===0?'':'bg-blue-50/20';
     tr.innerHTML=`
@@ -2079,6 +2093,7 @@ function renderLbPrev() {
       <td class="pl-2">
         <div class="flex flex-wrap items-center gap-1 mb-1"><span class="font-bold text-xs">${escHtml(r.name||'–')}</span><span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold ${getBadgeClass(primary)}">${escHtml(formatBadge(primary))}</span></div>
         <div class="flex flex-wrap items-center gap-1 mb-1">${secBadgesHtml}</div>
+        <div class="flex flex-wrap items-center gap-1 mb-1">${tagsHtml}</div>
         <div class="text-[0.58rem] text-gray-400">${escHtml(diffLabel)}</div>
       </td>
       <td class="text-center font-black text-pktOrange text-xs">${r.score||0}</td>
