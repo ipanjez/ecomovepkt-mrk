@@ -274,6 +274,14 @@
             <div class="p-6 md:p-8 overflow-y-auto no-scrollbar">
                 <input type="text" id="player-name" placeholder="Masukkan Nama Pemain..." class="w-full px-5 py-4 bg-gray-50 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-pktBlue focus:bg-white mb-6 transition shadow-inner font-semibold text-center text-lg" autocomplete="off">
                 <div id="name-leaderboard-hint" class="text-sm text-gray-500 mb-4 hidden">Loading...</div>
+                <div id="daily-challenge-card" class="mb-4 rounded-xl border border-blue-100 bg-gradient-to-r from-blue-50 to-cyan-50 px-4 py-3 text-left shadow-sm">
+                    <div class="flex items-center justify-between gap-2">
+                        <p class="text-[0.65rem] md:text-xs font-black text-pktBlue uppercase tracking-widest">Daily Challenge</p>
+                        <span id="daily-challenge-status" class="text-[0.65rem] md:text-xs font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full">Aktif</span>
+                    </div>
+                    <p id="daily-challenge-goal" class="mt-1 text-xs md:text-sm font-semibold text-slate-700">Memuat tantangan...</p>
+                    <p id="daily-challenge-progress" class="mt-1 text-[0.7rem] md:text-xs text-slate-500">Selesaikan misi harian untuk bonus motivasi belajar.</p>
+                </div>
                 
                 <p class="mb-3 text-xs font-bold text-gray-400 uppercase tracking-widest">Pilih Tingkat Kesulitan</p>
                 <div class="grid grid-cols-3 gap-2 mb-6" id="diff-selector">
@@ -522,6 +530,20 @@
                     <span id="streak-display">Best Combo: x0</span>
                 </div>
             </div>
+            <div id="mission-progress-card" class="w-full mt-2 bg-white/90 border border-blue-100 rounded-xl px-3 py-2 shadow-sm">
+                <div class="flex items-center justify-between text-[0.65rem] sm:text-[0.72rem] md:text-xs font-bold text-slate-600">
+                    <span>Misi Harian</span>
+                    <span id="mission-progress-text">0%</span>
+                </div>
+                <div class="mt-1 h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+                    <div id="mission-progress-fill" class="h-full bg-gradient-to-r from-blue-500 to-cyan-400" style="width:0%"></div>
+                </div>
+                <p id="mission-progress-detail" class="mt-1 text-[0.62rem] sm:text-[0.68rem] md:text-xs text-slate-500">Memuat tantangan harian...</p>
+            </div>
+            <div id="eco-tip-card" class="w-full mt-2 bg-emerald-50/90 border border-emerald-100 rounded-xl px-3 py-2 shadow-sm">
+                <p class="text-[0.62rem] sm:text-[0.68rem] md:text-xs font-black text-emerald-700 uppercase tracking-wider">Eco Tip</p>
+                <p id="eco-tip-text" class="text-[0.66rem] sm:text-[0.72rem] md:text-xs text-emerald-800 font-semibold">Pilah sampah dari rumah untuk mengurangi sampah ke TPA.</p>
+            </div>
         </div>
 
         <!-- Centered Top Leaderboard (moved to top of screen) -->
@@ -632,6 +654,10 @@
                         <p class="text-[0.6rem] md:text-xs text-gray-500 uppercase font-bold">Personal Best</p>
                         <p class="text-[0.72rem] md:text-sm font-bold text-gray-700" id="final-personal-best">Skor terbaik: -</p>
                     </div>
+                </div>
+                <div id="learning-report-card" class="mt-3 rounded-xl border border-emerald-100 bg-emerald-50/70 p-3 text-left">
+                    <p class="text-[0.65rem] md:text-xs font-black text-emerald-700 uppercase tracking-widest">Laporan Pembelajaran</p>
+                    <div id="learning-report-body" class="mt-2 text-[0.72rem] md:text-xs text-slate-700">Memuat ringkasan belajar...</div>
                 </div>
             </div>
 
@@ -1565,6 +1591,173 @@
         const screens = { start: document.getElementById('start-screen'), game: document.getElementById('game-screen'), end: document.getElementById('end-screen') };
         const uis = { playerNameInput: document.getElementById('player-name'), startError: document.getElementById('start-error'), scoreDisp: document.getElementById('score-display'), timerDisp: document.getElementById('timer-text'), gamePlayerName: document.getElementById('game-player-name'), gameDifficulty: document.getElementById('game-difficulty'), trashName: document.getElementById('trash-name'), trashContainer: document.getElementById('trash-container') };
 
+        const ECO_TIPS = {
+            'SISA MAKANAN': [
+                'Sisa makanan bisa diolah jadi kompos untuk mengurangi emisi metana di TPA.',
+                'Pisahkan sisa dapur basah sejak awal agar tidak mencemari sampah daur ulang.'
+            ],
+            'LAKU JUAL': [
+                'Sampah bernilai jual sebaiknya dibersihkan dan dikeringkan sebelum disetor.',
+                'Pisahkan plastik, kertas, dan logam agar nilai ekonominya tetap tinggi.'
+            ],
+            'RESIDU': [
+                'Residu adalah sampah yang sulit didaur ulang, jadi kurangi dari sumbernya.',
+                'Produk sekali pakai umumnya berakhir sebagai residu, pilih barang pakai ulang bila bisa.'
+            ],
+            'DEFAULT': [
+                'Mulai dari kebiasaan kecil: pilah sampah setiap hari di rumah dan kantor.'
+            ]
+        };
+
+        let dailyChallengeState = {
+            dateKey: '',
+            targetScore: 650,
+            minAccuracy: 78,
+            minCorrectPerCategory: 4,
+            focusCategory: 'SISA MAKANAN',
+            completed: false,
+            bestProgress: 0
+        };
+
+        function seededRandom(seed) {
+            const x = Math.sin(seed) * 10000;
+            return x - Math.floor(x);
+        }
+
+        function getTodayKey() {
+            const d = new Date();
+            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        }
+
+        function deriveDailyChallenge(dateKey) {
+            const numericSeed = Number(String(dateKey).replace(/-/g, ''));
+            const categories = ['SISA MAKANAN', 'LAKU JUAL', 'RESIDU'];
+            const scoreBase = 550 + Math.floor(seededRandom(numericSeed) * 350);
+            const minAccuracy = 75 + Math.floor(seededRandom(numericSeed + 17) * 18);
+            const minCorrect = 3 + Math.floor(seededRandom(numericSeed + 29) * 4);
+            const focusCategory = categories[Math.floor(seededRandom(numericSeed + 41) * categories.length)];
+            return {
+                dateKey,
+                targetScore: scoreBase,
+                minAccuracy,
+                minCorrectPerCategory: minCorrect,
+                focusCategory,
+                completed: false,
+                bestProgress: 0
+            };
+        }
+
+        function loadDailyChallenge() {
+            const key = 'eco_daily_challenge_v1';
+            const todayKey = getTodayKey();
+            try {
+                const raw = localStorage.getItem(key);
+                const parsed = raw ? JSON.parse(raw) : null;
+                if (!parsed || parsed.dateKey !== todayKey) {
+                    dailyChallengeState = deriveDailyChallenge(todayKey);
+                    localStorage.setItem(key, JSON.stringify(dailyChallengeState));
+                    return;
+                }
+                dailyChallengeState = {
+                    ...deriveDailyChallenge(todayKey),
+                    ...parsed,
+                    dateKey: todayKey
+                };
+            } catch (e) {
+                dailyChallengeState = deriveDailyChallenge(todayKey);
+            }
+        }
+
+        function saveDailyChallenge() {
+            try {
+                localStorage.setItem('eco_daily_challenge_v1', JSON.stringify(dailyChallengeState));
+            } catch (e) { /* ignore */ }
+        }
+
+        function evaluateChallengeProgress(snapshot) {
+            const scoreProgress = Math.min(1, (Number(snapshot.score) || 0) / Math.max(1, dailyChallengeState.targetScore));
+            const accuracyProgress = Math.min(1, (Number(snapshot.accuracy) || 0) / Math.max(1, dailyChallengeState.minAccuracy));
+            const focused = snapshot.categoryStats && snapshot.categoryStats[dailyChallengeState.focusCategory]
+                ? snapshot.categoryStats[dailyChallengeState.focusCategory]
+                : { correct: 0, total: 0 };
+            const focusProgress = Math.min(1, (Number(focused.correct) || 0) / Math.max(1, dailyChallengeState.minCorrectPerCategory));
+            const progress = Math.round(((scoreProgress + accuracyProgress + focusProgress) / 3) * 100);
+            const completed = (Number(snapshot.score) || 0) >= dailyChallengeState.targetScore
+                && (Number(snapshot.accuracy) || 0) >= dailyChallengeState.minAccuracy
+                && (Number(focused.correct) || 0) >= dailyChallengeState.minCorrectPerCategory;
+            return { progress, completed, focusedCorrect: Number(focused.correct) || 0 };
+        }
+
+        function renderDailyChallengeStartCard() {
+            const goalEl = document.getElementById('daily-challenge-goal');
+            const progressEl = document.getElementById('daily-challenge-progress');
+            const statusEl = document.getElementById('daily-challenge-status');
+            if (!goalEl || !progressEl || !statusEl) return;
+
+            goalEl.textContent = `Capai skor ${dailyChallengeState.targetScore}, akurasi ${dailyChallengeState.minAccuracy}%+, dan minimal ${dailyChallengeState.minCorrectPerCategory} benar di ${dailyChallengeState.focusCategory}.`;
+            progressEl.textContent = dailyChallengeState.completed
+                ? `Tantangan hari ini selesai. Progress terbaik: ${dailyChallengeState.bestProgress}%`
+                : `Progress terbaik hari ini: ${dailyChallengeState.bestProgress}%`;
+            statusEl.textContent = dailyChallengeState.completed ? 'Selesai' : 'Aktif';
+            statusEl.className = dailyChallengeState.completed
+                ? 'text-[0.65rem] md:text-xs font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full'
+                : 'text-[0.65rem] md:text-xs font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full';
+        }
+
+        function renderMissionProgress(snapshot) {
+            const progressInfo = evaluateChallengeProgress(snapshot);
+            const textEl = document.getElementById('mission-progress-text');
+            const fillEl = document.getElementById('mission-progress-fill');
+            const detailEl = document.getElementById('mission-progress-detail');
+            if (textEl) textEl.textContent = `${progressInfo.progress}%`;
+            if (fillEl) fillEl.style.width = `${Math.max(0, Math.min(100, progressInfo.progress))}%`;
+            if (detailEl) {
+                detailEl.textContent = `Skor ${snapshot.score}/${dailyChallengeState.targetScore} • Akurasi ${snapshot.accuracy}%/${dailyChallengeState.minAccuracy}% • ${dailyChallengeState.focusCategory} ${progressInfo.focusedCorrect}/${dailyChallengeState.minCorrectPerCategory}`;
+            }
+            if (progressInfo.progress > (dailyChallengeState.bestProgress || 0)) {
+                dailyChallengeState.bestProgress = progressInfo.progress;
+                saveDailyChallenge();
+                renderDailyChallengeStartCard();
+            }
+            if (progressInfo.completed && !dailyChallengeState.completed) {
+                dailyChallengeState.completed = true;
+                saveDailyChallenge();
+                renderDailyChallengeStartCard();
+                showFeedback('Daily Challenge Selesai! 🏅', 'text-emerald-500');
+            }
+        }
+
+        function renderEcoTip(category) {
+            const tipEl = document.getElementById('eco-tip-text');
+            if (!tipEl) return;
+            const list = ECO_TIPS[category] || ECO_TIPS.DEFAULT;
+            const index = Math.floor(Math.random() * list.length);
+            tipEl.textContent = list[index];
+        }
+
+        function renderLearningReport() {
+            const reportEl = document.getElementById('learning-report-body');
+            if (!reportEl) return;
+            const categories = ['SISA MAKANAN', 'LAKU JUAL', 'RESIDU'];
+            const rows = categories.map((category) => {
+                const stats = gameState.categoryStats && gameState.categoryStats[category]
+                    ? gameState.categoryStats[category]
+                    : { correct: 0, total: 0 };
+                const acc = stats.total > 0 ? Math.round((stats.correct / stats.total) * 100) : 0;
+                return `<div class="mb-2"><div class="flex justify-between text-[0.68rem] md:text-xs font-semibold"><span>${category}</span><span>${stats.correct}/${stats.total} • ${acc}%</span></div><div class="mt-1 h-1.5 bg-emerald-100 rounded-full overflow-hidden"><div class="h-full bg-emerald-500" style="width:${Math.max(2, acc)}%"></div></div></div>`;
+            }).join('');
+            const recommendation = gameState.categoryStats
+                ? categories
+                    .map((cat) => {
+                        const s = gameState.categoryStats[cat] || { correct: 0, total: 0 };
+                        const a = s.total > 0 ? (s.correct / s.total) * 100 : 0;
+                        return { cat, a };
+                    })
+                    .sort((a, b) => a.a - b.a)[0]
+                : { cat: 'RESIDU', a: 0 };
+            reportEl.innerHTML = `${rows}<p class="mt-2 text-[0.68rem] md:text-xs text-emerald-800 font-semibold">Fokus latihan berikutnya: ${recommendation.cat} agar akurasi kategori makin seimbang.</p>`;
+        }
+
         // Persist player name across page reloads using localStorage
         try {
             const savedName = localStorage.getItem('eco_player_name');
@@ -1579,6 +1772,8 @@
         } catch (e) {
             console.warn('localStorage not available for player name persistence');
         }
+        loadDailyChallenge();
+        renderDailyChallengeStartCard();
 
         // Show live hint for typed name if it exists on the leaderboard
         function updateNameLeaderboardHint() {
@@ -2857,6 +3052,7 @@
             gameState.paused = false;
             const pauseOverlay = document.getElementById('pause-overlay');
             if (pauseOverlay) pauseOverlay.classList.add('hidden');
+            renderDailyChallengeStartCard();
             try { playSound('tryagain'); } catch(e) {}
         }
 
@@ -2902,6 +3098,8 @@
             updateTimerUI();
             document.getElementById('streak-display').textContent = 'Best Combo: x0';
             renderPersonalBestSummaryFromLeaderboard(null);
+            renderMissionProgress({ score: 0, accuracy: 0, categoryStats: gameState.categoryStats || {} });
+            renderEcoTip('DEFAULT');
 
             uis.gamePlayerName.textContent = name; uis.gameDifficulty.textContent = getDifficultyDisplayName(diff);
             updateScoreUI();
@@ -2986,6 +3184,7 @@
             
             uis.trashName.textContent = gameState.currentTrash.name;
             if(document.getElementById('trash-emoji')) document.getElementById('trash-emoji').textContent = gameState.currentTrash.emoji;
+            renderEcoTip(gameState.currentTrash.category);
             
             uis.trashContainer.className = "trash-item bg-white border-2 border-gray-200 p-6 md:p-8 rounded-[2rem] shadow-xl flex flex-col items-center justify-center text-center w-full max-w-xs md:max-w-sm aspect-square cursor-pointer z-10 hover:bg-gray-50 transition-colors";
             uis.trashName.classList.remove('anim-shake');
@@ -3050,6 +3249,12 @@
                 
                 setTimeout(() => { uis.trashName.classList.remove('anim-shake'); uis.timerDisp.classList.remove('scale-125', 'text-red-500'); updateTimerUI(); spawnTrash(); }, 400);
             }
+            const liveAccuracy = gameState.totalAnswered === 0 ? 0 : Math.round((gameState.correctAnswers / gameState.totalAnswered) * 100);
+            renderMissionProgress({
+                score: gameState.score,
+                accuracy: liveAccuracy,
+                categoryStats: gameState.categoryStats || {}
+            });
             updateScoreUI(); updateTimerUI();
         }
 
@@ -3106,6 +3311,8 @@
             } catch (e) { console.warn('Could not render badge display', e); }
             renderPersonalBestSummaryFromLeaderboard(null);
             updateSessionUniqueProgressUI();
+            renderMissionProgress({ score: gameState.score, accuracy: accuracy, categoryStats: gameState.categoryStats || {} });
+            renderLearningReport();
 
             // Simpan Skor secara Global ke Firebase
             saveToCloudDb(); 
