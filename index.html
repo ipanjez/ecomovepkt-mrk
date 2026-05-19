@@ -629,6 +629,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
           <label class="filter-chip"><input type="radio" name="lb-filter" value="Bumi Lestari" onchange="setLbFilter(this.value)"><span>Bumi Lestari</span></label>
           <label class="filter-chip"><input type="radio" name="lb-filter" value="Eko Aktif" onchange="setLbFilter(this.value)"><span>Eko Aktif</span></label>
           <label class="filter-chip"><input type="radio" name="lb-filter" value="Penjaga Bumi" onchange="setLbFilter(this.value)"><span>Penjaga Bumi</span></label>
+          <!-- Tab Kurikulum dihapus sesuai permintaan -->
         </div>
         <div class="overflow-x-auto rounded-xl border border-blue-50 max-h-[42vh] overflow-y-auto no-scrollbar">
           <table class="lb-table" style="min-width:640px">
@@ -645,7 +646,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
               </tr>
             </thead>
             <tbody id="lb-body">
-              <tr><td colspan="8" class="text-center py-4 text-gray-400 text-xs">Memuat data real-time......</td></tr>
+              <tr><td colspan="8" class="text-center py-4 text-gray-400 text-xs">Memuat data real-time...</td></tr>
             </tbody>
           </table>
         </div>
@@ -740,6 +741,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
       <label class="filter-chip"><input type="radio" name="lb-prev-filter" value="Bumi Lestari" onchange="setPrevFilter(this.value)"><span>Bumi Lestari</span></label>
       <label class="filter-chip"><input type="radio" name="lb-prev-filter" value="Eko Aktif" onchange="setPrevFilter(this.value)"><span>Eko Aktif</span></label>
       <label class="filter-chip"><input type="radio" name="lb-prev-filter" value="Penjaga Bumi" onchange="setPrevFilter(this.value)"><span>Penjaga Bumi</span></label>
+      <!-- Tab Kurikulum dihapus di modal leaderboard juga -->
     </div>
     <div class="overflow-x-auto rounded-xl border border-blue-50 max-h-[60vh] overflow-y-auto no-scrollbar">
       <table class="lb-table" style="min-width:600px">
@@ -756,7 +758,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
           </tr>
         </thead>
         <tbody id="lb-prev-body">
-          <tr><td colspan="8" class="text-center py-4 text-gray-400 text-xs">Memuat leaderboard......</td></tr>
+          <tr><td colspan="8" class="text-center py-4 text-gray-400 text-xs">Memuat leaderboard...</td></tr>
         </tbody>
       </table>
     </div>
@@ -804,9 +806,9 @@ let GS = {
   isPlaying:false, paused:false, isMuted:false, currentSessionId:null,
   combo:0, bestCombo:0, previousBest:0,
   categoryStats:{ 'LAKU JUAL':{correct:0,total:0}, 'SISA MAKANAN':{correct:0,total:0}, 'RESIDU':{correct:0,total:0} },
-  curriculumFilter:null, // null = mixed, or 'SISA MAKANAN'/'LAKU JUAL'/'RESIDU'
+  curriculumFilter:null,
   isCurriculum:false,
-  curriculumFocus:null  // fokus kategori untuk mode kurikulum (SISA MAKANAN/LAKU JUAL/RESIDU)
+  curriculumFocus:null
 };
 
 let selectedDiff = null;
@@ -825,6 +827,10 @@ let lbLatestMoverIdx = -1;
 // Nearest rival
 let nearestRival = null;
 let nearestRivalReached = false;
+
+// DC per user
+let currentUserIdForDC = null;
+let DC = {};
 
 // ──────────────────────────────────────────
 //  AUDIO
@@ -895,16 +901,10 @@ function toggleAmbient() {
 }
 
 // ──────────────────────────────────────────
-//  DAILY CHALLENGE
+//  DAILY CHALLENGE (per user, sync Firebase)
 // ──────────────────────────────────────────
-let DC = {};
-
 function getTodayKey() {
   const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-}
-
-function getYesterdayKey() {
-  const d=new Date(Date.now()-86400000); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 }
 
 function seededRand(seed) { const x=Math.sin(seed)*10000; return x-Math.floor(x); }
@@ -921,17 +921,67 @@ function deriveDC(dk) {
   };
 }
 
-function loadDC() {
-  const dk=getTodayKey();
+async function loadDC() {
+  const dk = getTodayKey();
+  const nameInput = document.getElementById('player-name');
+  if (!nameInput) return;
+  const name = nameInput.value.trim();
+  if (!name) {
+    fallbackLoadDC(dk);
+    renderDCCard();
+    return;
+  }
+  const userId = name.replace(/[.#$[\]/\s]/g, '_').toUpperCase();
+  currentUserIdForDC = userId;
+  
   try {
-    const raw=localStorage.getItem('eco_dc_v2');
-    const p=raw?JSON.parse(raw):null;
-    if (!p||p.dateKey!==dk) { DC=deriveDC(dk); saveDC(); return; }
-    DC={...deriveDC(dk),...p,dateKey:dk};
-  } catch(e) { DC=deriveDC(dk); }
+    const ref = DB.ref(`dailyChallenges/${userId}/${dk}`);
+    const snap = await ref.once('value');
+    if (snap.exists()) {
+      DC = snap.val();
+      if (DC.dateKey !== dk) {
+        DC = deriveDC(dk);
+        await saveDC();
+      }
+    } else {
+      DC = deriveDC(dk);
+      await saveDC();
+    }
+  } catch(e) {
+    console.warn("Firebase DC load error, pakai localStorage", e);
+    fallbackLoadDC(dk);
+  }
+  renderDCCard();
 }
 
-function saveDC() { try { localStorage.setItem('eco_dc_v2',JSON.stringify(DC)); } catch(e){} }
+function fallbackLoadDC(dk) {
+  try {
+    const raw = localStorage.getItem('eco_dc_v2');
+    if (raw) {
+      const p = JSON.parse(raw);
+      if (p.dateKey === dk) DC = p;
+      else DC = deriveDC(dk);
+    } else {
+      DC = deriveDC(dk);
+    }
+  } catch(e) {
+    DC = deriveDC(dk);
+  }
+}
+
+async function saveDC() {
+  try {
+    if (currentUserIdForDC) {
+      const dk = getTodayKey();
+      await DB.ref(`dailyChallenges/${currentUserIdForDC}/${dk}`).set(DC);
+    } else {
+      localStorage.setItem('eco_dc_v2', JSON.stringify(DC));
+    }
+  } catch(e) {
+    console.warn("Gagal simpan DC ke Firebase", e);
+    localStorage.setItem('eco_dc_v2', JSON.stringify(DC));
+  }
+}
 
 function evalDCProgress(snap) {
   const sp=Math.min(1,(snap.score||0)/Math.max(1,DC.targetScore));
@@ -955,7 +1005,7 @@ function renderDCCard() {
 }
 
 // ──────────────────────────────────────────
-//  DAILY STREAK
+//  DAILY STREAK (masih global localStorage, bisa diperbaiki nanti)
 // ──────────────────────────────────────────
 function getStreak() {
   try { const r=localStorage.getItem('eco_streak_v1'); return r?JSON.parse(r):{current:0,longest:0,lastDate:'',total:0}; }
@@ -965,7 +1015,7 @@ function getStreak() {
 function updateStreak() {
   const dk=getTodayKey(); const yk=getYesterdayKey();
   const s=getStreak();
-  if (s.lastDate===dk) return s; // already updated today
+  if (s.lastDate===dk) return s;
   s.current = (s.lastDate===yk) ? s.current+1 : 1;
   s.longest = Math.max(s.longest, s.current);
   s.lastDate = dk;
@@ -973,6 +1023,7 @@ function updateStreak() {
   try { localStorage.setItem('eco_streak_v1',JSON.stringify(s)); } catch(e){}
   return s;
 }
+function getYesterdayKey() { const d=new Date(Date.now()-86400000); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
 
 function renderStreakBadge() {
   const div=document.getElementById('streak-badge-display');
@@ -998,7 +1049,6 @@ function saveCurrProgress(cat, score) {
 
 function openCurriculum() {
   const p=getCurrProgress();
-  // show scores in cards
   const setBadge=(id,key,label)=>{
     const el=document.getElementById(id);
     if(!el) return;
@@ -1010,7 +1060,6 @@ function openCurriculum() {
   setBadge('curr-laku-badge','LAKU JUAL');
   setBadge('curr-residu-badge','RESIDU');
   setBadge('curr-mixed-badge','MIXED');
-  // reset selection
   currSelectedCategory=null; currDiff=null;
   document.querySelectorAll('.curr-card').forEach(c=>c.classList.remove('selected'));
   document.querySelectorAll('.curr-diff-btn').forEach(b=>{
@@ -1051,17 +1100,12 @@ function startCurriculumGame() {
   if(!currSelectedCategory||!currDiff||!name) { errEl.classList.remove('hidden'); return; }
   errEl.classList.add('hidden');
   GS.isCurriculum=true;
-  // set fokus kurikulum: jika pilih MIXED, fokus null (berarti semua campuran tapi tetap pakai 2 pilihan? tidak, MIXED berarti semua kategori, tapi fokus null akan membuat game biasa?
-  // Aturan: jika MIXED, maka mode kurikulum berjalan seperti biasa (3 pilihan) tapi tidak masuk leaderboard.
-  // Karena permintaan: "bukan memilih dari 3 pilihan" untuk mode kurikulum, maka kami akan terapkan 2 pilihan hanya jika kategori fokus bukan MIXED.
   if (currSelectedCategory === 'MIXED') {
-    // Mixed: tetap 3 bins tapi tidak masuk leaderboard
     GS.curriculumFocus = null;
     GS.curriculumFilter = null;
   } else {
-    // Fokus kategori: 2 pilihan (Sesuai/Tidak Sesuai)
     GS.curriculumFocus = currSelectedCategory;
-    GS.curriculumFilter = null; // tidak memfilter trash, semua muncul
+    GS.curriculumFilter = null;
   }
   playSound('start');
   startGame(currDiff.time, currDiff.name, name, true);
@@ -1073,7 +1117,6 @@ function startCurriculumGame() {
 function showScreen(name) {
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(name+'-screen').classList.add('active');
-  // ensure body doesn't hide overflow on scrollable screens
   document.body.style.overflow=(name==='game')?'hidden':'auto';
 }
 
@@ -1124,13 +1167,10 @@ function startGame(time, diff, name, isCurriculum) {
   sessionQueue=[]; sessionAsked=new Set();
   nearestRival=null; nearestRivalReached=false;
 
-  // Set session id
   GS.currentSessionId=name.replace(/[.#$[\]/\s]/g,'_').toUpperCase();
-  // Load previous best
   const cached=lbCache.find(r=>r.id===GS.currentSessionId);
   GS.previousBest=cached?(cached.score||0):0;
 
-  // UI
   document.getElementById('game-player-label').textContent=name+(isCurriculum?' [Kurikulum]':'');
   const modeMap={'Easy':'Bumi Lestari','Medium':'Eko Aktif','Hard':'Penjaga Bumi'};
   let modeText = (modeMap[diff]||diff);
@@ -1150,7 +1190,6 @@ function startGame(time, diff, name, isCurriculum) {
   document.getElementById('combo-display').style.opacity='0';
   document.getElementById('eco-tip-strip').textContent='Pilah sampah dari sumber untuk kurangi beban TPA.';
 
-  // Tampilkan badge fokus kurikulum jika perlu
   const focusBadge = document.getElementById('curriculum-focus-badge');
   if (isCurriculum && GS.curriculumFocus) {
     focusBadge.textContent = `🎯 Fokus: ${GS.curriculumFocus}`;
@@ -1159,7 +1198,6 @@ function startGame(time, diff, name, isCurriculum) {
     focusBadge.classList.add('hidden');
   }
 
-  // Setup UI untuk mode kurikulum (2 pilihan) atau normal (3 bins)
   setupGameUI();
 
   const pauseOv=document.getElementById('pause-overlay');
@@ -1184,7 +1222,6 @@ function setupGameUI() {
   if (existingCurriculumDiv) existingCurriculumDiv.remove();
   
   if (GS.isCurriculum && GS.curriculumFocus) {
-    // Sembunyikan 3 bins, tampilkan 2 tombol
     binsContainer.style.display = 'none';
     const newDiv = document.createElement('div');
     newDiv.id = 'curriculum-buttons-container';
@@ -1295,7 +1332,6 @@ function restartGame() {
 }
 
 function buildQueue() {
-  // Untuk mode kurikulum dengan fokus, kita ambil dari semua data (tanpa filter) karena 2 pilihan
   const pool = trashData.map((_,i)=>i);
   const q=[...pool];
   for(let i=q.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [q[i],q[j]]=[q[j],q[i]]; }
@@ -1314,7 +1350,6 @@ function spawnTrash() {
   document.getElementById('trash-name').classList.remove('anim-shake');
   document.getElementById('session-progress').textContent=`${sessionAsked.size} unik`;
 
-  // eco tip
   const tips={
     'SISA MAKANAN':['Sisa makanan bisa jadi kompos, kurangi emisi metana di TPA.','Pisahkan sampah dapur basah agar tidak mencemari daur ulang.'],
     'LAKU JUAL':['Sampah bernilai jual: bersihkan & keringkan sebelum disetor.','Pisahkan plastik, kertas, logam agar nilainya tetap tinggi.'],
@@ -1344,7 +1379,6 @@ function checkBin(cat) {
     const pts=base*mult;
     GS.score+=pts;
 
-    // combo splash
     const cd=document.getElementById('combo-display');
     if(GS.combo>1) {
       cd.textContent=`${GS.combo}x COMBO!`;
@@ -1352,13 +1386,10 @@ function checkBin(cat) {
       setTimeout(()=>{ cd.style.opacity='0'; cd.style.transform='translate(-50%,-50%) scale(0.5)'; },700);
     }
 
-    // toss animation
     const tc2=document.getElementById('trash-container');
     tc2.classList.add('anim-toss');
     showFeedback(`+${pts}${mult>1?' ('+mult+'x)':''}`, 'text-green-500');
     setTimeout(()=>{ tc2.classList.remove('anim-toss'); spawnTrash(); },320);
-
-    // confetti if rival beaten
     checkRival();
   } else {
     playSound('wrong');
@@ -1451,7 +1482,6 @@ function endGame() {
   document.getElementById('final-correct').textContent=GS.correctAnswers;
   document.getElementById('final-wrong').textContent=wrong;
 
-  // Daily challenge badge + streak
   updateMissionUI();
   const dcSnap={score:GS.score,acc,catStats:GS.categoryStats};
   const dcInfo=evalDCProgress(dcSnap);
@@ -1465,22 +1495,15 @@ function endGame() {
     dcEl.className='inline-flex items-center rounded-full px-2.5 py-1 text-xs font-bold bg-amber-100 text-amber-700';
   }
 
-  // Learning report
   renderLearningReport();
 
-  // Save to DB hanya jika BUKAN mode kurikulum atau jika mode kurikulum tapi campuran? Permintaan: mode kurikulum tidak dimasukkan leaderboard. Jadi skip.
   if (!GS.isCurriculum) {
     saveToDb(acc, wrong);
-  } else {
-    // Jika kurikulum campuran (mixed) sekalipun, tidak disimpan.
-    console.log("Mode kurikulum: skor tidak disimpan ke leaderboard.");
   }
 
-  // Game over popup
   showGameOverPopup();
   showScreen('end');
 
-  // Render leaderboard with cached data (DB update will trigger re-render)
   renderLbTable();
   setTimeout(()=>renderLbTable(), 800);
   setTimeout(()=>renderLbTable(), 2500);
@@ -1549,7 +1572,6 @@ function saveToDb(acc, wrong) {
     const attempts=(ex?((ex.attempts||1)+1):1);
     const merged=mergeCatStats(ex?ex.categoryStats||{}:{}, GS.categoryStats||{});
 
-    // Secondary badges
     const rank=(()=>{ const i=lbCache.findIndex(r=>r.id===safeId); return i>=0?i+1:null; })();
     const secBadges=computeSecondaryBadges(GS.score,acc,GS.bestCombo,GS.previousBest,GS.correctAnswers,wrong,GS.totalAnswered,merged,rank,attempts,ex?ex.secondaryBadges||[]:[]);
 
@@ -1581,7 +1603,6 @@ DB.ref('leaderboard').on('value', snap=>{
   let arr=Object.entries(data).map(([k,v])=>({id:k,...v}));
   arr.sort((a,b)=>{ const sd=b.score-a.score; if(sd!==0) return sd; const cd=(b.bestCombo||0)-(a.bestCombo||0); if(cd!==0) return cd; return (a.timestamp||0)-(b.timestamp||0); });
 
-  // movement
   let latestTs=-1, latestIdx=-1;
   arr.forEach((r,i)=>{ if((r.timestamp||0)>=latestTs) { latestTs=r.timestamp||0; latestIdx=i; } });
   lbLatestMoverIdx=latestIdx;
@@ -1600,7 +1621,6 @@ DB.ref('leaderboard').on('value', snap=>{
   document.getElementById('db-status').textContent='● Live';
   document.getElementById('db-status').className='text-[0.65rem] font-bold text-green-500';
 
-  // update lb position label
   try {
     const posEl=document.getElementById('lb-position-label');
     if(posEl) {
@@ -1609,7 +1629,6 @@ DB.ref('leaderboard').on('value', snap=>{
     }
   } catch(e){}
 
-  // update name hint on start screen
   updateNameHint();
   renderStreakBadge();
   renderLbTable();
@@ -1656,7 +1675,6 @@ function computeSecondaryBadges(score,acc,combo,prevBest,correct,wrong,total,cat
   if((typeof prevBest==='number'&&prevBest>0&&score>=(prevBest+75)&&composite>=45)||ex.includes('Rising Star')) badges.push('Rising Star');
   if(DC.completed||ex.includes('Daily Challenger')) badges.push('Daily Challenger');
 
-  // streak bonus
   const streak=getStreak();
   if(streak.current>=30||ex.includes('Monthly Master')) badges.push('Monthly Master');
   else if(streak.current>=7||ex.includes('Week Warrior')) badges.push('Week Warrior');
@@ -1694,10 +1712,10 @@ const BADGE_ORD={'Bronze':1,'Silver':2,'Gold':3,'Platinum':4,'Epic':5,'Grandmast
 function formatBadge(primary) { const o=BADGE_ORD[primary]||1; return `*${o} ${primary}`; }
 
 // ──────────────────────────────────────────
-//  LEADERBOARD RENDERING (Filter exclude curriculum)
+//  LEADERBOARD RENDERING (exclude curriculum)
 // ──────────────────────────────────────────
 function filterLb(data, filter) {
-  if(!filter||filter==='All') return data.filter(r=>!r.isCurriculum); // exclude curriculum from All
+  if(!filter||filter==='All') return data.filter(r=>!r.isCurriculum);
   if(filter==='Kurikulum') return data.filter(r=>r.isCurriculum===true);
   return data.filter(r=>{
     if(r.isCurriculum) return false;
@@ -1757,7 +1775,6 @@ function renderLbTable() {
     tbody.appendChild(tr);
   });
 
-  // render final badge section
   if(GS.currentSessionId) {
     const myRec=lbCache.find(r=>r.id===GS.currentSessionId && !r.isCurriculum);
     if(myRec) renderFinalBadges(myRec);
@@ -1774,7 +1791,6 @@ function renderFinalBadges(rec) {
   secArr.slice(0,3).forEach(b=>{ html+=`<span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-bold ${getSecondaryBadgeClass(b)}">${escHtml(b)}</span>`; });
   if(tags.length>0) html+=`<span class="text-[0.65rem] text-gray-400 font-semibold self-center">${tags.map(t=>'#'+t).join(' ')}</span>`;
   row.innerHTML=html;
-  // pb
   const pbEl=document.getElementById('final-pb');
   if(pbEl) pbEl.textContent=`Skor: ${rec.score} | Akurasi: ${rec.accuracy||0}% | D/B/S: ${rec.total||0}/${rec.correct||0}/${rec.wrong||0}`;
 }
@@ -1833,7 +1849,7 @@ function exportExcel() {
     const ts=r.timestamp?new Date(r.timestamp).toLocaleString('id-ID',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):'-';
     rows+=`<tr><td>${i+1}</td><td>${escHtml(r.name||'')}</td><td>${escHtml(formatBadge(primary))}</td><td>${r.score||0}</td><td>${r.bestCombo||0}</td><td>${r.accuracy||0}%</td><td>${r.total||0}/${r.correct||0}/${r.wrong||0}</td><td>${ts}</td><td>${r.attempts||1}x</td></tr>`;
   });
-  const html=`<html><head><meta charset="utf-8"></head><body><table><thead><tr><th>#</th><th>Nama</th><th>Badge</th><th>Skor</th><th>Combo</th><th>Akurasi</th><th>D/B/S</th><th>Waktu</th><th>Coba</th></tr></thead><tbody>${rows}</tbody></table></body></html>`;
+  const html=`<html><head><meta charset="utf-8"></head><body><tr><thead><tr><th>#</th><th>Nama</th><th>Badge</th><th>Skor</th><th>Combo</th><th>Akurasi</th><th>D/B/S</th><th>Waktu</th><th>Coba</th></tr></thead><tbody>${rows}</tbody></table></body></html>`;
   const blob=new Blob([html],{type:'application/vnd.ms-excel;charset=utf-8'});
   const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='leaderboard_ecomove.xls'; document.body.appendChild(a); a.click(); a.remove();
 }
@@ -1910,16 +1926,28 @@ document.addEventListener('keydown', e=>{
 // ──────────────────────────────────────────
 //  INIT
 // ──────────────────────────────────────────
+function debounce(fn, delay) {
+  let timer;
+  return function() {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn.apply(this, arguments), delay);
+  };
+}
+
 (function init() {
-  loadDC();
-  renderDCCard();
+  // Load DC setelah nama tersedia
+  const nameInput = document.getElementById('player-name');
+  if (nameInput) {
+    nameInput.addEventListener('change', () => { loadDC(); });
+    nameInput.addEventListener('input', debounce(() => { loadDC(); }, 500));
+  }
+  setTimeout(() => { loadDC(); }, 100);
+  
   renderStreakBadge();
 
-  // Restore player name
   try { const n=localStorage.getItem('eco_player_name'); if(n) document.getElementById('player-name').value=n; } catch(e){}
   document.getElementById('player-name').addEventListener('input',e=>{ try { localStorage.setItem('eco_player_name',e.target.value); } catch(err){} updateNameHint(); });
 
-  // Ambient music init
   const ambKey='eco_ambient';
   const musicBtn=document.getElementById('music-btn');
   if(localStorage.getItem(ambKey)!=='1') { musicBtn.textContent='🎵'; }
