@@ -622,7 +622,11 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
         </div>
         <div id="curriculum-results-card" class="rounded-xl border border-blue-100 bg-white p-3 mb-2 hidden">
           <p class="text-[0.62rem] font-black text-pktBlue uppercase tracking-wider mb-2">Hasil Mode Kurikulum</p>
-          <div id="curriculum-results-list" class="space-y-2 text-[0.72rem] text-slate-700"></div>
+          <div id="curriculum-results-list" class="space-y-1 text-[0.68rem] text-slate-700"></div>
+        </div>
+        <div id="ranked-results-card" class="rounded-xl border border-blue-100 bg-white p-3 mb-2 hidden">
+          <p class="text-[0.62rem] font-black text-pktBlue uppercase tracking-wider mb-2">Hasil Mode Ranked</p>
+          <div id="ranked-results-list" class="space-y-1 text-[0.68rem] text-slate-700"></div>
         </div>
         <!-- learning report -->
         <div class="rounded-xl border border-emerald-100 bg-emerald-50/70 p-3">
@@ -1730,6 +1734,7 @@ async function endGame() {
 
   renderLearningReport();
   renderCurriculumSummary();
+  renderRankedSummary();
   const modeLabel=document.getElementById('final-mode-label');
   if(modeLabel) modeLabel.textContent=GS.isCurriculum? 'Kurikulum' : 'Ranked';
 
@@ -1790,20 +1795,47 @@ function renderCurriculumSummary() {
   const total=GS.history.length;
   const wrong=GS.totalAnswered-GS.correctAnswers;
   let html=`<p class="text-[0.72rem] text-slate-600 mb-2">Total jawaban: <strong>${total}</strong> · Benar: <strong>${GS.correctAnswers}</strong> · Salah: <strong>${wrong}</strong></p>`;
-  const items=GS.history.slice(-10).reverse();
-  html += items.map(entry => {
+  const items=GS.history.slice(-5).reverse();
+  html += `<div class="space-y-1">${items.map(entry => {
     const status = entry.correct ? 'Benar' : 'Salah';
     const color = entry.correct ? 'text-emerald-700' : 'text-red-600';
     const answered = entry.answeredMatch !== undefined ? (entry.answeredMatch ? 'Sesuai' : 'Tidak Sesuai') : entry.answered;
-    return `<div class="rounded-xl border border-slate-200 p-3 bg-slate-50">
-      <div class="flex justify-between items-center gap-2 mb-1">
-        <span class="font-semibold">${escHtml(entry.item)}</span>
-        <span class="text-[0.68rem] font-bold ${color}">${status}</span>
-      </div>
-      <div class="text-[0.68rem] text-slate-600">Jawaban: <strong>${escHtml(answered)}</strong> · Kebenaran: <strong>${escHtml(entry.correctAnswer||entry.expected||'–')}</strong></div>
+    return `<div class="flex items-center justify-between gap-2 text-[0.68rem] border-b border-slate-100 pb-1">
+      <span class="truncate">${escHtml(entry.item)}</span>
+      <span class="font-semibold ${color}">${status}</span>
+      <span class="text-slate-500">${escHtml(answered)} → ${escHtml(entry.correctAnswer||entry.expected||'–')}</span>
     </div>`;
-  }).join('');
-  if(total>10) html += `<p class="text-[0.65rem] text-slate-500 mt-2">Menampilkan 10 jawaban terakhir dari ${total}.</p>`;
+  }).join('')}</div>`;
+  if(total>5) html += `<p class="text-[0.65rem] text-slate-500 mt-2">Menampilkan 5 jawaban terakhir.</p>`;
+  list.innerHTML=html;
+}
+
+function renderRankedSummary() {
+  const card=document.getElementById('ranked-results-card');
+  const list=document.getElementById('ranked-results-list');
+  if(!card||!list) return;
+  if(GS.isCurriculum||!Array.isArray(GS.history)||GS.history.length===0) {
+    card.classList.add('hidden');
+    return;
+  }
+
+  card.classList.remove('hidden');
+  const total=GS.history.length;
+  const wrong=GS.totalAnswered-GS.correctAnswers;
+  const items=GS.history.slice(-5).reverse();
+  let html=`<p class="text-[0.72rem] text-slate-600 mb-2">Total jawaban: <strong>${total}</strong> · Benar: <strong>${GS.correctAnswers}</strong> · Salah: <strong>${wrong}</strong></p>`;
+  html += `<div class="space-y-1">${items.map(entry => {
+    const status = entry.correct ? 'Benar' : 'Salah';
+    const color = entry.correct ? 'text-emerald-700' : 'text-red-600';
+    return `<div class="text-[0.68rem] border-b border-slate-100 pb-1">
+      <div class="flex items-center justify-between gap-2 mb-0.5">
+        <span class="truncate">${escHtml(entry.item)}</span>
+        <span class="font-semibold ${color}">${status}</span>
+      </div>
+      <div class="text-slate-500 text-[0.65rem]">Jawab: <strong>${escHtml(entry.answered)}</strong> · Seharusnya: <strong>${escHtml(entry.expected)}</strong></div>
+    </div>`;
+  }).join('')}</div>`;
+  if(total>5) html += `<p class="text-[0.65rem] text-slate-500 mt-2">Menampilkan 5 jawaban terakhir.</p>`;
   list.innerHTML=html;
 }
 
