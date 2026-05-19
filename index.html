@@ -752,8 +752,8 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
           <li><b>#Grinder</b>: 100x percobaan / 100x bermain.</li>
           <li><b>#GodAim</b>: meraih 100% akurasi.</li>
           <li><b>#Persistence</b>: sudah bermain 50+ kali tanpa menempati posisi 1.</li>
-          <li><b>#WeekWarrior</b>: streak 7 hari berturut-turut.</li>
-          <li><b>#MonthlyMaster</b>: streak 30 hari berturut-turut.</li>
+          <li><b>#WeekWarrior</b>: menyelesaikan 7+ daily challenge.</li>
+          <li><b>#MonthlyMaster</b>: menyelesaikan 30+ daily challenge.</li>
         </ul>
       </div>
       <div>
@@ -1921,9 +1921,9 @@ function computeSpecialTags(score,acc,combo,catStats,rank,attempts) {
   if(acc>=100) tags.push('GodAim');
   if((attempts||0)>=50&&rank!==1) tags.push('Persistence');
   const streak=getStreak();
-  if(streak.current>=30) tags.push('MonthlyMaster');
-  else if(streak.current>=7) tags.push('WeekWarrior');
-  else if(streak.current>=3) tags.push('HotStreak');
+  if(streak.total>=30) tags.push('MonthlyMaster');
+  else if(streak.total>=7) tags.push('WeekWarrior');
+  else if(streak.total>=3) tags.push('HotStreak');
   return tags;
 }
 
