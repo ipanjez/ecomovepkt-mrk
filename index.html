@@ -682,13 +682,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
           </table>
         </div>
         <!-- legend -->
-        <div class="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[0.62rem] font-semibold text-gray-500">
-          <span><span class="text-blue-500">★▲</span> Baru & naik</span>
-          <span><span class="text-blue-500">★</span> Baru</span>
-          <span><span class="text-green-600">▲</span> Naik</span>
-          <span><span class="text-red-500">▼</span> Turun</span>
-          <span><span class="text-gray-400">—</span> Tetap</span>
-        </div>
+        <div id="lb-legend-items" class="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[0.62rem] font-semibold text-gray-500"></div>
       </div>
 
       <button onclick="showScreen('start');playSound('tryagain')" class="w-full bg-gradient-to-b from-pktBlue to-blue-800 text-white font-black py-3.5 rounded-xl shadow-lg transition hover:-translate-y-0.5 active:scale-95 text-base">
@@ -834,6 +828,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
       <span id="lb-prev-filter-badge" class="rounded-full px-2 py-1 text-xs font-semibold bg-slate-100 text-slate-700">Semua</span>
       <span id="lb-prev-legend-label" class="text-[0.72rem] text-gray-500">🎯 Mode Ranked: berdasarkan tingkat kesulitan. Filter spesifik memilih level Ranked.</span>
     </div>
+    <div id="lb-prev-legend-items" class="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[0.62rem] font-semibold text-gray-500"></div>
     <div class="overflow-x-auto rounded-xl border border-blue-50 max-h-[60vh] overflow-y-auto no-scrollbar">
       <table class="lb-table" style="min-width:600px">
         <thead>
@@ -2092,6 +2087,28 @@ function renderLbTable() {
   }
 }
 
+function renderLbLegend(mode, elementId) {
+  const el = document.getElementById(elementId);
+  if(!el) return;
+  if(mode === 'curriculum') {
+    el.innerHTML = `
+      <span><span class="text-purple-600">★▲</span> Baru & naik di topik</span>
+      <span><span class="text-purple-600">★</span> Baru di filter ini</span>
+      <span><span class="text-green-600">▲</span> Peringkat naik di filter</span>
+      <span><span class="text-red-500">▼</span> Peringkat turun di filter</span>
+      <span><span class="text-gray-400">—</span> Tetap dalam filter</span>
+    `;
+  } else {
+    el.innerHTML = `
+      <span><span class="text-blue-500">★▲</span> Baru & naik</span>
+      <span><span class="text-blue-500">★</span> Baru</span>
+      <span><span class="text-green-600">▲</span> Naik</span>
+      <span><span class="text-red-500">▼</span> Turun</span>
+      <span><span class="text-gray-400">—</span> Tetap</span>
+    `;
+  }
+}
+
 function renderLbMeta() {
   const modeDesc = lbMode === 'curriculum'
     ? '📚 Mode Kurikulum: indikator ini menunjukkan fokus topik Kurikulum dan filter memilih topik atau Mixed.'
@@ -2106,6 +2123,7 @@ function renderLbMeta() {
   if(legendEl) {
     legendEl.textContent = modeDesc;
   }
+  renderLbLegend(lbMode, 'lb-legend-items');
 }
 
 function renderLbPrevMeta() {
@@ -2122,6 +2140,7 @@ function renderLbPrevMeta() {
   if(legendEl) {
     legendEl.textContent = modeDesc;
   }
+  renderLbLegend(lbPrevMode, 'lb-prev-legend-items');
 }
 
 function renderFinalBadges(rec) {
