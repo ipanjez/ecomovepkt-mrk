@@ -2068,13 +2068,19 @@ function renderLbPrev() {
   filtered.forEach((r,i)=>{
     const mv=r.__mv||{sym:'—',cls:'text-gray-400',title:'Tetap'};
     const primary=computePrimaryBadge(r.score||0,r.accuracy||0,r.bestCombo||0,r.attempts||0);
+    const secArr=r.secondaryBadges||[];
     const ts=r.timestamp?new Date(r.timestamp).toLocaleString('id-ID',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):'-';
     const diffLabel=r.isCurriculum?`📚 ${r.curriculumFilter||'Mixed'}`:getDifficultyDisplayName(r.difficulty);
+    const secBadgesHtml=secArr.slice(0,3).map(b=>`<span class="rounded-full px-1.5 py-0.5 text-[0.55rem] font-bold ${getSecondaryBadgeClass(b)}">${escHtml(b)}</span>`).join(' ');
     const tr=document.createElement('tr');
     tr.className=i%2===0?'':'bg-blue-50/20';
     tr.innerHTML=`
       <td class="text-center font-bold text-xs"><div class="flex items-center justify-center gap-1" title="${escHtml(mv.title)}"><span>${i+1}</span><span class="text-[0.6rem] ${mv.cls}">${mv.sym}</span></div></td>
-      <td class="pl-2"><div class="flex items-center gap-1 flex-wrap"><span class="font-bold text-xs">${escHtml(r.name||'–')}</span><span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold ${getBadgeClass(primary)}">${escHtml(formatBadge(primary))}</span></div><div class="text-[0.58rem] text-gray-400">${escHtml(diffLabel)}</div></td>
+      <td class="pl-2">
+        <div class="flex flex-wrap items-center gap-1 mb-1"><span class="font-bold text-xs">${escHtml(r.name||'–')}</span><span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold ${getBadgeClass(primary)}">${escHtml(formatBadge(primary))}</span></div>
+        <div class="flex flex-wrap items-center gap-1 mb-1">${secBadgesHtml}</div>
+        <div class="text-[0.58rem] text-gray-400">${escHtml(diffLabel)}</div>
+      </td>
       <td class="text-center font-black text-pktOrange text-xs">${r.score||0}</td>
       <td class="text-center font-bold text-pktBlue text-xs">${r.bestCombo||0}</td>
       <td class="text-center text-xs">${r.accuracy||0}%</td>
