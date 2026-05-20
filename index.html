@@ -1735,8 +1735,18 @@ function updateMissionUI() {
     `;
   }
 
-  if(info.done && !DC.completed) { DC.completed=true; DC.bestProgress=100; saveDC(); showFeedback('🏅 Daily Complete!','text-emerald-500'); }
-  else if(info.pct>DC.bestProgress) { DC.bestProgress=info.pct; saveDC(); }
+  if(info.done && !DC.completed) {
+    DC.completed = true;
+    DC.bestProgress = 100;
+    saveDC();
+    renderDCCard();
+    showFeedback('🏅 Daily Complete!','text-emerald-500');
+  } else if(info.pct > DC.bestProgress) {
+    DC.bestProgress = info.pct;
+    if (DC.bestProgress >= 100) DC.completed = true;
+    saveDC();
+    renderDCCard();
+  }
 }
 
 function updateRivalStrip() {
@@ -1824,8 +1834,11 @@ async function endGame() {
     }
     if(dcInfo.pct>DC.bestProgress) {
       DC.bestProgress=dcInfo.pct;
+      if (DC.bestProgress >= 100) DC.completed = true;
       await saveDC();
     }
+    if (DC.bestProgress >= 100) DC.completed = true;
+    renderDCCard();
     if(DC.completed) {
       updateStreak(); renderStreakBadge();
       dcEl.textContent=`🏅 Daily Challenger • Best 100%`;
@@ -2090,7 +2103,7 @@ function computeSecondaryBadges(score,acc,combo,prevBest,correct,wrong,total,cat
   if(!rowIsCurriculum && ((Number.isFinite(rank)&&rank>0&&rank<=10)||ex.includes('Top 10'))) badges.push('Top 10');
   if(versatile||ex.includes('Versatile')) badges.push('Versatile');
   if((typeof prevBest==='number'&&prevBest>0&&score>=(prevBest+75)&&composite>=45)||ex.includes('Rising Star')) badges.push('Rising Star');
-  if(!rowIsCurriculum && ((isCurrentSession && DC.completed) || ex.includes('Daily Challenger'))) badges.push('Daily Challenger');
+  if(!rowIsCurriculum && ((isCurrentSession && (DC.completed || DC.bestProgress >= 100)) || ex.includes('Daily Challenger'))) badges.push('Daily Challenger');
   if((acc>=95&&total>=20)||ex.includes('Accuracy Ace')) badges.push('Accuracy Ace');
   if((attempts||0)>=100||ex.includes('Grinder')) badges.push('Grinder');
   if(perfectCategory||ex.includes('Category Master')) badges.push('Category Master');
