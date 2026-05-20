@@ -929,6 +929,40 @@ let lbPrevFilter = 'All';
 let sessionQueue = [];
 let sessionAsked = new Set();
 
+function getUserUniqueProgress(userId) {
+  try {
+    const raw = localStorage.getItem(`eco_unique_progress_${userId}`);
+    if (!raw) return new Set();
+    const arr = JSON.parse(raw);
+    return new Set(Array.isArray(arr) ? arr : []);
+  } catch (e) {
+    return new Set();
+  }
+}
+
+function saveUserUniqueProgress(userId, set) {
+  try {
+    localStorage.setItem(`eco_unique_progress_${userId}`, JSON.stringify([...set]));
+  } catch (e) {}
+}
+
+function shuffleArray(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function prepareSessionQueue() {
+  const remaining = [];
+  for (let i = 0; i < trashData.length; i++) {
+    if (!sessionAsked.has(i)) remaining.push(i);
+  }
+  if (remaining.length === 0) return;
+  sessionQueue = shuffleArray(remaining);
+}
+
 // Leaderboard cache
 let lbCache = [];
 let lbIndexMap = {};
@@ -1268,12 +1302,18 @@ function startGame(time, diff, name, isCurriculum) {
     history:[],
     isCurriculum, curriculumFilter: GS.curriculumFilter, curriculumFocus: GS.curriculumFocus
   };
-  sessionQueue=[]; sessionAsked=new Set();
   nearestRival=null; nearestRivalReached=false;
 
   GS.currentSessionId=name.replace(/[.#$[\]/\s]/g,'_').toUpperCase();
   const cached=lbCache.find(r=>r.id===GS.currentSessionId);
   GS.previousBest=cached?(cached.score||0):0;
+
+  sessionAsked = getUserUniqueProgress(GS.currentSessionId);
+  if (sessionAsked.size >= trashData.length) {
+    sessionAsked.clear();
+    saveUserUniqueProgress(GS.currentSessionId, sessionAsked);
+  }
+  sessionQueue = [];
 
   document.getElementById('game-player-label').textContent=name+(isCurriculum?' [Kurikulum]':'');
   const modeMap={'Easy':'Bumi Lestari','Medium':'Eko Aktif','Hard':'Penjaga Bumi'};
@@ -1287,7 +1327,7 @@ function startGame(time, diff, name, isCurriculum) {
   document.getElementById('curr-mode-label').classList.toggle('hidden',!isCurriculum);
   document.getElementById('score-display').textContent='0';
   document.getElementById('streak-display').textContent='Combo x0';
-  document.getElementById('session-progress').textContent=`0/${trashData.length} unik`;
+  document.getElementById('session-progress').textContent=`${sessionAsked.size}/${trashData.length} unik`;
   document.getElementById('mission-bar').style.width='0%';
   document.getElementById('mission-pct').textContent='0%';
   document.getElementById('rival-strip').textContent='⚡ Mulai jawab!';
@@ -1458,9 +1498,17 @@ function buildQueue() {
 
 function spawnTrash() {
   if(!GS.isPlaying||GS.paused) return;
-  if(sessionQueue.length===0) sessionQueue=buildQueue();
+  if(sessionQueue.length===0) {
+    prepareSessionQueue();
+    if (sessionQueue.length===0) {
+      sessionAsked.clear();
+      saveUserUniqueProgress(GS.currentSessionId, sessionAsked);
+      prepareSessionQueue();
+    }
+  }
   const idx=sessionQueue.pop();
   sessionAsked.add(idx);
+  saveUserUniqueProgress(GS.currentSessionId, sessionAsked);
   GS.currentTrash=trashData[idx];
 
   document.getElementById('trash-emoji').textContent=GS.currentTrash.e;
