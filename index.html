@@ -1091,6 +1091,10 @@ async function loadDC() {
       DC = deriveDC(dk);
       await saveDC();
     }
+    if (DC.bestProgress >= 100) {
+      DC.completed = true;
+      await saveDC();
+    }
   } catch(e) {
     console.warn("Firebase DC load error, pakai localStorage", e);
     fallbackLoadDC(dk);
@@ -1143,9 +1147,14 @@ function renderDCCard() {
   const badge=document.getElementById('dc-status-badge');
   if(!goal) return;
   goal.textContent=`Capai skor ${DC.targetScore}, akurasi ${DC.minAcc}%+, dan ${DC.minCorrect} benar di ${DC.focusCat}.`;
-  prog.textContent=DC.completed?`✅ Selesai! Best progress: ${DC.bestProgress}%`:`Progress terbaik: ${DC.bestProgress}%`;
-  badge.textContent=DC.completed?'Selesai':'Aktif';
-  badge.className=DC.completed?'text-[0.65rem] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full':'text-[0.65rem] font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full';
+  const completedDC = DC.completed || DC.bestProgress >= 100;
+  if (completedDC && !DC.completed) {
+    DC.completed = true;
+    saveDC();
+  }
+  prog.textContent=completedDC?`✅ Selesai! Best progress: ${DC.bestProgress}%`:`Progress terbaik: ${DC.bestProgress}%`;
+  badge.textContent=completedDC?'Selesai':'Aktif';
+  badge.className=completedDC?'text-[0.65rem] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full':'text-[0.65rem] font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full';
 }
 
 // ──────────────────────────────────────────
