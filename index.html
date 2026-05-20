@@ -494,7 +494,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
       </div>
       <span id="streak-display" class="text-[0.62rem] font-black text-pktOrange whitespace-nowrap">Combo x0</span>
     </div>
-    <div class="flex items-center justify-between gap-2">
+    <div class="flex flex-col gap-1">
       <div id="daily-challenge-row" class="flex items-center gap-2">
         <span class="text-[0.6rem] font-bold text-gray-400">Daily Challenge:</span>
         <div class="flex-1 h-1.5 w-20 bg-gray-100 rounded-full overflow-hidden">
@@ -502,6 +502,9 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
         </div>
         <span id="mission-pct" class="text-[0.6rem] font-black text-blue-600">0%</span>
       </div>
+      <div id="mission-detail" class="flex flex-wrap gap-2 text-[0.55rem] text-slate-500"></div>
+    </div>
+    <div class="flex items-center justify-between gap-2">
       <span id="session-progress" class="text-[0.6rem] font-bold text-gray-400">0/500 unik</span>
       <span id="curr-mode-label" class="text-[0.6rem] font-black text-pktGreen hidden">📚 Kurikulum</span>
     </div>
@@ -1654,17 +1657,37 @@ function endTrashPointerDrag(e) {
 
 function updateMissionUI() {
   const dailyRow = document.getElementById('daily-challenge-row');
+  const detailEl = document.getElementById('mission-detail');
   if (GS.isCurriculum) {
     if (dailyRow) dailyRow.style.display = 'none';
+    if (detailEl) detailEl.style.display = 'none';
     return;
   }
   if (dailyRow) dailyRow.style.display = 'flex';
-  const acc=GS.totalAnswered>0?Math.round((GS.correctAnswers/GS.totalAnswered)*100):0;
-  const snap={score:GS.score,acc,catStats:GS.categoryStats};
-  const info=evalDCProgress(snap);
-  document.getElementById('mission-bar').style.width=`${Math.min(100,info.pct)}%`;
-  document.getElementById('mission-pct').textContent=`${info.pct}%`;
-  if(info.done&&!DC.completed) { DC.completed=true; DC.bestProgress=100; saveDC(); showFeedback('🏅 Daily Complete!','text-emerald-500'); }
+  if (detailEl) detailEl.style.display = 'flex';
+
+  const acc = GS.totalAnswered>0?Math.round((GS.correctAnswers/GS.totalAnswered)*100):0;
+  const snap = {score:GS.score, acc, catStats:GS.categoryStats};
+  const info = evalDCProgress(snap);
+  const scorePct = Math.min(100, Math.round((GS.score/Math.max(1,DC.targetScore))*100));
+  const accTarget = DC.minAcc;
+  const accPct = Math.min(100, Math.round((acc/Math.max(1,accTarget))*100));
+  const focusStat = (GS.categoryStats&&GS.categoryStats[DC.focusCat]) ? GS.categoryStats[DC.focusCat] : {correct:0,total:0};
+  const focusPct = Math.min(100, Math.round((focusStat.correct/Math.max(1,DC.minCorrect))*100));
+  const bestText = DC.bestProgress?`Best: ${DC.bestProgress}%`:'Best: -';
+
+  document.getElementById('mission-bar').style.width = `${Math.min(100,info.pct)}%`;
+  document.getElementById('mission-pct').textContent = `${info.pct}%`;
+  if(detailEl) {
+    detailEl.innerHTML = `
+      <span>Skor ${GS.score}/${DC.targetScore} (${scorePct}%)</span>
+      <span>Akurasi ${acc}%/${accTarget}% (${accPct}%)</span>
+      <span>${DC.focusCat} benar ${focusStat.correct}/${DC.minCorrect} (${focusPct}%)</span>
+      <span class="font-semibold text-slate-600">${bestText}</span>
+    `;
+  }
+
+  if(info.done && !DC.completed) { DC.completed=true; DC.bestProgress=100; saveDC(); showFeedback('🏅 Daily Complete!','text-emerald-500'); }
   else if(info.pct>DC.bestProgress) { DC.bestProgress=info.pct; saveDC(); }
 }
 
