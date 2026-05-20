@@ -1287,7 +1287,7 @@ function startGame(time, diff, name, isCurriculum) {
   document.getElementById('curr-mode-label').classList.toggle('hidden',!isCurriculum);
   document.getElementById('score-display').textContent='0';
   document.getElementById('streak-display').textContent='Combo x0';
-  document.getElementById('session-progress').textContent='0 unik';
+  document.getElementById('session-progress').textContent=`0/${trashData.length} unik`;
   document.getElementById('mission-bar').style.width='0%';
   document.getElementById('mission-pct').textContent='0%';
   document.getElementById('rival-strip').textContent='⚡ Mulai jawab!';
@@ -1312,6 +1312,7 @@ function startGame(time, diff, name, isCurriculum) {
   if(localStorage.getItem('eco_ambient')==='1') startAmbient();
 
   showScreen('game');
+  updateMissionUI();
   spawnTrash();
   GS.timerInterval=setInterval(()=>{
     if(!GS.isPlaying||GS.paused) return;
@@ -1465,7 +1466,7 @@ function spawnTrash() {
   document.getElementById('trash-emoji').textContent=GS.currentTrash.e;
   document.getElementById('trash-name').textContent=GS.currentTrash.n;
   document.getElementById('trash-name').classList.remove('anim-shake');
-  document.getElementById('session-progress').textContent=`${sessionAsked.size} unik`;
+  document.getElementById('session-progress').textContent=`${sessionAsked.size}/${trashData.length} unik`;
 
   const tips={
     'SISA MAKANAN':['Sisa makanan bisa jadi kompos, kurangi emisi metana di TPA.','Pisahkan sampah dapur basah agar tidak mencemari daur ulang.'],
