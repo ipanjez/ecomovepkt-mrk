@@ -932,7 +932,6 @@ let sessionAsked = new Set();
 // Leaderboard cache
 let lbCache = [];
 let lbIndexMap = {};
-let lbLatestMoverIdx = -1;
 
 // Nearest rival
 let nearestRival = null;
@@ -1946,7 +1945,12 @@ async function saveToDb(acc, wrong) {
   if(!ex||GS.score>=ex.score) {
     await ref.set(payload);
   } else {
-    const upd={attempts,categoryStats:merged,secondaryBadges:secBadges};
+    const upd={
+      attempts,
+      categoryStats:merged,
+      secondaryBadges:secBadges,
+      timestamp:firebase.database.ServerValue.TIMESTAMP
+    };
     if(GS.bestCombo>(ex.bestCombo||0)) upd.bestCombo=GS.bestCombo;
     await ref.update(upd);
   }
@@ -1959,15 +1963,19 @@ async function saveToDb(acc, wrong) {
 DB.ref('leaderboard').on('value', snap=>{
   const data=snap.val()||{};
   let arr=Object.entries(data).map(([k,v])=>({id:k,...v}));
-  arr.sort((a,b)=>{ const sd=b.score-a.score; if(sd!==0) return sd; const cd=(b.bestCombo||0)-(a.bestCombo||0); if(cd!==0) return cd; return (a.timestamp||0)-(b.timestamp||0); });
+  arr.sort((a,b)=>{ const sd=b.score-a.score; if(sd!==0) return sd; const cd=(b.bestCombo||0)-(a.bestCombo||0); if(cd!==0) return cd; return (b.timestamp||0)-(a.timestamp||0); });
 
-  let latestTs=-1, latestIdx=-1;
-  arr.forEach((r,i)=>{ if((r.timestamp||0)>=latestTs) { latestTs=r.timestamp||0; latestIdx=i; } });
-  lbLatestMoverIdx=latestIdx;
+  const previousIndexMap = lbIndexMap;
   arr.forEach((r,i)=>{
-    let sym='—', cls='text-gray-400', title='Posisi tetap';
-    if(i===latestIdx) { sym=arr.length>1?'★▲':'★'; cls='text-blue-500'; title='Pemain terbaru'; }
-    else if(i>latestIdx&&latestIdx>=0) { sym='▼'; cls='text-red-500'; title='Turun'; }
+    let sym='—', cls='text-gray-400', title='Tetap';
+    const oldIdx = previousIndexMap['id:'+r.id];
+    if(typeof oldIdx === 'number') {
+      if(i < oldIdx) {
+        sym='▲'; cls='text-green-600'; title='Naik';
+      } else if(i > oldIdx) {
+        sym='▼'; cls='text-red-500'; title='Turun';
+      }
+    }
     r.__mv={sym,cls,title};
     r.secondaryBadges=computeSecondaryBadges(r.score||0,r.accuracy||0,r.bestCombo||0,0,r.correct||0,r.wrong||0,r.total||0,r.categoryStats||{},i+1,r.attempts||0,r.secondaryBadges||[])||[];
   });
@@ -2208,29 +2216,17 @@ function renderLbTable() {
 function renderLbLegend(mode, elementId) {
   const el = document.getElementById(elementId);
   if(!el) return;
-  if(mode === 'curriculum') {
-    el.innerHTML = `
-      <span><span class="text-purple-600">★▲</span> Baru & naik di topik</span>
-      <span><span class="text-purple-600">★</span> Baru di filter ini</span>
-      <span><span class="text-green-600">▲</span> Peringkat naik di filter</span>
-      <span><span class="text-red-500">▼</span> Peringkat turun di filter</span>
-      <span><span class="text-gray-400">—</span> Tetap dalam filter</span>
-    `;
-  } else {
-    el.innerHTML = `
-      <span><span class="text-blue-500">★▲</span> Baru & naik</span>
-      <span><span class="text-blue-500">★</span> Baru</span>
+  el.innerHTML = `
       <span><span class="text-green-600">▲</span> Naik</span>
       <span><span class="text-red-500">▼</span> Turun</span>
       <span><span class="text-gray-400">—</span> Tetap</span>
     `;
-  }
 }
 
 function renderLbMeta() {
   const modeDesc = lbMode === 'curriculum'
-    ? '📚 Mode Kurikulum: indikator ini menunjukkan fokus topik Kurikulum dan filter memilih topik.'
-    : '🎯 Mode Ranked: indikator ini menunjukkan pergerakan peringkat (Baru, Naik, Turun, Tetap) dan filter memilih level Ranked.';
+    ? '📚 Mode Kurikulum: indikator ini menunjukkan pergerakan peringkat (Naik, Turun, Tetap).' 
+    : '🎯 Mode Ranked: indikator ini menunjukkan pergerakan peringkat (Naik, Turun, Tetap) dan filter memilih level Ranked.';
   const filterLabel = lbFilter === 'All' ? 'Semua' : lbFilter;
 
   const filterEl = document.getElementById('lb-filter-badge');
@@ -2246,8 +2242,8 @@ function renderLbMeta() {
 
 function renderLbPrevMeta() {
   const modeDesc = lbPrevMode === 'curriculum'
-    ? '📚 Mode Kurikulum: indikator ini menunjukkan fokus topik Kurikulum dan filter memilih topik.'
-    : '🎯 Mode Ranked: indikator ini menunjukkan pergerakan peringkat (Baru, Naik, Turun, Tetap) dan filter memilih level Ranked.';
+    ? '📚 Mode Kurikulum: indikator ini menunjukkan pergerakan peringkat (Naik, Turun, Tetap).' 
+    : '🎯 Mode Ranked: indikator ini menunjukkan pergerakan peringkat (Naik, Turun, Tetap) dan filter memilih level Ranked.';
   const filterLabel = lbPrevFilter === 'All' ? 'Semua' : lbPrevFilter;
 
   const filterEl = document.getElementById('lb-prev-filter-badge');
