@@ -2377,12 +2377,19 @@ function updateNameHint() {
   const key='name:'+name.toLowerCase();
   const filtered=filterLb(lbCache, lbFilter, lbMode);
   const idx = filtered.findIndex(r=>r.name&&r.name.toLowerCase()===name.toLowerCase());
-  if(idx>=0) {
-    const rec=filtered[idx];
+  const rankedFiltered = filterLb(lbCache, 'All', 'ranked');
+  const curriculumFiltered = filterLb(lbCache, 'All', 'curriculum');
+  const rankedIdx = rankedFiltered.findIndex(r=>r.name&&r.name.toLowerCase()===name.toLowerCase());
+  const curriculumIdx = curriculumFiltered.findIndex(r=>r.name&&r.name.toLowerCase()===name.toLowerCase());
+
+  if(rankedIdx>=0 || curriculumIdx>=0) {
+    const rec = idx>=0 ? filtered[idx] : rankedIdx>=0 ? rankedFiltered[rankedIdx] : curriculumFiltered[curriculumIdx];
     const primary=computePrimaryBadge(rec.score||0,rec.accuracy||0,rec.bestCombo||0,rec.attempts||0);
-    el.innerHTML=`✅ Ditemukan di leaderboard: <b>#${idx+1}</b> dari <b>${filtered.length}</b> pemain — <span class="font-bold">${escHtml(formatBadge(primary))}</span>`;
+    const rankedText = rankedIdx>=0 ? `Ranked #${rankedIdx+1}/${rankedFiltered.length}` : 'Ranked -';
+    const curriculumText = curriculumIdx>=0 ? `Kurikulum #${curriculumIdx+1}/${curriculumFiltered.length}` : 'Kurikulum -';
+    el.innerHTML=`✅ Ditemukan di leaderboard: <b>${rankedText}</b> · <b>${curriculumText}</b> — <span class="font-bold">${escHtml(formatBadge(primary))}</span>`;
   } else {
-    el.textContent=`Belum ada di leaderboard. Total: ${filtered.length} pemain.`;
+    el.textContent=`Belum ada di leaderboard. Total Ranked: ${rankedFiltered.length} pemain, Kurikulum: ${curriculumFiltered.length} pemain.`;
   }
 }
 
