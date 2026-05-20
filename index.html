@@ -2346,7 +2346,12 @@ function renderFinalBadges(rec) {
   const row=document.getElementById('final-badges-row');
   if(!row) return;
   const primary=computePrimaryBadge(rec.score||0,rec.accuracy||0,rec.bestCombo||0,rec.attempts||0);
-  const secArr=rec.secondaryBadges||[];
+  let secArr=rec.secondaryBadges||[];
+  const isCurrentSession = rec.id === GS.currentSessionId;
+  const completedDC = !GS.isCurriculum && isCurrentSession && (DC.completed || DC.bestProgress >= 100);
+  if (completedDC && !secArr.includes('Daily Challenger')) {
+    secArr = [...secArr, 'Daily Challenger'];
+  }
   const tags=computeSpecialTags(rec.score||0,rec.accuracy||0,rec.bestCombo||0,rec.categoryStats||{},null,rec.attempts||0);
   let html=`<span class="inline-flex items-center rounded-full px-3 py-1.5 text-sm font-black ${getBadgeClass(primary)}">${escHtml(formatBadge(primary))}</span>`;
   secArr.slice(0,3).forEach(b=>{ html+=`<span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-bold ${getSecondaryBadgeClass(b)}">${escHtml(b)}</span>`; });
