@@ -664,6 +664,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
         </div>
         <div id="lb-meta" class="flex flex-wrap gap-2 items-center text-[0.72rem] text-gray-500 mb-3">
           <span id="lb-filter-badge" class="rounded-full px-2 py-1 text-xs font-semibold bg-slate-100 text-slate-700">Semua</span>
+          <span id="lb-search-count" class="text-[0.72rem] text-gray-500">0 hasil</span>
           <span id="lb-legend-label" class="text-[0.72rem] text-gray-500">🎯 Mode Ranked: kesulitan level. Filter spesifik memilih tingkat Ranked.</span>
         </div>
         <div class="overflow-x-auto rounded-xl border border-blue-50 max-h-[42vh] overflow-y-auto no-scrollbar">
@@ -834,6 +835,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
     </div>
     <div id="lb-prev-meta" class="flex flex-wrap gap-2 items-center text-[0.72rem] text-gray-500 mb-3">
       <span id="lb-prev-filter-badge" class="rounded-full px-2 py-1 text-xs font-semibold bg-slate-100 text-slate-700">Semua</span>
+      <span id="lb-prev-search-count" class="text-[0.72rem] text-gray-500">0 hasil</span>
       <span id="lb-prev-legend-label" class="text-[0.72rem] text-gray-500">🎯 Mode Ranked: berdasarkan tingkat kesulitan. Filter spesifik memilih level Ranked.</span>
     </div>
     <div id="lb-prev-legend-items" class="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[0.62rem] font-semibold text-gray-500"></div>
@@ -2106,6 +2108,8 @@ function renderLbTable() {
   const tbody=document.getElementById('lb-body');
   if(!tbody) return;
   const filtered=filterLb(lbCache, lbFilter, lbMode, lbSearch);
+  const countEl=document.getElementById('lb-search-count');
+  if(countEl) countEl.textContent=`${filtered.length} hasil`;
   tbody.innerHTML='';
 
   if(filtered.length===0) {
@@ -2233,6 +2237,8 @@ function renderLbPrev() {
   const tbody=document.getElementById('lb-prev-body');
   if(!tbody) return;
   const filtered=filterLb(lbCache, lbPrevFilter, lbPrevMode, lbPrevSearch);
+  const countEl=document.getElementById('lb-prev-search-count');
+  if(countEl) countEl.textContent=`${filtered.length} hasil`;
   tbody.innerHTML='';
   if(filtered.length===0) { tbody.innerHTML='<tr><td colspan="8" class="text-center py-4 text-gray-400 text-xs">Belum ada skor.</td></tr>'; return; }
   renderLbPrevMeta();
