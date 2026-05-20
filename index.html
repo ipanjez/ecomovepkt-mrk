@@ -515,9 +515,6 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
     <!-- rival strip -->
     <div id="rival-strip">⚡ Mulai jawab untuk lihat rival terdekat!</div>
 
-    <!-- eco tip strip -->
-    <div id="eco-tip-strip" class="text-[0.62rem] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-100 rounded-lg px-3 py-1.5 w-full" style="width:min(86vw,300px);max-width:300px;text-align:center;line-height:1.35;"></div>
-
     <!-- curriculum focus display (hanya muncul di mode kurikulum) -->
     <div id="curriculum-focus-badge" class="curriculum-focus-badge hidden"></div>
 
@@ -1533,7 +1530,8 @@ function spawnTrash() {
     'RESIDU':['Residu sulit didaur ulang, kurangi dari sumbernya.','Produk sekali pakai umumnya jadi residu – pilih reusable!']
   };
   const catTips=tips[GS.currentTrash.c]||['Mulai pilah sampah dari sekarang!'];
-  document.getElementById('eco-tip-strip').textContent=catTips[Math.floor(Math.random()*catTips.length)];
+  const tipStrip = document.getElementById('eco-tip-strip');
+  if (tipStrip) tipStrip.textContent=catTips[Math.floor(Math.random()*catTips.length)];
 }
 
 function checkBin(cat) {
