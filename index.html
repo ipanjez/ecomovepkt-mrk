@@ -736,7 +736,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
       <div>
         <h3 class="font-black text-gray-900 mb-1.5 border-l-4 border-pktOrange pl-3">📚 Mode Kurikulum</h3>
         <p class="text-xs">Latihan fokus per kategori. Pilih SISA MAKANAN, LAKU JUAL, atau RESIDU sebagai fokus. Pemain akan mendapat sampah acak dari semua kategori dan harus memutuskan apakah sampah tersebut SESUAI dengan fokus yang dipilih (2 pilihan: Sesuai / Tidak Sesuai).</p>
-        <p class="text-xs mt-1">Kamu dapat menjawab dengan menekan tombol atau menyeret kartu sampah ke pilihan <b>✅ Sesuai</b> atau <b>❌ Tidak Sesuai</b>. Daily challenge tidak aktif di mode Kurikulum.</p>
+        <p class="text-xs mt-1">Kamu dapat menjawab dengan menekan tombol atau menyeret kartu sampah ke pilihan <b>✅ Sesuai</b> atau <b>❌ Tidak Sesuai</b>. Daily challenge tidak aktif di mode Kurikulum, dan badge <b>Top 10</b> hanya berlaku di Mode Ranked.</p>
       </div>
       <div>
         <h3 class="font-black text-gray-900 mb-1.5 border-l-4 border-yellow-400 pl-3">⚡ Combo & Poin</h3>
@@ -779,7 +779,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
         </ul>
         <p class="text-xs mb-2"><b>Badge Bonus</b> dapat muncul bersamaan dengan badge utama. Kriteria utama:</p>
         <ul class="list-disc pl-5 space-y-1 text-xs">
-          <li><b>Top 10</b>: berada dalam peringkat 10 besar leaderboard mode ranked.</li>
+          <li><b>Top 10</b>: berada dalam peringkat 10 besar leaderboard mode ranked (tidak berlaku untuk Mode Kurikulum).</li>
           <li><b>Versatile</b>: akurasi setiap kategori seimbang, selisih antar-kategori ≤15%, dan minimal 70% di semua kategori.</li>
           <li><b>Rising Star</b>: skor sesi ini naik ≥75 poin dibanding personal best sebelumnya.</li>
           <li><b>Daily Challenger</b>: menyelesaikan target daily challenge hari ini.</li>
@@ -805,7 +805,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
       </div>
       <div>
         <h3 class="font-black text-gray-900 mb-1.5 border-l-4 border-pktBlue pl-3">🏆 Leaderboard</h3>
-        <p class="text-xs">Global real-time. Hanya skor tertinggi yang disimpan per nama. Rival Terdekat = pemain dengan skor terkecil di atasmu — kalahkan mereka!</p>
+        <p class="text-xs">Global real-time. Hanya skor tertinggi yang disimpan per nama. Mode Ranked memiliki Top 10 dan daily challenge, sedangkan Mode Kurikulum fokus pada perbaikan kategori tanpa badge Top 10.</p>
       </div>
     </div>
     <button onclick="closeHowToPlay()" class="w-full mt-5 bg-gradient-to-r from-pktGreen to-green-600 text-white font-black py-3 rounded-xl active:scale-95 transition">Siap Bermain!</button>
@@ -1930,7 +1930,7 @@ async function saveToDb(acc, wrong) {
   const merged=mergeCatStats(ex?ex.categoryStats||{}:{}, GS.categoryStats||{});
 
   const rank=(()=>{ const i=lbCache.findIndex(r=>r.id===recordKey); return i>=0?i+1:null; })();
-  const secBadges=computeSecondaryBadges(GS.score,acc,GS.bestCombo,GS.previousBest,GS.correctAnswers,wrong,GS.totalAnswered,merged,rank,attempts,ex?ex.secondaryBadges||[]:[]);
+  const secBadges=computeSecondaryBadges(GS.score,acc,GS.bestCombo,GS.previousBest,GS.correctAnswers,wrong,GS.totalAnswered,merged,rank,attempts,ex?ex.secondaryBadges||[]:[], true, GS.isCurriculum);
 
   const payload={
     name:GS.playerName, score:GS.score,
@@ -1977,7 +1977,7 @@ DB.ref('leaderboard').on('value', snap=>{
       }
     }
     r.__mv={sym,cls,title};
-    r.secondaryBadges=computeSecondaryBadges(r.score||0,r.accuracy||0,r.bestCombo||0,0,r.correct||0,r.wrong||0,r.total||0,r.categoryStats||{},i+1,r.attempts||0,r.secondaryBadges||[])||[];
+    r.secondaryBadges=computeSecondaryBadges(r.score||0,r.accuracy||0,r.bestCombo||0,0,r.correct||0,r.wrong||0,r.total||0,r.categoryStats||{},i+1,r.attempts||0,r.secondaryBadges||[], false, r.isCurriculum)||[];
   });
 
   lbCache=arr;
@@ -2025,7 +2025,7 @@ function computePrimaryBadge(score,acc,combo,attempts) {
   return 'Immortal';
 }
 
-function computeSecondaryBadges(score,acc,combo,prevBest,correct,wrong,total,catStats,rank,attempts,existing) {
+function computeSecondaryBadges(score,acc,combo,prevBest,correct,wrong,total,catStats,rank,attempts,existing, isCurrentSession=false, rowIsCurriculum=false) {
   const sp=Math.min(Math.max(score,0),1300)/13;
   const ap=Math.min(Math.max(acc,0),100);
   const cp=Math.min(combo,25)*4;
@@ -2038,10 +2038,10 @@ function computeSecondaryBadges(score,acc,combo,prevBest,correct,wrong,total,cat
 
   const ex=Array.isArray(existing)?existing:[];
   const badges=[];
-  if((Number.isFinite(rank)&&rank>0&&rank<=10)||ex.includes('Top 10')) badges.push('Top 10');
+  if(!rowIsCurriculum && ((Number.isFinite(rank)&&rank>0&&rank<=10)||ex.includes('Top 10'))) badges.push('Top 10');
   if(versatile||ex.includes('Versatile')) badges.push('Versatile');
   if((typeof prevBest==='number'&&prevBest>0&&score>=(prevBest+75)&&composite>=45)||ex.includes('Rising Star')) badges.push('Rising Star');
-  if(!GS.isCurriculum && (DC.completed||ex.includes('Daily Challenger'))) badges.push('Daily Challenger');
+  if(!rowIsCurriculum && ((isCurrentSession && DC.completed) || ex.includes('Daily Challenger'))) badges.push('Daily Challenger');
   if((acc>=95&&total>=20)||ex.includes('Accuracy Ace')) badges.push('Accuracy Ace');
   if((attempts||0)>=100||ex.includes('Grinder')) badges.push('Grinder');
   if(perfectCategory||ex.includes('Category Master')) badges.push('Category Master');
