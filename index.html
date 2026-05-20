@@ -2064,7 +2064,9 @@ DB.ref('leaderboard').on('value', snap=>{
       }
     }
     r.__mv={sym,cls,title};
-    r.secondaryBadges=computeSecondaryBadges(r.score||0,r.accuracy||0,r.bestCombo||0,0,r.correct||0,r.wrong||0,r.total||0,r.categoryStats||{},i+1,r.attempts||0,r.secondaryBadges||[], false, r.isCurriculum)||[];
+    if(!r.secondaryBadges) {
+      r.secondaryBadges=computeSecondaryBadges(r.score||0,r.accuracy||0,r.bestCombo||0,0,r.correct||0,r.wrong||0,r.total||0,r.categoryStats||{},i+1,r.attempts||0,[], false, r.isCurriculum)||[];
+    }
   });
 
   lbCache=arr;
