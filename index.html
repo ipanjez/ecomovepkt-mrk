@@ -1711,7 +1711,9 @@ function updateMissionUI() {
     if (detailEl) detailEl.style.display = 'none';
     return;
   }
-  if (dailyRow) dailyRow.style.display = 'flex';
+
+  const completedDC = DC.completed || DC.bestProgress >= 100;
+  if (dailyRow) dailyRow.style.display = completedDC ? 'none' : 'flex';
   if (detailEl) detailEl.style.display = 'flex';
 
   const acc = GS.totalAnswered>0?Math.round((GS.correctAnswers/GS.totalAnswered)*100):0;
@@ -1727,12 +1729,16 @@ function updateMissionUI() {
   document.getElementById('mission-bar').style.width = `${Math.min(100,info.pct)}%`;
   document.getElementById('mission-pct').textContent = `${info.pct}%`;
   if(detailEl) {
-    detailEl.innerHTML = `
-      <span>Skor ${GS.score}/${DC.targetScore} (${scorePct}%)</span>
-      <span>Akurasi ${acc}%/${accTarget}% (${accPct}%)</span>
-      <span>${DC.focusCat} benar ${focusStat.correct}/${DC.minCorrect} (${focusPct}%)</span>
-      <span class="font-semibold text-slate-600">${bestText}</span>
-    `;
+    if (DC.completed || DC.bestProgress >= 100) {
+      detailEl.innerHTML = `<span class="font-semibold text-emerald-700">Daily Challenge sudah selesai hari ini. Badge Daily Challenger sudah aktif.</span>`;
+    } else {
+      detailEl.innerHTML = `
+        <span>Skor ${GS.score}/${DC.targetScore} (${scorePct}%)</span>
+        <span>Akurasi ${acc}%/${accTarget}% (${accPct}%)</span>
+        <span>${DC.focusCat} benar ${focusStat.correct}/${DC.minCorrect} (${focusPct}%)</span>
+        <span class="font-semibold text-slate-600">${bestText}</span>
+      `;
+    }
   }
 
   if(info.done && !DC.completed) {
