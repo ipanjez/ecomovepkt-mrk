@@ -2013,7 +2013,11 @@ async function saveToDb(acc, wrong) {
   const merged=mergeCatStats(ex?ex.categoryStats||{}:{}, GS.categoryStats||{});
 
   const rank=(()=>{ const i=lbCache.findIndex(r=>r.id===recordKey); return i>=0?i+1:null; })();
-  const secBadges=computeSecondaryBadges(GS.score,acc,GS.bestCombo,GS.previousBest,GS.correctAnswers,wrong,GS.totalAnswered,merged,rank,attempts,ex?ex.secondaryBadges||[]:[], true, GS.isCurriculum);
+  let secBadges=computeSecondaryBadges(GS.score,acc,GS.bestCombo,GS.previousBest,GS.correctAnswers,wrong,GS.totalAnswered,merged,rank,attempts,ex?ex.secondaryBadges||[]:[], true, GS.isCurriculum);
+  
+  if (!GS.isCurriculum && (DC.completed || DC.bestProgress >= 100) && !secBadges.includes('Daily Challenger')) {
+    secBadges = [...secBadges, 'Daily Challenger'];
+  }
 
   const payload={
     name:GS.playerName, score:GS.score,
