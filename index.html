@@ -60,6 +60,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
   padding:8px 10px max(env(safe-area-inset-bottom,8px),10px);
   background:rgba(255,255,255,0.92);border-top:1px solid #e2e8f0;
   min-height:130px;height:min(27vh,190px);
+  position:relative;z-index:20;
 }
 
 /* ─── CURRICULUM BUTTONS (2 pilihan) ─── */
@@ -67,6 +68,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
   display:flex;gap:16px;justify-content:center;align-items:center;
   padding:12px;background:rgba(255,255,255,0.95);border-top:1px solid #e2e8f0;
   min-height:100px;
+  position:relative;z-index:20;
 }
 .curriculum-btn{
   flex:1;max-width:180px;border-radius:32px;padding:12px 8px;
@@ -88,7 +90,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   text-align:center;cursor:pointer;transition:transform 0.2s,box-shadow 0.2s;
   width:min(86vw,300px);min-height:140px;padding:16px 18px;
-  position:relative;
+  position:relative;z-index:10;
 }
 #trash-container:hover{transform:scale(1.02);box-shadow:0 12px 32px rgba(0,0,0,0.12);}
 @media(min-height:700px){#trash-container{min-height:165px;padding:20px 22px;}}
@@ -490,7 +492,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
       <span id="streak-display" class="text-[0.62rem] font-black text-pktOrange whitespace-nowrap">Combo x0</span>
     </div>
     <div class="flex items-center justify-between gap-2">
-      <div class="flex items-center gap-2">
+      <div id="daily-challenge-row" class="flex items-center gap-2">
         <span class="text-[0.6rem] font-bold text-gray-400">Daily Challenge:</span>
         <div class="flex-1 h-1.5 w-20 bg-gray-100 rounded-full overflow-hidden">
           <div id="mission-bar" class="h-full bg-gradient-to-r from-blue-500 to-cyan-400 rounded-full" style="width:0%"></div>
@@ -609,7 +611,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
             <p class="text-[0.58rem] text-gray-400 font-black uppercase">Personal Best</p>
             <p class="text-xs font-bold text-gray-700" id="final-pb">–</p>
           </div>
-          <div class="bg-white rounded-xl p-2.5 border border-gray-100 shadow-sm">
+          <div id="daily-challenge-summary" class="bg-white rounded-xl p-2.5 border border-gray-100 shadow-sm">
             <p class="text-[0.58rem] text-gray-400 font-black uppercase">Daily Challenge (Misi Harian)</p>
             <p id="daily-badge-el" class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-bold bg-slate-100 text-slate-600">Belum tercapai</p>
           </div>
@@ -649,6 +651,10 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
         <div class="chip-row mb-2">
           <label class="filter-chip mode-ranked"><input type="radio" name="lb-mode" value="ranked" checked onchange="setLbMode('ranked')"><span>Mode Ranked</span></label>
           <label class="filter-chip mode-curriculum"><input type="radio" name="lb-mode" value="curriculum" onchange="setLbMode('curriculum')"><span>Mode Kurikulum</span></label>
+        </div>
+        <div class="mb-3">
+          <input id="lb-search-input" type="search" placeholder="Cari nama, mode, atau badge..." value="" oninput="setLbSearch(this.value)"
+            class="w-full px-3 py-2 rounded-2xl border border-slate-200 text-sm text-slate-700 focus:border-pktBlue focus:outline-none" />
         </div>
         <div class="chip-row mb-3" id="lb-filter-row">
           <label class="filter-chip"><input type="radio" name="lb-filter" value="All" checked onchange="setLbFilter(this.value)"><span>All</span></label>
@@ -723,7 +729,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
       <div>
         <h3 class="font-black text-gray-900 mb-1.5 border-l-4 border-pktOrange pl-3">📚 Mode Kurikulum</h3>
         <p class="text-xs">Latihan fokus per kategori. Pilih SISA MAKANAN, LAKU JUAL, atau RESIDU sebagai fokus. Pemain akan mendapat sampah acak dari semua kategori dan harus memutuskan apakah sampah tersebut SESUAI dengan fokus yang dipilih (2 pilihan: Sesuai / Tidak Sesuai).</p>
-        <p class="text-xs mt-1">Kamu dapat menjawab dengan menekan tombol atau menyeret kartu sampah ke pilihan <b>✅ Sesuai</b> atau <b>❌ Tidak Sesuai</b>.</p>
+        <p class="text-xs mt-1">Kamu dapat menjawab dengan menekan tombol atau menyeret kartu sampah ke pilihan <b>✅ Sesuai</b> atau <b>❌ Tidak Sesuai</b>. Daily challenge tidak aktif di mode Kurikulum.</p>
       </div>
       <div>
         <h3 class="font-black text-gray-900 mb-1.5 border-l-4 border-yellow-400 pl-3">⚡ Combo & Poin</h3>
@@ -788,7 +794,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
       </div>
       <div>
         <h3 class="font-black text-gray-900 mb-1.5 border-l-4 border-emerald-500 pl-3">🔥 Daily Challenge & Streak</h3>
-        <p class="text-xs">Setiap hari ada tantangan unik (skor target, akurasi, kategori fokus). Selesaikan untuk dapat badge <b>Daily Challenger</b> dan tambah streak harian. Streak putus jika tidak selesai challenge sehari penuh.</p>
+        <p class="text-xs">Setiap hari ada tantangan unik (skor target, akurasi, kategori fokus). Selesaikan untuk dapat badge <b>Daily Challenger</b> dan tambah streak harian. Daily challenge hanya berlaku di Mode Ranked; tidak muncul di Mode Kurikulum. Streak putus jika tidak selesai challenge sehari penuh.</p>
       </div>
       <div>
         <h3 class="font-black text-gray-900 mb-1.5 border-l-4 border-pktBlue pl-3">🏆 Leaderboard</h3>
@@ -814,6 +820,10 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
     <div class="chip-row mb-2">
       <label class="filter-chip mode-ranked"><input type="radio" name="lb-prev-mode" value="ranked" checked onchange="setLbPrevMode('ranked')"><span>Mode Ranked</span></label>
       <label class="filter-chip mode-curriculum"><input type="radio" name="lb-prev-mode" value="curriculum" onchange="setLbPrevMode('curriculum')"><span>Mode Kurikulum</span></label>
+    </div>
+    <div class="mb-3">
+      <input id="lb-prev-search-input" type="search" placeholder="Cari nama, mode, atau badge..." value="" oninput="setPrevSearch(this.value)"
+        class="w-full px-3 py-2 rounded-2xl border border-slate-200 text-sm text-slate-700 focus:border-pktBlue focus:outline-none" />
     </div>
     <div class="chip-row mb-3" id="lb-prev-filter-row">
       <label class="filter-chip"><input type="radio" name="lb-prev-filter" value="All" checked onchange="setPrevFilter(this.value)"><span>All</span></label>
@@ -900,6 +910,8 @@ let currDiff = null;
 let currSelectedCategory = null;
 let lbMode = 'ranked';
 let lbPrevMode = 'ranked';
+let lbSearch = '';
+let lbPrevSearch = '';
 const LB_FILTERS = {
   ranked:['All','Bumi Lestari','Eko Aktif','Penjaga Bumi'],
   curriculum:['All','SISA MAKANAN','LAKU JUAL','RESIDU']
@@ -1324,6 +1336,8 @@ function setupGameUI() {
     const existing = document.getElementById('curriculum-buttons-container');
     if (existing) existing.remove();
   }
+  const dailyRow = document.getElementById('daily-challenge-row');
+  if (dailyRow) dailyRow.style.display = GS.isCurriculum ? 'none' : 'flex';
   setupDragTargets();
 }
 
@@ -1634,6 +1648,12 @@ function endTrashPointerDrag(e) {
 }
 
 function updateMissionUI() {
+  const dailyRow = document.getElementById('daily-challenge-row');
+  if (GS.isCurriculum) {
+    if (dailyRow) dailyRow.style.display = 'none';
+    return;
+  }
+  if (dailyRow) dailyRow.style.display = 'flex';
   const acc=GS.totalAnswered>0?Math.round((GS.correctAnswers/GS.totalAnswered)*100):0;
   const snap={score:GS.score,acc,catStats:GS.categoryStats};
   const info=evalDCProgress(snap);
@@ -1699,25 +1719,29 @@ async function endGame() {
   document.getElementById('final-wrong').textContent=wrong;
 
   updateMissionUI();
-  const dcSnap={score:GS.score,acc,catStats:GS.categoryStats};
-  const dcInfo=evalDCProgress(dcSnap);
-  const dcEl=document.getElementById('daily-badge-el');
-  if(dcInfo.done && !DC.completed) {
-    DC.completed=true;
-    DC.bestProgress=100;
-    await saveDC();
-  }
-  if(dcInfo.pct>DC.bestProgress) {
-    DC.bestProgress=dcInfo.pct;
-    await saveDC();
-  }
-  if(DC.completed) {
-    updateStreak(); renderStreakBadge();
-    dcEl.textContent=`🏅 Daily Challenger • Best 100%`;
-    dcEl.className='inline-flex items-center rounded-full px-2.5 py-1 text-xs font-bold badge-daily';
-  } else {
-    dcEl.textContent=`Best progress: ${DC.bestProgress}%`;
-    dcEl.className='inline-flex items-center rounded-full px-2.5 py-1 text-xs font-bold bg-amber-100 text-amber-700';
+  const dailySummary = document.getElementById('daily-challenge-summary');
+  if (dailySummary) dailySummary.style.display = GS.isCurriculum ? 'none' : '';
+  if (!GS.isCurriculum) {
+    const dcSnap={score:GS.score,acc,catStats:GS.categoryStats};
+    const dcInfo=evalDCProgress(dcSnap);
+    const dcEl=document.getElementById('daily-badge-el');
+    if(dcInfo.done && !DC.completed) {
+      DC.completed=true;
+      DC.bestProgress=100;
+      await saveDC();
+    }
+    if(dcInfo.pct>DC.bestProgress) {
+      DC.bestProgress=dcInfo.pct;
+      await saveDC();
+    }
+    if(DC.completed) {
+      updateStreak(); renderStreakBadge();
+      dcEl.textContent=`🏅 Daily Challenger • Best 100%`;
+      dcEl.className='inline-flex items-center rounded-full px-2.5 py-1 text-xs font-bold badge-daily';
+    } else {
+      dcEl.textContent=`Best progress: ${DC.bestProgress}%`;
+      dcEl.className='inline-flex items-center rounded-full px-2.5 py-1 text-xs font-bold bg-amber-100 text-amber-700';
+    }
   }
 
   renderLearningReport();
@@ -1965,7 +1989,7 @@ function computeSecondaryBadges(score,acc,combo,prevBest,correct,wrong,total,cat
   if((Number.isFinite(rank)&&rank>0&&rank<=10)||ex.includes('Top 10')) badges.push('Top 10');
   if(versatile||ex.includes('Versatile')) badges.push('Versatile');
   if((typeof prevBest==='number'&&prevBest>0&&score>=(prevBest+75)&&composite>=45)||ex.includes('Rising Star')) badges.push('Rising Star');
-  if(DC.completed||ex.includes('Daily Challenger')) badges.push('Daily Challenger');
+  if(!GS.isCurriculum && (DC.completed||ex.includes('Daily Challenger'))) badges.push('Daily Challenger');
   if((acc>=95&&total>=20)||ex.includes('Accuracy Ace')) badges.push('Accuracy Ace');
   if((attempts||0)>=100||ex.includes('Grinder')) badges.push('Grinder');
   if(perfectCategory||ex.includes('Category Master')) badges.push('Category Master');
@@ -2009,23 +2033,38 @@ function formatBadge(primary) { const o=BADGE_ORD[primary]||1; return `*${o} ${p
 // ──────────────────────────────────────────
 //  LEADERBOARD RENDERING (exclude curriculum)
 // ──────────────────────────────────────────
-function filterLb(data, filter, mode='ranked') {
+function filterLb(data, filter, mode='ranked', search='') {
+  let filtered;
   if(mode==='curriculum') {
-    const filtered = data.filter(r=>r.isCurriculum===true);
-    if(!filter||filter==='All') return filtered;
-    return filtered.filter(r=>r.curriculumFilter===filter);
+    filtered = data.filter(r=>r.isCurriculum===true);
+    if(filter&&filter!=='All') filtered = filtered.filter(r=>r.curriculumFilter===filter);
+  } else {
+    filtered = data.filter(r=>!r.isCurriculum);
+    if(filter&&filter!=='All') {
+      filtered = filtered.filter(r=>{
+        const d=r&&r.difficulty?r.difficulty:'';
+        if(d.startsWith('curriculum-')) return false;
+        return getDifficultyDisplayName(d)===filter;
+      });
+    }
   }
-  const filtered = data.filter(r=>!r.isCurriculum);
-  if(!filter||filter==='All') return filtered;
-  return filtered.filter(r=>{
-    const d=r&&r.difficulty?r.difficulty:'';
-    if(d.startsWith('curriculum-')) return false;
-    return getDifficultyDisplayName(d)===filter;
-  });
+  const query = (search||'').trim().toLowerCase();
+  if(query) {
+    filtered = filtered.filter(r=>{
+      const name = (r.name||'').toLowerCase();
+      const diff = (r.difficulty||'').toLowerCase();
+      const curr = (r.curriculumFilter||'').toLowerCase();
+      const badges = (r.secondaryBadges||[]).join(' ').toLowerCase();
+      return name.includes(query) || diff.includes(query) || curr.includes(query) || badges.includes(query);
+    });
+  }
+  return filtered;
 }
 
 function setLbFilter(v) { lbFilter=v||'All'; renderLbTable(); }
+function setLbSearch(v) { lbSearch=v||''; renderLbTable(); }
 function setPrevFilter(v) { lbPrevFilter=v||'All'; renderLbPrev(); }
+function setPrevSearch(v) { lbPrevSearch=v||''; renderLbPrev(); }
 
 function setLbMode(v) {
   lbMode = v==='curriculum' ? 'curriculum' : 'ranked';
@@ -2066,7 +2105,7 @@ function renderLbPrevFilterChips() {
 function renderLbTable() {
   const tbody=document.getElementById('lb-body');
   if(!tbody) return;
-  const filtered=filterLb(lbCache, lbFilter, lbMode);
+  const filtered=filterLb(lbCache, lbFilter, lbMode, lbSearch);
   tbody.innerHTML='';
 
   if(filtered.length===0) {
@@ -2096,11 +2135,12 @@ function renderLbTable() {
 
     const secBadgesHtml=secArr.slice(0,3).map(b=>`<span class="rounded-full px-1.5 py-0.5 text-[0.55rem] font-bold ${getSecondaryBadgeClass(b)}">${escHtml(b)}</span>`).join('');
     const tagsHtml=tags.length>0?`<span class="text-[0.55rem] text-gray-400 font-semibold">${tags.map(t=>'#'+t).join(' ')}</span>`:'';
+    const primaryBadgeHtml = r.isCurriculum ? '' : `<span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold ${getBadgeClass(primary)}">${escHtml(formatBadge(primary))}</span>`;
 
     tr.innerHTML=`
       <td class="text-center ${rankStyle}"><div class="flex items-center justify-center gap-1" title="${escHtml(mv.title)}"><span>${i+1}</span><span class="text-[0.6rem] ${mv.cls}">${mv.sym}</span></div></td>
       <td class="pl-2">
-        <div class="flex flex-wrap items-center gap-1"><span class="font-bold text-gray-800 text-xs">${escHtml(r.name||'–')}</span><span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold ${getBadgeClass(primary)}">${escHtml(formatBadge(primary))}</span>${secBadgesHtml}</div>
+        <div class="flex flex-wrap items-center gap-1"><span class="font-bold text-gray-800 text-xs">${escHtml(r.name||'–')}</span>${primaryBadgeHtml}${secBadgesHtml}</div>
         <div class="flex gap-1 mt-0.5">${tagsHtml}<span class="text-[0.55rem] ${diffColor} font-bold">${escHtml(diffLabel)}</span></div>
       </td>
       <td class="text-center font-black text-pktOrange text-xs">${r.score||0}</td>
@@ -2192,7 +2232,7 @@ function renderFinalBadges(rec) {
 function renderLbPrev() {
   const tbody=document.getElementById('lb-prev-body');
   if(!tbody) return;
-  const filtered=filterLb(lbCache, lbPrevFilter, lbPrevMode);
+  const filtered=filterLb(lbCache, lbPrevFilter, lbPrevMode, lbPrevSearch);
   tbody.innerHTML='';
   if(filtered.length===0) { tbody.innerHTML='<tr><td colspan="8" class="text-center py-4 text-gray-400 text-xs">Belum ada skor.</td></tr>'; return; }
   renderLbPrevMeta();
@@ -2205,12 +2245,13 @@ function renderLbPrev() {
     const diffLabel=r.isCurriculum?`📚 ${r.curriculumFilter||'Kurikulum'}`:getDifficultyDisplayName(r.difficulty);
     const secBadgesHtml=secArr.slice(0,3).map(b=>`<span class="rounded-full px-1.5 py-0.5 text-[0.55rem] font-bold ${getSecondaryBadgeClass(b)}">${escHtml(b)}</span>`).join(' ');
     const tagsHtml=tags.length>0?`<span class="text-[0.55rem] text-gray-400 font-semibold">${tags.map(t=>'#'+t).join(' ')}</span>`:'';
+    const primaryBadgeHtml = r.isCurriculum ? '' : `<span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold ${getBadgeClass(primary)}">${escHtml(formatBadge(primary))}</span>`;
     const tr=document.createElement('tr');
     tr.className=i%2===0?'':'bg-blue-50/20';
     tr.innerHTML=`
       <td class="text-center font-bold text-xs"><div class="flex items-center justify-center gap-1" title="${escHtml(mv.title)}"><span>${i+1}</span><span class="text-[0.6rem] ${mv.cls}">${mv.sym}</span></div></td>
       <td class="pl-2">
-        <div class="flex flex-wrap items-center gap-1 mb-1"><span class="font-bold text-xs">${escHtml(r.name||'–')}</span><span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold ${getBadgeClass(primary)}">${escHtml(formatBadge(primary))}</span></div>
+        <div class="flex flex-wrap items-center gap-1 mb-1"><span class="font-bold text-xs">${escHtml(r.name||'–')}</span>${primaryBadgeHtml}</div>
         <div class="flex flex-wrap items-center gap-1 mb-1">${secBadgesHtml}</div>
         <div class="flex flex-wrap items-center gap-1 mb-1">${tagsHtml}</div>
         <div class="text-[0.58rem] text-gray-400">${escHtml(diffLabel)}</div>
