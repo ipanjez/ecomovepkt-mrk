@@ -335,10 +335,10 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
           autocomplete="off" maxlength="30">
         <div id="name-hint" class="text-xs text-gray-500 mb-3 min-h-[18px] text-center"></div>
 
-        <!-- daily challenge card -->
-        <div class="mb-4 rounded-xl border border-blue-100 bg-gradient-to-r from-blue-50 to-sky-50 px-4 py-3">
+        <!-- daily challenge card - CLICKABLE -->
+        <div id="dc-card-container" class="mb-4 rounded-xl border border-blue-100 bg-gradient-to-r from-blue-50 to-sky-50 px-4 py-3 hover:shadow-md hover:border-blue-200 transition cursor-pointer" onclick="openDCHistoryModal()">
           <div class="flex items-center justify-between gap-2 mb-1">
-            <p class="text-[0.65rem] font-black text-pktBlue uppercase tracking-wider">Daily Challenge</p>
+            <p class="text-[0.65rem] font-black text-pktBlue uppercase tracking-wider">⚡ Daily Challenge (Klik untuk Riwayat)</p>
             <span id="dc-status-badge" class="text-[0.65rem] font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full">Aktif</span>
           </div>
           <p id="dc-goal-text" class="text-xs font-semibold text-slate-700">Memuat tantangan hari ini...</p>
@@ -1215,8 +1215,12 @@ function renderDCCard() {
   const goal=document.getElementById('dc-goal-text');
   const prog=document.getElementById('dc-progress-text');
   const badge=document.getElementById('dc-status-badge');
+  const dccard=document.getElementById('dc-card-container');
   if(!goal) return;
-  goal.textContent=`Capai skor ${DC.targetScore}, akurasi ${DC.minAcc}%+, dan ${DC.minCorrect} benar di ${DC.focusCat}.`;
+  
+  // Use description if available, fallback to old format
+  goal.textContent = DC.description || `Capai skor ${DC.targetScore}, akurasi ${DC.minAcc}%+, dan ${DC.minCorrect} benar di ${DC.focusCat}.`;
+  
   const completedDC = DC.completed || DC.bestProgress >= 100;
   if (completedDC && !DC.completed) {
     DC.completed = true;
@@ -1225,6 +1229,9 @@ function renderDCCard() {
   prog.textContent=completedDC?`✅ Selesai! Best progress: ${DC.bestProgress}%`:`Progress terbaik: ${DC.bestProgress}%`;
   badge.textContent=completedDC?'Selesai':'Aktif';
   badge.className=completedDC?'text-[0.65rem] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full':'text-[0.65rem] font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full';
+  
+  // Make card clickable
+  if(dccard) dccard.style.cursor='pointer';
 }
 
 // ──────────────────────────────────────────
