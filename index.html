@@ -3018,6 +3018,25 @@ async function getDCCompletedCount(userId) {
   }
 }
 
+async function loadDCCountsForLeaderboard(lbArray) {
+  if (!DB || !DB.ref || !lbArray) return;
+  
+  // Load DC counts for ranked players only
+  const rankedPlayers = lbArray.filter(r => !r.isCurriculum);
+  
+  for (const player of rankedPlayers) {
+    try {
+      const count = await getDCCompletedCount(player.id);
+      player.dcCompleted = count;
+    } catch(e) {
+      player.dcCompleted = 0;
+    }
+  }
+  
+  // Re-render table with updated DC counts
+  renderLbTable();
+}
+
 function updateNameHint() {
   const el = document.getElementById('name-hint');
   if(!el) return;
