@@ -3059,6 +3059,19 @@ async function saveToDb(acc, wrong) {
     isCurriculum:GS.isCurriculum, curriculumFilter:GS.curriculumFocus||null
   };
 
+  // Persist the PRE-GAME leaderboard state to localStorage BEFORE writing to Firebase.
+  // This ensures the snapshot captures ranks as they were BEFORE this game's score
+  // potentially shifts positions. The next page load uses this as its baseline.
+  // IMPORTANT: sessionBaseSnapshot (in-memory) is NOT updated here.
+  try {
+    const rankedIds = new Set(lbCache.filter(r=>!r.isCurriculum).map(r=>r.id));
+    const currIds   = new Set(lbCache.filter(r=>r.isCurriculum).map(r=>r.id));
+    const rMap={}, cMap={};
+    lbCache.filter(r=>!r.isCurriculum).forEach((r,i)=>{ rMap['id:'+r.id]=i+1; });
+    lbCache.filter(r=>r.isCurriculum).forEach((r,i)=>{ cMap['id:'+r.id]=i+1; });
+    saveLbSnapshot(rMap, cMap, rankedIds, currIds);
+  } catch(e) {}
+
   if(!ex||GS.score>=ex.score) {
     await ref.set(payload);
   } else {
@@ -3071,21 +3084,6 @@ async function saveToDb(acc, wrong) {
     if(GS.bestCombo>(ex.bestCombo||0)) upd.bestCombo=GS.bestCombo;
     await ref.update(upd);
   }
-  // Persist current snapshot NOW (before Firebase fires again with new data).
-  // This ensures next Firebase update correctly computes ▲🆕— for this player.
-  try {
-    const rankedIds = new Set(lbCache.filter(r=>!r.isCurriculum).map(r=>r.id));
-    const currIds   = new Set(lbCache.filter(r=>r.isCurriculum).map(r=>r.id));
-    const rMap={}, cMap={};
-    lbCache.filter(r=>!r.isCurriculum).forEach((r,i)=>{ rMap['id:'+r.id]=i+1; });
-    lbCache.filter(r=>r.isCurriculum).forEach((r,i)=>{ cMap['id:'+r.id]=i+1; });
-    saveLbSnapshot(rMap, cMap, rankedIds, currIds);
-    // Also update the in-session baseline so the indicator is visible immediately
-    sessionBaseSnapshot = {
-      ranked: rMap, curriculum: cMap,
-      ids_ranked_set: rankedIds, ids_curriculum_set: currIds
-    };
-  } catch(e) {}
   renderLbTable();
 }
 
@@ -3118,7 +3116,9 @@ function setupFirebaseListener() {
       // ── Movement indicators ──────────────────────────────────────────────
       lbFirebaseUpdateCount++;
 
-      // On first fire: load persisted snapshot as baseline, then save new snapshot
+      // On first fire ONLY: load the persisted snapshot from the PREVIOUS session
+      // as the baseline. This baseline stays frozen for the entire page session
+      // so players can always see how their rank changed since they opened the page.
       if (lbFirebaseUpdateCount === 1) {
         const saved = loadLbSnapshot();
         if (saved) {
@@ -3131,12 +3131,18 @@ function setupFirebaseListener() {
         } else {
           // No previous snapshot — first ever load, all show —
           sessionBaseSnapshot = null;
+          // Save current state now so the very first game in this session
+          // will have a meaningful baseline for the next session.
+          saveLbSnapshot(rankedRankMap, curriculumRankMap,
+            new Set(rankedOnly.map(r=>r.id)),
+            new Set(curriculumOnly.map(r=>r.id)));
         }
-        // Always overwrite snapshot with current ranks right away
-        saveLbSnapshot(rankedRankMap, curriculumRankMap,
-          new Set(rankedOnly.map(r=>r.id)),
-          new Set(curriculumOnly.map(r=>r.id)));
+        // NOTE: when there IS a saved snapshot, we do NOT overwrite it here.
+        // The snapshot is written by saveToDb() after each game, capturing the
+        // pre-save state as the baseline for the NEXT page load.
       }
+      // sessionBaseSnapshot is NEVER updated after first fire — it stays anchored
+      // to page-open ranks for the entire session.
 
       arr.forEach((r,i)=>{
         let sym='—', cls='text-gray-400', title='Tetap';
