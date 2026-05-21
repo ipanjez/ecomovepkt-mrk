@@ -766,59 +766,41 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
       </div>
       <div>
         <h3 class="font-black text-gray-900 mb-1.5 border-l-4 border-purple-500 pl-3">🏅 Badge Sistem</h3>
-        <p class="text-xs mb-2"><b>Badge Utama</b> dihitung dari nilai komposit (c) sebagai berikut:</p>
+        <p class="text-xs mb-2"><b>Badge Utama</b> dihitung dari nilai komposit (c) = skor×0.5 + akurasi×0.3 + combo×0.6 + bonus percobaan (maks +5):</p>
+        <div class="grid grid-cols-2 gap-x-4 text-xs mb-2">
+          <div><span class="inline-block rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-bronze mr-1">★1 Bronze</span>c &lt; 30</div>
+          <div><span class="inline-block rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-silver mr-1">★2 Silver</span>30–45</div>
+          <div><span class="inline-block rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-gold mr-1">★3 Gold</span>45–58</div>
+          <div><span class="inline-block rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-platinum mr-1">★4 Platinum</span>58–70</div>
+          <div><span class="inline-block rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-epic mr-1">★5 Epic</span>70–80</div>
+          <div><span class="inline-block rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-grandmaster mr-1">★6 Grandmaster</span>80–88</div>
+          <div><span class="inline-block rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-diamond mr-1">★7 Diamond</span>88–93</div>
+          <div><span class="inline-block rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-legend mr-1">★8 Legend</span>93–96</div>
+          <div><span class="inline-block rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-master mr-1">★9 Master</span>96–99</div>
+          <div><span class="inline-block rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-immortal mr-1">★10 Immortal</span>c ≥ 99</div>
+        </div>
+        <p class="text-xs mb-1.5"><b>Badge Bonus</b> (bisa didapat bersamaan dengan badge utama):</p>
         <ul class="list-disc pl-5 space-y-1 text-xs mb-2">
-          <li><b>Skor</b>: dibagi 13 lalu dikalikan 0.5 (maks. 50 poin).</li>
-          <li><b>Akurasi</b>: dikalikan 0.3 (maks. 30 poin).</li>
-          <li><b>Combo tertinggi</b>: dikalikan 4 lalu 0.15 (maks. 100 poin jika combo = 25).</li>
-          <li><b>Jumlah percobaan</b>: memberi bonus kecil hingga +5 poin.</li>
+          <li><span class="font-bold">🥇 Top 10</span>: masuk 10 besar leaderboard Ranked.</li>
+          <li><span class="font-bold">🎭 Versatile</span>: akurasi semua kategori ≥70%, selisih max ≤15%.</li>
+          <li><span class="font-bold">⭐ Rising Star</span>: skor naik ≥75 poin dari personal best sebelumnya.</li>
+          <li><span class="font-bold">🏅 Daily Challenger</span>: selesaikan daily challenge hari ini.</li>
+          <li><span class="font-bold">🎯 Accuracy Ace</span>: akurasi ≥95% dengan ≥20 jawaban.</li>
+          <li><span class="font-bold">🔥 Grinder</span>: telah bermain ≥50 kali.</li>
+          <li><span class="font-bold">👑 Category Master</span>: 100% benar di satu kategori (min. 5 soal).</li>
+          <li><span class="font-bold">💎 God Aim</span>: akurasi 100% dengan ≥10 jawaban.</li>
+          <li><span class="font-bold">🚀 Elite</span>: skor ≥1000 dengan akurasi ≥90%.</li>
+          <li><span class="font-bold">🔥 Hot Streak</span>: streak harian ≥3 hari.</li>
+          <li><span class="font-bold">⚔️ Week Warrior</span>: streak harian ≥7 hari.</li>
+          <li><span class="font-bold">🌟 Monthly Master</span>: streak harian ≥30 hari.</li>
         </ul>
-        <p class="text-xs mb-2">Rentang nilai badge utama:</p>
-        <ul class="list-disc pl-5 space-y-1 text-xs mb-2">
-          <li><b>Bronze</b>: c &lt; 30</li>
-          <li><b>Silver</b>: 30 ≤ c &lt; 45</li>
-          <li><b>Gold</b>: 45 ≤ c &lt; 58</li>
-          <li><b>Platinum</b>: 58 ≤ c &lt; 70</li>
-          <li><b>Epic</b>: 70 ≤ c &lt; 80</li>
-          <li><b>Grandmaster</b>: 80 ≤ c &lt; 88</li>
-          <li><b>Diamond</b>: 88 ≤ c &lt; 93</li>
-          <li><b>Legend</b>: 93 ≤ c &lt; 96</li>
-          <li><b>Master</b>: 96 ≤ c &lt; 99</li>
-          <li><b>Immortal</b>: c ≥ 99</li>
-        </ul>
-        <p class="text-xs mb-2">Contoh perhitungan badge utama:</p>
-        <ul class="list-disc pl-5 space-y-1 text-xs mb-2">
-          <li><b>Bronze</b>: skor 0, akurasi 0%, combo 0, percobaan 0 → c = 0</li>
-          <li><b>Silver</b>: skor 0, akurasi 35%, combo 25, percobaan 100 → c ≈ 30.5</li>
-          <li><b>Gold</b>: skor 0, akurasi 85%, combo 25, percobaan 100 → c ≈ 45.5</li>
-          <li><b>Platinum</b>: skor 225, akurasi 100%, combo 24, percobaan 100 → c ≈ 58.1</li>
-          <li><b>Epic</b>: skor 525, akurasi 100%, combo 25, percobaan 100 → c ≈ 70.2</li>
-          <li><b>Grandmaster</b>: skor 800, akurasi 100%, combo 24, percobaan 100 → c ≈ 80.2</li>
-          <li><b>Diamond</b>: skor 1000, akurasi 100%, combo 25, percobaan 100 → c ≈ 88.5</li>
-          <li><b>Legend</b>: skor 1125, akurasi 100%, combo 25, percobaan 100 → c ≈ 93.3</li>
-          <li><b>Master</b>: skor 1200, akurasi 100%, combo 25, percobaan 100 → c ≈ 96.2</li>
-          <li><b>Immortal</b>: skor 1275, akurasi 100%, combo 25, percobaan 100 → c ≈ 99.0</li>
-        </ul>
-        <p class="text-xs mb-2"><b>Badge Bonus</b> dapat muncul bersamaan dengan badge utama. Kriteria utama:</p>
+        <p class="text-xs mb-1.5"><b>Tags khusus</b> (label performa di leaderboard):</p>
         <ul class="list-disc pl-5 space-y-1 text-xs">
-          <li><b>Top 10</b>: berada dalam peringkat 10 besar leaderboard mode ranked (tidak berlaku untuk Mode Kurikulum).</li>
-          <li><b>Versatile</b>: akurasi setiap kategori seimbang, selisih antar-kategori ≤15%, dan minimal 70% di semua kategori.</li>
-          <li><b>Rising Star</b>: skor sesi ini naik ≥75 poin dibanding personal best sebelumnya.</li>
-          <li><b>Daily Challenger</b>: menyelesaikan target daily challenge hari ini.</li>
-          <li><b>Accuracy Ace</b>: akurasi ≥95% dengan minimal 20 jawaban benar dalam satu sesi.</li>
-          <li><b>Category Master</b>: 100% benar di satu kategori dengan minimal 5 jawaban di kategori tersebut.</li>
-        </ul>
-        <p class="text-xs mb-2"><b>Tags</b> memberikan label performa tambahan pada hasil kamu:</p>
-        <ul class="list-disc pl-5 space-y-1 text-xs mb-2">
-          <li><b>#ResiduExpert</b>: akurasi ≥95% pada kategori RESIDU.</li>
-          <li><b>#SisaMakananExpert</b>: akurasi ≥95% pada kategori SISA MAKANAN.</li>
-          <li><b>#LayakJualExpert</b>: akurasi ≥95% pada kategori LAKU JUAL.</li>
-          <li><b>#ComboPro</b>: mencapai combo x25 atau lebih.</li>
-          <li><b>#Grinder</b>: 100x percobaan / 100x bermain.</li>
-          <li><b>#GodAim</b>: meraih 100% akurasi.</li>
-          <li><b>#Persistence</b>: sudah bermain 50+ kali tanpa menempati posisi 1.</li>
-          <li><b>#WeekWarrior</b>: menyelesaikan 7+ daily challenge.</li>
-          <li><b>#MonthlyMaster</b>: menyelesaikan 30+ daily challenge.</li>
+          <li><b>#ResiduExpert / #SisaMakananExpert / #LayakJualExpert</b>: akurasi ≥95% di kategori tersebut.</li>
+          <li><b>#ComboPro</b>: combo ≥25x.</li>
+          <li><b>#GodAim</b>: akurasi 100%.</li>
+          <li><b>#Persistence</b>: bermain ≥50x tanpa jadi #1.</li>
+          <li><b>#WeekWarrior / #MonthlyMaster</b>: streak 7+ / 30+ hari.</li>
         </ul>
       </div>
       <div>
@@ -1060,6 +1042,9 @@ function prepareSessionQueue() {
 // Leaderboard cache
 let lbCache = [];
 let lbIndexMap = {};
+// Per-mode rank snapshots for accurate ▲▼— indicators
+let lbPrevRankedRankMap = {};  // id -> rank (1-based) in ranked mode
+let lbPrevCurriculumRankMap = {}; // id -> rank (1-based) in curriculum mode
 
 // Nearest rival
 let nearestRival = null;
@@ -1079,18 +1064,36 @@ function playSound(type) {
   if (GS.isMuted) return;
   try {
     if (audioCtx.state === 'suspended') audioCtx.resume();
-    const o = audioCtx.createOscillator();
-    const g = audioCtx.createGain();
-    o.connect(g); g.connect(audioCtx.destination);
-    const t = audioCtx.currentTime;
-    if (type==='correct') { o.type='sine'; o.frequency.setValueAtTime(600,t); o.frequency.exponentialRampToValueAtTime(1200,t+0.1); g.gain.setValueAtTime(0.08,t); g.gain.exponentialRampToValueAtTime(0.001,t+0.12); o.start(); o.stop(t+0.12); }
-    else if (type==='wrong') { o.type='sawtooth'; o.frequency.setValueAtTime(300,t); o.frequency.exponentialRampToValueAtTime(100,t+0.22); g.gain.setValueAtTime(0.08,t); g.gain.exponentialRampToValueAtTime(0.001,t+0.22); o.start(); o.stop(t+0.22); }
-    else if (type==='gameover') { o.type='sawtooth'; o.frequency.setValueAtTime(700,t); o.frequency.exponentialRampToValueAtTime(120,t+0.65); g.gain.setValueAtTime(0.1,t); g.gain.exponentialRampToValueAtTime(0.001,t+0.65); o.start(); o.stop(t+0.67); }
-    else if (type==='start') { o.type='sine'; o.frequency.setValueAtTime(400,t); o.frequency.exponentialRampToValueAtTime(900,t+0.12); g.gain.setValueAtTime(0.1,t); g.gain.exponentialRampToValueAtTime(0.001,t+0.16); o.start(); o.stop(t+0.16); }
-    else if (type==='tryagain') { o.type='sine'; o.frequency.setValueAtTime(360,t); g.gain.setValueAtTime(0.08,t); g.gain.exponentialRampToValueAtTime(0.001,t+0.18); o.start(); o.stop(t+0.18); }
-    else if (type==='bin-sisa') { o.type='triangle'; o.frequency.setValueAtTime(900,t); o.frequency.exponentialRampToValueAtTime(1400,t+0.07); g.gain.setValueAtTime(0.1,t); g.gain.exponentialRampToValueAtTime(0.001,t+0.09); o.start(); o.stop(t+0.09); }
-    else if (type==='bin-laku') { o.type='sawtooth'; o.frequency.setValueAtTime(700,t); o.frequency.exponentialRampToValueAtTime(300,t+0.12); g.gain.setValueAtTime(0.09,t); g.gain.exponentialRampToValueAtTime(0.001,t+0.14); o.start(); o.stop(t+0.14); }
-    else if (type==='bin-residu') { o.type='sine'; o.frequency.setValueAtTime(220,t); g.gain.setValueAtTime(0.07,t); g.gain.exponentialRampToValueAtTime(0.001,t+0.13); o.start(); o.stop(t+0.13); }
+    const ctx = audioCtx;
+    const t = ctx.currentTime;
+
+    function beep(freq, dur, vol=0.08, waveType='sine', detune=0) {
+      const o = ctx.createOscillator(); const g = ctx.createGain();
+      o.type = waveType; o.frequency.value = freq;
+      if(detune) o.detune.value = detune;
+      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t+0.008);
+      g.gain.exponentialRampToValueAtTime(0.001, t+dur);
+      o.connect(g); g.connect(ctx.destination);
+      o.start(t); o.stop(t+dur+0.01);
+    }
+
+    if (type==='correct') {
+      beep(523, 0.08, 0.07); beep(659, 0.07, 0.06); beep(784, 0.1, 0.08);
+    } else if (type==='wrong') {
+      beep(220, 0.18, 0.07, 'sawtooth'); beep(196, 0.22, 0.05, 'sawtooth', -15);
+    } else if (type==='gameover') {
+      beep(523, 0.15, 0.09); beep(415, 0.18, 0.09); beep(330, 0.28, 0.1); beep(220, 0.5, 0.1);
+    } else if (type==='start') {
+      beep(392, 0.07, 0.08); beep(523, 0.07, 0.09); beep(659, 0.07, 0.09); beep(784, 0.12, 0.1);
+    } else if (type==='tryagain') {
+      beep(440, 0.1, 0.07); beep(494, 0.12, 0.07);
+    } else if (type==='bin-sisa') {
+      beep(784, 0.06, 0.08, 'triangle'); beep(1047, 0.07, 0.07, 'triangle');
+    } else if (type==='bin-laku') {
+      beep(659, 0.06, 0.08, 'sine'); beep(880, 0.08, 0.07, 'sine');
+    } else if (type==='bin-residu') {
+      beep(440, 0.06, 0.07, 'triangle'); beep(554, 0.08, 0.06, 'triangle');
+    }
   } catch(e) { /* ignore */ }
 }
 
@@ -1099,27 +1102,166 @@ function startAmbient() {
   try {
     if (audioCtx.state==='suspended') audioCtx.resume();
     const ctx = audioCtx;
-    const master = ctx.createGain(); master.gain.value = 0.04; master.connect(ctx.destination);
-    const filter = ctx.createBiquadFilter(); filter.type='lowpass'; filter.frequency.value=800; filter.connect(master);
-    const amp = ctx.createGain(); amp.gain.value = 0; amp.connect(filter);
-    const chords = [[261.63,329.63,392,523.25],[196,246.94,293.66,392],[220,261.63,329.63,440],[174.61,220,261.63,349.23]];
-    const voices = chords[0].map((f,i) => {
+
+    // ── Master chain ──────────────────────────────────────────────────────
+    const masterGain = ctx.createGain(); masterGain.gain.value = 0;
+    const compressor = ctx.createDynamicsCompressor();
+    compressor.threshold.value = -18; compressor.ratio.value = 4;
+    compressor.attack.value = 0.003; compressor.release.value = 0.25;
+    const reverbGain = ctx.createGain(); reverbGain.gain.value = 0.18;
+    masterGain.connect(compressor); compressor.connect(ctx.destination);
+
+    // ── Reverb (convolution-less: feedback delay) ─────────────────────────
+    const delayL = ctx.createDelay(1.0); delayL.delayTime.value = 0.33;
+    const delayR = ctx.createDelay(1.0); delayR.delayTime.value = 0.47;
+    const delayFbL = ctx.createGain(); delayFbL.gain.value = 0.35;
+    const delayFbR = ctx.createGain(); delayFbR.gain.value = 0.30;
+    masterGain.connect(delayL); masterGain.connect(delayR);
+    delayL.connect(delayFbL); delayFbL.connect(delayL);
+    delayR.connect(delayFbR); delayFbR.connect(delayR);
+    delayL.connect(compressor); delayR.connect(compressor);
+
+    // ── Musical parameters ────────────────────────────────────────────────
+    const BPM = 128; const BEAT = 60/BPM;
+    // C major pentatonic: C4, D4, E4, G4, A4, C5, D5, E5
+    const SCALE = [261.63, 293.66, 329.63, 392.00, 440.00, 523.25, 587.33, 659.25];
+    const BASS_NOTES = [65.41, 73.42, 82.41, 98.00]; // C2 D2 E2 G2
+    // Chord progressions (indices into SCALE)
+    const CHORDS = [
+      [0,2,4,6], [1,3,5,7], [4,2,0,2], [5,3,1,0]
+    ];
+
+    let chordIdx = 0;
+    let stopped = false;
+    const voices = [];
+
+    // ── Utility: create a short envelope note ────────────────────────────
+    function note(freq, startTime, dur, vol=0.08, type='sine', detune=0) {
+      if(stopped) return;
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.type = type; o.frequency.value = freq;
+      if(detune) o.detune.value = detune;
+      g.gain.setValueAtTime(0, startTime);
+      g.gain.linearRampToValueAtTime(vol, startTime + 0.01);
+      g.gain.exponentialRampToValueAtTime(0.001, startTime + dur);
+      o.connect(g); g.connect(masterGain);
+      o.start(startTime); o.stop(startTime + dur + 0.02);
+    }
+
+    // ── Melody arpeggio (plays every beat) ───────────────────────────────
+    let melodyStep = 0;
+    function scheduleMelody(t) {
+      if(stopped) return;
+      const chord = CHORDS[chordIdx % CHORDS.length];
+      const noteFreq = SCALE[chord[melodyStep % chord.length]];
+      const octaveShift = melodyStep < 4 ? 1 : 2;
+      note(noteFreq * octaveShift, t, BEAT * 0.7, 0.055, 'sine');
+      // Harmonics (slight detune for richness)
+      note(noteFreq * octaveShift, t, BEAT * 0.5, 0.015, 'sine', 7);
+      melodyStep = (melodyStep + 1) % 8;
+    }
+
+    // ── Pad chords ────────────────────────────────────────────────────────
+    function schedulePad(t) {
+      if(stopped) return;
+      const chord = CHORDS[chordIdx % CHORDS.length];
+      chord.forEach((ci,i) => {
+        const f = SCALE[ci];
+        note(f, t, BEAT * 7.5, 0.025, 'sine', i*3);
+        note(f*2, t, BEAT * 7.5, 0.010, 'sine', -i*2);
+      });
+    }
+
+    // ── Bass line ─────────────────────────────────────────────────────────
+    let bassStep = 0;
+    function scheduleBass(t) {
+      if(stopped) return;
+      const pattern = [0,0,2,1,0,3,2,0];
+      const baseFreq = BASS_NOTES[chordIdx % BASS_NOTES.length];
+      const intervals = [1, 1.125, 1.25, 1.5]; // root, maj2, maj3, 5th
+      const f = baseFreq * intervals[pattern[bassStep % pattern.length]];
+      note(f, t, BEAT * 0.85, 0.09, 'triangle');
+      note(f*2, t, BEAT * 0.5, 0.02, 'sine');
+      bassStep = (bassStep + 1) % pattern.length;
+    }
+
+    // ── Percussion (hi-hat + kick) ─────────────────────────────────────────
+    function kick(t) {
+      if(stopped) return;
       const o = ctx.createOscillator(); const g = ctx.createGain();
-      o.type='sine'; o.frequency.value=f; g.gain.value=0.22;
-      o.connect(g); g.connect(amp); o.start(); return {o,g};
-    });
-    amp.gain.linearRampToValueAtTime(0.95, ctx.currentTime+4);
-    let ci=0;
-    const ct = setInterval(()=>{ ci=(ci+1)%chords.length; chords[ci].forEach((f,i)=>{ voices[i].o.frequency.setTargetAtTime(f,ctx.currentTime,0.15); }); },8000);
-    ambientNodes = {master,filter,amp,voices,ct};
-  } catch(e) {}
+      o.type = 'sine'; o.frequency.setValueAtTime(120,t); o.frequency.exponentialRampToValueAtTime(40, t+0.15);
+      g.gain.setValueAtTime(0.18,t); g.gain.exponentialRampToValueAtTime(0.001,t+0.18);
+      o.connect(g); g.connect(masterGain); o.start(t); o.stop(t+0.2);
+    }
+    function hihat(t, vol=0.03) {
+      if(stopped) return;
+      const buf = ctx.createBuffer(1, ctx.sampleRate*0.05, ctx.sampleRate);
+      const d = buf.getChannelData(0);
+      for(let i=0;i<d.length;i++) d[i]=(Math.random()*2-1);
+      const src = ctx.createBufferSource(); src.buffer = buf;
+      const hpf = ctx.createBiquadFilter(); hpf.type='highpass'; hpf.frequency.value=8000;
+      const g = ctx.createGain(); g.gain.setValueAtTime(vol,t); g.gain.exponentialRampToValueAtTime(0.001,t+0.05);
+      src.connect(hpf); hpf.connect(g); g.connect(masterGain);
+      src.start(t); src.stop(t+0.06);
+    }
+
+    // ── Scheduler ─────────────────────────────────────────────────────────
+    const LOOK_AHEAD = 0.15;
+    const SCHEDULE_INTERVAL = 80; // ms
+    let nextBeatTime = ctx.currentTime + 0.05;
+    let beatCount = 0;
+
+    function scheduleBeats() {
+      if(stopped) return;
+      while(nextBeatTime < ctx.currentTime + LOOK_AHEAD) {
+        const t = nextBeatTime;
+        const bar = Math.floor(beatCount / 16); // 4/4 time
+        const beat = beatCount % 16;
+
+        // Kick on beats 0 and 8 (downbeat & backbeat)
+        if(beat === 0 || beat === 8) kick(t);
+        // Snare-like (closed hihat accent) on beats 4 and 12
+        if(beat === 4 || beat === 12) hihat(t, 0.05);
+        // Open hihat every beat
+        hihat(t + BEAT*0.25, 0.02);
+
+        // Bass every beat
+        scheduleBass(t);
+
+        // Melody every beat
+        scheduleMelody(t);
+
+        // Pad chord every 8 beats
+        if(beat % 8 === 0) {
+          schedulePad(t);
+          if(beat === 0 && beatCount > 0) {
+            chordIdx = (chordIdx + 1) % CHORDS.length;
+          }
+        }
+
+        nextBeatTime += BEAT;
+        beatCount++;
+      }
+    }
+
+    const schedulerTimer = setInterval(scheduleBeats, SCHEDULE_INTERVAL);
+
+    // Fade in
+    masterGain.gain.linearRampToValueAtTime(0.75, ctx.currentTime + 3.0);
+
+    ambientNodes = {masterGain, schedulerTimer, stopped: false};
+    ambientNodes._stop = () => { stopped = true; clearInterval(schedulerTimer); };
+
+  } catch(e) { console.warn('startAmbient error:', e); }
 }
 
 function stopAmbient() {
   if (!ambientNodes) return;
   try {
-    ambientNodes.amp.gain.linearRampToValueAtTime(0.001, audioCtx.currentTime+0.5);
-    setTimeout(()=>{ try { ambientNodes.voices.forEach(v=>v.o.stop()); clearInterval(ambientNodes.ct); } catch(e){} },600);
+    ambientNodes.masterGain.gain.linearRampToValueAtTime(0.001, audioCtx.currentTime + 0.8);
+    if(ambientNodes._stop) ambientNodes._stop();
+    setTimeout(()=>{ try { ambientNodes.masterGain.disconnect(); } catch(e){} }, 1000);
   } catch(e) {}
   ambientNodes = null;
 }
@@ -1132,9 +1274,27 @@ function toggleMute() {
 
 function toggleAmbient() {
   const b = document.getElementById('music-btn');
-  const enabled = localStorage.getItem('eco_ambient')==='1';
-  if (enabled) { stopAmbient(); localStorage.setItem('eco_ambient','0'); b.textContent='🎵'; b.className=b.className.replace('text-pktGreen','text-gray-400').replace('bg-green-50','bg-gray-50').replace('border-green-100','border-gray-100'); }
-  else { startAmbient(); localStorage.setItem('eco_ambient','1'); b.textContent='🎶'; b.className=b.className.replace('text-gray-400','text-pktGreen').replace('bg-gray-50','bg-green-50').replace('border-gray-100','border-green-100'); }
+  const isEnabled = localStorage.getItem('eco_ambient') !== '0';
+  if (isEnabled) {
+    // Turn OFF
+    stopAmbient();
+    localStorage.setItem('eco_ambient','0');
+    if(b) {
+      b.textContent='🎵';
+      b.classList.remove('text-pktGreen','bg-green-50','border-green-100');
+      b.classList.add('text-gray-400','bg-gray-50','border-gray-100');
+    }
+  } else {
+    // Turn ON
+    try { if(audioCtx.state==='suspended') audioCtx.resume(); } catch(e){}
+    startAmbient();
+    localStorage.setItem('eco_ambient','1');
+    if(b) {
+      b.textContent='🎶';
+      b.classList.remove('text-gray-400','bg-gray-50','border-gray-100');
+      b.classList.add('text-pktGreen','bg-green-50','border-green-100');
+    }
+  }
 }
 
 // ──────────────────────────────────────────
@@ -1956,7 +2116,7 @@ function startGame(time, diff, name, isCurriculum) {
   pauseOv.classList.remove('visible');
   document.getElementById('pause-btn').textContent='⏸';
 
-  if(localStorage.getItem('eco_ambient')==='1') startAmbient();
+  if(localStorage.getItem('eco_ambient')!=='0') startAmbient();
 
   // Show swipe hint briefly for players with few attempts
   const isNewish = !lbCache.find(r=>r.id===GS.currentSessionId) || (lbCache.find(r=>r.id===GS.currentSessionId)?.attempts||0) < 3;
@@ -2747,19 +2907,27 @@ function setupFirebaseListener() {
 
       // Calculate ranked-only rank for Top 10 badge eligibility
       const rankedOnly = arr.filter(r=>!r.isCurriculum);
+      const curriculumOnly = arr.filter(r=>r.isCurriculum);
       const rankedRankMap = {};
       rankedOnly.forEach((r,i)=>{ rankedRankMap['id:'+r.id] = i+1; });
+      const curriculumRankMap = {};
+      curriculumOnly.forEach((r,i)=>{ curriculumRankMap['id:'+r.id] = i+1; });
 
-      const previousIndexMap = lbIndexMap;
+      // Compute per-mode movement indicators using previous snapshots
       arr.forEach((r,i)=>{
         let sym='—', cls='text-gray-400', title='Tetap';
-        const oldIdx = previousIndexMap['id:'+r.id];
-        if(typeof oldIdx === 'number') {
-          if(i < oldIdx) {
-            sym='▲'; cls='text-green-600'; title='Naik';
-          } else if(i > oldIdx) {
-            sym='▼'; cls='text-red-500'; title='Turun';
+        const isC = r.isCurriculum;
+        const prevMap = isC ? lbPrevCurriculumRankMap : lbPrevRankedRankMap;
+        const curRank = isC ? (curriculumRankMap['id:'+r.id]||9999) : (rankedRankMap['id:'+r.id]||9999);
+        const oldRank = prevMap['id:'+r.id];
+        if(typeof oldRank === 'number' && oldRank !== curRank) {
+          if(curRank < oldRank) {
+            sym='▲'; cls='text-green-600'; title=`Naik (${oldRank}→${curRank})`;
+          } else {
+            sym='▼'; cls='text-red-500'; title=`Turun (${oldRank}→${curRank})`;
           }
+        } else if(typeof oldRank !== 'number') {
+          sym='🆕'; cls='text-blue-500'; title='Baru masuk';
         }
         r.__mv={sym,cls,title};
         
@@ -2787,6 +2955,9 @@ function setupFirebaseListener() {
       lbCache=arr;
       lbIndexMap={};
       arr.forEach((r,i)=>{ lbIndexMap['id:'+r.id]=i; if(r.name) lbIndexMap['name:'+r.name.toLowerCase()]=i; });
+      // Save current per-mode ranks for next update's movement comparison
+      lbPrevRankedRankMap = {...rankedRankMap};
+      lbPrevCurriculumRankMap = {...curriculumRankMap};
 
       const dbStatus = document.getElementById('db-status');
       if(dbStatus) {
@@ -2858,7 +3029,7 @@ function computeSecondaryBadges(score,acc,combo,prevBest,correct,wrong,total,cat
   const composite=sp*0.50+ap*0.30+cp*0.15+(att/100)*0.05*att;
 
   const accs=Object.values(catStats||{}).filter(s=>s&&s.total>0).map(s=>s.correct/s.total*100);
-  const versatile=accs.length>0&&Math.max(...accs)-Math.min(...accs)<=15&&Math.min(...accs)>=70;
+  const versatile=accs.length>=3&&Math.max(...accs)-Math.min(...accs)<=15&&Math.min(...accs)>=70;
   const perfectCategory=Object.values(catStats||{}).some(s=>s&&s.total>=5&&s.correct===s.total);
 
   const ex=Array.isArray(existing)?existing:[];
@@ -2868,13 +3039,14 @@ function computeSecondaryBadges(score,acc,combo,prevBest,correct,wrong,total,cat
   if((typeof prevBest==='number'&&prevBest>0&&score>=(prevBest+75)&&composite>=45)||ex.includes('Rising Star')) badges.push('Rising Star');
   if(!rowIsCurriculum && ((isCurrentSession && (DC.completed || DC.bestProgress >= 100)) || ex.includes('Daily Challenger'))) badges.push('Daily Challenger');
   if((acc>=95&&total>=20)||ex.includes('Accuracy Ace')) badges.push('Accuracy Ace');
-  if((attempts||0)>=100||ex.includes('Grinder')) badges.push('Grinder');
+  if((attempts||0)>=50||ex.includes('Grinder')) badges.push('Grinder');
   if(perfectCategory||ex.includes('Category Master')) badges.push('Category Master');
+  if((acc>=100&&total>=10)||ex.includes('God Aim')) badges.push('God Aim');
+  if((score>=1000&&acc>=90)||ex.includes('Elite')) badges.push('Elite');
 
   const streak=getStreak();
-  // Use longest streak for monthly milestone, current for hot streak
   if(streak.longest>=30||ex.includes('Monthly Master')) badges.push('Monthly Master');
-  else if(streak.current>=7||ex.includes('Week Warrior')) badges.push('Week Warrior');
+  else if(streak.current>=7||streak.longest>=7||ex.includes('Week Warrior')) badges.push('Week Warrior');
   else if(streak.current>=3||ex.includes('Hot Streak')) badges.push('Hot Streak');
 
   return badges;
@@ -2902,7 +3074,12 @@ function getBadgeClass(primary) {
 }
 
 function getSecondaryBadgeClass(badge) {
-  const m={'Top 10':'badge-gold','Versatile':'badge-epic','Rising Star':'badge-silver','Daily Challenger':'badge-daily','Accuracy Ace':'badge-platinum','Grinder':'badge-legend','Category Master':'badge-grandmaster','Hot Streak':'badge-master','Week Warrior':'badge-legend','Monthly Master':'badge-immortal'};
+  const m={
+    'Top 10':'badge-gold','Versatile':'badge-epic','Rising Star':'badge-silver',
+    'Daily Challenger':'badge-daily','Accuracy Ace':'badge-platinum','Grinder':'badge-legend',
+    'Category Master':'badge-grandmaster','Hot Streak':'badge-master','Week Warrior':'badge-legend',
+    'Monthly Master':'badge-immortal','God Aim':'badge-diamond','Elite':'badge-master'
+  };
   return m[badge]||'badge-bronze';
 }
 
@@ -3055,9 +3232,10 @@ function renderLbLegend(mode, elementId) {
   const el = document.getElementById(elementId);
   if(!el) return;
   el.innerHTML = `
-      <span><span class="text-green-600">▲</span> Naik</span>
-      <span><span class="text-red-500">▼</span> Turun</span>
-      <span><span class="text-gray-400">—</span> Tetap</span>
+      <span><span class="text-green-600 font-bold">▲</span> Naik peringkat</span>
+      <span><span class="text-red-500 font-bold">▼</span> Turun peringkat</span>
+      <span><span class="text-gray-400 font-bold">—</span> Tetap</span>
+      <span><span class="text-blue-500 font-bold">🆕</span> Baru masuk</span>
     `;
 }
 
@@ -3283,19 +3461,7 @@ function cleanupGame() {
   GS.paused = false;
 }
 
-function stopAmbient() {
-  try {
-    if (ambientNodes) {
-      if (ambientNodes.osc) ambientNodes.osc.stop();
-      if (ambientNodes.gain) ambientNodes.gain.disconnect();
-      ambientNodes = null;
-    }
-  } catch(e) {
-    console.warn("Error stopping ambient audio:", e);
-  }
-}
-
-// startAmbient defined above near audio section
+// startAmbient and stopAmbient defined above near audio section
 
 // ──────────────────────────────────────────
 //  DEBOUNCE & THROTTLE
@@ -3456,8 +3622,15 @@ document.addEventListener('keydown', e=>{
 
   const ambKey='eco_ambient';
   const musicBtn=document.getElementById('music-btn');
-  if(localStorage.getItem(ambKey)!=='1') { musicBtn.textContent='🎵'; }
-  else { musicBtn.textContent='🎶'; }
+  // Default ON unless user explicitly turned it off
+  const musicOff = localStorage.getItem(ambKey) === '0';
+  if(musicOff) {
+    musicBtn.textContent='🎵';
+    musicBtn.className = musicBtn.className.replace('text-pktGreen','text-gray-400').replace('bg-green-50','bg-gray-50').replace('border-green-100','border-gray-100');
+  } else {
+    musicBtn.textContent='🎶';
+    localStorage.setItem(ambKey,'1');
+  }
 
   document.body.style.overflow='auto';
 })();
