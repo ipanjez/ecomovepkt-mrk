@@ -2730,28 +2730,72 @@ function throttle(fn, limit) {
 
 function escHtml(s) { return String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
 
+// ──────────────────────────────────────────
+//  DAILY CHALLENGE HISTORY
+// ──────────────────────────────────────────
+async function getDCCompletedCount(userId) {
+  try {
+    if (!DB || !DB.ref) return 0;
+    const ref = DB.ref(`dailyChallenges/${userId}`);
+    const snap = await Promise.race([
+      ref.once('value'),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 3000))
+    ]);
+    if (!snap.exists()) return 0;
+    const data = snap.val();
+    let count = 0;
+    Object.values(data).forEach(dc => {
+      if (dc && (dc.completed || dc.bestProgress >= 100)) count++;
+    });
+    return count;
+  } catch(e) {
+    return 0;
+  }
+}
+
 function updateNameHint() {
-  const el=document.getElementById('name-hint');
+  const el = document.getElementById('name-hint');
   if(!el) return;
-  const name=(document.getElementById('player-name').value||'').trim();
-  if(!name) { el.textContent=''; return; }
-  const key='name:'+name.toLowerCase();
-  const filtered=filterLb(lbCache, lbFilter, lbMode);
-  const idx = filtered.findIndex(r=>r.name&&r.name.toLowerCase()===name.toLowerCase());
+  const name = (document.getElementById('player-name').value || '').trim();
+  if(!name) { el.textContent = ''; return; }
+  const key = 'name:' + name.toLowerCase();
+  const filtered = filterLb(lbCache, lbFilter, lbMode);
+  const idx = filtered.findIndex(r => r.name && r.name.toLowerCase() === name.toLowerCase());
   const rankedFiltered = filterLb(lbCache, 'All', 'ranked');
   const curriculumFiltered = filterLb(lbCache, 'All', 'curriculum');
-  const rankedIdx = rankedFiltered.findIndex(r=>r.name&&r.name.toLowerCase()===name.toLowerCase());
-  const curriculumIdx = curriculumFiltered.findIndex(r=>r.name&&r.name.toLowerCase()===name.toLowerCase());
+  const rankedIdx = rankedFiltered.findIndex(r => r.name && r.name.toLowerCase() === name.toLowerCase());
+  const curriculumIdx = curriculumFiltered.findIndex(r => r.name && r.name.toLowerCase() === name.toLowerCase());
 
-  if(rankedIdx>=0 || curriculumIdx>=0) {
-    const rec = idx>=0 ? filtered[idx] : rankedIdx>=0 ? rankedFiltered[rankedIdx] : curriculumFiltered[curriculumIdx];
-    const primary=computePrimaryBadge(rec.score||0,rec.accuracy||0,rec.bestCombo||0,rec.attempts||0);
-    const rankedText = rankedIdx>=0 ? `Ranked #${rankedIdx+1}/${rankedFiltered.length}` : 'Ranked -';
-    const curriculumText = curriculumIdx>=0 ? `Kurikulum #${curriculumIdx+1}/${curriculumFiltered.length}` : 'Kurikulum -';
-    el.innerHTML=`✅ Ditemukan di leaderboard: <b>${rankedText}</b> · <b>${curriculumText}</b> — <span class="font-bold">${escHtml(formatBadge(primary))}</span>`;
-  } else {
-    el.textContent=`Belum ada di leaderboard. Total Ranked: ${rankedFiltered.length} pemain, Kurikulum: ${curriculumFiltered.length} pemain.`;
-  }
+  // Fetch DC completed count
+  const userId = name.replace(/[.#$[\]/\s]/g, '_').toUpperCase();
+  getDCCompletedCount(userId).then(dcCount => {
+    let hintText = '';
+    
+    if(rankedIdx >= 0 || curriculumIdx >= 0) {
+      const rec = idx >= 0 ? filtered[idx] : rankedIdx >= 0 ? rankedFiltered[rankedIdx] : curriculumFiltered[curriculumIdx];
+      const primary = computePrimaryBadge(rec.score || 0, rec.accuracy || 0, rec.bestCombo || 0, rec.attempts || 0);
+      const rankedText = rankedIdx >= 0 ? `Ranked #${rankedIdx + 1}/${rankedFiltered.length}` : 'Ranked -';
+      const curriculumText = curriculumIdx >= 0 ? `Kurikulum #${curriculumIdx + 1}/${curriculumFiltered.length}` : 'Kurikulum -';
+      const dcText = dcCount > 0 ? ` · 🏅 DC: ${dcCount} selesai` : '';
+      hintText = `✅ ${rankedText} · ${curriculumText}${dcText} — <span class="font-bold">${escHtml(formatBadge(primary))}</span>`;
+    } else {
+      const dcText = dcCount > 0 ? ` (${dcCount} DC selesai)` : '';
+      hintText = `Belum di leaderboard. Total Ranked: ${rankedFiltered.length} pemain, Kurikulum: ${curriculumFiltered.length} pemain${dcText}`;
+    }
+    
+    el.innerHTML = hintText;
+  }).catch(() => {
+    // Fallback tanpa DC count
+    if(rankedIdx >= 0 || curriculumIdx >= 0) {
+      const rec = idx >= 0 ? filtered[idx] : rankedIdx >= 0 ? rankedFiltered[rankedIdx] : curriculumFiltered[curriculumIdx];
+      const primary = computePrimaryBadge(rec.score || 0, rec.accuracy || 0, rec.bestCombo || 0, rec.attempts || 0);
+      const rankedText = rankedIdx >= 0 ? `Ranked #${rankedIdx + 1}/${rankedFiltered.length}` : 'Ranked -';
+      const curriculumText = curriculumIdx >= 0 ? `Kurikulum #${curriculumIdx + 1}/${curriculumFiltered.length}` : 'Kurikulum -';
+      el.innerHTML = `✅ ${rankedText} · ${curriculumText} — <span class="font-bold">${escHtml(formatBadge(primary))}</span>`;
+    } else {
+      el.textContent = `Belum ada di leaderboard. Total Ranked: ${rankedFiltered.length} pemain, Kurikulum: ${curriculumFiltered.length} pemain.`;
+    }
+  });
 }
 
 // ──────────────────────────────────────────
