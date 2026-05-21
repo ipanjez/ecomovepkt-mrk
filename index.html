@@ -771,100 +771,280 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
 <!--         HOW TO PLAY MODAL              -->
 <!-- ════════════════════════════════════════ -->
 <div id="htp-modal" class="modal-backdrop hidden">
-  <div class="modal-card w-full max-w-lg p-6">
-    <div class="sticky top-0 bg-white z-10 pb-3 border-b border-gray-100 flex justify-between items-center mb-4">
-      <h2 class="text-xl font-black text-pktBlue">🎮 Panduan Bermain</h2>
-      <button onclick="closeHowToPlay()" class="text-gray-400 hover:text-red-500 text-2xl font-bold leading-none">&times;</button>
+  <div class="modal-card w-full max-w-lg" style="max-height:92vh;overflow-y:auto;">
+    <!-- Hero Header -->
+    <div class="sticky top-0 z-10 bg-gradient-to-r from-pktBlue via-blue-700 to-blue-900 px-5 py-4 flex justify-between items-center">
+      <div>
+        <h2 class="text-xl font-black text-white tracking-wide">🎮 Panduan Bermain</h2>
+        <p class="text-blue-200 text-[0.65rem] font-semibold mt-0.5">EcoMove: Trash Sorting Challenge</p>
+      </div>
+      <button onclick="closeHowToPlay()" class="text-white/70 hover:text-white text-2xl font-bold leading-none transition">&times;</button>
     </div>
-    <div class="space-y-4 text-sm text-gray-700">
-      <div>
-        <h3 class="font-black text-gray-900 mb-1.5 border-l-4 border-pktGreen pl-3">🎯 Cara Main: Mode Ranked</h3>
-        <ul class="list-decimal pl-5 space-y-1 text-xs">
-          <li>Masukkan nama, pilih level, lalu tekan Mulai.</li>
-          <li>Tebak kategori sampah yang muncul: <b>Sisa Makanan</b>, <b>Laku Jual</b>, atau <b>Residu</b>.</li>
-          <li>Kamu bisa memilih jawaban dengan <b>klik</b> atau dengan <b>drag</b> kartu sampah ke opsi yang tepat.</li>
-          <li class="text-red-600 font-bold">Salah = waktu berkurang 5 detik & combo reset.</li>
-        </ul>
-      </div>
-      <div>
-        <h3 class="font-black text-gray-900 mb-1.5 border-l-4 border-pktOrange pl-3">📚 Mode Kurikulum</h3>
-        <p class="text-xs">Latihan fokus per kategori. Pilih SISA MAKANAN, LAKU JUAL, atau RESIDU sebagai fokus. Pemain akan mendapat sampah acak dari semua kategori dan harus memutuskan apakah sampah tersebut SESUAI dengan fokus yang dipilih (2 pilihan: Sesuai / Tidak Sesuai).</p>
-        <p class="text-xs mt-1">Kamu dapat menjawab dengan menekan tombol atau menyeret kartu sampah ke pilihan <b>✅ Sesuai</b> atau <b>❌ Tidak Sesuai</b>. Daily Challenge hanya aktif di <b>Mode Ranked</b> (4 tipe: kategori fokus, target skor, combo, atau mode spesifik). Badge <b>Top 10</b> dan kolom <b>DC</b> (Daily Challenge Selesai) hanya muncul di Mode Ranked. Klik <b>⚡ Daily Challenge</b> di awal untuk melihat riwayat dan badge yang bisa didapat.</p>
-      </div>
-      <div>
-        <h3 class="font-black text-gray-900 mb-1.5 border-l-4 border-yellow-400 pl-3">⚡ Combo & Poin</h3>
-        <p class="text-xs">Jawab benar berturut-turut → combo naik (max x3 multiplier). Bumi Lestari: +10pt/jawaban. Eko Aktif: +15pt. Penjaga Bumi: +20pt. Semua dikali multiplier combo.</p>
-      </div>
-      <div>
-        <h3 class="font-black text-gray-900 mb-1.5 border-l-4 border-purple-500 pl-3">🏅 Badge Sistem</h3>
-        <p class="text-xs mb-2"><b>Badge Utama</b> dihitung dari nilai komposit (c) = skor×0.5 + akurasi×0.3 + combo×0.6 + bonus percobaan (maks +5):</p>
-        <div class="grid grid-cols-2 gap-x-4 text-xs mb-2">
-          <div><span class="inline-block rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-bronze mr-1">★1 Bronze</span>c &lt; 30</div>
-          <div><span class="inline-block rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-silver mr-1">★2 Silver</span>30–45</div>
-          <div><span class="inline-block rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-gold mr-1">★3 Gold</span>45–58</div>
-          <div><span class="inline-block rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-platinum mr-1">★4 Platinum</span>58–70</div>
-          <div><span class="inline-block rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-epic mr-1">★5 Epic</span>70–80</div>
-          <div><span class="inline-block rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-grandmaster mr-1">★6 Grandmaster</span>80–88</div>
-          <div><span class="inline-block rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-diamond mr-1">★7 Diamond</span>88–93</div>
-          <div><span class="inline-block rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-legend mr-1">★8 Legend</span>93–96</div>
-          <div><span class="inline-block rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-master mr-1">★9 Master</span>96–99</div>
-          <div><span class="inline-block rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-immortal mr-1">★10 Immortal</span>c ≥ 99</div>
+
+    <div class="p-5 space-y-4">
+
+      <!-- INTRO CARD -->
+      <div class="rounded-2xl bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-200 p-4 flex items-start gap-3">
+        <div class="text-4xl flex-shrink-0">🌍</div>
+        <div>
+          <p class="font-black text-emerald-800 text-sm">Jadilah Pahlawan Lingkungan!</p>
+          <p class="text-emerald-700 text-xs mt-1 leading-relaxed">Pilah sampah dengan benar, raih combo, dan panjat leaderboard global. Setiap jawaban benar = satu langkah untuk bumi yang lebih bersih.</p>
         </div>
-        <p class="text-xs mb-1.5"><b>Badge Bonus</b> (bisa didapat bersamaan dengan badge utama):</p>
-        <ul class="list-disc pl-5 space-y-1 text-xs mb-2">
-          <li><span class="font-bold">🥇 Top 10</span>: masuk 10 besar leaderboard Ranked.</li>
-          <li><span class="font-bold">🎭 Versatile</span>: akurasi semua kategori ≥70%, selisih max ≤15%.</li>
-          <li><span class="font-bold">⭐ Rising Star</span>: skor naik ≥75 poin dari personal best sebelumnya.</li>
-          <li><span class="font-bold">🏅 Daily Challenger</span>: selesaikan daily challenge hari ini.</li>
-          <li><span class="font-bold">🎯 Accuracy Ace</span>: akurasi ≥95% dengan ≥20 jawaban.</li>
-          <li><span class="font-bold">🔥 Grinder</span>: telah bermain ≥50 kali total.</li>
-          <li><span class="font-bold">👑 Category Master</span>: 100% benar di satu kategori (min. 5 soal).</li>
-          <li><span class="font-bold">💎 God Aim</span>: akurasi 100% dengan ≥10 jawaban.</li>
-          <li><span class="font-bold">🚀 Elite</span>: skor ≥1000 dengan akurasi ≥90%.</li>
-          <li><span class="font-bold">🎮 Newcomer</span>: sudah bermain ≥5 kali total.</li>
-          <li><span class="font-bold">📅 Regular</span>: sudah bermain ≥20 kali total.</li>
-          <li><span class="font-bold">🏆 Veteran</span>: sudah bermain ≥50 kali total.</li>
-          <li><span class="font-bold">⚔️ Champion</span>: sudah bermain ≥100 kali total.</li>
-          <li><span class="font-bold">🌟 Legend Player</span>: sudah bermain ≥200 kali total.</li>
-        </ul>
-        <p class="text-xs mb-1.5"><b>Tags khusus</b> (label performa di leaderboard):</p>
-        <ul class="list-disc pl-5 space-y-1 text-xs">
-          <li><b>#ResiduExpert / #SisaMakananExpert / #LayakJualExpert</b>: akurasi ≥95% di kategori tersebut.</li>
-          <li><b>#ComboPro</b>: combo ≥25x.</li>
-          <li><b>#GodAim</b>: akurasi 100%.</li>
-          <li><b>#Persistence</b>: bermain ≥50x tanpa jadi #1.</li>
-          <li><b>#Grinder100 / #Grinder200</b>: bermain 100x / 200x atau lebih.</li>
-          <li><b>#DailyDedicated</b>: DC selesai ≥10 hari.</li>
-          <li><b>#DCMaster</b>: DC selesai ≥30 hari.</li>
-        </ul>
       </div>
+
+      <!-- SECTION: 3 KATEGORI SAMPAH -->
       <div>
-        <h3 class="font-black text-gray-900 mb-1.5 border-l-4 border-emerald-500 pl-3">⚡ Daily Challenge & Reward Harian</h3>
-        <p class="text-xs mb-2">Setiap hari ada 7 tipe tantangan unik di Mode Ranked yang selalu berubah setiap hari:</p>
-        <ul class="list-disc pl-5 space-y-1 text-xs mb-2">
-          <li><b>🎯 Ahli Kategori</b> - Fokus pada kategori tertentu dengan target skor dan akurasi.</li>
-          <li><b>💥 Combo Master</b> - Raih combo berturut-turut dengan akurasi tinggi.</li>
-          <li><b>📈 Pemburu Skor</b> - Capai target skor tinggi dengan akurasi minimal.</li>
-          <li><b>🎮 Mode Spesial</b> - Bermain di tingkat kesulitan tertentu dengan target skor.</li>
-          <li><b>🎯 Master Presisi</b> - Raih akurasi sangat tinggi (90%+) dengan banyak jawaban benar.</li>
-          <li><b>🔥 Grinder Gamer</b> - Tantangan untuk pemain giat: jawab banyak soal.</li>
-          <li><b>⚡ Konsistensi</b> - Jawab soal berturut-turut dengan akurasi tinggi.</li>
-        </ul>
-        <p class="text-xs mb-1"><b>🔥 Reward Sesi Harian:</b> Semakin sering kamu main hari ini, semakin besar bonus poin:</p>
-        <ul class="list-disc pl-5 space-y-0.5 text-xs mb-2">
-          <li>Sesi 1: Normal</li>
-          <li>Sesi 2: <b>+5% bonus poin</b></li>
-          <li>Sesi 3: <b>+10% bonus poin</b></li>
-          <li>Sesi 4+: <b>+15% bonus poin</b></li>
-        </ul>
-        <p class="text-xs">Pantau aktivitas harian dan riwayat DC dengan klik <b>⚡ Daily Challenge</b>. Daily Challenge hanya aktif di <b>Mode Ranked</b>.</p>
+        <div class="flex items-center gap-2 mb-3">
+          <div class="w-1 h-5 rounded-full bg-pktGreen"></div>
+          <h3 class="font-black text-gray-900 text-sm">🗑️ 3 Kategori Sampah</h3>
+        </div>
+        <div class="grid grid-cols-3 gap-2">
+          <div class="rounded-xl bg-green-50 border border-green-200 p-3 text-center">
+            <div class="text-2xl mb-1">🍏</div>
+            <p class="text-[0.65rem] font-black text-green-700">SISA MAKANAN</p>
+            <p class="text-[0.58rem] text-green-600 mt-0.5">Organik, sisa masak & dapur</p>
+          </div>
+          <div class="rounded-xl bg-orange-50 border border-orange-200 p-3 text-center">
+            <div class="text-2xl mb-1">♻️</div>
+            <p class="text-[0.65rem] font-black text-orange-700">LAKU JUAL</p>
+            <p class="text-[0.58rem] text-orange-600 mt-0.5">Plastik, kertas, logam bersih</p>
+          </div>
+          <div class="rounded-xl bg-blue-50 border border-blue-200 p-3 text-center">
+            <div class="text-2xl mb-1">🗑️</div>
+            <p class="text-[0.65rem] font-black text-blue-700">RESIDU</p>
+            <p class="text-[0.58rem] text-blue-600 mt-0.5">Sampah campuran & B3</p>
+          </div>
+        </div>
       </div>
-      <div>
-        <h3 class="font-black text-gray-900 mb-1.5 border-l-4 border-pktBlue pl-3">🏆 Leaderboard</h3>
-        <p class="text-xs">Global real-time. Hanya skor tertinggi yang disimpan per nama. <b>Mode Ranked</b> menampilkan: badge, skor, combo, akurasi, D/B/S, waktu, dan <b>DC (jumlah Daily Challenge selesai)</b>. <b>Mode Kurikulum</b> fokus pada perbaikan kategori tanpa badge Top 10 dan kolom DC.</p>
+
+      <!-- SECTION: MODE RANKED -->
+      <div class="rounded-2xl border border-red-100 overflow-hidden">
+        <div class="bg-gradient-to-r from-red-500 to-orange-500 px-4 py-2.5 flex items-center gap-2">
+          <span class="text-lg">🏆</span>
+          <p class="font-black text-white text-sm">Mode Ranked</p>
+          <span class="ml-auto text-xs font-bold text-white/80 bg-white/20 px-2 py-0.5 rounded-full">Kompetitif</span>
+        </div>
+        <div class="bg-white p-4 space-y-2.5">
+          <div class="flex gap-3 items-start">
+            <div class="w-6 h-6 rounded-full bg-red-100 text-red-600 font-black text-xs flex items-center justify-center flex-shrink-0">1</div>
+            <p class="text-xs text-gray-700">Masukkan <b>nama kamu</b> (nama = akun), pilih level kesulitan, lalu tekan <b>🚀 MODE RANKED</b>.</p>
+          </div>
+          <div class="flex gap-3 items-start">
+            <div class="w-6 h-6 rounded-full bg-red-100 text-red-600 font-black text-xs flex items-center justify-center flex-shrink-0">2</div>
+            <p class="text-xs text-gray-700">Kartu sampah muncul satu per satu — klik atau <b>seret kartu</b> ke tempat sampah yang tepat sebelum waktu habis.</p>
+          </div>
+          <div class="flex gap-3 items-start">
+            <div class="w-6 h-6 rounded-full bg-red-100 text-red-600 font-black text-xs flex items-center justify-center flex-shrink-0">3</div>
+            <p class="text-xs text-gray-700">Jawab dengan tombol keyboard juga bisa: <b>1</b> = Sisa Makanan, <b>2</b> = Laku Jual, <b>3</b> = Residu, <b>P</b> = Pause, <b>M</b> = Mute.</p>
+          </div>
+          <div class="rounded-xl bg-red-50 border border-red-200 px-3 py-2 flex items-center gap-2">
+            <span class="text-lg">⚠️</span>
+            <p class="text-xs text-red-700 font-bold">Jawab salah = <b>-5 detik</b> waktu + combo reset!</p>
+          </div>
+          <!-- Difficulty table -->
+          <div class="rounded-xl border border-gray-100 overflow-hidden mt-1">
+            <table class="w-full text-xs">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="py-1.5 px-3 text-left font-black text-gray-500 text-[0.6rem] uppercase">Level</th>
+                  <th class="py-1.5 px-3 font-black text-gray-500 text-[0.6rem] uppercase">Waktu</th>
+                  <th class="py-1.5 px-3 font-black text-gray-500 text-[0.6rem] uppercase">Poin/Jawaban</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="border-t border-gray-100">
+                  <td class="py-1.5 px-3 font-bold text-green-700">🐢 Bumi Lestari</td>
+                  <td class="py-1.5 px-3 text-center text-gray-600">60 detik</td>
+                  <td class="py-1.5 px-3 text-center font-black text-pktGreen">+10 pt</td>
+                </tr>
+                <tr class="border-t border-gray-100 bg-orange-50/40">
+                  <td class="py-1.5 px-3 font-bold text-orange-700">🚶 Eko Aktif</td>
+                  <td class="py-1.5 px-3 text-center text-gray-600">45 detik</td>
+                  <td class="py-1.5 px-3 text-center font-black text-pktOrange">+15 pt</td>
+                </tr>
+                <tr class="border-t border-gray-100">
+                  <td class="py-1.5 px-3 font-bold text-blue-700">🔥 Penjaga Bumi</td>
+                  <td class="py-1.5 px-3 text-center text-gray-600">30 detik</td>
+                  <td class="py-1.5 px-3 text-center font-black text-pktBlue">+20 pt</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
+
+      <!-- SECTION: MODE KURIKULUM -->
+      <div class="rounded-2xl border border-green-100 overflow-hidden">
+        <div class="bg-gradient-to-r from-pktGreen to-green-600 px-4 py-2.5 flex items-center gap-2">
+          <span class="text-lg">📚</span>
+          <p class="font-black text-white text-sm">Mode Kurikulum</p>
+          <span class="ml-auto text-xs font-bold text-white/80 bg-white/20 px-2 py-0.5 rounded-full">Latihan</span>
+        </div>
+        <div class="bg-white p-4 space-y-2">
+          <p class="text-xs text-gray-700">Latihan fokus per kategori. Pilih <b>1 kategori fokus</b>, lalu putuskan apakah setiap sampah yang muncul <b>Sesuai</b> atau <b>Tidak Sesuai</b> dengan fokus tersebut.</p>
+          <div class="grid grid-cols-2 gap-2 mt-1">
+            <div class="rounded-xl bg-green-50 border border-green-200 p-2.5 flex items-center gap-2">
+              <span class="text-xl">✅</span>
+              <div>
+                <p class="text-[0.65rem] font-black text-green-700">Sesuai</p>
+                <p class="text-[0.58rem] text-green-600">Sampah ini termasuk kategori fokus</p>
+              </div>
+            </div>
+            <div class="rounded-xl bg-red-50 border border-red-200 p-2.5 flex items-center gap-2">
+              <span class="text-xl">❌</span>
+              <div>
+                <p class="text-[0.65rem] font-black text-red-700">Tidak Sesuai</p>
+                <p class="text-[0.58rem] text-red-600">Sampah ini bukan kategori fokus</p>
+              </div>
+            </div>
+          </div>
+          <p class="text-[0.65rem] text-gray-400 mt-1">💡 Daily Challenge & badge Top 10 hanya aktif di Mode Ranked.</p>
+        </div>
+      </div>
+
+      <!-- SECTION: COMBO & POIN -->
+      <div class="rounded-2xl border border-yellow-100 overflow-hidden">
+        <div class="bg-gradient-to-r from-yellow-400 to-orange-400 px-4 py-2.5 flex items-center gap-2">
+          <span class="text-lg">⚡</span>
+          <p class="font-black text-white text-sm">Sistem Combo & Poin</p>
+        </div>
+        <div class="bg-white p-4">
+          <div class="grid grid-cols-3 gap-2 mb-3">
+            <div class="rounded-xl bg-yellow-50 border border-yellow-200 p-2.5 text-center">
+              <p class="text-lg font-black text-yellow-600">x1</p>
+              <p class="text-[0.6rem] text-yellow-700 font-bold">Normal</p>
+              <p class="text-[0.58rem] text-gray-500">0-2 benar</p>
+            </div>
+            <div class="rounded-xl bg-orange-50 border border-orange-200 p-2.5 text-center">
+              <p class="text-lg font-black text-orange-600">x2</p>
+              <p class="text-[0.6rem] text-orange-700 font-bold">Combo!</p>
+              <p class="text-[0.58rem] text-gray-500">3-4 benar</p>
+            </div>
+            <div class="rounded-xl bg-red-50 border border-red-200 p-2.5 text-center">
+              <p class="text-lg font-black text-red-600">x3</p>
+              <p class="text-[0.6rem] text-red-700 font-bold">Max Combo!</p>
+              <p class="text-[0.58rem] text-gray-500">5+ benar</p>
+            </div>
+          </div>
+          <div class="rounded-xl bg-amber-50 border border-amber-200 px-3 py-2">
+            <p class="text-xs text-amber-800"><b>Bonus Sesi Harian</b> — Makin sering main hari ini, makin besar bonus! Sesi ke-2: <b>+5%</b> · Sesi ke-3: <b>+10%</b> · Sesi ke-4+: <b>+15%</b></p>
+            <p class="text-[0.62rem] text-amber-600 mt-1">💡 Aktivitas Hari Ini terhubung dengan namamu sebagai akun — ganti nama = reset aktivitas harian.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION: BADGE SISTEM -->
+      <div class="rounded-2xl border border-purple-100 overflow-hidden">
+        <div class="bg-gradient-to-r from-purple-500 to-violet-600 px-4 py-2.5 flex items-center gap-2">
+          <span class="text-lg">🏅</span>
+          <p class="font-black text-white text-sm">Badge & Peringkat</p>
+        </div>
+        <div class="bg-white p-4 space-y-3">
+          <div>
+            <p class="text-xs font-black text-gray-700 mb-2">Badge Utama — naik seiring skor, akurasi & combo:</p>
+            <div class="grid grid-cols-2 gap-1.5">
+              <div class="flex items-center gap-2"><span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-bronze">★1 Bronze</span><span class="text-[0.62rem] text-gray-500">Pemula</span></div>
+              <div class="flex items-center gap-2"><span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-silver">★2 Silver</span><span class="text-[0.62rem] text-gray-500">Berkembang</span></div>
+              <div class="flex items-center gap-2"><span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-gold">★3 Gold</span><span class="text-[0.62rem] text-gray-500">Cakap</span></div>
+              <div class="flex items-center gap-2"><span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-platinum">★4 Platinum</span><span class="text-[0.62rem] text-gray-500">Mahir</span></div>
+              <div class="flex items-center gap-2"><span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-epic">★5 Epic</span><span class="text-[0.62rem] text-gray-500">Andal</span></div>
+              <div class="flex items-center gap-2"><span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-grandmaster">★6 Grandmaster</span><span class="text-[0.62rem] text-gray-500">Hebat</span></div>
+              <div class="flex items-center gap-2"><span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-diamond">★7 Diamond</span><span class="text-[0.62rem] text-gray-500">Luar biasa</span></div>
+              <div class="flex items-center gap-2"><span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-legend">★8 Legend</span><span class="text-[0.62rem] text-gray-500">Legenda</span></div>
+              <div class="flex items-center gap-2"><span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-master">★9 Master</span><span class="text-[0.62rem] text-gray-500">Master</span></div>
+              <div class="flex items-center gap-2"><span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-immortal">★10 Immortal</span><span class="text-[0.62rem] text-gray-500">Puncak!</span></div>
+            </div>
+          </div>
+          <div>
+            <p class="text-xs font-black text-gray-700 mb-2">Badge Bonus (bisa didapat bersamaan):</p>
+            <div class="space-y-1">
+              <div class="flex items-start gap-2"><span class="text-sm">🥇</span><p class="text-xs text-gray-600"><b>Top 10</b> — masuk 10 besar Ranked</p></div>
+              <div class="flex items-start gap-2"><span class="text-sm">🏅</span><p class="text-xs text-gray-600"><b>Daily Challenger</b> — selesaikan DC hari ini</p></div>
+              <div class="flex items-start gap-2"><span class="text-sm">🎭</span><p class="text-xs text-gray-600"><b>Versatile</b> — akurasi merata di semua kategori (≥70%, selisih ≤15%)</p></div>
+              <div class="flex items-start gap-2"><span class="text-sm">⭐</span><p class="text-xs text-gray-600"><b>Rising Star</b> — skor naik ≥75 poin dari personal best</p></div>
+              <div class="flex items-start gap-2"><span class="text-sm">🎯</span><p class="text-xs text-gray-600"><b>Accuracy Ace</b> — akurasi ≥95% dengan ≥20 jawaban</p></div>
+              <div class="flex items-start gap-2"><span class="text-sm">💎</span><p class="text-xs text-gray-600"><b>God Aim</b> — akurasi 100% dengan ≥10 jawaban</p></div>
+              <div class="flex items-start gap-2"><span class="text-sm">🚀</span><p class="text-xs text-gray-600"><b>Elite</b> — skor ≥1000 + akurasi ≥90%</p></div>
+              <div class="flex items-start gap-2"><span class="text-sm">👑</span><p class="text-xs text-gray-600"><b>Category Master</b> — 100% benar di satu kategori (min. 5 soal)</p></div>
+              <div class="flex items-start gap-2"><span class="text-sm">🔥</span><p class="text-xs text-gray-600"><b>Grinder / Veteran / Champion</b> — milestone bermain 50x / 50x / 100x</p></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION: DAILY CHALLENGE -->
+      <div class="rounded-2xl border border-blue-100 overflow-hidden">
+        <div class="bg-gradient-to-r from-pktBlue to-blue-600 px-4 py-2.5 flex items-center gap-2">
+          <span class="text-lg">⚡</span>
+          <p class="font-black text-white text-sm">Daily Challenge</p>
+          <span class="ml-auto text-xs font-bold text-white/80 bg-white/20 px-2 py-0.5 rounded-full">Hanya Mode Ranked</span>
+        </div>
+        <div class="bg-white p-4 space-y-2">
+          <p class="text-xs text-gray-700 mb-2">Tantangan baru setiap hari! Ada 7 tipe berbeda yang berganti otomatis:</p>
+          <div class="grid grid-cols-1 gap-1.5">
+            <div class="flex items-center gap-2.5 rounded-lg bg-blue-50 border border-blue-100 px-3 py-2"><span>🎯</span><p class="text-xs text-blue-800"><b>Ahli Kategori</b> — target skor & akurasi di kategori tertentu</p></div>
+            <div class="flex items-center gap-2.5 rounded-lg bg-purple-50 border border-purple-100 px-3 py-2"><span>💥</span><p class="text-xs text-purple-800"><b>Combo Master</b> — capai combo tinggi berturut-turut</p></div>
+            <div class="flex items-center gap-2.5 rounded-lg bg-orange-50 border border-orange-100 px-3 py-2"><span>📈</span><p class="text-xs text-orange-800"><b>Pemburu Skor</b> — raih skor tinggi dengan akurasi minimal</p></div>
+            <div class="flex items-center gap-2.5 rounded-lg bg-green-50 border border-green-100 px-3 py-2"><span>🎮</span><p class="text-xs text-green-800"><b>Mode Spesial</b> — main di level tertentu dengan target</p></div>
+            <div class="flex items-center gap-2.5 rounded-lg bg-teal-50 border border-teal-100 px-3 py-2"><span>🎯</span><p class="text-xs text-teal-800"><b>Master Presisi</b> — akurasi sangat tinggi (90%+)</p></div>
+            <div class="flex items-center gap-2.5 rounded-lg bg-red-50 border border-red-100 px-3 py-2"><span>🔥</span><p class="text-xs text-red-800"><b>Grinder Gamer</b> — jawab banyak soal dalam satu sesi</p></div>
+            <div class="flex items-center gap-2.5 rounded-lg bg-yellow-50 border border-yellow-100 px-3 py-2"><span>⚡</span><p class="text-xs text-yellow-800"><b>Streak Master</b> — konsistensi jawaban benar dengan akurasi tinggi</p></div>
+          </div>
+          <p class="text-[0.65rem] text-gray-400 mt-2">Klik kartu ⚡ Daily Challenge di layar utama untuk melihat riwayat & tantangan mendatang 7 hari ke depan.</p>
+        </div>
+      </div>
+
+      <!-- SECTION: LEADERBOARD -->
+      <div class="rounded-2xl border border-slate-200 overflow-hidden">
+        <div class="bg-gradient-to-r from-slate-700 to-slate-800 px-4 py-2.5 flex items-center gap-2">
+          <span class="text-lg">🏆</span>
+          <p class="font-black text-white text-sm">Leaderboard Real-Time</p>
+        </div>
+        <div class="bg-white p-4 space-y-2">
+          <p class="text-xs text-gray-700">Semua skor tersimpan di leaderboard global secara otomatis. <b>Hanya skor terbaik</b> per nama yang ditampilkan.</p>
+          <div class="grid grid-cols-2 gap-2 mt-1">
+            <div class="rounded-lg bg-slate-50 border border-slate-200 p-2.5">
+              <p class="text-[0.65rem] font-black text-slate-600 mb-1">Indikator Pergerakan</p>
+              <div class="space-y-0.5 text-xs">
+                <p><span class="text-green-600 font-black">▲</span> Naik peringkat</p>
+                <p><span class="text-red-500 font-black">▼</span> Turun peringkat</p>
+                <p><span class="text-gray-400 font-black">—</span> Tetap sama</p>
+                <p><span class="text-blue-500 font-black">🆕</span> Baru masuk</p>
+              </div>
+            </div>
+            <div class="rounded-lg bg-slate-50 border border-slate-200 p-2.5">
+              <p class="text-[0.65rem] font-black text-slate-600 mb-1">Kolom Leaderboard</p>
+              <div class="space-y-0.5 text-xs text-gray-600">
+                <p><b>Skor</b> — poin tertinggi</p>
+                <p><b>Combo</b> — best combo</p>
+                <p><b>D/B/S</b> — Dijawab/Benar/Salah</p>
+                <p><b>DC</b> — Daily Challenge selesai</p>
+              </div>
+            </div>
+          </div>
+          <p class="text-[0.65rem] text-gray-400">💡 Nama kamu = akun kamu. Gunakan nama yang sama setiap sesi agar progress dan aktivitas harianmu terhubung.</p>
+        </div>
+      </div>
+
+      <!-- TIPS -->
+      <div class="rounded-2xl bg-gradient-to-br from-amber-50 to-yellow-50 border border-amber-200 p-4">
+        <p class="font-black text-amber-800 text-sm mb-2">💡 Tips Pro</p>
+        <ul class="space-y-1.5 text-xs text-amber-900">
+          <li class="flex items-start gap-2"><span>🎯</span>Fokus menjaga combo — x3 combo = 3x poin lebih besar!</li>
+          <li class="flex items-start gap-2"><span>⏰</span>Gunakan waktu jeda di Pause (tombol P) untuk tarik napas.</li>
+          <li class="flex items-start gap-2"><span>📚</span>Mulai dari Mode Kurikulum dulu untuk hafal kategori sampah.</li>
+          <li class="flex items-start gap-2"><span>🔥</span>Main beberapa sesi per hari untuk bonus poin +5–15%!</li>
+          <li class="flex items-start gap-2"><span>🎧</span>Nyalakan musik (🎶) untuk vibes bermain yang lebih seru.</li>
+        </ul>
+      </div>
+
     </div>
-    <button onclick="closeHowToPlay()" class="w-full mt-5 bg-gradient-to-r from-pktGreen to-green-600 text-white font-black py-3 rounded-xl active:scale-95 transition">Siap Bermain!</button>
+
+    <div class="px-5 pb-6">
+      <button onclick="closeHowToPlay()" class="w-full bg-gradient-to-r from-pktGreen to-green-600 text-white font-black py-3.5 rounded-xl active:scale-95 transition shadow-lg shadow-green-200 text-sm tracking-wide">
+        🚀 Siap Bermain! Jaga Bumi Kita!
+      </button>
+    </div>
   </div>
 </div>
 
@@ -1945,10 +2125,23 @@ function openGoogleCalendar(dateKey) {
 //  PLAY COUNT & DAILY SESSIONS TRACKING
 //  (replaces streak system – focus on quantity)
 // ──────────────────────────────────────────
-function getDailyPlay() {
+function getDailyPlayKey(name) {
+  // Key is per-name (account-based). name should be the raw player name.
+  // If no name provided, try to get from input, else use anonymous key.
+  if (!name) {
+    try { name = (document.getElementById('player-name') || {}).value || ''; } catch(e) { name = ''; }
+  }
+  name = (name || '').trim();
+  if (!name) return 'eco_daily_play_v1'; // anonymous fallback
+  const safe = name.replace(/[^a-zA-Z0-9_]/g, '_').toUpperCase();
+  return `eco_daily_play_v1_${safe}`;
+}
+
+function getDailyPlay(name) {
   try {
     const dk = getTodayKey();
-    const raw = localStorage.getItem('eco_daily_play_v1');
+    const key = getDailyPlayKey(name);
+    const raw = localStorage.getItem(key);
     if (!raw) return { date: dk, sessions: 0 };
     const d = JSON.parse(raw);
     if (d.date !== dk) return { date: dk, sessions: 0 };
@@ -1956,10 +2149,10 @@ function getDailyPlay() {
   } catch(e) { return { date: getTodayKey(), sessions: 0 }; }
 }
 
-function incrementDailyPlay() {
-  const d = getDailyPlay();
+function incrementDailyPlay(name) {
+  const d = getDailyPlay(name);
   d.sessions = (d.sessions || 0) + 1;
-  try { localStorage.setItem('eco_daily_play_v1', JSON.stringify(d)); } catch(e) {}
+  try { localStorage.setItem(getDailyPlayKey(name), JSON.stringify(d)); } catch(e) {}
   return d;
 }
 
@@ -1977,13 +2170,13 @@ function renderPlayCountBadge() {
   const dailyBadge = document.getElementById('daily-sessions-badge');
   const dailySpan = document.getElementById('daily-sessions-display');
   
-  const daily = getDailyPlay();
+  const nameInput = document.getElementById('player-name');
+  const currentName = nameInput ? nameInput.value.trim() : '';
+  const daily = getDailyPlay(currentName);
   const totalAttempts = (() => {
     // Get from lbCache if available
-    const nameInput = document.getElementById('player-name');
-    const name = nameInput ? nameInput.value.trim() : '';
-    if (name && lbCache && lbCache.length > 0) {
-      const safeId = name.replace(/[.#$[\]/\s]/g,'_').toUpperCase();
+    if (currentName && lbCache && lbCache.length > 0) {
+      const safeId = currentName.replace(/[.#$[\]/\s]/g,'_').toUpperCase();
       const rec = lbCache.find(r => r.id === safeId || r.id === safeId + '_CURRIC');
       if (rec) return rec.attempts || 0;
     }
@@ -2827,7 +3020,7 @@ function launchConfetti(count=24) {
 // ──────────────────────────────────────────
 async function endGame() {
   // Track daily session & apply bonus BEFORE cleanup
-  const dailyPlayData = incrementDailyPlay();
+  const dailyPlayData = incrementDailyPlay(GS.playerName);
   const sessionBonus = getDailySessionBonus(dailyPlayData.sessions - 1);
   if (sessionBonus > 0 && GS.score > 0) {
     const bonusPoints = Math.round(GS.score * sessionBonus);
@@ -3139,6 +3332,7 @@ function setupFirebaseListener() {
           sessionBaseSnapshot = null;
           // Save current state now so the very first game in this session
           // will have a meaningful baseline for the next session.
+          // Use per-mode rank maps: ranked positions for ranked players, curriculum for curriculum players
           saveLbSnapshot(rankedRankMap, curriculumRankMap,
             new Set(rankedOnly.map(r=>r.id)),
             new Set(curriculumOnly.map(r=>r.id)));
@@ -3155,8 +3349,10 @@ function setupFirebaseListener() {
 
         if (sessionBaseSnapshot) {
           const isC = r.isCurriculum;
+          // Use the per-mode rank map (ranked vs curriculum), NOT global array index
           const prevRankMap = isC ? sessionBaseSnapshot.curriculum : sessionBaseSnapshot.ranked;
           const prevIdSet   = isC ? sessionBaseSnapshot.ids_curriculum_set : sessionBaseSnapshot.ids_ranked_set;
+          // curRank is the position within the same mode (ranked-only or curriculum-only)
           const curRank     = isC ? (curriculumRankMap['id:'+r.id]||9999) : (rankedRankMap['id:'+r.id]||9999);
           const oldRank     = prevRankMap['id:'+r.id];
           const wasPresent  = prevIdSet.has(r.id);
@@ -3168,7 +3364,7 @@ function setupFirebaseListener() {
           } else if (typeof oldRank === 'number' && curRank > oldRank) {
             sym='▼'; cls='text-red-500'; title=`Turun (${oldRank}→${curRank})`;
           }
-          // else: same rank or no old rank → —
+          // else: same rank → —  (oldRank undefined = new in this session = 🆕 already handled above)
         }
 
         r.__mv={sym,cls,title};
@@ -3867,7 +4063,7 @@ document.addEventListener('keydown', e=>{
   renderPlayCountBadge();
 
   try { const n=localStorage.getItem('eco_player_name'); if(n) document.getElementById('player-name').value=n; } catch(e){}
-  document.getElementById('player-name').addEventListener('input',e=>{ try { localStorage.setItem('eco_player_name',e.target.value); } catch(err){} updateNameHint(); });
+  document.getElementById('player-name').addEventListener('input',e=>{ try { localStorage.setItem('eco_player_name',e.target.value); } catch(err){} updateNameHint(); renderPlayCountBadge(); });
 
   const ambKey='eco_ambient';
   const musicBtn=document.getElementById('music-btn');
