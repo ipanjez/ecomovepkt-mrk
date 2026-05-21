@@ -1319,7 +1319,7 @@ async function loadAndRenderDCHistory(userId) {
     // CURRENT
     if (current) {
       const badge = current.completed ? '✅ Selesai' : (current.bestProgress >= 100 ? '✅ Selesai' : `Progress: ${current.bestProgress}%`);
-      html += renderDCCard(current, 'HARI INI', badge, true);
+      html += renderDCHistoryCard(current, 'HARI INI', badge, true);
     }
     
     // FUTURE
@@ -1327,7 +1327,7 @@ async function loadAndRenderDCHistory(userId) {
       html += '<h3 class="text-sm font-black text-pktBlue mt-4 mb-2">📅 Tantangan Mendatang</h3>';
       future.forEach(dc => {
         const badge = `${dc.bestProgress}%`;
-        html += renderDCCard(dc, formatDateDisplay(dc.dateKey), badge, false);
+        html += renderDCHistoryCard(dc, formatDateDisplay(dc.dateKey), badge, false);
       });
     }
     
@@ -1337,7 +1337,7 @@ async function loadAndRenderDCHistory(userId) {
       past.forEach(dc => {
         const completed = dc.completed || dc.bestProgress >= 100;
         const badge = completed ? '✅ Selesai' : `${dc.bestProgress}%`;
-        html += renderDCCard(dc, formatDateDisplay(dc.dateKey), badge, completed);
+        html += renderDCHistoryCard(dc, formatDateDisplay(dc.dateKey), badge, completed);
       });
     }
     
@@ -1348,7 +1348,7 @@ async function loadAndRenderDCHistory(userId) {
   }
 }
 
-function renderDCCard(dc, dateLabel, badge, isCompleted) {
+function renderDCHistoryCard(dc, dateLabel, badge, isCompleted) {
   const badgeColor = isCompleted ? 'bg-emerald-100 text-emerald-700' : 'bg-blue-100 text-blue-700';
   const typeEmoji = {category: '🎯', combo: '💥', score: '📈', mode: '🎮'}[dc.type] || '⚡';
   
