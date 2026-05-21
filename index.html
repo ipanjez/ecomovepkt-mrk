@@ -1043,8 +1043,11 @@ function prepareSessionQueue() {
 let lbCache = [];
 let lbIndexMap = {};
 // Per-mode rank snapshots for accurate ▲▼— indicators
-let lbPrevRankedRankMap = {};  // id -> rank (1-based) in ranked mode
-let lbPrevCurriculumRankMap = {}; // id -> rank (1-based) in curriculum mode
+let lbPrevRankedRankMap = {};      // id -> rank (1-based) in ranked mode
+let lbPrevCurriculumRankMap = {};  // id -> rank (1-based) in curriculum mode
+let lbPrevRankedIds = null;        // Set of IDs present before last update (null = first load)
+let lbPrevCurriculumIds = null;    // Set of IDs present before last update (null = first load)
+let lbFirebaseUpdateCount = 0;     // How many times Firebase has fired
 
 // Nearest rival
 let nearestRival = null;
@@ -2914,20 +2917,30 @@ function setupFirebaseListener() {
       curriculumOnly.forEach((r,i)=>{ curriculumRankMap['id:'+r.id] = i+1; });
 
       // Compute per-mode movement indicators using previous snapshots
+      // On first load (lbFirebaseUpdateCount===0): all show — (no history yet)
+      // On subsequent updates: compare current rank vs previous rank
+      lbFirebaseUpdateCount++;
+      const isFirstLoad = lbFirebaseUpdateCount === 1;
+
       arr.forEach((r,i)=>{
         let sym='—', cls='text-gray-400', title='Tetap';
-        const isC = r.isCurriculum;
-        const prevMap = isC ? lbPrevCurriculumRankMap : lbPrevRankedRankMap;
-        const curRank = isC ? (curriculumRankMap['id:'+r.id]||9999) : (rankedRankMap['id:'+r.id]||9999);
-        const oldRank = prevMap['id:'+r.id];
-        if(typeof oldRank === 'number' && oldRank !== curRank) {
-          if(curRank < oldRank) {
-            sym='▲'; cls='text-green-600'; title=`Naik (${oldRank}→${curRank})`;
-          } else {
-            sym='▼'; cls='text-red-500'; title=`Turun (${oldRank}→${curRank})`;
+        if(!isFirstLoad) {
+          const isC = r.isCurriculum;
+          const prevMap = isC ? lbPrevCurriculumRankMap : lbPrevRankedRankMap;
+          const prevIds = isC ? lbPrevCurriculumIds : lbPrevRankedIds;
+          const curRank = isC ? (curriculumRankMap['id:'+r.id]||9999) : (rankedRankMap['id:'+r.id]||9999);
+          const oldRank = prevMap['id:'+r.id];
+          // New entry = was not present in previous snapshot
+          const wasPresent = prevIds && prevIds.has(r.id);
+          if(!wasPresent) {
+            sym='🆕'; cls='text-blue-500'; title='Baru masuk';
+          } else if(typeof oldRank === 'number' && oldRank !== curRank) {
+            if(curRank < oldRank) {
+              sym='▲'; cls='text-green-600'; title=`Naik (${oldRank}→${curRank})`;
+            } else {
+              sym='▼'; cls='text-red-500'; title=`Turun (${oldRank}→${curRank})`;
+            }
           }
-        } else if(typeof oldRank !== 'number') {
-          sym='🆕'; cls='text-blue-500'; title='Baru masuk';
         }
         r.__mv={sym,cls,title};
         
@@ -2955,9 +2968,11 @@ function setupFirebaseListener() {
       lbCache=arr;
       lbIndexMap={};
       arr.forEach((r,i)=>{ lbIndexMap['id:'+r.id]=i; if(r.name) lbIndexMap['name:'+r.name.toLowerCase()]=i; });
-      // Save current per-mode ranks for next update's movement comparison
+      // Save current per-mode ranks AND id sets for next update's movement comparison
       lbPrevRankedRankMap = {...rankedRankMap};
       lbPrevCurriculumRankMap = {...curriculumRankMap};
+      lbPrevRankedIds = new Set(rankedOnly.map(r=>r.id));
+      lbPrevCurriculumIds = new Set(curriculumOnly.map(r=>r.id));
 
       const dbStatus = document.getElementById('db-status');
       if(dbStatus) {
