@@ -2417,7 +2417,16 @@ function renderLbTable() {
     if(isMe) tr.className='my-row';
     else tr.className=i%2===0?'':'bg-blue-50/20';
 
-    const secBadgesHtml=secArr.slice(0,3).map(b=>`<span class="rounded-full px-1.5 py-0.5 text-[0.55rem] font-bold ${getSecondaryBadgeClass(b)}">${escHtml(b)}</span>`).join('');
+    const secBadgesHtml=(() => {
+      // Prioritize Top 10 badge to always display
+      let badges = secArr || [];
+      const top10Idx = badges.indexOf('Top 10');
+      if(top10Idx > 0) {
+        // Move Top 10 to first position if present
+        badges = ['Top 10', ...badges.filter(b => b !== 'Top 10')];
+      }
+      return badges.slice(0,3).map(b=>`<span class="rounded-full px-1.5 py-0.5 text-[0.55rem] font-bold ${getSecondaryBadgeClass(b)}">${escHtml(b)}</span>`).join('');
+    })();
     const tagsHtml=tags.length>0?`<span class="text-[0.55rem] text-gray-400 font-semibold">${tags.map(t=>'#'+t).join(' ')}</span>`:'';
     const primaryBadgeHtml = r.isCurriculum ? '' : `<span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold ${getBadgeClass(primary)}">${escHtml(formatBadge(primary))}</span>`;
 
@@ -2497,6 +2506,11 @@ function renderFinalBadges(rec) {
   if (completedDC && !secArr.includes('Daily Challenger')) {
     secArr = [...secArr, 'Daily Challenger'];
   }
+  // Prioritize Top 10 badge to always display
+  const top10Idx = secArr.indexOf('Top 10');
+  if(top10Idx > 0) {
+    secArr = ['Top 10', ...secArr.filter(b => b !== 'Top 10')];
+  }
   const tags=computeSpecialTags(rec.score||0,rec.accuracy||0,rec.bestCombo||0,rec.categoryStats||{},null,rec.attempts||0);
   let html=`<span class="inline-flex items-center rounded-full px-3 py-1.5 text-sm font-black ${getBadgeClass(primary)}">${escHtml(formatBadge(primary))}</span>`;
   secArr.slice(0,3).forEach(b=>{ html+=`<span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-bold ${getSecondaryBadgeClass(b)}">${escHtml(b)}</span>`; });
@@ -2522,7 +2536,15 @@ function renderLbPrev() {
     const tags=computeSpecialTags(r.score||0,r.accuracy||0,r.bestCombo||0,r.categoryStats||{},i+1,r.attempts||0);
     const ts=r.timestamp?new Date(r.timestamp).toLocaleString('id-ID',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):'-';
     const diffLabel=r.isCurriculum?`📚 ${r.curriculumFilter||'Kurikulum'}`:getDifficultyDisplayName(r.difficulty);
-    const secBadgesHtml=secArr.slice(0,3).map(b=>`<span class="rounded-full px-1.5 py-0.5 text-[0.55rem] font-bold ${getSecondaryBadgeClass(b)}">${escHtml(b)}</span>`).join(' ');
+    const secBadgesHtml=(() => {
+      // Prioritize Top 10 badge to always display
+      let badges = secArr || [];
+      const top10Idx = badges.indexOf('Top 10');
+      if(top10Idx > 0) {
+        badges = ['Top 10', ...badges.filter(b => b !== 'Top 10')];
+      }
+      return badges.slice(0,3).map(b=>`<span class="rounded-full px-1.5 py-0.5 text-[0.55rem] font-bold ${getSecondaryBadgeClass(b)}">${escHtml(b)}</span>`).join(' ');
+    })();
     const tagsHtml=tags.length>0?`<span class="text-[0.55rem] text-gray-400 font-semibold">${tags.map(t=>'#'+t).join(' ')}</span>`:'';
     const primaryBadgeHtml = r.isCurriculum ? '' : `<span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold ${getBadgeClass(primary)}">${escHtml(formatBadge(primary))}</span>`;
     const tr=document.createElement('tr');
@@ -2668,7 +2690,8 @@ function startAmbient() {
   try {
     if (ambientNodes) stopAmbient();
     if (audioCtx.state === 'suspended') audioCtx.resume();
-    
+
+
     const o = audioCtx.createOscillator();
     const g = audioCtx.createGain();
     o.connect(g);
