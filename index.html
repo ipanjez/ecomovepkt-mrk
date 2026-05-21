@@ -3722,7 +3722,7 @@ function filterLb(data, filter, mode='ranked', search='') {
   const query = (search||'').trim().toLowerCase();
   if(query) {
     filtered = filtered.filter(r=>{
-      const name = (r.name||'').toLowerCase();
+      const name = getRecordName(r).toLowerCase();
       const diff = (r.difficulty||'').toLowerCase();
       const curr = (r.curriculumFilter||'').toLowerCase();
       const badges = (r.secondaryBadges||[]).join(' ').toLowerCase();
@@ -4203,11 +4203,11 @@ function updateNameHint() {
   if(!name) { el.textContent = ''; return; }
   const key = 'name:' + name.toLowerCase();
   const filtered = filterLb(lbCache, lbFilter, lbMode);
-  const idx = filtered.findIndex(r => r.name && r.name.toLowerCase() === name.toLowerCase());
+  const idx = filtered.findIndex(r => getRecordName(r).toLowerCase() === name.toLowerCase());
   const rankedFiltered = filterLb(lbCache, 'All', 'ranked');
   const curriculumFiltered = filterLb(lbCache, 'All', 'curriculum');
-  const rankedIdx = rankedFiltered.findIndex(r => r.name && r.name.toLowerCase() === name.toLowerCase());
-  const curriculumIdx = curriculumFiltered.findIndex(r => r.name && r.name.toLowerCase() === name.toLowerCase());
+  const rankedIdx = rankedFiltered.findIndex(r => getRecordName(r).toLowerCase() === name.toLowerCase());
+  const curriculumIdx = curriculumFiltered.findIndex(r => getRecordName(r).toLowerCase() === name.toLowerCase());
 
   // Fetch DC completed count
   const userId = name.replace(/[.#$[\]/\s]/g, '_').toUpperCase();
