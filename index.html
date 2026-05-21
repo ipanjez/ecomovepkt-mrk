@@ -482,8 +482,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
             <div class="grid grid-cols-3 gap-2.5">
               <!-- SISA MAKANAN -->
               <div id="curr-sisa" onclick="selectCurriculum('SISA MAKANAN',this)"
-                class="curr-card relative bg-gradient-to-b from-green-50 to-white border-2 border-green-200 rounded-2xl p-3 cursor-pointer transition-all select-none active:scale-95"
-                style="">
+                class="curr-card relative bg-gradient-to-b from-green-50 to-white border-2 border-green-200 rounded-2xl p-3 cursor-pointer transition-all select-none active:scale-95">
                 <div class="flex flex-col items-center gap-1.5 text-center">
                   <div class="w-10 h-10 rounded-xl bg-green-100 flex items-center justify-center text-2xl">🍏</div>
                   <span class="text-[0.62rem] font-black text-green-700 leading-tight">SISA<br>MAKANAN</span>
@@ -3416,7 +3415,7 @@ async function saveToDb(acc, wrong) {
   }
 
   const payload={
-    name:GS.playerName, score:GS.score,
+    name:GS.playerName, playerName:GS.playerName, score:GS.score,
     difficulty:GS.isCurriculum?('curriculum-'+(GS.curriculumFocus||'unknown')):GS.difficulty,
     timestamp:firebase.database.ServerValue.TIMESTAMP,
     attempts, total:GS.totalAnswered, correct:GS.correctAnswers, wrong,
@@ -3561,7 +3560,7 @@ function setupFirebaseListener() {
 
       lbCache=arr;
       lbIndexMap={};
-      arr.forEach((r,i)=>{ lbIndexMap['id:'+r.id]=i; if(r.name) lbIndexMap['name:'+r.name.toLowerCase()]=i; });
+      arr.forEach((r,i)=>{ const recordName=getRecordName(r); lbIndexMap['id:'+r.id]=i; if(recordName) lbIndexMap['name:'+recordName.toLowerCase()]=i; });
 
       const dbStatus = document.getElementById('db-status');
       if(dbStatus) {
@@ -3698,6 +3697,10 @@ function getSecondaryBadgeClass(badge) {
 const BADGE_ORD={'Bronze':1,'Silver':2,'Gold':3,'Platinum':4,'Epic':5,'Grandmaster':6,'Diamond':7,'Legend':8,'Master':9,'Immortal':10};
 function formatBadge(primary) { const o=BADGE_ORD[primary]||1; return `*${o} ${primary}`; }
 
+function getRecordName(record) {
+  return (record && (record.name || record.playerName || '')).trim();
+}
+
 // ──────────────────────────────────────────
 //  LEADERBOARD RENDERING (exclude curriculum)
 // ──────────────────────────────────────────
@@ -3820,7 +3823,7 @@ function renderLbTable() {
     tr.innerHTML=`
       <td class="text-center ${rankStyle}"><div class="flex items-center justify-center gap-1" title="${escHtml(mv.title)}"><span>${i+1}</span><span class="text-[0.6rem] ${mv.cls}">${mv.sym}</span></div></td>
       <td class="pl-2">
-        <div class="flex flex-wrap items-center gap-1"><span class="font-bold text-gray-800 text-xs">${escHtml(r.name||'–')}</span>${primaryBadgeHtml}${secBadgesHtml}</div>
+        <div class="flex flex-wrap items-center gap-1"><span class="font-bold text-gray-800 text-xs">${escHtml(getRecordName(r)||'–')}</span>${primaryBadgeHtml}${secBadgesHtml}</div>
         <div class="flex gap-1 mt-0.5">${tagsHtml}<span class="text-[0.55rem] ${diffColor} font-bold">${escHtml(diffLabel)}</span></div>
       </td>
       <td class="text-center font-black text-pktOrange text-xs">${r.score||0}</td>
@@ -3941,7 +3944,7 @@ function renderLbPrev() {
     tr.innerHTML=`
       <td class="text-center font-bold text-xs"><div class="flex items-center justify-center gap-1" title="${escHtml(mv.title)}"><span>${i+1}</span><span class="text-[0.6rem] ${mv.cls}">${mv.sym}</span></div></td>
       <td class="pl-2">
-        <div class="flex flex-wrap items-center gap-1 mb-1"><span class="font-bold text-xs">${escHtml(r.name||'–')}</span>${primaryBadgeHtml}</div>
+        <div class="flex flex-wrap items-center gap-1 mb-1"><span class="font-bold text-xs">${escHtml(getRecordName(r)||'–')}</span>${primaryBadgeHtml}</div>
         <div class="flex flex-wrap items-center gap-1 mb-1">${secBadgesHtml}</div>
         <div class="flex flex-wrap items-center gap-1 mb-1">${tagsHtml}</div>
         <div class="text-[0.58rem] text-gray-400">${escHtml(diffLabel)}</div>
