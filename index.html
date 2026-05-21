@@ -1153,13 +1153,17 @@ function deriveDC(dk) {
     dcData.minCorrect=5;
     dcData.focusCat='ALL';
   } else if(type==='mode') {
-    dcData.targetMode=modes[Math.floor(seededRand(s+180)*modes.length)];
-    dcData.modeNames={Easy:'🐢 Bumi Lestari',Medium:'🚶 Eko Aktif',Hard:'🔥 Penjaga Bumi'};
+    // Use actual play-mode names (display labels) and mark as Ranked-only
+    const gameModes = ['Bumi Lestari','Eko Aktif','Penjaga Bumi'];
+    const modeIdx = Math.floor(seededRand(s+180)*gameModes.length);
+    dcData.targetMode = gameModes[modeIdx];
+    dcData.modeNames = { 'Bumi Lestari':'🐢 Bumi Lestari', 'Eko Aktif':'🚶 Eko Aktif', 'Penjaga Bumi':'🔥 Penjaga Bumi' };
     dcData.targetScore=400+Math.floor(seededRand(s+250)*300);
     dcData.minAcc=75+Math.floor(seededRand(s+260)*18);
     dcData.title=`🎮 Mode Spesial: ${dcData.modeNames[dcData.targetMode]}`;
     dcData.description=`Bermain di mode ${dcData.modeNames[dcData.targetMode]} dan capai skor ${dcData.targetScore}+ dengan akurasi ${dcData.minAcc}%+.`;
     dcData.focusCat=dcData.targetMode;
+    dcData.rankOnly = true; // this DC applies only to Ranked mode
   } else if(type==='accuracy') {
     dcData.minAcc=90+Math.floor(seededRand(s+300)*10);
     dcData.minCorrect=15+Math.floor(seededRand(s+310)*15);
@@ -1418,9 +1422,10 @@ function enrichDCData(dc) {
       dc.title=`📈 Pemburu Skor: ${dc.targetScore||700}`;
       dc.description=`Raih skor ${dc.targetScore||700}+ dengan akurasi minimal ${dc.minAcc||80}%.`;
     } else if(dc.type==='mode') {
-      const modeNames={Easy:'🐢 Bumi Lestari',Medium:'🚶 Eko Aktif',Hard:'🔥 Penjaga Bumi'};
+      const modeNames={ 'Bumi Lestari':'🐢 Bumi Lestari', 'Eko Aktif':'🚶 Eko Aktif', 'Penjaga Bumi':'🔥 Penjaga Bumi' };
       dc.title=`🎮 Mode Spesial: ${modeNames[dc.focusCat]||dc.focusCat}`;
       dc.description=`Bermain di mode ${modeNames[dc.focusCat]||dc.focusCat} dan capai skor ${dc.targetScore||400}+ dengan akurasi ${dc.minAcc||75}%+.`;
+      if(dc.rankOnly) dc.description += ' (Hanya berlaku di Mode Ranked)';
     } else if(dc.type==='accuracy') {
       dc.title=`🎯 Master Presisi: ${dc.minAcc||90}%`;
       dc.description=`Raih akurasi ${dc.minAcc||90}%+ dengan minimal ${dc.minCorrect||15} jawaban benar dalam satu sesi!`;
@@ -1519,7 +1524,10 @@ function renderFutureChallenges() {
             <p class="text-xs font-semibold text-gray-800 mt-0.5">${dc.title}</p>
             <p class="text-[0.7rem] text-gray-600 mt-1">${escHtml(dc.description)}</p>
           </div>
-          <span class="text-[0.65rem] font-bold bg-blue-200 text-blue-700 px-2 py-1 rounded-full whitespace-nowrap">🔮 Menyenang</span>
+          <div class="flex flex-col items-end gap-1">
+            ${dc.rankOnly?'<span class="text-[0.6rem] font-semibold text-rose-600">Hanya Ranked</span>':''}
+            <span class="text-[0.65rem] font-bold bg-blue-200 text-blue-700 px-2 py-1 rounded-full whitespace-nowrap">🔮 Menyenang</span>
+          </div>
         </div>
       </div>
     `;
