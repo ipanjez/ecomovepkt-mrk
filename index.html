@@ -1042,12 +1042,41 @@ function prepareSessionQueue() {
 // Leaderboard cache
 let lbCache = [];
 let lbIndexMap = {};
-// Per-mode rank snapshots for accurate ▲▼— indicators
-let lbPrevRankedRankMap = {};      // id -> rank (1-based) in ranked mode
-let lbPrevCurriculumRankMap = {};  // id -> rank (1-based) in curriculum mode
-let lbPrevRankedIds = null;        // Set of IDs present before last update (null = first load)
-let lbPrevCurriculumIds = null;    // Set of IDs present before last update (null = first load)
-let lbFirebaseUpdateCount = 0;     // How many times Firebase has fired
+// ── Movement indicator system ─────────────────────────────────────────────
+// Ranks are persisted to localStorage so indicators work across page reloads.
+// Flow:
+//   1. On first Firebase fire: load savedSnapshot from localStorage.
+//      Compare current ranks vs saved → compute ▲▼🆕—
+//      Then overwrite savedSnapshot with current ranks.
+//   2. On subsequent fires in same session: compare vs snapshot saved at
+//      start of this session (sessionSnapshot), so intra-session updates
+//      (e.g. your own score just saved) also show movement correctly.
+
+const LB_SNAPSHOT_KEY = 'eco_lb_snapshot_v2';
+
+function loadLbSnapshot() {
+  try {
+    const raw = localStorage.getItem(LB_SNAPSHOT_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw); // { ranked: {id:rank}, curriculum: {id:rank}, ids_ranked: [...], ids_curriculum: [...] }
+  } catch(e) { return null; }
+}
+
+function saveLbSnapshot(rankedMap, curriculumMap, rankedIds, curriculumIds) {
+  try {
+    localStorage.setItem(LB_SNAPSHOT_KEY, JSON.stringify({
+      ranked: rankedMap,
+      curriculum: curriculumMap,
+      ids_ranked: [...rankedIds],
+      ids_curriculum: [...curriculumIds],
+      savedAt: Date.now()
+    }));
+  } catch(e) {}
+}
+
+// Snapshot used as baseline for this page session (loaded once at first Firebase fire)
+let sessionBaseSnapshot = null;   // { ranked, curriculum, ids_ranked_set, ids_curriculum_set }
+let lbFirebaseUpdateCount = 0;
 
 // Nearest rival
 let nearestRival = null;
@@ -2887,6 +2916,21 @@ async function saveToDb(acc, wrong) {
     if(GS.bestCombo>(ex.bestCombo||0)) upd.bestCombo=GS.bestCombo;
     await ref.update(upd);
   }
+  // Persist current snapshot NOW (before Firebase fires again with new data).
+  // This ensures next Firebase update correctly computes ▲🆕— for this player.
+  try {
+    const rankedIds = new Set(lbCache.filter(r=>!r.isCurriculum).map(r=>r.id));
+    const currIds   = new Set(lbCache.filter(r=>r.isCurriculum).map(r=>r.id));
+    const rMap={}, cMap={};
+    lbCache.filter(r=>!r.isCurriculum).forEach((r,i)=>{ rMap['id:'+r.id]=i+1; });
+    lbCache.filter(r=>r.isCurriculum).forEach((r,i)=>{ cMap['id:'+r.id]=i+1; });
+    saveLbSnapshot(rMap, cMap, rankedIds, currIds);
+    // Also update the in-session baseline so the indicator is visible immediately
+    sessionBaseSnapshot = {
+      ranked: rMap, curriculum: cMap,
+      ids_ranked_set: rankedIds, ids_curriculum_set: currIds
+    };
+  } catch(e) {}
   renderLbTable();
 }
 
@@ -2916,32 +2960,50 @@ function setupFirebaseListener() {
       const curriculumRankMap = {};
       curriculumOnly.forEach((r,i)=>{ curriculumRankMap['id:'+r.id] = i+1; });
 
-      // Compute per-mode movement indicators using previous snapshots
-      // On first load (lbFirebaseUpdateCount===0): all show — (no history yet)
-      // On subsequent updates: compare current rank vs previous rank
+      // ── Movement indicators ──────────────────────────────────────────────
       lbFirebaseUpdateCount++;
-      const isFirstLoad = lbFirebaseUpdateCount === 1;
+
+      // On first fire: load persisted snapshot as baseline, then save new snapshot
+      if (lbFirebaseUpdateCount === 1) {
+        const saved = loadLbSnapshot();
+        if (saved) {
+          sessionBaseSnapshot = {
+            ranked: saved.ranked || {},
+            curriculum: saved.curriculum || {},
+            ids_ranked_set: new Set(saved.ids_ranked || []),
+            ids_curriculum_set: new Set(saved.ids_curriculum || [])
+          };
+        } else {
+          // No previous snapshot — first ever load, all show —
+          sessionBaseSnapshot = null;
+        }
+        // Always overwrite snapshot with current ranks right away
+        saveLbSnapshot(rankedRankMap, curriculumRankMap,
+          new Set(rankedOnly.map(r=>r.id)),
+          new Set(curriculumOnly.map(r=>r.id)));
+      }
 
       arr.forEach((r,i)=>{
         let sym='—', cls='text-gray-400', title='Tetap';
-        if(!isFirstLoad) {
+
+        if (sessionBaseSnapshot) {
           const isC = r.isCurriculum;
-          const prevMap = isC ? lbPrevCurriculumRankMap : lbPrevRankedRankMap;
-          const prevIds = isC ? lbPrevCurriculumIds : lbPrevRankedIds;
-          const curRank = isC ? (curriculumRankMap['id:'+r.id]||9999) : (rankedRankMap['id:'+r.id]||9999);
-          const oldRank = prevMap['id:'+r.id];
-          // New entry = was not present in previous snapshot
-          const wasPresent = prevIds && prevIds.has(r.id);
-          if(!wasPresent) {
+          const prevRankMap = isC ? sessionBaseSnapshot.curriculum : sessionBaseSnapshot.ranked;
+          const prevIdSet   = isC ? sessionBaseSnapshot.ids_curriculum_set : sessionBaseSnapshot.ids_ranked_set;
+          const curRank     = isC ? (curriculumRankMap['id:'+r.id]||9999) : (rankedRankMap['id:'+r.id]||9999);
+          const oldRank     = prevRankMap['id:'+r.id];
+          const wasPresent  = prevIdSet.has(r.id);
+
+          if (!wasPresent) {
             sym='🆕'; cls='text-blue-500'; title='Baru masuk';
-          } else if(typeof oldRank === 'number' && oldRank !== curRank) {
-            if(curRank < oldRank) {
-              sym='▲'; cls='text-green-600'; title=`Naik (${oldRank}→${curRank})`;
-            } else {
-              sym='▼'; cls='text-red-500'; title=`Turun (${oldRank}→${curRank})`;
-            }
+          } else if (typeof oldRank === 'number' && curRank < oldRank) {
+            sym='▲'; cls='text-green-600'; title=`Naik (${oldRank}→${curRank})`;
+          } else if (typeof oldRank === 'number' && curRank > oldRank) {
+            sym='▼'; cls='text-red-500'; title=`Turun (${oldRank}→${curRank})`;
           }
+          // else: same rank or no old rank → —
         }
+
         r.__mv={sym,cls,title};
         
         const rankedRank = rankedRankMap['id:'+r.id] || 9999;
@@ -2968,11 +3030,6 @@ function setupFirebaseListener() {
       lbCache=arr;
       lbIndexMap={};
       arr.forEach((r,i)=>{ lbIndexMap['id:'+r.id]=i; if(r.name) lbIndexMap['name:'+r.name.toLowerCase()]=i; });
-      // Save current per-mode ranks AND id sets for next update's movement comparison
-      lbPrevRankedRankMap = {...rankedRankMap};
-      lbPrevCurriculumRankMap = {...curriculumRankMap};
-      lbPrevRankedIds = new Set(rankedOnly.map(r=>r.id));
-      lbPrevCurriculumIds = new Set(curriculumOnly.map(r=>r.id));
 
       const dbStatus = document.getElementById('db-status');
       if(dbStatus) {
