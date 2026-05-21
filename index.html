@@ -277,12 +277,28 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
 .lb-table tr:hover td{background:#f8fafc;}
 .lb-table .my-row td{background:#eff6ff!important;border-left:3px solid #005B9F;}
 
-/* ─── STREAK BADGE ─── */
-.streak-badge{
-  display:inline-flex;align-items:center;gap:3px;
-  background:linear-gradient(135deg,#f59e0b,#ef4444);color:white;
-  border-radius:999px;padding:3px 10px;font-size:0.7rem;font-weight:800;
+/* ─── PLAY COUNT BADGE ─── */
+.playcount-badge{
+  display:inline-flex;align-items:center;gap:4px;
+  background:linear-gradient(135deg,#0369a1,#7c3aed);color:white;
+  border-radius:999px;padding:4px 12px;font-size:0.7rem;font-weight:800;
+  box-shadow:0 2px 10px rgba(3,105,161,0.35);
 }
+/* ─── DAILY SESSIONS CARD ─── */
+.daily-sessions-card{
+  background:linear-gradient(135deg,#f0fdf4,#eff6ff);
+  border:1.5px solid #bbf7d0;border-radius:14px;padding:10px 14px;
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+}
+/* ─── SESSION PIPS ─── */
+.session-pip{
+  width:10px;height:10px;border-radius:50%;display:inline-block;
+  transition:transform 0.2s;
+}
+.session-pip.done{background:linear-gradient(135deg,#22c55e,#15803d);box-shadow:0 1px 4px rgba(34,197,94,0.5);}
+.session-pip.current{background:linear-gradient(135deg,#f59e0b,#ea580c);animation:pipPulse 1.4s ease-in-out infinite;box-shadow:0 1px 6px rgba(245,158,11,0.5);}
+.session-pip.empty{background:#e2e8f0;}
+@keyframes pipPulse{0%,100%{transform:scale(1);}50%{transform:scale(1.25);}}
 
 /* ─── RIPPLE ─── */
 @keyframes ripple{0%{transform:scale(0);opacity:0.5;}100%{transform:scale(4);opacity:0;}}
@@ -341,9 +357,10 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
         </div>
         <h1 class="text-4xl font-black text-white mt-3 tracking-wide">ECO<span class="text-pktOrange">MOVE</span></h1>
         <p class="text-blue-200 text-xs font-bold uppercase tracking-widest mt-1">Trash Sorting Challenge</p>
-        <!-- streak badge -->
-        <div id="streak-badge-display" class="mt-3 hidden justify-center">
-          <div class="streak-badge">🔥 <span id="streak-count-display">0</span> Hari Beruntun</div>
+        <!-- play count & daily sessions badge -->
+        <div id="playcount-badge-display" class="mt-3 flex justify-center gap-2 flex-wrap">
+          <div id="playcount-badge" class="playcount-badge hidden">🎮 <span id="playcount-total-display">0</span> kali dimainkan</div>
+          <div id="daily-sessions-badge" class="playcount-badge hidden" style="background:linear-gradient(135deg,#059669,#0284c7);">⚡ Hari ini: <span id="daily-sessions-display">0</span>x</div>
         </div>
       </div>
 
@@ -356,13 +373,26 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
         <div id="name-hint" class="text-xs text-gray-500 mb-3 min-h-[18px] text-center"></div>
 
         <!-- daily challenge card - CLICKABLE -->
-        <div id="dc-card-container" class="mb-4 rounded-xl border border-blue-100 bg-gradient-to-r from-blue-50 to-sky-50 px-4 py-3 hover:shadow-md hover:border-blue-200 transition cursor-pointer" onclick="openDCHistoryModal()">
+        <div id="dc-card-container" class="mb-3 rounded-xl border border-blue-100 bg-gradient-to-r from-blue-50 to-sky-50 px-4 py-3 hover:shadow-md hover:border-blue-200 transition cursor-pointer" onclick="openDCHistoryModal()">
           <div class="flex items-center justify-between gap-2 mb-1">
             <p class="text-[0.65rem] font-black text-pktBlue uppercase tracking-wider">⚡ Daily Challenge (Klik untuk Riwayat)</p>
             <span id="dc-status-badge" class="text-[0.65rem] font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full">Aktif</span>
           </div>
           <p id="dc-goal-text" class="text-xs font-semibold text-slate-700">Memuat tantangan hari ini...</p>
           <p id="dc-progress-text" class="text-[0.68rem] text-slate-500 mt-0.5">–</p>
+        </div>
+
+        <!-- daily activity tracker -->
+        <div id="daily-activity-card" class="mb-4 rounded-xl border border-green-100 bg-gradient-to-r from-green-50 to-emerald-50 px-4 py-3">
+          <div class="flex items-center justify-between gap-2 mb-2">
+            <p class="text-[0.65rem] font-black text-emerald-700 uppercase tracking-wider">🔥 Aktivitas Hari Ini</p>
+            <span id="daily-bonus-badge" class="text-[0.65rem] font-bold text-purple-700 bg-purple-100 px-2 py-0.5 rounded-full hidden">+Bonus Aktif!</span>
+          </div>
+          <div class="flex items-center gap-2 mb-2">
+            <div id="session-pips" class="flex gap-1.5 flex-wrap"></div>
+            <span id="daily-sessions-label" class="text-[0.68rem] font-bold text-slate-600 ml-1"></span>
+          </div>
+          <p id="daily-next-reward" class="text-[0.65rem] text-emerald-700 font-semibold"></p>
         </div>
 
         <!-- difficulty -->
@@ -638,8 +668,9 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
             <p class="text-xs font-bold text-gray-700" id="final-pb">–</p>
           </div>
           <div id="daily-challenge-summary" class="bg-white rounded-xl p-2.5 border border-gray-100 shadow-sm">
-            <p class="text-[0.58rem] text-gray-400 font-black uppercase">Daily Challenge (Misi Harian)</p>
+            <p class="text-[0.58rem] text-gray-400 font-black uppercase">Daily Challenge & Sesi Harian</p>
             <p id="daily-badge-el" class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-bold bg-slate-100 text-slate-600">Belum tercapai</p>
+            <p id="daily-session-info" class="text-[0.6rem] text-purple-600 font-bold mt-1"></p>
           </div>
           <div id="eco-tip-strip" class="hidden text-[0.62rem] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-100 rounded-lg px-3 py-2 mt-3">–</div>
         </div>
@@ -786,13 +817,15 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
           <li><span class="font-bold">⭐ Rising Star</span>: skor naik ≥75 poin dari personal best sebelumnya.</li>
           <li><span class="font-bold">🏅 Daily Challenger</span>: selesaikan daily challenge hari ini.</li>
           <li><span class="font-bold">🎯 Accuracy Ace</span>: akurasi ≥95% dengan ≥20 jawaban.</li>
-          <li><span class="font-bold">🔥 Grinder</span>: telah bermain ≥50 kali.</li>
+          <li><span class="font-bold">🔥 Grinder</span>: telah bermain ≥50 kali total.</li>
           <li><span class="font-bold">👑 Category Master</span>: 100% benar di satu kategori (min. 5 soal).</li>
           <li><span class="font-bold">💎 God Aim</span>: akurasi 100% dengan ≥10 jawaban.</li>
           <li><span class="font-bold">🚀 Elite</span>: skor ≥1000 dengan akurasi ≥90%.</li>
-          <li><span class="font-bold">🔥 Hot Streak</span>: streak harian ≥3 hari.</li>
-          <li><span class="font-bold">⚔️ Week Warrior</span>: streak harian ≥7 hari.</li>
-          <li><span class="font-bold">🌟 Monthly Master</span>: streak harian ≥30 hari.</li>
+          <li><span class="font-bold">🎮 Newcomer</span>: sudah bermain ≥5 kali total.</li>
+          <li><span class="font-bold">📅 Regular</span>: sudah bermain ≥20 kali total.</li>
+          <li><span class="font-bold">🏆 Veteran</span>: sudah bermain ≥50 kali total.</li>
+          <li><span class="font-bold">⚔️ Champion</span>: sudah bermain ≥100 kali total.</li>
+          <li><span class="font-bold">🌟 Legend Player</span>: sudah bermain ≥200 kali total.</li>
         </ul>
         <p class="text-xs mb-1.5"><b>Tags khusus</b> (label performa di leaderboard):</p>
         <ul class="list-disc pl-5 space-y-1 text-xs">
@@ -800,22 +833,31 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
           <li><b>#ComboPro</b>: combo ≥25x.</li>
           <li><b>#GodAim</b>: akurasi 100%.</li>
           <li><b>#Persistence</b>: bermain ≥50x tanpa jadi #1.</li>
-          <li><b>#WeekWarrior / #MonthlyMaster</b>: streak 7+ / 30+ hari.</li>
+          <li><b>#Grinder100 / #Grinder200</b>: bermain 100x / 200x atau lebih.</li>
+          <li><b>#DailyDedicated</b>: DC selesai ≥10 hari.</li>
+          <li><b>#DCMaster</b>: DC selesai ≥30 hari.</li>
         </ul>
       </div>
       <div>
-        <h3 class="font-black text-gray-900 mb-1.5 border-l-4 border-emerald-500 pl-3">🔥 Daily Challenge & Streak</h3>
+        <h3 class="font-black text-gray-900 mb-1.5 border-l-4 border-emerald-500 pl-3">⚡ Daily Challenge & Reward Harian</h3>
         <p class="text-xs mb-2">Setiap hari ada 7 tipe tantangan unik di Mode Ranked yang selalu berubah setiap hari:</p>
         <ul class="list-disc pl-5 space-y-1 text-xs mb-2">
-          <li><b>🎯 Ahli Kategori</b> - Fokus pada kategori tertentu (SISA MAKANAN, LAKU JUAL, atau RESIDU) dengan target skor dan akurasi.</li>
-          <li><b>💥 Combo Master</b> - Raih combo berturut-turut dengan akurasi tinggi untuk mendapat badge.</li>
-          <li><b>📈 Pemburu Skor</b> - Capai target skor tinggi dengan akurasi minimal yang ditentukan.</li>
-          <li><b>🎮 Mode Spesial</b> - Bermain di tingkat kesulitan tertentu (Easy/Medium/Hard) dengan target skor.</li>
+          <li><b>🎯 Ahli Kategori</b> - Fokus pada kategori tertentu dengan target skor dan akurasi.</li>
+          <li><b>💥 Combo Master</b> - Raih combo berturut-turut dengan akurasi tinggi.</li>
+          <li><b>📈 Pemburu Skor</b> - Capai target skor tinggi dengan akurasi minimal.</li>
+          <li><b>🎮 Mode Spesial</b> - Bermain di tingkat kesulitan tertentu dengan target skor.</li>
           <li><b>🎯 Master Presisi</b> - Raih akurasi sangat tinggi (90%+) dengan banyak jawaban benar.</li>
-          <li><b>🔥 Grinder Gamer</b> - Tantangan untuk pemain giat: bermain banyak kali dalam sesi dan kumpulkan skor tinggi.</li>
-          <li><b>⚡ Streak Master</b> - Jawab soal berturut-turut dengan akurasi tinggi untuk menguji konsistensi.</li>
+          <li><b>🔥 Grinder Gamer</b> - Tantangan untuk pemain giat: jawab banyak soal.</li>
+          <li><b>⚡ Konsistensi</b> - Jawab soal berturut-turut dengan akurasi tinggi.</li>
         </ul>
-        <p class="text-xs">Selesaikan tantangan hari ini untuk dapat badge <b>Daily Challenger</b> dan tambah streak. Pantau riwayat dan preview tantangan mendatang dengan klik <b>⚡ Daily Challenge (Klik untuk Riwayat)</b> di awal game. Di modal Mendatang kamu dapat menambahkan tantangan ke <b>Google Calendar</b> untuk pengingat. Perlu diketahui: Daily Challenge hanya aktif di <b>Mode Ranked</b> (tidak muncul di Mode Kurikulum).</p>
+        <p class="text-xs mb-1"><b>🔥 Reward Sesi Harian:</b> Semakin sering kamu main hari ini, semakin besar bonus poin:</p>
+        <ul class="list-disc pl-5 space-y-0.5 text-xs mb-2">
+          <li>Sesi 1: Normal</li>
+          <li>Sesi 2: <b>+5% bonus poin</b></li>
+          <li>Sesi 3: <b>+10% bonus poin</b></li>
+          <li>Sesi 4+: <b>+15% bonus poin</b></li>
+        </ul>
+        <p class="text-xs">Pantau aktivitas harian dan riwayat DC dengan klik <b>⚡ Daily Challenge</b>. Daily Challenge hanya aktif di <b>Mode Ranked</b>.</p>
       </div>
       <div>
         <h3 class="font-black text-gray-900 mb-1.5 border-l-4 border-pktBlue pl-3">🏆 Leaderboard</h3>
@@ -901,9 +943,9 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
       <p class="text-[0.75rem] font-black text-amber-800 uppercase mb-1.5">🏅 Hadiah & Badge</p>
       <div class="space-y-1 text-[0.7rem] text-amber-900">
         <p><b>Daily Challenger:</b> Selesaikan tantangan hari ini</p>
-        <p><b>#WeekWarrior:</b> Selesaikan 7 daily challenge dalam seminggu</p>
-        <p><b>#MonthlyMaster:</b> Selesaikan 30 daily challenge dalam sebulan</p>
-        <p><b>Streak Harian:</b> Semakin konsisten main, semakin panjang streak kamu!</p>
+        <p><b>#DailyDedicated:</b> Selesaikan ≥10 Daily Challenge berbeda</p>
+        <p><b>#DCMaster:</b> Selesaikan ≥30 Daily Challenge berbeda</p>
+        <p><b>Bonus Sesi Harian:</b> Semakin sering main hari ini → poin makin besar! Sesi 2: +5%, Sesi 3: +10%, Sesi 4+: +15%</p>
       </div>
     </div>
 
@@ -1900,33 +1942,118 @@ function openGoogleCalendar(dateKey) {
 }
 
 // ──────────────────────────────────────────
-//  DAILY STREAK (masih global localStorage, bisa diperbaiki nanti)
+//  PLAY COUNT & DAILY SESSIONS TRACKING
+//  (replaces streak system – focus on quantity)
 // ──────────────────────────────────────────
+function getDailyPlay() {
+  try {
+    const dk = getTodayKey();
+    const raw = localStorage.getItem('eco_daily_play_v1');
+    if (!raw) return { date: dk, sessions: 0 };
+    const d = JSON.parse(raw);
+    if (d.date !== dk) return { date: dk, sessions: 0 };
+    return d;
+  } catch(e) { return { date: getTodayKey(), sessions: 0 }; }
+}
+
+function incrementDailyPlay() {
+  const d = getDailyPlay();
+  d.sessions = (d.sessions || 0) + 1;
+  try { localStorage.setItem('eco_daily_play_v1', JSON.stringify(d)); } catch(e) {}
+  return d;
+}
+
+function getDailySessionBonus(sessions) {
+  // Bonus multiplier for today's sessions (nagih mechanic)
+  if (sessions >= 4) return 0.15;
+  if (sessions >= 3) return 0.10;
+  if (sessions >= 2) return 0.05;
+  return 0;
+}
+
+function renderPlayCountBadge() {
+  const totalBadge = document.getElementById('playcount-badge');
+  const totalSpan = document.getElementById('playcount-total-display');
+  const dailyBadge = document.getElementById('daily-sessions-badge');
+  const dailySpan = document.getElementById('daily-sessions-display');
+  
+  const daily = getDailyPlay();
+  const totalAttempts = (() => {
+    // Get from lbCache if available
+    const nameInput = document.getElementById('player-name');
+    const name = nameInput ? nameInput.value.trim() : '';
+    if (name && lbCache && lbCache.length > 0) {
+      const safeId = name.replace(/[.#$[\]/\s]/g,'_').toUpperCase();
+      const rec = lbCache.find(r => r.id === safeId || r.id === safeId + '_CURRIC');
+      if (rec) return rec.attempts || 0;
+    }
+    return 0;
+  })();
+  
+  if (totalBadge && totalSpan) {
+    if (totalAttempts >= 5) {
+      totalBadge.classList.remove('hidden');
+      totalSpan.textContent = totalAttempts;
+    } else {
+      totalBadge.classList.add('hidden');
+    }
+  }
+  if (dailyBadge && dailySpan) {
+    if (daily.sessions >= 1) {
+      dailyBadge.classList.remove('hidden');
+      dailySpan.textContent = daily.sessions;
+    } else {
+      dailyBadge.classList.add('hidden');
+    }
+  }
+  renderDailyActivityCard(daily);
+}
+
+function renderDailyActivityCard(daily) {
+  const pipsEl = document.getElementById('session-pips');
+  const labelEl = document.getElementById('daily-sessions-label');
+  const rewardEl = document.getElementById('daily-next-reward');
+  const bonusBadge = document.getElementById('daily-bonus-badge');
+  if (!pipsEl || !labelEl) return;
+  
+  const sessions = daily.sessions || 0;
+  const maxPips = 6;
+  let pipsHtml = '';
+  for (let i = 0; i < maxPips; i++) {
+    let cls = 'session-pip empty';
+    if (i < sessions) cls = 'session-pip done';
+    else if (i === sessions) cls = 'session-pip current';
+    pipsHtml += `<span class="${cls}"></span>`;
+  }
+  pipsEl.innerHTML = pipsHtml;
+  
+  const msgs = ['','1x main','2x main 🔥','3x main 💪','4x main ⚡','5x main 🏆','6x+ main 👑'];
+  labelEl.textContent = sessions > 0 ? (msgs[Math.min(sessions, 6)] || `${sessions}x main`) : 'Belum main hari ini';
+  
+  const bonus = getDailySessionBonus(sessions);
+  if (bonus > 0 && bonusBadge) {
+    bonusBadge.classList.remove('hidden');
+    bonusBadge.textContent = `+${Math.round(bonus*100)}% Bonus Aktif!`;
+  } else if (bonusBadge) {
+    bonusBadge.classList.add('hidden');
+  }
+  
+  if (rewardEl) {
+    if (sessions === 0) rewardEl.textContent = 'Main sekarang untuk mulai mengumpulkan reward!';
+    else if (sessions === 1) rewardEl.textContent = '🎯 Main 1x lagi → +5% bonus poin di sesi berikutnya!';
+    else if (sessions === 2) rewardEl.textContent = '💪 Main 1x lagi → +10% bonus poin!';
+    else if (sessions === 3) rewardEl.textContent = '⚡ Main 1x lagi → +15% bonus poin (maks)!';
+    else rewardEl.textContent = `🏆 Bonus maks +15% aktif! Total hari ini: ${sessions} sesi.`;
+  }
+}
+
+// Keep getStreak as stub for backward compat (read-only, not rendered)
 function getStreak() {
   try { const r=localStorage.getItem('eco_streak_v1'); return r?JSON.parse(r):{current:0,longest:0,lastDate:'',total:0}; }
   catch(e) { return {current:0,longest:0,lastDate:'',total:0}; }
 }
-
-function updateStreak() {
-  const dk=getTodayKey(); const yk=getYesterdayKey();
-  const s=getStreak();
-  if (s.lastDate===dk) return s;
-  s.current = (s.lastDate===yk) ? s.current+1 : 1;
-  s.longest = Math.max(s.longest, s.current);
-  s.lastDate = dk;
-  s.total = (s.total||0)+1;
-  try { localStorage.setItem('eco_streak_v1',JSON.stringify(s)); } catch(e){}
-  return s;
-}
-function getYesterdayKey() { const d=new Date(Date.now()-86400000); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
-
-function renderStreakBadge() {
-  const div=document.getElementById('streak-badge-display');
-  const cnt=document.getElementById('streak-count-display');
-  const s=getStreak();
-  if (s.current>=3) { div.classList.remove('hidden'); div.classList.add('flex'); if(cnt) cnt.textContent=s.current; }
-  else { div.classList.add('hidden'); div.classList.remove('flex'); }
-}
+function updateStreak() { /* no-op: streak system removed */ }
+function renderStreakBadge() { renderPlayCountBadge(); }
 
 // ──────────────────────────────────────────
 //  CURRICULUM
@@ -2699,6 +2826,14 @@ function launchConfetti(count=24) {
 //  END GAME
 // ──────────────────────────────────────────
 async function endGame() {
+  // Track daily session & apply bonus BEFORE cleanup
+  const dailyPlayData = incrementDailyPlay();
+  const sessionBonus = getDailySessionBonus(dailyPlayData.sessions - 1);
+  if (sessionBonus > 0 && GS.score > 0) {
+    const bonusPoints = Math.round(GS.score * sessionBonus);
+    GS.score += bonusPoints;
+  }
+
   cleanupGame();
 
   const acc=GS.totalAnswered>0?Math.round((GS.correctAnswers/GS.totalAnswered)*100):0;
@@ -2730,7 +2865,7 @@ async function endGame() {
     if (DC.bestProgress >= 100) DC.completed = true;
     renderDCCard();
     if(DC.completed) {
-      updateStreak(); renderStreakBadge();
+      renderPlayCountBadge();
       dcEl.textContent=`🏅 Daily Challenger • Best 100%`;
       dcEl.className='inline-flex items-center rounded-full px-2.5 py-1 text-xs font-bold badge-daily';
     } else {
@@ -2745,11 +2880,31 @@ async function endGame() {
   const modeLabel=document.getElementById('final-mode-label');
   if(modeLabel) modeLabel.textContent=GS.isCurriculum? 'Kurikulum' : 'Ranked';
 
+  // Show session info in end screen
+  const sessionInfoEl = document.getElementById('daily-session-info');
+  if (sessionInfoEl) {
+    const sesBonus = getDailySessionBonus(dailyPlayData.sessions - 1);
+    if (sesBonus > 0) {
+      sessionInfoEl.textContent = `🎮 Sesi ke-${dailyPlayData.sessions} hari ini • +${Math.round(sesBonus*100)}% bonus poin diterapkan!`;
+    } else {
+      sessionInfoEl.textContent = `🎮 Sesi ke-${dailyPlayData.sessions} hari ini`;
+    }
+  }
+
   await saveToDb(acc, wrong);
+  renderPlayCountBadge();
 
   const tipStrip = document.getElementById('eco-tip-strip');
   if (tipStrip) {
-    tipStrip.textContent = 'Permainan selesai — Daily Challenge sudah selesai hari ini.';
+    const sesBonus2 = getDailySessionBonus(dailyPlayData.sessions - 1);
+    const nextBonus = getDailySessionBonus(dailyPlayData.sessions);
+    if (nextBonus > sesBonus2) {
+      tipStrip.textContent = `Main lagi sekarang → +${Math.round(nextBonus*100)}% bonus poin di sesi berikutnya! 🔥`;
+    } else if (dailyPlayData.sessions >= 4) {
+      tipStrip.textContent = `🏆 Bonus maks aktif! Kamu sudah main ${dailyPlayData.sessions}x hari ini. Terus pertahankan!`;
+    } else {
+      tipStrip.textContent = 'Permainan selesai — coba main lagi untuk reward sesi lebih besar!';
+    }
     tipStrip.classList.remove('hidden');
   }
 
@@ -3047,7 +3202,7 @@ function setupFirebaseListener() {
       } catch(e){}
 
       updateNameHint();
-      renderStreakBadge();
+      renderPlayCountBadge();
       renderLbTable();
       renderLbPrev();
       updateRivalStrip();
@@ -3106,37 +3261,42 @@ function computeSecondaryBadges(score,acc,combo,prevBest,correct,wrong,total,cat
 
   const ex=Array.isArray(existing)?existing:[];
   const badges=[];
+  const totalAttempts = attempts || 0;
+
   if(!rowIsCurriculum && Number.isFinite(rank)&&rank>0&&rank<=10) badges.push('Top 10');
   if(versatile||ex.includes('Versatile')) badges.push('Versatile');
   if((typeof prevBest==='number'&&prevBest>0&&score>=(prevBest+75)&&composite>=45)||ex.includes('Rising Star')) badges.push('Rising Star');
   if(!rowIsCurriculum && ((isCurrentSession && (DC.completed || DC.bestProgress >= 100)) || ex.includes('Daily Challenger'))) badges.push('Daily Challenger');
   if((acc>=95&&total>=20)||ex.includes('Accuracy Ace')) badges.push('Accuracy Ace');
-  if((attempts||0)>=50||ex.includes('Grinder')) badges.push('Grinder');
   if(perfectCategory||ex.includes('Category Master')) badges.push('Category Master');
   if((acc>=100&&total>=10)||ex.includes('God Aim')) badges.push('God Aim');
   if((score>=1000&&acc>=90)||ex.includes('Elite')) badges.push('Elite');
 
-  const streak=getStreak();
-  if(streak.longest>=30||ex.includes('Monthly Master')) badges.push('Monthly Master');
-  else if(streak.current>=7||streak.longest>=7||ex.includes('Week Warrior')) badges.push('Week Warrior');
-  else if(streak.current>=3||ex.includes('Hot Streak')) badges.push('Hot Streak');
+  // Play count milestone badges (replaces streak)
+  if(totalAttempts>=200||ex.includes('Legend Player')) badges.push('Legend Player');
+  else if(totalAttempts>=100||ex.includes('Champion')) badges.push('Champion');
+  else if(totalAttempts>=50||ex.includes('Veteran')) badges.push('Veteran');
+  else if(totalAttempts>=20||ex.includes('Regular')) badges.push('Regular');
+  else if(totalAttempts>=5||ex.includes('Newcomer')) badges.push('Newcomer');
+
+  // Grinder badge (kept for backward compat, now based on play count)
+  if(totalAttempts>=50||ex.includes('Grinder')) badges.push('Grinder');
 
   return badges;
 }
 
-function computeSpecialTags(score,acc,combo,catStats,rank,attempts) {
+function computeSpecialTags(score,acc,combo,catStats,rank,attempts,dcCompleted) {
   const tags=[];
   const checkCat=(cat,label)=>{ const s=catStats&&catStats[cat]; if(s&&s.total>0&&(s.correct/s.total*100)>=95) tags.push(label); };
   checkCat('RESIDU','ResiduExpert'); checkCat('SISA MAKANAN','SisaMakananExpert'); checkCat('LAKU JUAL','LayakJualExpert');
   if(combo>=25) tags.push('ComboPro');
-  if((attempts||0)>=100) tags.push('Grinder');
+  if((attempts||0)>=200) tags.push('Grinder200');
+  else if((attempts||0)>=100) tags.push('Grinder100');
   if(acc>=100) tags.push('GodAim');
   if((attempts||0)>=50&&rank!==1) tags.push('Persistence');
-  const streak=getStreak();
-  // Use longest streak for historical milestones
-  if(streak.longest>=30) tags.push('MonthlyMaster');
-  else if(streak.longest>=7) tags.push('WeekWarrior');
-  else if(streak.current>=3) tags.push('HotStreak');
+  const dc = dcCompleted || 0;
+  if(dc>=30) tags.push('DCMaster');
+  else if(dc>=10) tags.push('DailyDedicated');
   return tags;
 }
 
@@ -3149,8 +3309,9 @@ function getSecondaryBadgeClass(badge) {
   const m={
     'Top 10':'badge-gold','Versatile':'badge-epic','Rising Star':'badge-silver',
     'Daily Challenger':'badge-daily','Accuracy Ace':'badge-platinum','Grinder':'badge-legend',
-    'Category Master':'badge-grandmaster','Hot Streak':'badge-master','Week Warrior':'badge-legend',
-    'Monthly Master':'badge-immortal','God Aim':'badge-diamond','Elite':'badge-master'
+    'Category Master':'badge-grandmaster','God Aim':'badge-diamond','Elite':'badge-master',
+    'Newcomer':'badge-bronze','Regular':'badge-silver','Veteran':'badge-gold',
+    'Champion':'badge-epic','Legend Player':'badge-immortal'
   };
   return m[badge]||'badge-bronze';
 }
@@ -3253,11 +3414,7 @@ function renderLbTable() {
     const mv=r.__mv||{sym:'—',cls:'text-gray-400',title:'Tetap'};
     const primary=computePrimaryBadge(r.score||0,r.accuracy||0,r.bestCombo||0,r.attempts||0);
     const secArr=r.secondaryBadges||[];
-    const tags=computeSpecialTags(r.score||0,r.accuracy||0,r.bestCombo||0,r.categoryStats||{},i+1,r.attempts||0);
-    const diffLabel=r.isCurriculum?`📚 ${r.curriculumFilter||'Kurikulum'}`:getDifficultyDisplayName(r.difficulty);
-    const diffColor=r.isCurriculum?'text-purple-600':r.difficulty==='Hard'?'text-blue-500':r.difficulty==='Medium'?'text-orange-500':'text-green-500';
-    const ts=r.timestamp?new Date(r.timestamp).toLocaleString('id-ID',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):'-';
-    const dcDisplay = r.isCurriculum ? '–' : (r.dcCompleted || 0);
+    const tags=computeSpecialTags(r.score||0,r.accuracy||0,r.bestCombo||0,r.categoryStats||{},i+1,r.attempts||0,r.dcCompleted||0);
 
     const rankStyle=i===0?'font-black text-yellow-600 text-base':i===1?'font-black text-gray-500':i===2?'font-black text-orange-700':'font-normal';
     const tr=document.createElement('tr');
@@ -3360,7 +3517,7 @@ function renderFinalBadges(rec) {
   if(top10Idx > 0) {
     secArr = ['Top 10', ...secArr.filter(b => b !== 'Top 10')];
   }
-  const tags=computeSpecialTags(rec.score||0,rec.accuracy||0,rec.bestCombo||0,rec.categoryStats||{},null,rec.attempts||0);
+  const tags=computeSpecialTags(rec.score||0,rec.accuracy||0,rec.bestCombo||0,rec.categoryStats||{},null,rec.attempts||0,rec.dcCompleted||0);
   let html=`<span class="inline-flex items-center rounded-full px-3 py-1.5 text-sm font-black ${getBadgeClass(primary)}">${escHtml(formatBadge(primary))}</span>`;
   secArr.slice(0,3).forEach(b=>{ html+=`<span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-bold ${getSecondaryBadgeClass(b)}">${escHtml(b)}</span>`; });
   if(tags.length>0) html+=`<span class="text-[0.65rem] text-gray-400 font-semibold self-center">${tags.map(t=>'#'+t).join(' ')}</span>`;
@@ -3382,9 +3539,7 @@ function renderLbPrev() {
     const mv=r.__mv||{sym:'—',cls:'text-gray-400',title:'Tetap'};
     const primary=computePrimaryBadge(r.score||0,r.accuracy||0,r.bestCombo||0,r.attempts||0);
     const secArr=r.secondaryBadges||[];
-    const tags=computeSpecialTags(r.score||0,r.accuracy||0,r.bestCombo||0,r.categoryStats||{},i+1,r.attempts||0);
-    const ts=r.timestamp?new Date(r.timestamp).toLocaleString('id-ID',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):'-';
-    const diffLabel=r.isCurriculum?`📚 ${r.curriculumFilter||'Kurikulum'}`:getDifficultyDisplayName(r.difficulty);
+    const tags=computeSpecialTags(r.score||0,r.accuracy||0,r.bestCombo||0,r.categoryStats||{},i+1,r.attempts||0,r.dcCompleted||0);
     const secBadgesHtml=(() => {
       // Prioritize Top 10 badge to always display
       let badges = secArr || [];
@@ -3624,14 +3779,17 @@ function updateNameHint() {
       const primary = computePrimaryBadge(rec.score || 0, rec.accuracy || 0, rec.bestCombo || 0, rec.attempts || 0);
       const rankedText = rankedIdx >= 0 ? `Ranked #${rankedIdx + 1}/${rankedFiltered.length}` : 'Ranked -';
       const curriculumText = curriculumIdx >= 0 ? `Kurikulum #${curriculumIdx + 1}/${curriculumFiltered.length}` : 'Kurikulum -';
-      const dcText = dcCount > 0 ? ` · 🏅 DC: ${dcCount} selesai` : '';
-      hintText = `✅ ${rankedText} · ${curriculumText}${dcText} — <span class="font-bold">${escHtml(formatBadge(primary))}</span>`;
+      const attCount = rec.attempts || 0;
+      const attText = attCount > 0 ? ` · 🎮 ${attCount}x main` : '';
+      const dcText = dcCount > 0 ? ` · 🏅 DC: ${dcCount}` : '';
+      hintText = `✅ ${rankedText} · ${curriculumText}${attText}${dcText} — <span class="font-bold">${escHtml(formatBadge(primary))}</span>`;
     } else {
       const dcText = dcCount > 0 ? ` (${dcCount} DC selesai)` : '';
       hintText = `Belum di leaderboard. Total Ranked: ${rankedFiltered.length} pemain, Kurikulum: ${curriculumFiltered.length} pemain${dcText}`;
     }
     
     el.innerHTML = hintText;
+    renderPlayCountBadge();
   }).catch(() => {
     // Fallback tanpa DC count
     if(rankedIdx >= 0 || curriculumIdx >= 0) {
@@ -3643,6 +3801,7 @@ function updateNameHint() {
     } else {
       el.textContent = `Belum ada di leaderboard. Total Ranked: ${rankedFiltered.length} pemain, Kurikulum: ${curriculumFiltered.length} pemain.`;
     }
+    renderPlayCountBadge();
   });
 }
 
@@ -3687,7 +3846,7 @@ document.addEventListener('keydown', e=>{
   
   renderLbFilterChips();
   renderLbPrevFilterChips();
-  renderStreakBadge();
+  renderPlayCountBadge();
 
   try { const n=localStorage.getItem('eco_player_name'); if(n) document.getElementById('player-name').value=n; } catch(e){}
   document.getElementById('player-name').addEventListener('input',e=>{ try { localStorage.setItem('eco_player_name',e.target.value); } catch(err){} updateNameHint(); });
