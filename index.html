@@ -2836,84 +2836,90 @@ async function endGame() {
 
   cleanupGame();
 
-  const acc=GS.totalAnswered>0?Math.round((GS.correctAnswers/GS.totalAnswered)*100):0;
-  const wrong=GS.totalAnswered-GS.correctAnswers;
-
-  document.getElementById('final-score').textContent=GS.score;
-  document.getElementById('final-accuracy').textContent=acc+'%';
-  document.getElementById('final-total').textContent=GS.totalAnswered;
-  document.getElementById('final-correct').textContent=GS.correctAnswers;
-  document.getElementById('final-wrong').textContent=wrong;
-
-  updateMissionUI();
-  const dailySummary = document.getElementById('daily-challenge-summary');
-  if (dailySummary) dailySummary.style.display = GS.isCurriculum ? 'none' : '';
-  if (!GS.isCurriculum) {
-    const dcSnap={score:GS.score,acc,catStats:GS.categoryStats};
-    const dcInfo=evalDCProgress(dcSnap);
-    const dcEl=document.getElementById('daily-badge-el');
-    if(dcInfo.done && !DC.completed) {
-      DC.completed=true;
-      DC.bestProgress=100;
-      await saveDC();
-    }
-    if(dcInfo.pct>DC.bestProgress) {
-      DC.bestProgress=dcInfo.pct;
-      if (DC.bestProgress >= 100) DC.completed = true;
-      await saveDC();
-    }
-    if (DC.bestProgress >= 100) DC.completed = true;
-    renderDCCard();
-    if(DC.completed) {
-      renderPlayCountBadge();
-      dcEl.textContent=`🏅 Daily Challenger • Best 100%`;
-      dcEl.className='inline-flex items-center rounded-full px-2.5 py-1 text-xs font-bold badge-daily';
-    } else {
-      dcEl.textContent=`Best progress: ${DC.bestProgress}%`;
-      dcEl.className='inline-flex items-center rounded-full px-2.5 py-1 text-xs font-bold bg-amber-100 text-amber-700';
-    }
-  }
-
-  renderLearningReport();
-  renderCurriculumSummary();
-  renderRankedSummary();
-  const modeLabel=document.getElementById('final-mode-label');
-  if(modeLabel) modeLabel.textContent=GS.isCurriculum? 'Kurikulum' : 'Ranked';
-
-  // Show session info in end screen
-  const sessionInfoEl = document.getElementById('daily-session-info');
-  if (sessionInfoEl) {
-    const sesBonus = getDailySessionBonus(dailyPlayData.sessions - 1);
-    if (sesBonus > 0) {
-      sessionInfoEl.textContent = `🎮 Sesi ke-${dailyPlayData.sessions} hari ini • +${Math.round(sesBonus*100)}% bonus poin diterapkan!`;
-    } else {
-      sessionInfoEl.textContent = `🎮 Sesi ke-${dailyPlayData.sessions} hari ini`;
-    }
-  }
-
-  await saveToDb(acc, wrong);
-  renderPlayCountBadge();
-
-  const tipStrip = document.getElementById('eco-tip-strip');
-  if (tipStrip) {
-    const sesBonus2 = getDailySessionBonus(dailyPlayData.sessions - 1);
-    const nextBonus = getDailySessionBonus(dailyPlayData.sessions);
-    if (nextBonus > sesBonus2) {
-      tipStrip.textContent = `Main lagi sekarang → +${Math.round(nextBonus*100)}% bonus poin di sesi berikutnya! 🔥`;
-    } else if (dailyPlayData.sessions >= 4) {
-      tipStrip.textContent = `🏆 Bonus maks aktif! Kamu sudah main ${dailyPlayData.sessions}x hari ini. Terus pertahankan!`;
-    } else {
-      tipStrip.textContent = 'Permainan selesai — coba main lagi untuk reward sesi lebih besar!';
-    }
-    tipStrip.classList.remove('hidden');
-  }
-
+  // Always show game over popup and end screen regardless of any errors below
   setLbMode(GS.isCurriculum ? 'curriculum' : 'ranked');
   showGameOverPopup();
   showScreen('end');
 
-  setTimeout(()=>renderLbTable(), 800);
-  setTimeout(()=>renderLbTable(), 2500);
+  try {
+    const acc=GS.totalAnswered>0?Math.round((GS.correctAnswers/GS.totalAnswered)*100):0;
+    const wrong=GS.totalAnswered-GS.correctAnswers;
+
+    document.getElementById('final-score').textContent=GS.score;
+    document.getElementById('final-accuracy').textContent=acc+'%';
+    document.getElementById('final-total').textContent=GS.totalAnswered;
+    document.getElementById('final-correct').textContent=GS.correctAnswers;
+    document.getElementById('final-wrong').textContent=wrong;
+
+    updateMissionUI();
+    const dailySummary = document.getElementById('daily-challenge-summary');
+    if (dailySummary) dailySummary.style.display = GS.isCurriculum ? 'none' : '';
+    if (!GS.isCurriculum) {
+      const dcSnap={score:GS.score,acc,catStats:GS.categoryStats};
+      const dcInfo=evalDCProgress(dcSnap);
+      const dcEl=document.getElementById('daily-badge-el');
+      if(dcInfo.done && !DC.completed) {
+        DC.completed=true;
+        DC.bestProgress=100;
+        await saveDC();
+      }
+      if(dcInfo.pct>DC.bestProgress) {
+        DC.bestProgress=dcInfo.pct;
+        if (DC.bestProgress >= 100) DC.completed = true;
+        await saveDC();
+      }
+      if (DC.bestProgress >= 100) DC.completed = true;
+      renderDCCard();
+      if(DC.completed) {
+        renderPlayCountBadge();
+        dcEl.textContent=`🏅 Daily Challenger • Best 100%`;
+        dcEl.className='inline-flex items-center rounded-full px-2.5 py-1 text-xs font-bold badge-daily';
+      } else {
+        dcEl.textContent=`Best progress: ${DC.bestProgress}%`;
+        dcEl.className='inline-flex items-center rounded-full px-2.5 py-1 text-xs font-bold bg-amber-100 text-amber-700';
+      }
+    }
+
+    renderLearningReport();
+    renderCurriculumSummary();
+    renderRankedSummary();
+    const modeLabel=document.getElementById('final-mode-label');
+    if(modeLabel) modeLabel.textContent=GS.isCurriculum? 'Kurikulum' : 'Ranked';
+
+    // Show session info in end screen
+    const sessionInfoEl = document.getElementById('daily-session-info');
+    if (sessionInfoEl) {
+      const sesBonus = getDailySessionBonus(dailyPlayData.sessions - 1);
+      if (sesBonus > 0) {
+        sessionInfoEl.textContent = `🎮 Sesi ke-${dailyPlayData.sessions} hari ini • +${Math.round(sesBonus*100)}% bonus poin diterapkan!`;
+      } else {
+        sessionInfoEl.textContent = `🎮 Sesi ke-${dailyPlayData.sessions} hari ini`;
+      }
+    }
+
+    try { await saveToDb(acc, wrong); } catch(e) { console.warn('saveToDb error:', e); }
+    renderPlayCountBadge();
+
+    const tipStrip = document.getElementById('eco-tip-strip');
+    if (tipStrip) {
+      const sesBonus2 = getDailySessionBonus(dailyPlayData.sessions - 1);
+      const nextBonus = getDailySessionBonus(dailyPlayData.sessions);
+      if (nextBonus > sesBonus2) {
+        tipStrip.textContent = `Main lagi sekarang → +${Math.round(nextBonus*100)}% bonus poin di sesi berikutnya! 🔥`;
+      } else if (dailyPlayData.sessions >= 4) {
+        tipStrip.textContent = `🏆 Bonus maks aktif! Kamu sudah main ${dailyPlayData.sessions}x hari ini. Terus pertahankan!`;
+      } else {
+        tipStrip.textContent = 'Permainan selesai — coba main lagi untuk reward sesi lebih besar!';
+      }
+      tipStrip.classList.remove('hidden');
+    }
+
+    setTimeout(()=>renderLbTable(), 800);
+    setTimeout(()=>renderLbTable(), 2500);
+  } catch(err) {
+    console.error('endGame error:', err);
+    setTimeout(()=>renderLbTable(), 1000);
+  }
 }
 
 function showGameOverPopup() {
@@ -3421,6 +3427,10 @@ function renderLbTable() {
     const primary=computePrimaryBadge(r.score||0,r.accuracy||0,r.bestCombo||0,r.attempts||0);
     const secArr=r.secondaryBadges||[];
     const tags=computeSpecialTags(r.score||0,r.accuracy||0,r.bestCombo||0,r.categoryStats||{},i+1,r.attempts||0,r.dcCompleted||0);
+    const diffLabel=r.isCurriculum?`📚 ${r.curriculumFilter||'Kurikulum'}`:getDifficultyDisplayName(r.difficulty);
+    const diffColor=r.isCurriculum?'text-purple-600':r.difficulty==='Hard'?'text-blue-500':r.difficulty==='Medium'?'text-orange-500':'text-green-500';
+    const ts=r.timestamp?new Date(r.timestamp).toLocaleString('id-ID',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):'-';
+    const dcDisplay = r.isCurriculum ? '–' : (r.dcCompleted || 0);
 
     const rankStyle=i===0?'font-black text-yellow-600 text-base':i===1?'font-black text-gray-500':i===2?'font-black text-orange-700':'font-normal';
     const tr=document.createElement('tr');
@@ -3546,6 +3556,8 @@ function renderLbPrev() {
     const primary=computePrimaryBadge(r.score||0,r.accuracy||0,r.bestCombo||0,r.attempts||0);
     const secArr=r.secondaryBadges||[];
     const tags=computeSpecialTags(r.score||0,r.accuracy||0,r.bestCombo||0,r.categoryStats||{},i+1,r.attempts||0,r.dcCompleted||0);
+    const ts=r.timestamp?new Date(r.timestamp).toLocaleString('id-ID',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):'-';
+    const diffLabel=r.isCurriculum?`📚 ${r.curriculumFilter||'Kurikulum'}`:getDifficultyDisplayName(r.difficulty);
     const secBadgesHtml=(() => {
       // Prioritize Top 10 badge to always display
       let badges = secArr || [];
