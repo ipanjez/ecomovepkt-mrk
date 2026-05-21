@@ -2168,12 +2168,25 @@ function setupFirebaseListener() {
           }
         }
         r.__mv={sym,cls,title};
+        
+        const rankedRank = rankedRankMap['id:'+r.id] || 9999;
+        
         if(!r.secondaryBadges) {
-          const rankedRank = rankedRankMap['id:'+r.id] || 9999;
           r.secondaryBadges=computeSecondaryBadges(r.score||0,r.accuracy||0,r.bestCombo||0,0,r.correct||0,r.wrong||0,r.total||0,r.categoryStats||{},rankedRank,r.attempts||0,[], false, r.isCurriculum)||[];
-        } else if(r.isCurriculum) {
-          // Remove Top 10 badge if player is now in curriculum mode
-          r.secondaryBadges = (r.secondaryBadges||[]).filter(b => b !== 'Top 10');
+        } else {
+          // Handle existing badges but ensure Top 10 badge correctness
+          if(r.isCurriculum) {
+            // Remove Top 10 badge if player is now in curriculum mode
+            r.secondaryBadges = (r.secondaryBadges||[]).filter(b => b !== 'Top 10');
+          } else if(rankedRank > 0 && rankedRank <= 10) {
+            // Ensure Top 10 badge exists for ranked top 10
+            if(!r.secondaryBadges.includes('Top 10')) {
+              r.secondaryBadges = [...(r.secondaryBadges||[]), 'Top 10'];
+            }
+          } else {
+            // Remove Top 10 badge if rank no longer qualifies
+            r.secondaryBadges = (r.secondaryBadges||[]).filter(b => b !== 'Top 10');
+          }
         }
       });
 
