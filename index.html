@@ -2052,6 +2052,11 @@ DB.ref('leaderboard').on('value', snap=>{
   let arr=Object.entries(data).map(([k,v])=>({id:k,...v}));
   arr.sort((a,b)=>{ const sd=b.score-a.score; if(sd!==0) return sd; const cd=(b.bestCombo||0)-(a.bestCombo||0); if(cd!==0) return cd; return (b.timestamp||0)-(a.timestamp||0); });
 
+  // Calculate ranked-only rank for Top 10 badge eligibility
+  const rankedOnly = arr.filter(r=>!r.isCurriculum);
+  const rankedRankMap = {};
+  rankedOnly.forEach((r,i)=>{ rankedRankMap['id:'+r.id] = i+1; });
+
   const previousIndexMap = lbIndexMap;
   arr.forEach((r,i)=>{
     let sym='—', cls='text-gray-400', title='Tetap';
@@ -2065,7 +2070,11 @@ DB.ref('leaderboard').on('value', snap=>{
     }
     r.__mv={sym,cls,title};
     if(!r.secondaryBadges) {
-      r.secondaryBadges=computeSecondaryBadges(r.score||0,r.accuracy||0,r.bestCombo||0,0,r.correct||0,r.wrong||0,r.total||0,r.categoryStats||{},i+1,r.attempts||0,[], false, r.isCurriculum)||[];
+      const rankedRank = rankedRankMap['id:'+r.id] || 9999;
+      r.secondaryBadges=computeSecondaryBadges(r.score||0,r.accuracy||0,r.bestCombo||0,0,r.correct||0,r.wrong||0,r.total||0,r.categoryStats||{},rankedRank,r.attempts||0,[], false, r.isCurriculum)||[];
+    } else if(r.isCurriculum) {
+      // Remove Top 10 badge if player is now in curriculum mode
+      r.secondaryBadges = (r.secondaryBadges||[]).filter(b => b !== 'Top 10');
     }
   });
 
@@ -2127,7 +2136,7 @@ function computeSecondaryBadges(score,acc,combo,prevBest,correct,wrong,total,cat
 
   const ex=Array.isArray(existing)?existing:[];
   const badges=[];
-  if(!rowIsCurriculum && ((Number.isFinite(rank)&&rank>0&&rank<=10)||ex.includes('Top 10'))) badges.push('Top 10');
+  if(!rowIsCurriculum && Number.isFinite(rank)&&rank>0&&rank<=10) badges.push('Top 10');
   if(versatile||ex.includes('Versatile')) badges.push('Versatile');
   if((typeof prevBest==='number'&&prevBest>0&&score>=(prevBest+75)&&composite>=45)||ex.includes('Rising Star')) badges.push('Rising Star');
   if(!rowIsCurriculum && ((isCurrentSession && (DC.completed || DC.bestProgress >= 100)) || ex.includes('Daily Challenger'))) badges.push('Daily Challenger');
