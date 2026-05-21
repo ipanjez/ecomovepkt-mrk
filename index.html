@@ -1048,18 +1048,62 @@ function getTodayKey() {
   const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 }
 
+function getTomorrowKey() {
+  const d=new Date(Date.now()+86400000); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function getDateKey(offset) {
+  const d=new Date(Date.now()+offset*86400000); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
 function seededRand(seed) { const x=Math.sin(seed)*10000; return x-Math.floor(x); }
 
 function deriveDC(dk) {
   const s=Number(dk.replace(/-/g,''));
   const cats=['SISA MAKANAN','LAKU JUAL','RESIDU'];
-  return {
-    dateKey:dk, targetScore:550+Math.floor(seededRand(s)*350),
-    minAcc:75+Math.floor(seededRand(s+17)*18),
-    minCorrect:3+Math.floor(seededRand(s+29)*4),
-    focusCat:cats[Math.floor(seededRand(s+41)*cats.length)],
-    completed:false, bestProgress:0
+  const modes=['Easy','Medium','Hard'];
+  const types=['category','combo','score','mode'];
+  const typeIdx=Math.floor(seededRand(s+200)*types.length);
+  const type=types[typeIdx];
+  
+  let dcData = {
+    dateKey:dk,
+    type:type,
+    completed:false, 
+    bestProgress:0
   };
+  
+  if(type==='category') {
+    dcData.targetScore=550+Math.floor(seededRand(s)*350);
+    dcData.minAcc=75+Math.floor(seededRand(s+17)*18);
+    dcData.minCorrect=3+Math.floor(seededRand(s+29)*4);
+    dcData.focusCat=cats[Math.floor(seededRand(s+41)*cats.length)];
+    dcData.title=`🎯 Ahli Kategori: ${dcData.focusCat}`;
+    dcData.description=`Capai skor ${dcData.targetScore}, akurasi ${dcData.minAcc}%+, dan ${dcData.minCorrect} benar di ${dcData.focusCat}.`;
+  } else if(type==='combo') {
+    dcData.targetCombo=10+Math.floor(seededRand(s+100)*15);
+    dcData.minAcc=70+Math.floor(seededRand(s+150)*20);
+    dcData.title=`💥 Combo Master: ${dcData.targetCombo}x`;
+    dcData.description=`Capai combo ${dcData.targetCombo}x berturut-turut dengan akurasi ${dcData.minAcc}%+!`;
+    dcData.minCorrect=dcData.targetCombo;
+  } else if(type==='score') {
+    dcData.targetScore=700+Math.floor(seededRand(s+120)*400);
+    dcData.minAcc=80+Math.floor(seededRand(s+160)*15);
+    dcData.title=`📈 Pemburu Skor: ${dcData.targetScore}`;
+    dcData.description=`Raih skor ${dcData.targetScore}+ dengan akurasi minimal ${dcData.minAcc}%.`;
+    dcData.minCorrect=5;
+    dcData.focusCat='ALL';
+  } else if(type==='mode') {
+    dcData.targetMode=modes[Math.floor(seededRand(s+180)*modes.length)];
+    dcData.modeNames={Easy:'🐢 Bumi Lestari',Medium:'🚶 Eko Aktif',Hard:'🔥 Penjaga Bumi'};
+    dcData.targetScore=400+Math.floor(seededRand(s+250)*300);
+    dcData.minAcc=75+Math.floor(seededRand(s+260)*18);
+    dcData.title=`🎮 Mode Spesial: ${dcData.modeNames[dcData.targetMode]}`;
+    dcData.description=`Bermain di mode ${dcData.modeNames[dcData.targetMode]} dan capai skor ${dcData.targetScore}+ dengan akurasi ${dcData.minAcc}%+.`;
+    dcData.focusCat=dcData.targetMode;
+  }
+  
+  return dcData;
 }
 
 async function loadDC() {
