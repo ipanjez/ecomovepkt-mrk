@@ -672,7 +672,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
           <span id="lb-legend-label" class="text-[0.72rem] text-gray-500">🎯 Mode Ranked: kesulitan level. Filter spesifik memilih tingkat Ranked.</span>
         </div>
         <div class="overflow-x-auto rounded-xl border border-blue-50 max-h-[42vh] overflow-y-auto no-scrollbar">
-          <table class="lb-table" style="min-width:640px">
+          <table class="lb-table" style="min-width:680px">
             <thead>
               <tr>
                 <th class="w-8">#</th>
@@ -682,6 +682,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
                 <th>Akurasi</th>
                 <th>D/B/S</th>
                 <th>Waktu</th>
+                <th title="Daily Challenge">DC</th>
                 <th>Coba</th>
               </tr>
             </thead>
@@ -844,7 +845,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
     </div>
     <div id="lb-prev-legend-items" class="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[0.62rem] font-semibold text-gray-500"></div>
     <div class="overflow-x-auto rounded-xl border border-blue-50 max-h-[60vh] overflow-y-auto no-scrollbar">
-      <table class="lb-table" style="min-width:600px">
+      <table class="lb-table" style="min-width:640px">
         <thead>
           <tr>
             <th class="w-8">#</th>
@@ -854,6 +855,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
             <th>Akurasi</th>
             <th>D/B/S</th>
             <th>Waktu</th>
+            <th title="Daily Challenge">DC</th>
             <th>Coba</th>
           </tr>
         </thead>
@@ -879,7 +881,18 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
       <button onclick="closeDCHistoryModal()" class="text-gray-400 hover:text-red-500 text-2xl font-bold leading-none">&times;</button>
     </div>
     
-    <div id="dc-history-container" class="space-y-4 max-h-[65vh] overflow-y-auto">
+    <!-- Badge Info Section -->
+    <div class="mb-4 rounded-lg bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 p-3">
+      <p class="text-[0.75rem] font-black text-amber-800 uppercase mb-1.5">🏅 Hadiah & Badge</p>
+      <div class="space-y-1 text-[0.7rem] text-amber-900">
+        <p><b>Daily Challenger:</b> Selesaikan tantangan hari ini</p>
+        <p><b>#WeekWarrior:</b> Selesaikan 7 daily challenge dalam seminggu</p>
+        <p><b>#MonthlyMaster:</b> Selesaikan 30 daily challenge dalam sebulan</p>
+        <p><b>Streak Harian:</b> Semakin konsisten main, semakin panjang streak kamu!</p>
+      </div>
+    </div>
+    
+    <div id="dc-history-container" class="space-y-4 max-h-[55vh] overflow-y-auto">
       <div class="text-center py-8 text-gray-400">
         <p class="text-sm">Memuat data daily challenge...</p>
       </div>
@@ -1303,13 +1316,11 @@ async function loadAndRenderDCHistory(userId) {
     }
     
     const allDC = snap.val();
-    const dcList = Object.values(allDC).sort((a,b) => new Date(b.dateKey) - new Date(a.dateKey));
-    const today = getTodayKey();
-    const yesterday = getDateKey(-1);
-    const tomorrow = getTomorrowKey();
-    const twoDaysAgo = getDateKey(-2);
-    const twoDaysLater = getTomorrowKey();
+    const dcList = Object.values(allDC)
+      .map(dc => enrichDCData(dc))
+      .sort((a,b) => new Date(b.dateKey) - new Date(a.dateKey));
     
+    const today = getTodayKey();
     const past = dcList.filter(dc => dc.dateKey < today).slice(0,5);
     const current = dcList.find(dc => dc.dateKey === today);
     const future = dcList.filter(dc => dc.dateKey > today).slice(0,3);
@@ -1346,6 +1357,32 @@ async function loadAndRenderDCHistory(userId) {
     console.warn("DC History load error:", e);
     showDCHistoryError('Gagal memuat data: ' + e.message);
   }
+}
+
+function enrichDCData(dc) {
+  // Ensure DC has title and description based on type
+  if(!dc.title) {
+    const s=Number(dc.dateKey.replace(/-/g,''));
+    const cats=['SISA MAKANAN','LAKU JUAL','RESIDU'];
+    
+    if(dc.type==='category' || !dc.type) {
+      dc.type='category';
+      dc.focusCat=dc.focusCat||cats[Math.floor(seededRand(s+41)*cats.length)];
+      dc.title=`🎯 Ahli Kategori: ${dc.focusCat}`;
+      dc.description=`Capai skor ${dc.targetScore||550}, akurasi ${dc.minAcc||75}%+, dan ${dc.minCorrect||3} benar di ${dc.focusCat}.`;
+    } else if(dc.type==='combo') {
+      dc.title=`💥 Combo Master: ${dc.targetCombo||10}x`;
+      dc.description=`Capai combo ${dc.targetCombo||10}x berturut-turut dengan akurasi ${dc.minAcc||70}%+!`;
+    } else if(dc.type==='score') {
+      dc.title=`📈 Pemburu Skor: ${dc.targetScore||700}`;
+      dc.description=`Raih skor ${dc.targetScore||700}+ dengan akurasi minimal ${dc.minAcc||80}%.`;
+    } else if(dc.type==='mode') {
+      const modeNames={Easy:'🐢 Bumi Lestari',Medium:'🚶 Eko Aktif',Hard:'🔥 Penjaga Bumi'};
+      dc.title=`🎮 Mode Spesial: ${modeNames[dc.focusCat]||dc.focusCat}`;
+      dc.description=`Bermain di mode ${modeNames[dc.focusCat]||dc.focusCat} dan capai skor ${dc.targetScore||400}+ dengan akurasi ${dc.minAcc||75}%+.`;
+    }
+  }
+  return dc;
 }
 
 function renderDCHistoryCard(dc, dateLabel, badge, isCompleted) {
@@ -2437,6 +2474,9 @@ function setupFirebaseListener() {
       renderLbTable();
       renderLbPrev();
       updateRivalStrip();
+      
+      // Load DC counts asynchronously (don't block leaderboard render)
+      loadDCCountsForLeaderboard(arr).catch(e => console.warn("DC count load error:", e));
     } catch(err) {
       console.error("Error processing leaderboard data:", err);
     }
@@ -2616,7 +2656,7 @@ function renderLbTable() {
   tbody.innerHTML='';
 
   if(filtered.length===0) {
-    tbody.innerHTML='<tr><td colspan="8" class="text-center py-4 text-gray-400 text-xs">Belum ada skor.</td></tr>'; return;
+    tbody.innerHTML=`<tr><td colspan="9" class="text-center py-4 text-gray-400 text-xs">Belum ada skor.</td></tr>`; return;
   }
 
   const myIdx=filtered.findIndex(r=>r.id===GS.currentSessionId);
@@ -2634,6 +2674,7 @@ function renderLbTable() {
     const diffLabel=r.isCurriculum?`📚 ${r.curriculumFilter||'Kurikulum'}`:getDifficultyDisplayName(r.difficulty);
     const diffColor=r.isCurriculum?'text-purple-600':r.difficulty==='Hard'?'text-blue-500':r.difficulty==='Medium'?'text-orange-500':'text-green-500';
     const ts=r.timestamp?new Date(r.timestamp).toLocaleString('id-ID',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):'-';
+    const dcDisplay = r.isCurriculum ? '–' : (r.dcCompleted || 0);
 
     const rankStyle=i===0?'font-black text-yellow-600 text-base':i===1?'font-black text-gray-500':i===2?'font-black text-orange-700':'font-normal';
     const tr=document.createElement('tr');
@@ -2664,6 +2705,7 @@ function renderLbTable() {
       <td class="text-center text-xs font-bold">${r.accuracy||0}%</td>
       <td class="text-center text-xs">${r.total||0}/${r.correct||0}/${r.wrong||0}</td>
       <td class="text-center text-[0.6rem] text-gray-400">${ts}</td>
+      <td class="text-center text-xs font-bold text-pktGreen">${dcDisplay}</td>
       <td class="text-center text-xs font-bold">${r.attempts||1}x</td>
     `;
     tbody.appendChild(tr);
