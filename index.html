@@ -932,13 +932,13 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
     </div>
     
     <!-- Content Container -->
-    <div id="dc-history-container" class="space-y-4 max-h-[55vh] overflow-y-auto hidden">
+    <div id="dc-history-container" class="space-y-4 max-h-[55vh] overflow-y-auto">
       <div class="text-center py-8 text-gray-400">
         <p class="text-sm">Memuat data daily challenge...</p>
       </div>
     </div>
 
-    <div id="dc-future-container" class="space-y-3 max-h-[55vh] overflow-y-auto">
+    <div id="dc-future-container" class="space-y-3 max-h-[55vh] overflow-y-auto hidden">
       <div class="text-center py-8 text-gray-400">
         <p class="text-sm">Memuat tantangan mendatang...</p>
       </div>
@@ -1330,23 +1330,47 @@ function evalDCProgress(snap) {
     const done=(snap.score||0)>=DC.targetScore&&(snap.acc||0)>=DC.minAcc&&(fc.correct||0)>=DC.minCorrect;
     return {pct,done,fCorrect:fc.correct||0};
   } else if(DC.type === 'combo') {
+    // Fix: was using GS.currentCombo (undefined) — use GS.bestCombo instead
+    const bestCombo = GS.bestCombo || 0;
     const ap=Math.min(1,(snap.acc||0)/Math.max(1,DC.minAcc||70));
-    const cp=Math.min(1,(GS.currentCombo||0)/Math.max(1,DC.targetCombo||10));
+    const cp=Math.min(1,bestCombo/Math.max(1,DC.targetCombo||10));
     const pct=Math.round(((ap+cp)/2)*100);
-    const done=(GS.currentCombo||0)>=DC.targetCombo&&(snap.acc||0)>=DC.minAcc;
-    return {pct,done,fCorrect:GS.currentCombo||0};
+    const done=bestCombo>=(DC.targetCombo||10)&&(snap.acc||0)>=(DC.minAcc||70);
+    return {pct,done,fCorrect:bestCombo};
   } else if(DC.type === 'score') {
     const sp=Math.min(1,(snap.score||0)/Math.max(1,DC.targetScore||700));
     const ap=Math.min(1,(snap.acc||0)/Math.max(1,DC.minAcc||80));
     const pct=Math.round(((sp+ap)/2)*100);
-    const done=(snap.score||0)>=DC.targetScore&&(snap.acc||0)>=DC.minAcc;
+    const done=(snap.score||0)>=(DC.targetScore||700)&&(snap.acc||0)>=(DC.minAcc||80);
     return {pct,done,fCorrect:snap.score||0};
   } else if(DC.type === 'mode') {
     const sp=Math.min(1,(snap.score||0)/Math.max(1,DC.targetScore||400));
     const ap=Math.min(1,(snap.acc||0)/Math.max(1,DC.minAcc||75));
     const pct=Math.round(((sp+ap)/2)*100);
-    const done=(snap.score||0)>=DC.targetScore&&(snap.acc||0)>=DC.minAcc;
+    const done=(snap.score||0)>=(DC.targetScore||400)&&(snap.acc||0)>=(DC.minAcc||75);
     return {pct,done,fCorrect:snap.score||0};
+  } else if(DC.type === 'accuracy') {
+    const ap=Math.min(1,(snap.acc||0)/Math.max(1,DC.minAcc||90));
+    // count total correct answers from all categories
+    const totalCorrect = Object.values(snap.catStats||{}).reduce((s,v)=>s+(v.correct||0),0);
+    const cp=Math.min(1,totalCorrect/Math.max(1,DC.minCorrect||15));
+    const pct=Math.round(((ap+cp)/2)*100);
+    const done=(snap.acc||0)>=(DC.minAcc||90)&&totalCorrect>=(DC.minCorrect||15);
+    return {pct,done,fCorrect:totalCorrect};
+  } else if(DC.type === 'attempt') {
+    const attempts = GS.totalAnswered || 0;
+    const ap=Math.min(1,attempts/Math.max(1,DC.targetAttempts||20));
+    const sp=Math.min(1,(snap.score||0)/Math.max(1,DC.targetScore||400));
+    const pct=Math.round(((ap+sp)/2)*100);
+    const done=attempts>=(DC.targetAttempts||20)&&(snap.score||0)>=(DC.targetScore||400);
+    return {pct,done,fCorrect:attempts};
+  } else if(DC.type === 'streak') {
+    const bestCombo = GS.bestCombo || 0;
+    const ap=Math.min(1,(snap.acc||0)/Math.max(1,DC.minAcc||75));
+    const cp=Math.min(1,bestCombo/Math.max(1,DC.minCorrect||10));
+    const pct=Math.round(((ap+cp)/2)*100);
+    const done=bestCombo>=(DC.minCorrect||10)&&(snap.acc||0)>=(DC.minAcc||75);
+    return {pct,done,fCorrect:bestCombo};
   }
   return {pct:0,done:false,fCorrect:0};
 }
@@ -1358,11 +1382,14 @@ async function openDCHistoryModal() {
   const modal = document.getElementById('dc-history-modal');
   if(!modal) return;
   modal.classList.remove('hidden');
+
+  // Always default to tab Riwayat when opening
+  switchDCTab('riwayat');
   
   const nameInput = document.getElementById('player-name');
   const name = nameInput ? nameInput.value.trim() : '';
   if (!name) {
-    showDCHistoryError('Silakan masukkan nama terlebih dahulu');
+    showDCHistoryError('Silakan masukkan nama terlebih dahulu untuk melihat riwayat.');
     return;
   }
   
@@ -1378,11 +1405,11 @@ async function loadAndRenderDCHistory(userId) {
   const container = document.getElementById('dc-history-container');
   if(!container) return;
   
-  container.innerHTML = '<div class="text-center py-8"><p class="text-sm text-gray-400">Memuat data...</p></div>';
+  container.innerHTML = '<div class="text-center py-8"><div class="inline-block w-6 h-6 border-2 border-pktBlue border-t-transparent rounded-full animate-spin mb-2"></div><p class="text-sm text-gray-400">Memuat riwayat...</p></div>';
   
   try {
     if (!DB || !DB.ref) {
-      showDCHistoryError('Firebase tidak tersedia');
+      showDCHistoryError('Firebase tidak tersedia. Coba lagi nanti.');
       return;
     }
     
@@ -1392,8 +1419,20 @@ async function loadAndRenderDCHistory(userId) {
       new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 5000))
     ]);
     
+    const today = getTodayKey();
+    let html = '';
+
     if (!snap.exists()) {
-      container.innerHTML = '<div class="text-center py-8 text-gray-400"><p class="text-sm">Belum ada data daily challenge</p></div>';
+      // Show today's challenge even if no data saved yet
+      const todayDC = deriveDC(today);
+      html += `<div class="rounded-lg border border-blue-100 bg-blue-50 p-3 mb-3">
+        <p class="text-[0.7rem] font-black text-blue-600 uppercase mb-1">HARI INI</p>
+        <p class="text-xs font-semibold text-gray-800">${todayDC.title||'Tantangan Hari Ini'}</p>
+        <p class="text-[0.7rem] text-gray-600 mt-0.5">${escHtml(todayDC.description||'')}</p>
+        <p class="text-[0.65rem] text-gray-400 mt-2">Belum ada progress. Main sekarang untuk mulai!</p>
+      </div>`;
+      html += '<div class="text-center py-4 text-gray-400"><p class="text-sm">Belum ada riwayat daily challenge.</p><p class="text-xs mt-1">Selesaikan tantangan hari ini untuk memulai!</p></div>';
+      container.innerHTML = html;
       return;
     }
     
@@ -1402,42 +1441,45 @@ async function loadAndRenderDCHistory(userId) {
       .map(dc => enrichDCData(dc))
       .sort((a,b) => new Date(b.dateKey) - new Date(a.dateKey));
     
-    const today = getTodayKey();
-    const past = dcList.filter(dc => dc.dateKey < today).slice(0,5);
+    // Only show today and PAST — future items go in mendatang tab
     const current = dcList.find(dc => dc.dateKey === today);
-    const future = dcList.filter(dc => dc.dateKey > today).slice(0,3);
+    const past = dcList.filter(dc => dc.dateKey < today);
     
-    let html = '';
-    
-    // CURRENT
+    // CURRENT / TODAY
     if (current) {
-      const badge = current.completed ? '✅ Selesai' : (current.bestProgress >= 100 ? '✅ Selesai' : `Progress: ${current.bestProgress}%`);
-      html += renderDCHistoryCard(current, 'HARI INI', badge, true);
-    }
-    
-    // FUTURE
-    if (future.length > 0) {
-      html += '<h3 class="text-sm font-black text-pktBlue mt-4 mb-2">📅 Tantangan Mendatang</h3>';
-      future.forEach(dc => {
-        const badge = `${dc.bestProgress}%`;
-        html += renderDCHistoryCard(dc, formatDateDisplay(dc.dateKey), badge, false);
-      });
+      const isCompleted = current.completed || current.bestProgress >= 100;
+      const badge = isCompleted ? '✅ Selesai' : `Progress: ${current.bestProgress||0}%`;
+      html += '<h3 class="text-[0.72rem] font-black text-pktBlue mb-2 uppercase tracking-wide">⚡ Hari Ini</h3>';
+      html += renderDCHistoryCard(current, 'HARI INI', badge, isCompleted);
+    } else {
+      // Show today's derived DC with no saved data
+      const todayDC = deriveDC(today);
+      html += '<h3 class="text-[0.72rem] font-black text-pktBlue mb-2 uppercase tracking-wide">⚡ Hari Ini</h3>';
+      html += `<div class="rounded-lg border border-blue-100 bg-blue-50 p-3 mb-3">
+        <p class="text-[0.7rem] font-black text-gray-500 uppercase">HARI INI</p>
+        <p class="text-xs font-semibold text-gray-800">${todayDC.title||'Tantangan Hari Ini'}</p>
+        <p class="text-[0.7rem] text-gray-600 mt-0.5">${escHtml(todayDC.description||'')}</p>
+        <span class="text-[0.65rem] font-bold bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full mt-2 inline-block">Belum dimulai</span>
+      </div>`;
     }
     
     // PAST
     if (past.length > 0) {
-      html += '<h3 class="text-sm font-black text-gray-500 mt-4 mb-2">📜 Riwayat Tantangan</h3>';
+      const completedCount = past.filter(dc=>dc.completed||dc.bestProgress>=100).length;
+      html += `<h3 class="text-[0.72rem] font-black text-gray-500 mt-4 mb-2 uppercase tracking-wide">📜 Riwayat (${completedCount}/${past.length} selesai)</h3>`;
       past.forEach(dc => {
-        const completed = dc.completed || dc.bestProgress >= 100;
-        const badge = completed ? '✅ Selesai' : `${dc.bestProgress}%`;
-        html += renderDCHistoryCard(dc, formatDateDisplay(dc.dateKey), badge, completed);
+        const isCompleted = dc.completed || dc.bestProgress >= 100;
+        const badge = isCompleted ? '✅ Selesai' : `${dc.bestProgress||0}%`;
+        html += renderDCHistoryCard(dc, formatDateDisplay(dc.dateKey), badge, isCompleted);
       });
+    } else {
+      html += '<p class="text-[0.7rem] text-gray-400 text-center mt-4">Belum ada riwayat tantangan sebelumnya.</p>';
     }
     
     container.innerHTML = html || '<div class="text-center py-8 text-gray-400"><p class="text-sm">Tidak ada data</p></div>';
   } catch(e) {
     console.warn("DC History load error:", e);
-    showDCHistoryError('Gagal memuat data: ' + e.message);
+    showDCHistoryError('Gagal memuat data: ' + (e.message || 'Kesalahan tidak diketahui'));
   }
 }
 
@@ -1489,8 +1531,7 @@ function renderDCHistoryCard(dc, dateLabel, badge, isCompleted) {
     streak: {emoji:'⚡', label:'Streak', cls:'bg-blue-50 text-blue-800'}
   };
   const t = typeMap[dc.type] || {emoji:'⚡',label:'Tantangan',cls:'bg-gray-100 text-gray-800'};
-
-  const calendarBtn = (dc && dc.dateKey) ? `<button onclick="openGoogleCalendar('${dc.dateKey}')" class="text-[0.68rem] px-2 py-1 bg-slate-100 hover:bg-slate-200 rounded-md">📅 Tambah ke Google Calendar</button>` : '';
+  // NO calendar button in history/today cards — only shown in future tab
 
   return `
     <div class="rounded-lg border border-gray-200 bg-white p-3 mb-2">
@@ -1505,7 +1546,6 @@ function renderDCHistoryCard(dc, dateLabel, badge, isCompleted) {
         </div>
         <div class="flex flex-col items-end gap-2">
           <span class="text-[0.65rem] font-bold ${badgeColor} px-2 py-1 rounded-full whitespace-nowrap">${badge}</span>
-          ${calendarBtn}
         </div>
       </div>
     </div>
@@ -1534,6 +1574,7 @@ function switchDCTab(tab) {
   const futureContainer = document.getElementById('dc-future-container');
   const tabRiwayat = document.getElementById('tab-riwayat');
   const tabMendatang = document.getElementById('tab-mendatang');
+  if(!historyContainer || !futureContainer || !tabRiwayat || !tabMendatang) return;
   
   if(tab === 'riwayat') {
     historyContainer.classList.remove('hidden');
@@ -1570,32 +1611,35 @@ function renderFutureChallenges() {
     const timeLabel = daysUntil === 1 ? 'Besok' : `${daysUntil} hari lagi`;
     const dateDisplay = formatDateDisplay(dateKey);
     
-    const t = (function(){
-      const map={category:'🎯',combo:'💥',score:'📈',mode:'🎮',accuracy:'🎯',attempt:'🔥',streak:'⚡'};
-      return map[dc.type]||'⚡';
-    })();
-    const calendarBtn = `<button onclick="openGoogleCalendar('${dc.dateKey}')" class="text-[0.68rem] px-2 py-1 bg-slate-100 hover:bg-slate-200 rounded-md">📅 Tambah ke Google Calendar</button>`;
+    const typeMap = {category:'🎯',combo:'💥',score:'📈',mode:'🎮',accuracy:'🎯',attempt:'🔥',streak:'⚡'};
+    const emoji = typeMap[dc.type]||'⚡';
+
     html += `
       <div class="rounded-lg border border-blue-100 bg-gradient-to-r from-blue-50 to-cyan-50 p-3 mb-2">
         <div class="flex items-start justify-between gap-2">
           <div class="flex-1">
             <p class="text-[0.7rem] font-black text-blue-600 uppercase">${timeLabel} • ${dateDisplay}</p>
-            <p class="text-xs font-semibold text-gray-800 mt-0.5">${t} ${dc.title}</p>
+            <p class="text-xs font-semibold text-gray-800 mt-0.5">${emoji} ${dc.title}</p>
             <p class="text-[0.7rem] text-gray-600 mt-1">${escHtml(dc.description)}</p>
             <div class="mt-2">
               <span class="text-[0.6rem] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-800">${dc.type.toUpperCase()}</span>
             </div>
           </div>
-          <div class="flex flex-col items-end gap-2">
-            ${calendarBtn}
+          <div class="flex flex-col items-end gap-2 flex-shrink-0">
             <span class="text-[0.65rem] font-bold bg-blue-200 text-blue-700 px-2 py-1 rounded-full whitespace-nowrap">🔮 Mendatang</span>
+            <button onclick="openGoogleCalendar('${dc.dateKey}')" class="text-[0.65rem] font-bold px-2 py-1.5 bg-white hover:bg-blue-50 border border-blue-200 rounded-lg flex items-center gap-1 transition active:scale-95 whitespace-nowrap">
+              📅 <span>Google Cal</span>
+            </button>
+            <button onclick="downloadDCIcs('${dc.dateKey}')" class="text-[0.65rem] font-bold px-2 py-1.5 bg-white hover:bg-green-50 border border-green-200 rounded-lg flex items-center gap-1 transition active:scale-95 whitespace-nowrap">
+              📥 <span>Unduh .ics</span>
+            </button>
           </div>
         </div>
       </div>
     `;
   }
   
-  container.innerHTML = html;
+  container.innerHTML = html || '<div class="text-center py-8 text-gray-400"><p class="text-sm">Tidak ada tantangan mendatang</p></div>';
 }
 
 function renderDCCard() {
@@ -1624,13 +1668,15 @@ function renderDCCard() {
 function downloadDCIcs(dateKey) {
   try {
     const dc = deriveDC(dateKey);
-    const title = (dc && dc.title) ? dc.title.replace(/\"/g,'') : 'Daily Challenge';
-    const description = (dc && dc.description) ? dc.description.replace(/\"/g,'') : '';
+    const dcTitle = (dc && dc.title) ? dc.title.replace(/\"/g,'') : 'Daily Challenge';
+    // Title: "Main Game EcoMove: Trash Sorting Challenge - [judul tantangan]"
+    const eventTitle = `Main Game EcoMove: Trash Sorting Challenge - ${dcTitle}`;
+    const description = (dc && dc.description) ? dc.description.replace(/\"/g,'') + '\n\nhttps://ipanjez.github.io/ecomovepkt-mrk/' : '';
     const startDate = new Date(dateKey + 'T12:00:00');
-    const endDate = new Date(startDate.getTime() + 30*60000); // 30 minutes event
+    const endDate = new Date(startDate.getTime() + 30*60000);
     const pad = (n)=>String(n).padStart(2,'0');
     const toIcsDate = (d)=>`${d.getUTCFullYear()}${pad(d.getUTCMonth()+1)}${pad(d.getUTCDate())}T${pad(d.getUTCHours())}${pad(d.getUTCMinutes())}00Z`;
-    const ics = `BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//EcoMove//EN\nBEGIN:VEVENT\nUID:${dateKey}-dc@ecomove.local\nDTSTAMP:${toIcsDate(new Date())}\nDTSTART:${toIcsDate(startDate)}\nDTEND:${toIcsDate(endDate)}\nSUMMARY:${title}\nDESCRIPTION:${description}\nEND:VEVENT\nEND:VCALENDAR`;
+    const ics = `BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//EcoMove//EN\nBEGIN:VEVENT\nUID:${dateKey}-dc@ecomove.local\nDTSTAMP:${toIcsDate(new Date())}\nDTSTART:${toIcsDate(startDate)}\nDTEND:${toIcsDate(endDate)}\nSUMMARY:${eventTitle}\nDESCRIPTION:${description}\nEND:VEVENT\nEND:VCALENDAR`;
     const blob = new Blob([ics],{type:'text/calendar;charset=utf-8'});
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -1646,15 +1692,17 @@ function downloadDCIcs(dateKey) {
 function openGoogleCalendar(dateKey) {
   try {
     const dc = deriveDC(dateKey);
-    const title = encodeURIComponent((dc && dc.title) ? dc.title : 'Daily Challenge');
-    const description = encodeURIComponent((dc && dc.description) ? dc.description : '');
-    // default event time midday local -> convert to UTC format YYYYMMDDTHHMMSSZ
+    const dcTitle = (dc && dc.title) ? dc.title : 'Daily Challenge';
+    // Title sesuai permintaan: "Main Game EcoMove: Trash Sorting Challenge - [judul tantangan]"
+    const eventTitle = encodeURIComponent(`Main Game EcoMove: Trash Sorting Challenge – ${dcTitle}`);
+    const dcDesc = (dc && dc.description) ? dc.description : '';
+    const description = encodeURIComponent(`EcoMove Daily Challenge\n${dcDesc}\n\nBuka di: https://ipanjez.github.io/ecomovepkt-mrk/`);
     const startDate = new Date(dateKey + 'T12:00:00');
     const endDate = new Date(startDate.getTime() + 30*60000);
     const pad = (n)=>String(n).padStart(2,'0');
     const toUtc = (d)=>`${d.getUTCFullYear()}${pad(d.getUTCMonth()+1)}${pad(d.getUTCDate())}T${pad(d.getUTCHours())}${pad(d.getUTCMinutes())}00Z`;
     const dates = `${toUtc(startDate)}/${toUtc(endDate)}`;
-    const url = `https://www.google.com/calendar/render?action=TEMPLATE&text=${title}&details=${description}&dates=${dates}`;
+    const url = `https://www.google.com/calendar/render?action=TEMPLATE&text=${eventTitle}&details=${description}&dates=${dates}`;
     window.open(url, '_blank');
   } catch(e) { console.warn('Google Calendar error', e); alert('Gagal membuka Google Calendar.'); }
 }
@@ -2337,25 +2385,52 @@ function updateMissionUI() {
   const acc = GS.totalAnswered>0?Math.round((GS.correctAnswers/GS.totalAnswered)*100):0;
   const snap = {score:GS.score, acc, catStats:GS.categoryStats};
   const info = evalDCProgress(snap);
-  const scorePct = Math.min(100, Math.round((GS.score/Math.max(1,DC.targetScore))*100));
-  const accTarget = DC.minAcc;
-  const accPct = Math.min(100, Math.round((acc/Math.max(1,accTarget))*100));
-  const focusStat = (GS.categoryStats&&GS.categoryStats[DC.focusCat]) ? GS.categoryStats[DC.focusCat] : {correct:0,total:0};
-  const focusPct = Math.min(100, Math.round((focusStat.correct/Math.max(1,DC.minCorrect))*100));
   const bestText = DC.bestProgress?`Best: ${DC.bestProgress}%`:'Best: -';
 
   document.getElementById('mission-bar').style.width = `${Math.min(100,info.pct)}%`;
   document.getElementById('mission-pct').textContent = `${info.pct}%`;
+
   if(detailEl) {
     if (DC.completed || DC.bestProgress >= 100) {
-      detailEl.innerHTML = `<span class="font-semibold text-emerald-700">Daily Challenge sudah selesai hari ini. Badge Daily Challenger sudah aktif.</span>`;
+      detailEl.innerHTML = `<span class="font-semibold text-emerald-700">✅ Daily Challenge selesai! Badge Daily Challenger aktif.</span>`;
     } else {
-      detailEl.innerHTML = `
-        <span>Skor ${GS.score}/${DC.targetScore} (${scorePct}%)</span>
-        <span>Akurasi ${acc}%/${accTarget}% (${accPct}%)</span>
-        <span>${DC.focusCat} benar ${focusStat.correct}/${DC.minCorrect} (${focusPct}%)</span>
-        <span class="font-semibold text-slate-600">${bestText}</span>
-      `;
+      // Build detail spans based on DC type
+      let details = '';
+      const accTarget = DC.minAcc || 75;
+      const accPct = Math.min(100, Math.round((acc/Math.max(1,accTarget))*100));
+      details += `<span>Akurasi ${acc}%/${accTarget}% (${accPct}%)</span>`;
+
+      if(!DC.type || DC.type==='category') {
+        const scorePct = Math.min(100, Math.round((GS.score/Math.max(1,DC.targetScore||500))*100));
+        const focusStat = (GS.categoryStats&&GS.categoryStats[DC.focusCat])?GS.categoryStats[DC.focusCat]:{correct:0,total:0};
+        const focusPct = Math.min(100, Math.round((focusStat.correct/Math.max(1,DC.minCorrect||3))*100));
+        details += `<span>Skor ${GS.score}/${DC.targetScore||500} (${scorePct}%)</span>`;
+        details += `<span>${DC.focusCat||'Kategori'} benar ${focusStat.correct}/${DC.minCorrect||3} (${focusPct}%)</span>`;
+      } else if(DC.type==='combo') {
+        const comboPct = Math.min(100, Math.round((GS.bestCombo/Math.max(1,DC.targetCombo||10))*100));
+        details += `<span>Combo ${GS.bestCombo}/${DC.targetCombo||10}x (${comboPct}%)</span>`;
+      } else if(DC.type==='score') {
+        const scorePct = Math.min(100, Math.round((GS.score/Math.max(1,DC.targetScore||700))*100));
+        details += `<span>Skor ${GS.score}/${DC.targetScore||700} (${scorePct}%)</span>`;
+      } else if(DC.type==='mode') {
+        const scorePct = Math.min(100, Math.round((GS.score/Math.max(1,DC.targetScore||400))*100));
+        details += `<span>Skor ${GS.score}/${DC.targetScore||400} (${scorePct}%)</span>`;
+        details += `<span class="text-violet-600">Mode: ${DC.targetMode||'—'}</span>`;
+      } else if(DC.type==='accuracy') {
+        const totalCorrect = Object.values(GS.categoryStats||{}).reduce((s,v)=>s+(v.correct||0),0);
+        const correctPct = Math.min(100, Math.round((totalCorrect/Math.max(1,DC.minCorrect||15))*100));
+        details += `<span>Benar ${totalCorrect}/${DC.minCorrect||15} (${correctPct}%)</span>`;
+      } else if(DC.type==='attempt') {
+        const attemptPct = Math.min(100, Math.round((GS.totalAnswered/Math.max(1,DC.targetAttempts||20))*100));
+        const scorePct = Math.min(100, Math.round((GS.score/Math.max(1,DC.targetScore||400))*100));
+        details += `<span>Percobaan ${GS.totalAnswered}/${DC.targetAttempts||20} (${attemptPct}%)</span>`;
+        details += `<span>Skor ${GS.score}/${DC.targetScore||400} (${scorePct}%)</span>`;
+      } else if(DC.type==='streak') {
+        const comboPct = Math.min(100, Math.round((GS.bestCombo/Math.max(1,DC.minCorrect||10))*100));
+        details += `<span>Streak ${GS.bestCombo}/${DC.minCorrect||10} (${comboPct}%)</span>`;
+      }
+      details += `<span class="font-semibold text-slate-600">${bestText}</span>`;
+      detailEl.innerHTML = details;
     }
   }
 
@@ -2365,6 +2440,7 @@ function updateMissionUI() {
     saveDC();
     renderDCCard();
     showFeedback('🏅 Daily Complete!','text-emerald-500');
+    launchConfetti(20);
   } else if(info.pct > DC.bestProgress) {
     DC.bestProgress = info.pct;
     if (DC.bestProgress >= 100) DC.completed = true;
