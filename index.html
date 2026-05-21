@@ -867,6 +867,29 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
 </div>
 
 <!-- ════════════════════════════════════════ -->
+<!--       DAILY CHALLENGE HISTORY MODAL      -->
+<!-- ════════════════════════════════════════ -->
+<div id="dc-history-modal" class="modal-backdrop hidden">
+  <div class="modal-card w-full max-w-2xl p-5">
+    <div class="sticky top-0 bg-white z-10 pb-3 border-b border-gray-100 flex justify-between items-center mb-4">
+      <div>
+        <h2 class="text-xl font-black text-pktBlue">⚡ Daily Challenge History</h2>
+        <p class="text-xs text-gray-400 mt-0.5">Tantangan harian masa lalu, sekarang, dan mendatang</p>
+      </div>
+      <button onclick="closeDCHistoryModal()" class="text-gray-400 hover:text-red-500 text-2xl font-bold leading-none">&times;</button>
+    </div>
+    
+    <div id="dc-history-container" class="space-y-4 max-h-[65vh] overflow-y-auto">
+      <div class="text-center py-8 text-gray-400">
+        <p class="text-sm">Memuat data daily challenge...</p>
+      </div>
+    </div>
+    
+    <button onclick="closeDCHistoryModal()" class="w-full mt-4 bg-gradient-to-r from-pktGreen to-green-600 text-white font-black py-3 rounded-xl active:scale-95 transition">Tutup</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════ -->
 <!--               JAVASCRIPT               -->
 <!-- ════════════════════════════════════════ -->
 <script>
