@@ -496,7 +496,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
     </div>
     <div class="flex flex-col gap-1">
       <div id="daily-challenge-row" class="flex items-center gap-2">
-        <span class="text-[0.6rem] font-bold text-gray-400">Daily Challenge (DC):</span>
+        <span class="text-[0.6rem] font-bold text-gray-400">⚡ Daily Challenge (Klik untuk Riwayat):</span>
         <div class="flex-1 h-1.5 w-20 bg-gray-100 rounded-full overflow-hidden">
           <div id="mission-bar" class="h-full bg-gradient-to-r from-blue-500 to-cyan-400 rounded-full" style="width:0%"></div>
         </div>
@@ -687,7 +687,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
               </tr>
             </thead>
             <tbody id="lb-body">
-              <tr><td colspan="8" class="text-center py-4 text-gray-400 text-xs">Memuat data real-time...</td></tr>
+              <tr><td colspan="9" class="text-center py-4 text-gray-400 text-xs">Memuat data real-time...</td></tr>
             </tbody>
           </table>
         </div>
@@ -735,7 +735,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
       <div>
         <h3 class="font-black text-gray-900 mb-1.5 border-l-4 border-pktOrange pl-3">📚 Mode Kurikulum</h3>
         <p class="text-xs">Latihan fokus per kategori. Pilih SISA MAKANAN, LAKU JUAL, atau RESIDU sebagai fokus. Pemain akan mendapat sampah acak dari semua kategori dan harus memutuskan apakah sampah tersebut SESUAI dengan fokus yang dipilih (2 pilihan: Sesuai / Tidak Sesuai).</p>
-        <p class="text-xs mt-1">Kamu dapat menjawab dengan menekan tombol atau menyeret kartu sampah ke pilihan <b>✅ Sesuai</b> atau <b>❌ Tidak Sesuai</b>. Daily challenge tidak aktif di mode Kurikulum, dan badge <b>Top 10</b> hanya berlaku di Mode Ranked.</p>
+        <p class="text-xs mt-1">Kamu dapat menjawab dengan menekan tombol atau menyeret kartu sampah ke pilihan <b>✅ Sesuai</b> atau <b>❌ Tidak Sesuai</b>. Daily Challenge hanya aktif di <b>Mode Ranked</b> (4 tipe: kategori fokus, target skor, combo, atau mode spesifik). Badge <b>Top 10</b> dan kolom <b>DC</b> (Daily Challenge Selesai) hanya muncul di Mode Ranked. Klik <b>⚡ Daily Challenge</b> di awal untuk melihat riwayat dan badge yang bisa didapat.</p>
       </div>
       <div>
         <h3 class="font-black text-gray-900 mb-1.5 border-l-4 border-yellow-400 pl-3">⚡ Combo & Poin</h3>
@@ -800,11 +800,11 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
       </div>
       <div>
         <h3 class="font-black text-gray-900 mb-1.5 border-l-4 border-emerald-500 pl-3">🔥 Daily Challenge & Streak</h3>
-        <p class="text-xs">Setiap hari ada tantangan unik (skor target, akurasi, kategori fokus). Selesaikan untuk dapat badge <b>Daily Challenger</b> dan tambah streak harian. Daily challenge hanya berlaku di Mode Ranked; tidak muncul di Mode Kurikulum. Streak putus jika tidak selesai challenge sehari penuh.</p>
+        <p class="text-xs">Setiap hari ada 4 tipe tantangan unik di Mode Ranked: <b>🎯 Ahli Kategori</b> (fokus kategori tertentu), <b>💥 Combo Master</b> (raih combo target), <b>📈 Pemburu Skor</b> (capai skor target), atau <b>🎮 Mode Spesial</b> (bermain di mode kurikulum tertentu). Selesaikan untuk dapat badge <b>Daily Challenger</b> dan tambah streak. Streakmu putus jika tidak selesai challenge sehari penuh. Pantau riwayat DC dengan klik <b>⚡ Daily Challenge (Klik untuk Riwayat)</b> di awal game.</p>
       </div>
       <div>
         <h3 class="font-black text-gray-900 mb-1.5 border-l-4 border-pktBlue pl-3">🏆 Leaderboard</h3>
-        <p class="text-xs">Global real-time. Hanya skor tertinggi yang disimpan per nama. Mode Ranked memiliki Top 10 dan daily challenge, sedangkan Mode Kurikulum fokus pada perbaikan kategori tanpa badge Top 10.</p>
+        <p class="text-xs">Global real-time. Hanya skor tertinggi yang disimpan per nama. <b>Mode Ranked</b> menampilkan: badge, skor, combo, akurasi, D/B/S, waktu, dan <b>DC (jumlah Daily Challenge selesai)</b>. <b>Mode Kurikulum</b> fokus pada perbaikan kategori tanpa badge Top 10 dan kolom DC.</p>
       </div>
     </div>
     <button onclick="closeHowToPlay()" class="w-full mt-5 bg-gradient-to-r from-pktGreen to-green-600 text-white font-black py-3 rounded-xl active:scale-95 transition">Siap Bermain!</button>
@@ -860,7 +860,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
           </tr>
         </thead>
         <tbody id="lb-prev-body">
-          <tr><td colspan="8" class="text-center py-4 text-gray-400 text-xs">Memuat leaderboard...</td></tr>
+          <tr><td colspan="9" class="text-center py-4 text-gray-400 text-xs">Memuat leaderboard...</td></tr>
         </tbody>
       </table>
     </div>
@@ -2827,6 +2827,7 @@ function renderLbPrev() {
       <td class="text-center text-xs">${r.accuracy||0}%</td>
       <td class="text-center text-xs">${r.total||0}/${r.correct||0}/${r.wrong||0}</td>
       <td class="text-center text-[0.6rem] text-gray-400">${ts}</td>
+      <td class="text-center text-xs font-bold text-pktGreen">${r.isCurriculum ? '–' : (r.dcCompleted || 0)}</td>
       <td class="text-center text-xs">${r.attempts||1}x</td>
     `;
     tbody.appendChild(tr);
