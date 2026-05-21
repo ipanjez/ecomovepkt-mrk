@@ -1076,24 +1076,43 @@ async function loadDC() {
   currentUserIdForDC = userId;
   
   try {
+    if (!DB || !DB.ref) {
+      console.warn("Firebase not ready, fallback to localStorage");
+      fallbackLoadDC(dk);
+      renderDCCard();
+      return;
+    }
+    
     const ref = DB.ref(`dailyChallenges/${userId}/${dk}`);
-    const snap = await ref.once('value');
+    const snap = await Promise.race([
+      ref.once('value'),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('Firebase timeout')), 5000))
+    ]);
+    
     if (snap.exists()) {
       DC = snap.val();
       if (DC.dateKey !== dk) {
         DC = deriveDC(dk);
-        await saveDC();
+        saveDC().catch(e => console.warn("Failed to save new DC:", e));
       }
     } else {
       DC = deriveDC(dk);
-      await saveDC();
+      saveDC().catch(e => console.warn("Failed to save new DC:", e));
     }
-    if (DC.bestProgress >= 100) {
+    
+    // Reset completed flag if date changed
+    if (DC.dateKey && DC.dateKey !== dk) {
+      DC.completed = false;
+      DC.bestProgress = 0;
+      DC.dateKey = dk;
+    }
+    
+    if (DC.bestProgress >= 100 && !DC.completed) {
       DC.completed = true;
-      await saveDC();
+      saveDC().catch(e => console.warn("Failed to mark DC complete:", e));
     }
   } catch(e) {
-    console.warn("Firebase DC load error, pakai localStorage", e);
+    console.warn("Firebase DC load error, fallback to localStorage:", e.message);
     fallbackLoadDC(dk);
   }
   renderDCCard();
@@ -1116,15 +1135,25 @@ function fallbackLoadDC(dk) {
 
 async function saveDC() {
   try {
-    if (currentUserIdForDC) {
+    if (currentUserIdForDC && DB && DB.ref) {
       const dk = getTodayKey();
-      await DB.ref(`dailyChallenges/${currentUserIdForDC}/${dk}`).set(DC);
+      const payload = {
+        ...DC,
+        dateKey: dk,
+        lastSaved: firebase.database.ServerValue.TIMESTAMP
+      };
+      const ref = DB.ref(`dailyChallenges/${currentUserIdForDC}/${dk}`);
+      await ref.set(payload);
     } else {
-      localStorage.setItem('eco_dc_v2', JSON.stringify(DC));
+      localStorage.setItem('eco_dc_v2', JSON.stringify({...DC, dateKey: getTodayKey()}));
     }
   } catch(e) {
-    console.warn("Gagal simpan DC ke Firebase", e);
-    localStorage.setItem('eco_dc_v2', JSON.stringify(DC));
+    console.warn("Gagal simpan DC (Firebase), fallback to localStorage:", e.message);
+    try {
+      localStorage.setItem('eco_dc_v2', JSON.stringify({...DC, dateKey: getTodayKey()}));
+    } catch(le) {
+      console.error("LocalStorage save juga gagal:", le);
+    }
   }
 }
 
@@ -1244,13 +1273,30 @@ function selectCurrDiff(name, time, btn) {
 }
 
 function startCurriculumGame() {
-  const name=document.getElementById('player-name').value.trim();
-  const errEl=document.getElementById('curr-error');
-  if(!currSelectedCategory||!currDiff||!name) { errEl.classList.remove('hidden'); return; }
-  errEl.classList.add('hidden');
-  GS.isCurriculum=true;
+  const nameInput = document.getElementById('player-name');
+  const name = nameInput ? nameInput.value.trim() : '';
+  const errEl = document.getElementById('curr-error');
+  
+  // Validation
+  if (!currSelectedCategory || !currDiff) {
+    if(errEl) { errEl.textContent = 'Pilih kategori & tingkat kesulitan!'; errEl.classList.remove('hidden'); }
+    return;
+  }
+  if (!name || name.length < 2) {
+    if(errEl) { errEl.textContent = 'Nama minimal 2 karakter!'; errEl.classList.remove('hidden'); }
+    return;
+  }
+  if (name.length > 30) {
+    if(errEl) { errEl.textContent = 'Nama maksimal 30 karakter!'; errEl.classList.remove('hidden'); }
+    if(nameInput) nameInput.value = name.substring(0, 30);
+    return;
+  }
+  
+  if(errEl) errEl.classList.add('hidden');
+  GS.isCurriculum = true;
   GS.curriculumFocus = currSelectedCategory;
   GS.curriculumFilter = null;
+  try { localStorage.setItem('eco_player_name', name); } catch(e){}
   playSound('start');
   startGame(currDiff.time, currDiff.name, name, true);
 }
@@ -1259,8 +1305,10 @@ function startCurriculumGame() {
 //  SCREEN MANAGEMENT
 // ──────────────────────────────────────────
 function showScreen(name) {
+  cleanupGame();
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.getElementById(name+'-screen').classList.add('active');
+  const screen = document.getElementById(name+'-screen');
+  if(screen) screen.classList.add('active');
   document.body.style.overflow=(name==='game')?'hidden':'auto';
 }
 
@@ -1287,12 +1335,34 @@ function selectDifficulty(name, time, btn) {
 }
 
 function attemptStart() {
-  const name=document.getElementById('player-name').value.trim();
-  const err=document.getElementById('start-error');
-  if(!name||!selectedDiff) { err.classList.remove('hidden'); return; }
-  err.classList.add('hidden');
-  GS.isCurriculum=false; GS.curriculumFilter=null; GS.curriculumFocus=null;
-  try { localStorage.setItem('eco_player_name',name); } catch(e){}
+  const nameInput = document.getElementById('player-name');
+  const name = nameInput ? nameInput.value.trim() : '';
+  const err = document.getElementById('start-error');
+  
+  // Validation
+  if (!name) {
+    if(err) { err.textContent = 'Isi nama terlebih dahulu!'; err.classList.remove('hidden'); }
+    return;
+  }
+  if (name.length < 2) {
+    if(err) { err.textContent = 'Nama minimal 2 karakter!'; err.classList.remove('hidden'); }
+    return;
+  }
+  if (name.length > 30) {
+    if(err) { err.textContent = 'Nama maksimal 30 karakter!'; err.classList.remove('hidden'); }
+    nameInput.value = name.substring(0, 30);
+    return;
+  }
+  if (!selectedDiff) {
+    if(err) { err.textContent = 'Pilih tingkat kesulitan!'; err.classList.remove('hidden'); }
+    return;
+  }
+  
+  if(err) err.classList.add('hidden');
+  GS.isCurriculum = false;
+  GS.curriculumFilter = null;
+  GS.curriculumFocus = null;
+  try { localStorage.setItem('eco_player_name', name); } catch(e){}
   playSound('start');
   startGame(selectedDiff.time, selectedDiff.name, name, false);
 }
@@ -1490,10 +1560,8 @@ function togglePause() {
 function restartGame() {
   if(!GS.isPlaying) return;
   if(!confirm('Restart? Skor sesi ini TIDAK disimpan.')) return;
-  GS.isPlaying=false; GS.paused=false;
-  clearInterval(GS.timerInterval);
+  cleanupGame();
   document.getElementById('pause-overlay').classList.remove('visible');
-  stopAmbient();
   showScreen('start');
 }
 
@@ -1506,6 +1574,14 @@ function buildQueue() {
 
 function spawnTrash() {
   if(!GS.isPlaying||GS.paused) return;
+  
+  // Validate trash data
+  if(!trashData || !Array.isArray(trashData) || trashData.length === 0) {
+    console.error("Invalid trash data:", trashData);
+    endGame();
+    return;
+  }
+
   if(sessionQueue.length===0) {
     prepareSessionQueue();
     if (sessionQueue.length===0) {
@@ -1514,13 +1590,26 @@ function spawnTrash() {
       prepareSessionQueue();
     }
   }
+
+  if (sessionQueue.length === 0) {
+    console.warn("No trash items available in queue");
+    endGame();
+    return;
+  }
+
   const idx=sessionQueue.pop();
   sessionAsked.add(idx);
   saveUserUniqueProgress(GS.currentSessionId, sessionAsked);
   GS.currentTrash=trashData[idx];
 
-  document.getElementById('trash-emoji').textContent=GS.currentTrash.e;
-  document.getElementById('trash-name').textContent=GS.currentTrash.n;
+  if (!GS.currentTrash) {
+    console.error("Invalid trash at index:", idx);
+    spawnTrash();
+    return;
+  }
+
+  document.getElementById('trash-emoji').textContent=GS.currentTrash.e||'❓';
+  document.getElementById('trash-name').textContent=GS.currentTrash.n||'Sampah';
   document.getElementById('trash-name').classList.remove('anim-shake');
   document.getElementById('session-progress').textContent=`${sessionAsked.size}/${trashData.length} unik`;
 
@@ -1680,8 +1769,10 @@ function moveTrashPointerDrag(e) {
     if(card) card.classList.add('dragging');
   }
   if(trashDragState.dragging) {
-    const card=document.getElementById('trash-container');
-    if(card) card.style.transform=`translate(${dx}px,${dy}px) scale(1.03)`;
+    requestAnimationFrame(()=>{
+      const card=document.getElementById('trash-container');
+      if(card) card.style.transform=`translate(${dx}px,${dy}px) scale(1.03)`;
+    });
   }
 }
 
@@ -1822,9 +1913,7 @@ function launchConfetti(count=24) {
 //  END GAME
 // ──────────────────────────────────────────
 async function endGame() {
-  GS.isPlaying=false; GS.paused=false;
-  clearInterval(GS.timerInterval);
-  stopAmbient();
+  cleanupGame();
 
   const acc=GS.totalAnswered>0?Math.round((GS.correctAnswers/GS.totalAnswered)*100):0;
   const wrong=GS.totalAnswered-GS.correctAnswers;
@@ -2047,59 +2136,87 @@ async function saveToDb(acc, wrong) {
 // ──────────────────────────────────────────
 //  FIREBASE LISTENER
 // ──────────────────────────────────────────
-DB.ref('leaderboard').on('value', snap=>{
-  const data=snap.val()||{};
-  let arr=Object.entries(data).map(([k,v])=>({id:k,...v}));
-  arr.sort((a,b)=>{ const sd=b.score-a.score; if(sd!==0) return sd; const cd=(b.bestCombo||0)-(a.bestCombo||0); if(cd!==0) return cd; return (b.timestamp||0)-(a.timestamp||0); });
+const firebaseListeners = [];
 
-  // Calculate ranked-only rank for Top 10 badge eligibility
-  const rankedOnly = arr.filter(r=>!r.isCurriculum);
-  const rankedRankMap = {};
-  rankedOnly.forEach((r,i)=>{ rankedRankMap['id:'+r.id] = i+1; });
+function setupFirebaseListener() {
+  if (!DB || !DB.ref) {
+    console.warn("Firebase not ready, retrying in 2s...");
+    setTimeout(setupFirebaseListener, 2000);
+    return;
+  }
 
-  const previousIndexMap = lbIndexMap;
-  arr.forEach((r,i)=>{
-    let sym='—', cls='text-gray-400', title='Tetap';
-    const oldIdx = previousIndexMap['id:'+r.id];
-    if(typeof oldIdx === 'number') {
-      if(i < oldIdx) {
-        sym='▲'; cls='text-green-600'; title='Naik';
-      } else if(i > oldIdx) {
-        sym='▼'; cls='text-red-500'; title='Turun';
+  const listener = DB.ref('leaderboard').on('value', snap=>{
+    try {
+      const data=snap.val()||{};
+      let arr=Object.entries(data).map(([k,v])=>({id:k,...v}));
+      arr.sort((a,b)=>{ const sd=b.score-a.score; if(sd!==0) return sd; const cd=(b.bestCombo||0)-(a.bestCombo||0); if(cd!==0) return cd; return (b.timestamp||0)-(a.timestamp||0); });
+
+      // Calculate ranked-only rank for Top 10 badge eligibility
+      const rankedOnly = arr.filter(r=>!r.isCurriculum);
+      const rankedRankMap = {};
+      rankedOnly.forEach((r,i)=>{ rankedRankMap['id:'+r.id] = i+1; });
+
+      const previousIndexMap = lbIndexMap;
+      arr.forEach((r,i)=>{
+        let sym='—', cls='text-gray-400', title='Tetap';
+        const oldIdx = previousIndexMap['id:'+r.id];
+        if(typeof oldIdx === 'number') {
+          if(i < oldIdx) {
+            sym='▲'; cls='text-green-600'; title='Naik';
+          } else if(i > oldIdx) {
+            sym='▼'; cls='text-red-500'; title='Turun';
+          }
+        }
+        r.__mv={sym,cls,title};
+        if(!r.secondaryBadges) {
+          const rankedRank = rankedRankMap['id:'+r.id] || 9999;
+          r.secondaryBadges=computeSecondaryBadges(r.score||0,r.accuracy||0,r.bestCombo||0,0,r.correct||0,r.wrong||0,r.total||0,r.categoryStats||{},rankedRank,r.attempts||0,[], false, r.isCurriculum)||[];
+        } else if(r.isCurriculum) {
+          // Remove Top 10 badge if player is now in curriculum mode
+          r.secondaryBadges = (r.secondaryBadges||[]).filter(b => b !== 'Top 10');
+        }
+      });
+
+      lbCache=arr;
+      lbIndexMap={};
+      arr.forEach((r,i)=>{ lbIndexMap['id:'+r.id]=i; if(r.name) lbIndexMap['name:'+r.name.toLowerCase()]=i; });
+
+      const dbStatus = document.getElementById('db-status');
+      if(dbStatus) {
+        dbStatus.textContent='● Live';
+        dbStatus.className='text-[0.65rem] font-bold text-green-500';
       }
+
+      try {
+        const posEl=document.getElementById('lb-position-label');
+        if(posEl) {
+          const filtered = filterLb(lbCache, lbFilter, lbMode);
+          const myIdx=filtered.findIndex(r=>r.id===GS.currentSessionId);
+          posEl.textContent=myIdx>=0?`#${myIdx+1} dari ${filtered.length} pemain`:`– dari ${filtered.length} pemain`;
+        }
+      } catch(e){}
+
+      updateNameHint();
+      renderStreakBadge();
+      renderLbTable();
+      renderLbPrev();
+      updateRivalStrip();
+    } catch(err) {
+      console.error("Error processing leaderboard data:", err);
     }
-    r.__mv={sym,cls,title};
-    if(!r.secondaryBadges) {
-      const rankedRank = rankedRankMap['id:'+r.id] || 9999;
-      r.secondaryBadges=computeSecondaryBadges(r.score||0,r.accuracy||0,r.bestCombo||0,0,r.correct||0,r.wrong||0,r.total||0,r.categoryStats||{},rankedRank,r.attempts||0,[], false, r.isCurriculum)||[];
-    } else if(r.isCurriculum) {
-      // Remove Top 10 badge if player is now in curriculum mode
-      r.secondaryBadges = (r.secondaryBadges||[]).filter(b => b !== 'Top 10');
+  }, err=>{ 
+    console.error("Firebase listener error:", err);
+    const dbStatus = document.getElementById('db-status');
+    if(dbStatus) {
+      dbStatus.textContent='● Offline';
+      dbStatus.className='text-[0.65rem] font-bold text-red-500';
     }
   });
 
-  lbCache=arr;
-  lbIndexMap={};
-  arr.forEach((r,i)=>{ lbIndexMap['id:'+r.id]=i; if(r.name) lbIndexMap['name:'+r.name.toLowerCase()]=i; });
+  firebaseListeners.push(listener);
+}
 
-  document.getElementById('db-status').textContent='● Live';
-  document.getElementById('db-status').className='text-[0.65rem] font-bold text-green-500';
-
-  try {
-    const posEl=document.getElementById('lb-position-label');
-    if(posEl) {
-      const filtered = filterLb(lbCache, lbFilter, lbMode);
-      const myIdx=filtered.findIndex(r=>r.id===GS.currentSessionId);
-      posEl.textContent=myIdx>=0?`#${myIdx+1} dari ${filtered.length} pemain`:`– dari ${filtered.length} pemain`;
-    }
-  } catch(e){}
-
-  updateNameHint();
-  renderStreakBadge();
-  renderLbTable();
-  renderLbPrev();
-  updateRivalStrip();
-}, err=>{ console.error(err); document.getElementById('db-status').textContent='● Offline'; });
+setupFirebaseListener();
 
 // ──────────────────────────────────────────
 //  BADGE SYSTEM
@@ -2145,7 +2262,8 @@ function computeSecondaryBadges(score,acc,combo,prevBest,correct,wrong,total,cat
   if(perfectCategory||ex.includes('Category Master')) badges.push('Category Master');
 
   const streak=getStreak();
-  if(streak.current>=30||ex.includes('Monthly Master')) badges.push('Monthly Master');
+  // Use longest streak for monthly milestone, current for hot streak
+  if(streak.longest>=30||ex.includes('Monthly Master')) badges.push('Monthly Master');
   else if(streak.current>=7||ex.includes('Week Warrior')) badges.push('Week Warrior');
   else if(streak.current>=3||ex.includes('Hot Streak')) badges.push('Hot Streak');
 
@@ -2161,9 +2279,10 @@ function computeSpecialTags(score,acc,combo,catStats,rank,attempts) {
   if(acc>=100) tags.push('GodAim');
   if((attempts||0)>=50&&rank!==1) tags.push('Persistence');
   const streak=getStreak();
-  if(streak.total>=30) tags.push('MonthlyMaster');
-  else if(streak.total>=7) tags.push('WeekWarrior');
-  else if(streak.total>=3) tags.push('HotStreak');
+  // Use longest streak for historical milestones
+  if(streak.longest>=30) tags.push('MonthlyMaster');
+  else if(streak.longest>=7) tags.push('WeekWarrior');
+  else if(streak.current>=3) tags.push('HotStreak');
   return tags;
 }
 
@@ -2468,8 +2587,111 @@ function saveImage() {
 }
 
 // ──────────────────────────────────────────
-//  UTILITIES
+//  CLEANUP & RESOURCE MANAGEMENT
 // ──────────────────────────────────────────
+function cleanupGame() {
+  // Stop timer
+  if (GS.timerInterval) {
+    clearInterval(GS.timerInterval);
+    GS.timerInterval = null;
+  }
+
+  // Stop ambient audio
+  stopAmbient();
+
+  // Release pointer capture
+  const trashCard = document.getElementById('trash-container');
+  if (trashCard && trashDragState.pointerId) {
+    try {
+      trashCard.releasePointerCapture?.(trashDragState.pointerId);
+    } catch(e){}
+  }
+
+  // Remove event listeners
+  const bins = document.querySelectorAll('.bin');
+  bins.forEach(bin=>{
+    bin.removeEventListener('dragover', onDragOver);
+    bin.removeEventListener('drop', onDropBin);
+    bin.removeEventListener('dragleave', endDragFeedback);
+  });
+
+  const currBtns = document.querySelectorAll('.curriculum-btn');
+  currBtns.forEach(btn=>{
+    btn.removeEventListener('dragover', onDragOver);
+    btn.removeEventListener('drop', onDropCurriculum);
+    btn.removeEventListener('dragleave', endDragFeedback);
+  });
+
+  if (trashCard) {
+    trashCard.removeEventListener('dragstart', onTrashDragStart);
+    trashCard.removeEventListener('dragend', onTrashDragEnd);
+    trashCard.removeEventListener('pointerdown', startTrashPointerDrag);
+    trashCard.removeEventListener('pointermove', moveTrashPointerDrag);
+    trashCard.removeEventListener('pointerup', endTrashPointerDrag);
+    trashCard.removeEventListener('pointercancel', endTrashPointerDrag);
+  }
+
+  // Reset drag state
+  trashDragState = {dragging:false, startX:0, startY:0, currentX:0, currentY:0, pointerId:null};
+
+  // Reset game state
+  GS.isPlaying = false;
+  GS.paused = false;
+}
+
+function stopAmbient() {
+  try {
+    if (ambientNodes) {
+      if (ambientNodes.osc) ambientNodes.osc.stop();
+      if (ambientNodes.gain) ambientNodes.gain.disconnect();
+      ambientNodes = null;
+    }
+  } catch(e) {
+    console.warn("Error stopping ambient audio:", e);
+  }
+}
+
+function startAmbient() {
+  try {
+    if (ambientNodes) stopAmbient();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.connect(g);
+    g.connect(audioCtx.destination);
+    o.type = 'sine';
+    o.frequency.setValueAtTime(120, audioCtx.currentTime);
+    g.gain.setValueAtTime(0.02, audioCtx.currentTime);
+    o.start();
+    ambientNodes = { osc: o, gain: g };
+  } catch(e) {
+    console.warn("Error starting ambient audio:", e);
+  }
+}
+
+// ──────────────────────────────────────────
+//  DEBOUNCE & THROTTLE
+// ──────────────────────────────────────────
+function debounce(fn, delay) {
+  let timer;
+  return function(...args) {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn.apply(this, args), delay);
+  };
+}
+
+function throttle(fn, limit) {
+  let inThrottle;
+  return function(...args) {
+    if (!inThrottle) {
+      fn.apply(this, args);
+      inThrottle = true;
+      setTimeout(() => inThrottle = false, limit);
+    }
+  };
+}
+
 function escHtml(s) { return String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
 
 function updateNameHint() {
@@ -2526,14 +2748,6 @@ document.addEventListener('keydown', e=>{
 // ──────────────────────────────────────────
 //  INIT
 // ──────────────────────────────────────────
-function debounce(fn, delay) {
-  let timer;
-  return function() {
-    clearTimeout(timer);
-    timer = setTimeout(() => fn.apply(this, arguments), delay);
-  };
-}
-
 (function init() {
   // Load DC setelah nama tersedia
   const nameInput = document.getElementById('player-name');
