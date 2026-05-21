@@ -283,6 +283,26 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
   background:linear-gradient(135deg,#f59e0b,#ef4444);color:white;
   border-radius:999px;padding:3px 10px;font-size:0.7rem;font-weight:800;
 }
+
+/* ─── RIPPLE ─── */
+@keyframes ripple{0%{transform:scale(0);opacity:0.5;}100%{transform:scale(4);opacity:0;}}
+.ripple-el{position:absolute;border-radius:50%;background:rgba(255,255,255,0.5);pointer-events:none;animation:ripple 0.5s linear;}
+
+/* ─── CORRECT BIN FLASH ─── */
+@keyframes binFlash{0%{filter:brightness(1);}40%{filter:brightness(1.35);}100%{filter:brightness(1);}}
+.bin-flash{animation:binFlash 0.35s ease-out;}
+
+/* ─── COUNTDOWN PULSE ─── */
+@keyframes countdownPulse{0%,100%{transform:scale(1);}50%{transform:scale(1.18);}}
+.countdown-pulse{animation:countdownPulse 0.5s ease-in-out;}
+
+/* ─── SWIPE HINT ─── */
+#swipe-hint{
+  position:absolute;bottom:8px;left:50%;transform:translateX(-50%);
+  font-size:0.6rem;font-weight:700;color:#94a3b8;pointer-events:none;
+  opacity:0;transition:opacity 0.5s;white-space:nowrap;
+}
+#swipe-hint.visible{opacity:1;}
 </style>
 </head>
 <body class="bg-dots">
@@ -536,6 +556,9 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
         <p class="mt-2 text-[0.65rem] text-gray-400">Shortcut: tekan P</p>
       </div>
     </div>
+
+    <!-- swipe hint -->
+    <div id="swipe-hint">↕ Seret kartu ke tempat sampah yang tepat</div>
   </main>
 
   <!-- ROW 4: Bins (normal mode) & curriculum buttons (akan diganti dinamis) -->
@@ -999,7 +1022,21 @@ function getUserUniqueProgress(userId) {
 
 function saveUserUniqueProgress(userId, set) {
   try {
-    localStorage.setItem(`eco_unique_progress_${userId}`, JSON.stringify([...set]));
+    // Throttle: write at most once per 3 seconds during active gameplay
+    const key = `eco_unique_progress_${userId}`;
+    const now = Date.now();
+    if (!saveUserUniqueProgress._lastSave) saveUserUniqueProgress._lastSave = 0;
+    if (now - saveUserUniqueProgress._lastSave < 3000) {
+      // Schedule a deferred save
+      clearTimeout(saveUserUniqueProgress._timer);
+      saveUserUniqueProgress._timer = setTimeout(() => {
+        try { localStorage.setItem(key, JSON.stringify([...set])); } catch(e) {}
+        saveUserUniqueProgress._lastSave = Date.now();
+      }, 3000);
+      return;
+    }
+    localStorage.setItem(key, JSON.stringify([...set]));
+    saveUserUniqueProgress._lastSave = now;
   } catch (e) {}
 }
 
@@ -1744,7 +1781,8 @@ function startCurriculumGame() {
 //  SCREEN MANAGEMENT
 // ──────────────────────────────────────────
 function showScreen(name) {
-  cleanupGame();
+  // Only cleanup if NOT switching to game (startGame handles its own setup)
+  if (name !== 'game') cleanupGame();
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   const screen = document.getElementById(name+'-screen');
   if(screen) screen.classList.add('active');
@@ -1810,6 +1848,10 @@ function attemptStart() {
 //  GAME ENGINE
 // ──────────────────────────────────────────
 function startGame(time, diff, name, isCurriculum) {
+  // Cleanup any previous game session first
+  if (GS.timerInterval) { clearInterval(GS.timerInterval); GS.timerInterval = null; }
+  stopAmbient();
+
   GS = { ...GS,
     playerName:name, difficulty:diff, score:0, initialTime:time, timeLeft:time,
     timerInterval:null, currentTrash:null, totalAnswered:0, correctAnswers:0,
@@ -1867,6 +1909,13 @@ function startGame(time, diff, name, isCurriculum) {
   document.getElementById('pause-btn').textContent='⏸';
 
   if(localStorage.getItem('eco_ambient')==='1') startAmbient();
+
+  // Show swipe hint briefly for players with few attempts
+  const isNewish = !lbCache.find(r=>r.id===GS.currentSessionId) || (lbCache.find(r=>r.id===GS.currentSessionId)?.attempts||0) < 3;
+  const swipeHint = document.getElementById('swipe-hint');
+  if(swipeHint && isNewish) {
+    setTimeout(()=>{ swipeHint.classList.add('visible'); setTimeout(()=>swipeHint.classList.remove('visible'),4000); },1200);
+  }
 
   showScreen('game');
   updateMissionUI();
@@ -1979,12 +2028,19 @@ function updateTimerUI() {
   const s=Math.max(0,GS.timeLeft);
   const m=Math.floor(s/60).toString().padStart(2,'0');
   const sec=(s%60).toString().padStart(2,'0');
-  document.getElementById('timer-text').textContent=`${m}:${sec}`;
+  const tEl=document.getElementById('timer-text');
+  tEl.textContent=`${m}:${sec}`;
   const bar=document.getElementById('timer-bar');
   if(bar) bar.style.width=`${GS.initialTime>0?Math.max(0,(s/GS.initialTime)*100):0}%`;
-  const tEl=document.getElementById('timer-text');
-  if(s<=10) tEl.classList.add('text-red-600','animate-pulse');
-  else tEl.classList.remove('text-red-600','animate-pulse');
+  if(s<=10) {
+    tEl.classList.add('text-red-600','animate-pulse');
+    // Pulse every second when <= 10s
+    tEl.classList.remove('countdown-pulse');
+    void tEl.offsetWidth; // force reflow
+    tEl.classList.add('countdown-pulse');
+  } else {
+    tEl.classList.remove('text-red-600','animate-pulse','countdown-pulse');
+  }
 }
 
 function togglePause() {
@@ -2065,6 +2121,11 @@ function spawnTrash() {
 function checkBin(cat) {
   if(!GS.isPlaying||GS.paused||!GS.currentTrash) return;
   try { if(audioCtx.state==='suspended') audioCtx.resume(); } catch(e){}
+
+  // Hide swipe hint after first interaction
+  const swipeHint = document.getElementById('swipe-hint');
+  if(swipeHint) swipeHint.classList.remove('visible');
+
   GS.totalAnswered++;
   const tc=GS.currentTrash.c;
   GS.categoryStats[tc].total++;
@@ -2080,6 +2141,9 @@ function checkBin(cat) {
 
   if(tc===cat) {
     playSound('bin-'+{'SISA MAKANAN':'sisa','LAKU JUAL':'laku','RESIDU':'residu'}[cat]);
+    // Flash the correct bin
+    const correctBin = document.querySelector(`.bin[data-category="${cat}"]`);
+    if(correctBin) { correctBin.classList.add('bin-flash'); setTimeout(()=>correctBin.classList.remove('bin-flash'),380); }
     GS.combo++;
     GS.bestCombo=Math.max(GS.bestCombo,GS.combo);
     GS.correctAnswers++;
@@ -2108,7 +2172,7 @@ function checkBin(cat) {
     GS.combo=0;
     GS.timeLeft=Math.max(0,GS.timeLeft-5);
     document.getElementById('trash-name').classList.add('anim-shake');
-    showFeedback('-5s','text-red-500');
+    showFeedback(`❌ ${tc}`, 'text-red-500');
     setTimeout(()=>{ document.getElementById('trash-name').classList.remove('anim-shake'); updateTimerUI(); spawnTrash(); },420);
   }
 
@@ -2129,18 +2193,33 @@ function updateScoreUI() {
   updateRivalStrip();
 }
 
+function addRipple(e) {
+  const btn = e.currentTarget;
+  const rect = btn.getBoundingClientRect();
+  const size = Math.max(rect.width, rect.height);
+  const x = (e.clientX || (rect.left + rect.width/2)) - rect.left - size/2;
+  const y = (e.clientY || (rect.top + rect.height/2)) - rect.top - size/2;
+  const ripple = document.createElement('span');
+  ripple.className = 'ripple-el';
+  ripple.style.cssText = `width:${size}px;height:${size}px;left:${x}px;top:${y}px;`;
+  btn.appendChild(ripple);
+  setTimeout(()=>ripple.remove(), 550);
+}
+
 function setupDragTargets() {
   const bins = document.querySelectorAll('.bin');
   bins.forEach(bin=>{
     bin.addEventListener('dragover', onDragOver);
     bin.addEventListener('drop', onDropBin);
     bin.addEventListener('dragleave', () => bin.classList.remove('drag-over'));
+    bin.addEventListener('pointerdown', addRipple);
   });
   const currBtns = document.querySelectorAll('.curriculum-btn');
   currBtns.forEach(btn=>{
     btn.addEventListener('dragover', onDragOver);
     btn.addEventListener('drop', onDropCurriculum);
     btn.addEventListener('dragleave', () => btn.classList.remove('drag-over'));
+    btn.addEventListener('pointerdown', addRipple);
   });
 }
 
@@ -3070,6 +3149,15 @@ function saveImage() {
 //  CLEANUP & RESOURCE MANAGEMENT
 // ──────────────────────────────────────────
 function cleanupGame() {
+  // Flush any deferred progress save
+  if (saveUserUniqueProgress._timer) {
+    clearTimeout(saveUserUniqueProgress._timer);
+    saveUserUniqueProgress._timer = null;
+    if (GS.currentSessionId && sessionAsked.size > 0) {
+      try { localStorage.setItem(`eco_unique_progress_${GS.currentSessionId}`, JSON.stringify([...sessionAsked])); } catch(e){}
+    }
+  }
+
   // Stop timer
   if (GS.timerInterval) {
     clearInterval(GS.timerInterval);
@@ -3131,25 +3219,7 @@ function stopAmbient() {
   }
 }
 
-function startAmbient() {
-  try {
-    if (ambientNodes) stopAmbient();
-    if (audioCtx.state === 'suspended') audioCtx.resume();
-
-
-    const o = audioCtx.createOscillator();
-    const g = audioCtx.createGain();
-    o.connect(g);
-    g.connect(audioCtx.destination);
-    o.type = 'sine';
-    o.frequency.setValueAtTime(120, audioCtx.currentTime);
-    g.gain.setValueAtTime(0.02, audioCtx.currentTime);
-    o.start();
-    ambientNodes = { osc: o, gain: g };
-  } catch(e) {
-    console.warn("Error starting ambient audio:", e);
-  }
-}
+// startAmbient defined above near audio section
 
 // ──────────────────────────────────────────
 //  DEBOUNCE & THROTTLE
