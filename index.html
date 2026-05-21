@@ -370,7 +370,9 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
         <input type="text" id="player-name" placeholder="Masukkan nama kamu..."
           class="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-pktBlue focus:bg-white mb-2 transition font-bold text-center text-base"
           autocomplete="off" maxlength="30">
-        <div id="name-hint" class="text-xs text-gray-500 mb-3 min-h-[18px] text-center"></div>
+        <div id="name-hint" class="text-xs text-gray-500 mb-2 min-h-[18px] text-center"></div>
+        <!-- rank change notification for this name -->
+        <div id="start-rank-notif" class="hidden rounded-xl px-3 py-2.5 mb-3 text-xs font-semibold text-center leading-snug"></div>
 
         <!-- daily challenge card - CLICKABLE -->
         <div id="dc-card-container" class="mb-3 rounded-xl border border-blue-100 bg-gradient-to-r from-blue-50 to-sky-50 px-4 py-3 hover:shadow-md hover:border-blue-200 transition cursor-pointer" onclick="openDCHistoryModal()">
@@ -446,66 +448,117 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
 <!--          CURRICULUM SCREEN             -->
 <!-- ════════════════════════════════════════ -->
 <div id="curriculum-screen" class="screen bg-dots">
-  <div class="w-full flex flex-col items-center px-4 py-6 pb-10">
+  <div class="w-full flex flex-col items-center px-4 py-5 pb-10">
     <div class="w-full max-w-md">
-      <button onclick="showScreen('start')" class="flex items-center gap-2 text-pktBlue font-bold text-sm mb-4 hover:opacity-75 transition">
+      <button onclick="showScreen('start')" class="flex items-center gap-2 text-pktBlue font-bold text-sm mb-3 hover:opacity-75 transition">
         ← Kembali
       </button>
       <div class="bg-white rounded-3xl shadow-xl overflow-hidden border border-white/80">
-        <div class="bg-gradient-to-br from-pktGreen to-green-700 p-6 text-center">
-          <div class="text-4xl mb-2">📚</div>
-          <h2 class="text-2xl font-black text-white">Mode Kurikulum</h2>
-          <p class="text-green-100 text-xs font-semibold mt-1">Latihan per kategori sampah</p>
+
+        <!-- Hero -->
+        <div class="bg-gradient-to-br from-pktGreen via-green-600 to-green-800 px-5 py-5 relative overflow-hidden">
+          <div class="absolute inset-0 opacity-10" style="background-image:radial-gradient(circle,white 1px,transparent 1px);background-size:18px 18px;"></div>
+          <div class="relative flex items-center gap-4">
+            <div class="w-14 h-14 rounded-2xl bg-white/20 flex items-center justify-center text-3xl flex-shrink-0 shadow-lg">📚</div>
+            <div>
+              <h2 class="text-xl font-black text-white leading-tight">Mode Kurikulum</h2>
+              <p class="text-green-100 text-xs font-semibold mt-0.5">Latihan fokus per kategori sampah</p>
+              <div id="curr-player-chip" class="inline-flex items-center gap-1.5 mt-1.5 bg-white/20 text-white/90 text-[0.65rem] font-bold px-2.5 py-1 rounded-full">
+                <span>👤</span><span id="curr-player-name-label">–</span>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="p-5">
-          <!-- category cards -->
-          <p class="text-xs font-black text-gray-400 uppercase tracking-widest mb-3">Pilih Fokus Kategori</p>
-          <div class="grid grid-cols-2 gap-3 mb-4">
-            <div id="curr-sisa" class="curr-card bg-green-50 border-green-200" onclick="selectCurriculum('SISA MAKANAN',this)" style="border-color:#7AB800;">
-              <span class="text-3xl">🍏</span>
-              <span class="text-xs font-black text-green-700">SISA MAKANAN</span>
-              <span class="text-[0.6rem] text-green-600">Organik & dapur</span>
-              <div id="curr-sisa-badge" class="text-[0.6rem] font-bold text-gray-400 mt-1">–</div>
-            </div>
-            <div id="curr-laku" class="curr-card bg-orange-50" onclick="selectCurriculum('LAKU JUAL',this)" style="border-color:#e2e8f0;">
-              <span class="text-3xl">♻️</span>
-              <span class="text-xs font-black text-orange-700">LAKU JUAL</span>
-              <span class="text-[0.6rem] text-orange-600">Plastik, kertas, logam</span>
-              <div id="curr-laku-badge" class="text-[0.6rem] font-bold text-gray-400 mt-1">–</div>
-            </div>
-            <div id="curr-residu" class="curr-card bg-blue-50" onclick="selectCurriculum('RESIDU',this)" style="border-color:#e2e8f0;">
-              <span class="text-3xl">🗑️</span>
-              <span class="text-xs font-black text-blue-700">RESIDU</span>
-              <span class="text-[0.6rem] text-blue-600">Sampah campuran</span>
-              <div id="curr-residu-badge" class="text-[0.6rem] font-bold text-gray-400 mt-1">–</div>
+
+        <div class="p-4 space-y-4">
+
+          <!-- Rank info for current player -->
+          <div id="curr-rank-info" class="hidden rounded-xl border px-3 py-2.5 text-xs font-semibold"></div>
+
+          <!-- PILIH FOKUS KATEGORI -->
+          <div>
+            <p class="text-[0.65rem] font-black text-gray-400 uppercase tracking-widest mb-2.5">Pilih Fokus Kategori</p>
+            <!-- 3 cards in a full-width row -->
+            <div class="grid grid-cols-3 gap-2.5">
+              <!-- SISA MAKANAN -->
+              <div id="curr-sisa" onclick="selectCurriculum('SISA MAKANAN',this)"
+                class="curr-card relative bg-gradient-to-b from-green-50 to-white border-2 border-green-200 rounded-2xl p-3 cursor-pointer transition-all select-none active:scale-95"
+                style="">
+                <div class="flex flex-col items-center gap-1.5 text-center">
+                  <div class="w-10 h-10 rounded-xl bg-green-100 flex items-center justify-center text-2xl">🍏</div>
+                  <span class="text-[0.62rem] font-black text-green-700 leading-tight">SISA<br>MAKANAN</span>
+                  <span class="text-[0.55rem] text-green-500 font-semibold">Organik & dapur</span>
+                  <div id="curr-sisa-badge" class="text-[0.58rem] font-bold text-gray-400 bg-gray-50 rounded-full px-1.5 py-0.5 w-full text-center truncate">–</div>
+                </div>
+              </div>
+              <!-- LAKU JUAL -->
+              <div id="curr-laku" onclick="selectCurriculum('LAKU JUAL',this)"
+                class="curr-card relative bg-gradient-to-b from-orange-50 to-white border-2 border-orange-200 rounded-2xl p-3 cursor-pointer transition-all select-none active:scale-95">
+                <div class="flex flex-col items-center gap-1.5 text-center">
+                  <div class="w-10 h-10 rounded-xl bg-orange-100 flex items-center justify-center text-2xl">♻️</div>
+                  <span class="text-[0.62rem] font-black text-orange-700 leading-tight">LAKU<br>JUAL</span>
+                  <span class="text-[0.55rem] text-orange-500 font-semibold">Plastik, logam</span>
+                  <div id="curr-laku-badge" class="text-[0.58rem] font-bold text-gray-400 bg-gray-50 rounded-full px-1.5 py-0.5 w-full text-center truncate">–</div>
+                </div>
+              </div>
+              <!-- RESIDU -->
+              <div id="curr-residu" onclick="selectCurriculum('RESIDU',this)"
+                class="curr-card relative bg-gradient-to-b from-blue-50 to-white border-2 border-blue-200 rounded-2xl p-3 cursor-pointer transition-all select-none active:scale-95">
+                <div class="flex flex-col items-center gap-1.5 text-center">
+                  <div class="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center text-2xl">🗑️</div>
+                  <span class="text-[0.62rem] font-black text-blue-700 leading-tight">RESIDU</span>
+                  <span class="text-[0.55rem] text-blue-500 font-semibold">Campuran & B3</span>
+                  <div id="curr-residu-badge" class="text-[0.58rem] font-bold text-gray-400 bg-gray-50 rounded-full px-1.5 py-0.5 w-full text-center truncate">–</div>
+                </div>
+              </div>
             </div>
           </div>
 
-          <!-- difficulty in curriculum -->
-          <p class="text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Tingkat Kesulitan</p>
-          <div class="grid grid-cols-3 gap-2 mb-4" id="curr-diff-selector">
-            <button type="button" onclick="selectCurrDiff('Easy',60,this)"
-              class="curr-diff-btn border-2 border-gray-200 bg-white rounded-xl p-2 hover:border-pktGreen hover:bg-green-50 transition flex flex-col items-center gap-0.5">
-              <span class="text-xl">🐢</span>
-              <span class="text-[0.6rem] font-black text-gray-600">SANTAI</span>
-            </button>
-            <button type="button" onclick="selectCurrDiff('Medium',45,this)"
-              class="curr-diff-btn border-2 border-gray-200 bg-white rounded-xl p-2 hover:border-pktOrange hover:bg-orange-50 transition flex flex-col items-center gap-0.5">
-              <span class="text-xl">🚶</span>
-              <span class="text-[0.6rem] font-black text-gray-600">MENENGAH</span>
-            </button>
-            <button type="button" onclick="selectCurrDiff('Hard',30,this)"
-              class="curr-diff-btn border-2 border-gray-200 bg-white rounded-xl p-2 hover:border-pktBlue hover:bg-blue-50 transition flex flex-col items-center gap-0.5">
-              <span class="text-xl">🔥</span>
-              <span class="text-[0.6rem] font-black text-gray-600">CEPAT</span>
-            </button>
+          <!-- Selected category preview -->
+          <div id="curr-selected-preview" class="hidden rounded-xl bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 px-3 py-2 flex items-center gap-2">
+            <span id="curr-preview-emoji" class="text-xl">✅</span>
+            <div>
+              <p class="text-[0.65rem] font-black text-green-700">Fokus terpilih:</p>
+              <p id="curr-preview-label" class="text-xs font-black text-green-900">–</p>
+            </div>
           </div>
 
-          <p id="curr-name-hint" class="text-xs text-gray-400 mb-2 text-center">Nama dari layar utama dipakai otomatis.</p>
-          <p id="curr-error" class="text-red-500 text-xs font-bold text-center bg-red-50 py-2 rounded-lg border border-red-100 hidden mb-2">Pilih kategori & tingkat kesulitan!</p>
+          <!-- TINGKAT KESULITAN -->
+          <div>
+            <p class="text-[0.65rem] font-black text-gray-400 uppercase tracking-widest mb-2">Tingkat Kesulitan</p>
+            <div class="grid grid-cols-3 gap-2" id="curr-diff-selector">
+              <button type="button" onclick="selectCurrDiff('Easy',60,this)"
+                class="curr-diff-btn border-2 border-gray-200 bg-white rounded-xl py-3 px-2 hover:border-pktGreen hover:bg-green-50 transition flex flex-col items-center gap-1 active:scale-95">
+                <span class="text-2xl">🐢</span>
+                <span class="text-[0.62rem] font-black text-gray-600">SANTAI</span>
+                <span class="text-[0.55rem] text-gray-400 font-semibold">60 detik</span>
+              </button>
+              <button type="button" onclick="selectCurrDiff('Medium',45,this)"
+                class="curr-diff-btn border-2 border-gray-200 bg-white rounded-xl py-3 px-2 hover:border-pktOrange hover:bg-orange-50 transition flex flex-col items-center gap-1 active:scale-95">
+                <span class="text-2xl">🚶</span>
+                <span class="text-[0.62rem] font-black text-gray-600">MENENGAH</span>
+                <span class="text-[0.55rem] text-gray-400 font-semibold">45 detik</span>
+              </button>
+              <button type="button" onclick="selectCurrDiff('Hard',30,this)"
+                class="curr-diff-btn border-2 border-gray-200 bg-white rounded-xl py-3 px-2 hover:border-pktBlue hover:bg-blue-50 transition flex flex-col items-center gap-1 active:scale-95">
+                <span class="text-2xl">🔥</span>
+                <span class="text-[0.62rem] font-black text-gray-600">CEPAT</span>
+                <span class="text-[0.55rem] text-gray-400 font-semibold">30 detik</span>
+              </button>
+            </div>
+          </div>
 
-          <button onclick="startCurriculumGame()" class="w-full bg-gradient-to-b from-pktGreen to-[#5e9000] text-white font-black py-3.5 rounded-xl shadow-lg transition transform hover:-translate-y-0.5 active:scale-95 text-base tracking-wide border-b-4 border-[#4a7000]">
-            ▶ Mulai Latihan
+          <!-- Info box -->
+          <div class="rounded-xl bg-blue-50 border border-blue-100 px-3 py-2.5 flex items-start gap-2">
+            <span class="text-base mt-0.5">💡</span>
+            <p class="text-[0.65rem] text-blue-700 font-semibold leading-relaxed">Jawab <b>Sesuai</b> jika sampah termasuk kategori fokus, atau <b>Tidak Sesuai</b> jika bukan. Kamu bisa klik tombol atau seret kartu sampah.</p>
+          </div>
+
+          <p id="curr-name-hint" class="text-[0.65rem] text-gray-400 text-center hidden">Nama dari layar utama dipakai otomatis.</p>
+          <p id="curr-error" class="text-red-500 text-xs font-bold text-center bg-red-50 py-2 rounded-lg border border-red-100 hidden">Pilih kategori & tingkat kesulitan!</p>
+
+          <button onclick="startCurriculumGame()" class="w-full bg-gradient-to-b from-pktGreen to-[#5e9000] text-white font-black py-3.5 rounded-2xl shadow-lg transition transform hover:-translate-y-0.5 active:scale-95 text-base tracking-wide border-b-4 border-[#4a7000] flex items-center justify-center gap-2">
+            <span>▶</span><span>Mulai Latihan</span>
           </button>
         </div>
       </div>
@@ -562,6 +615,9 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
 
   <!-- ROW 3: Play area (1fr) -->
   <main class="game-play">
+    <!-- rank change notification (shown briefly at game start) -->
+    <div id="rank-notif-banner" class="hidden w-full rounded-xl px-3 py-2 text-xs font-bold text-center leading-snug" style="max-width:min(86vw,300px)"></div>
+
     <!-- rival strip -->
     <div id="rival-strip">⚡ Mulai jawab untuk lihat rival terdekat!</div>
 
@@ -2269,19 +2325,59 @@ function openCurriculum() {
     if(!el) return;
     const s=p[key.replace(/ /g,'_')]||0;
     el.textContent=s>0?`Best: ${s}pt`:'Belum dimulai';
-    el.className=s>0?'text-[0.6rem] font-bold text-emerald-600 mt-1':'text-[0.6rem] font-bold text-gray-400 mt-1';
+    el.className=s>0?'text-[0.58rem] font-bold text-emerald-600 bg-emerald-50 rounded-full px-1.5 py-0.5 w-full text-center truncate':'text-[0.58rem] font-bold text-gray-400 bg-gray-50 rounded-full px-1.5 py-0.5 w-full text-center truncate';
   };
   setBadge('curr-sisa-badge','SISA MAKANAN');
   setBadge('curr-laku-badge','LAKU JUAL');
   setBadge('curr-residu-badge','RESIDU');
   currSelectedCategory=null; currDiff=null;
-  document.querySelectorAll('.curr-card').forEach(c=>c.classList.remove('selected'));
+  document.querySelectorAll('.curr-card').forEach(c=>{ c.classList.remove('selected'); c.style.borderColor=''; c.style.boxShadow=''; c.style.transform=''; });
   document.querySelectorAll('.curr-diff-btn').forEach(b=>{
     b.classList.remove('border-pktGreen','bg-green-50','border-pktOrange','bg-orange-50','border-pktBlue','bg-blue-50');
     b.classList.add('border-gray-200');
   });
+  // Hide selection preview
+  const preview=document.getElementById('curr-selected-preview');
+  if(preview) preview.classList.add('hidden');
+
+  // Show player name chip
+  const name=document.getElementById('player-name').value.trim();
+  const nameLabel=document.getElementById('curr-player-name-label');
+  if(nameLabel) nameLabel.textContent=name||'Belum ada nama';
+
+  // Show rank change info for this player
+  const rankInfoEl=document.getElementById('curr-rank-info');
+  if(rankInfoEl && name) {
+    const safeId=name.replace(/[.#$[\]/\s]/g,'_').toUpperCase()+'_CURRIC';
+    const rec=lbCache.find(r=>r.id===safeId);
+    if(rec && rec.__mv && (rec.__mv.sym==='▲'||rec.__mv.sym==='▼'||rec.__mv.sym==='🆕')) {
+      const mv=rec.__mv;
+      const ts=rec.timestamp?new Date(rec.timestamp).toLocaleString('id-ID',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}):null;
+      const isUp=mv.sym==='▲';
+      const isNew=mv.sym==='🆕';
+      const diff=mv.title.match(/(\d+)→(\d+)/);
+      const delta=diff?Math.abs(Number(diff[1])-Number(diff[2])):null;
+      let msg='';
+      if(isNew){ msg=`🆕 <b>${escHtml(name)}</b> baru masuk leaderboard Kurikulum!`; }
+      else if(isUp){ msg=`▲ <b>${escHtml(name)}</b> naik <b>${delta||'beberapa'} peringkat</b> di Kurikulum${ts?` — terakhir: ${ts}`:''}. <span class="opacity-70">${mv.title}</span>`; }
+      else { msg=`▼ <b>${escHtml(name)}</b> turun <b>${delta||'beberapa'} peringkat</b> di Kurikulum${ts?` — terakhir: ${ts}`:''}. <span class="opacity-70">${mv.title}</span>`; }
+      rankInfoEl.className=`rounded-xl border px-3 py-2.5 text-xs font-semibold ${isNew?'bg-blue-50 border-blue-200 text-blue-800':isUp?'bg-green-50 border-green-200 text-green-800':'bg-red-50 border-red-200 text-red-800'}`;
+      rankInfoEl.innerHTML=msg;
+      rankInfoEl.classList.remove('hidden');
+    } else if(rec) {
+      // Show current standing
+      const currOnly=lbCache.filter(r=>r.isCurriculum);
+      const idx=currOnly.findIndex(r=>r.id===safeId);
+      if(idx>=0){
+        rankInfoEl.className='rounded-xl border px-3 py-2.5 text-xs font-semibold bg-slate-50 border-slate-200 text-slate-700';
+        rankInfoEl.innerHTML=`📊 <b>${escHtml(name)}</b> saat ini di peringkat <b>#${idx+1}</b> dari <b>${currOnly.length}</b> pemain Kurikulum. Skor terbaik: <b>${rec.score||0}</b> poin.`;
+        rankInfoEl.classList.remove('hidden');
+      } else { rankInfoEl.classList.add('hidden'); }
+    } else { rankInfoEl.classList.add('hidden'); }
+  } else if(rankInfoEl) { rankInfoEl.classList.add('hidden'); }
+
   const hint=document.getElementById('curr-name-hint');
-  if(hint) { const n=document.getElementById('player-name').value.trim(); hint.textContent=n?`Bermain sebagai: ${n}`:'Isi nama di layar utama terlebih dahulu.'; }
+  if(hint) { hint.textContent=name?`Bermain sebagai: ${name}`:'Isi nama di layar utama terlebih dahulu.'; hint.classList.remove('hidden'); }
   showScreen('curriculum');
 }
 
@@ -2289,11 +2385,23 @@ function selectCurriculum(cat, el) {
   currSelectedCategory = cat;
   document.querySelectorAll('.curr-card').forEach(c=>{
     c.classList.remove('selected');
-    c.style.borderColor='#e2e8f0';
+    c.style.borderColor='';
+    c.style.boxShadow='';
+    c.style.transform='';
   });
   el.classList.add('selected');
   const colors={'SISA MAKANAN':'#7AB800','LAKU JUAL':'#F37021','RESIDU':'#005B9F'};
+  const emojis={'SISA MAKANAN':'🍏','LAKU JUAL':'♻️','RESIDU':'🗑️'};
   el.style.borderColor=colors[cat]||'#7AB800';
+  el.style.boxShadow=`0 4px 16px ${colors[cat]||'#7AB800'}33`;
+  el.style.transform='scale(1.04)';
+  // Show selection preview
+  const preview=document.getElementById('curr-selected-preview');
+  const previewEmoji=document.getElementById('curr-preview-emoji');
+  const previewLabel=document.getElementById('curr-preview-label');
+  if(preview){ preview.classList.remove('hidden'); }
+  if(previewEmoji){ previewEmoji.textContent=emojis[cat]||'✅'; }
+  if(previewLabel){ previewLabel.textContent=cat; }
 }
 
 function selectCurrDiff(name, time, btn) {
@@ -2405,6 +2513,63 @@ function attemptStart() {
 }
 
 // ──────────────────────────────────────────
+//  RANK CHANGE NOTIFICATION (shown at game start)
+// ──────────────────────────────────────────
+function showRankNotification(playerName, isCurriculum) {
+  const banner = document.getElementById('rank-notif-banner');
+  if (!banner) return;
+
+  const safeId = playerName.replace(/[.#$[\]/\s]/g,'_').toUpperCase() + (isCurriculum ? '_CURRIC' : '');
+  const rec = lbCache.find(r => r.id === safeId);
+  if (!rec || !rec.__mv) { banner.classList.add('hidden'); return; }
+
+  const mv = rec.__mv;
+  const sym = mv.sym || '—';
+  const isUp = sym.startsWith('▲');
+  const isDown = sym.startsWith('▼');
+  const isNew = sym === '🆕';
+  const isSame = sym === '—';
+
+  if (isSame) { banner.classList.add('hidden'); return; }
+
+  // Format timestamp of last entry
+  const ts = rec.timestamp
+    ? new Date(rec.timestamp).toLocaleString('id-ID', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' })
+    : null;
+
+  // Build message
+  let icon, msg, bgCls;
+  const modeLabel = isCurriculum ? 'Kurikulum' : 'Ranked';
+  if (isNew) {
+    icon='🆕'; bgCls='bg-blue-600 text-white';
+    msg=`${icon} <b>${escHtml(playerName)}</b> baru masuk leaderboard ${modeLabel}!`;
+  } else if (isUp) {
+    const delta = sym.replace('▲','');
+    icon='▲'; bgCls='bg-green-600 text-white';
+    const fromTo = mv.title.match(/(\d+)→(\d+)/);
+    msg=`${icon} <b>${escHtml(playerName)}</b> naik <b>${delta} peringkat</b> di ${modeLabel}${fromTo?` (#${fromTo[1]} → #${fromTo[2]})`:''}${ts?`<br><span class="opacity-80 text-[0.6rem]">📅 ${ts}</span>`:''}`;
+  } else {
+    const delta = sym.replace('▼','');
+    icon='▼'; bgCls='bg-red-500 text-white';
+    const fromTo = mv.title.match(/(\d+)→(\d+)/);
+    msg=`${icon} <b>${escHtml(playerName)}</b> turun <b>${delta} peringkat</b> di ${modeLabel}${fromTo?` (#${fromTo[1]} → #${fromTo[2]})`:''}${ts?`<br><span class="opacity-80 text-[0.6rem]">📅 ${ts}</span>`:''}`;
+  }
+
+  banner.className = `w-full rounded-xl px-3 py-2 text-xs font-bold text-center leading-snug ${bgCls}`;
+  banner.style.maxWidth = 'min(86vw,300px)';
+  banner.innerHTML = msg;
+  banner.classList.remove('hidden');
+
+  // Auto-hide after 5 seconds
+  clearTimeout(showRankNotification._timer);
+  showRankNotification._timer = setTimeout(() => {
+    banner.style.transition = 'opacity 0.5s';
+    banner.style.opacity = '0';
+    setTimeout(() => { banner.classList.add('hidden'); banner.style.opacity=''; banner.style.transition=''; }, 550);
+  }, 5000);
+}
+
+// ──────────────────────────────────────────
 //  GAME ENGINE
 // ──────────────────────────────────────────
 function startGame(time, diff, name, isCurriculum) {
@@ -2478,6 +2643,8 @@ function startGame(time, diff, name, isCurriculum) {
   }
 
   showScreen('game');
+  // Show rank change notification for this player
+  setTimeout(() => showRankNotification(name, isCurriculum), 400);
   updateMissionUI();
   spawnTrash();
   GS.timerInterval=setInterval(()=>{
@@ -3360,14 +3527,16 @@ function setupFirebaseListener() {
           if (!wasPresent) {
             sym='🆕'; cls='text-blue-500'; title='Baru masuk';
           } else if (typeof oldRank === 'number' && curRank < oldRank) {
-            sym='▲'; cls='text-green-600'; title=`Naik (${oldRank}→${curRank})`;
+            const delta = oldRank - curRank;
+            sym=`▲${delta}`; cls='text-green-600'; title=`Naik ${delta} (${oldRank}→${curRank})`;
           } else if (typeof oldRank === 'number' && curRank > oldRank) {
-            sym='▼'; cls='text-red-500'; title=`Turun (${oldRank}→${curRank})`;
+            const delta = curRank - oldRank;
+            sym=`▼${delta}`; cls='text-red-500'; title=`Turun ${delta} (${oldRank}→${curRank})`;
           }
           // else: same rank → —  (oldRank undefined = new in this session = 🆕 already handled above)
         }
 
-        r.__mv={sym,cls,title};
+        r.__mv={sym,cls,title,oldRank,curRank:isC?(curriculumRankMap['id:'+r.id]||null):(rankedRankMap['id:'+r.id]||null)};
         
         const rankedRank = rankedRankMap['id:'+r.id] || 9999;
         
@@ -3411,6 +3580,8 @@ function setupFirebaseListener() {
 
       updateNameHint();
       renderPlayCountBadge();
+      // Also refresh start-screen rank notif with fresh lbCache
+      try { const n=(document.getElementById('player-name')||{}).value||''; if(n.trim()) renderStartRankNotif(n.trim()); } catch(e) {}
       renderLbTable();
       renderLbPrev();
       updateRivalStrip();
@@ -3673,8 +3844,8 @@ function renderLbLegend(mode, elementId) {
   const el = document.getElementById(elementId);
   if(!el) return;
   el.innerHTML = `
-      <span><span class="text-green-600 font-bold">▲</span> Naik peringkat</span>
-      <span><span class="text-red-500 font-bold">▼</span> Turun peringkat</span>
+      <span><span class="text-green-600 font-bold">▲N</span> Naik N peringkat</span>
+      <span><span class="text-red-500 font-bold">▼N</span> Turun N peringkat</span>
       <span><span class="text-gray-400 font-bold">—</span> Tetap</span>
       <span><span class="text-blue-500 font-bold">🆕</span> Baru masuk</span>
     `;
@@ -3970,6 +4141,58 @@ async function loadDCCountsForLeaderboard(lbArray) {
   renderLbTable();
 }
 
+function renderStartRankNotif(name) {
+  const el = document.getElementById('start-rank-notif');
+  if (!el) return;
+  if (!name) { el.classList.add('hidden'); return; }
+
+  // Check both ranked and curriculum
+  const safeId = name.replace(/[.#$[\]/\s]/g,'_').toUpperCase();
+  const recRanked = lbCache.find(r => r.id === safeId);
+  const recCurric = lbCache.find(r => r.id === safeId + '_CURRIC');
+
+  const parts = [];
+  const buildPart = (rec, modeLabel) => {
+    if (!rec || !rec.__mv) return null;
+    const mv = rec.__mv;
+    const sym = mv.sym || '—';
+    if (sym === '—') return null;
+    const isUp = sym.startsWith('▲');
+    const isDown = sym.startsWith('▼');
+    const isNew = sym === '🆕';
+    const ts = rec.timestamp
+      ? new Date(rec.timestamp).toLocaleString('id-ID', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' })
+      : null;
+    if (isNew) return `🆕 <b>${modeLabel}</b>: baru masuk leaderboard!`;
+    if (isUp) {
+      const delta = sym.replace('▲','');
+      const fromTo = mv.title.match(/(\d+)→(\d+)/);
+      return `<span class="text-green-700">▲${delta}</span> <b>${modeLabel}</b>: naik ${delta} peringkat${fromTo?` (#${fromTo[1]}→#${fromTo[2]})`:''}${ts?` · ${ts}`:''}`;
+    }
+    if (isDown) {
+      const delta = sym.replace('▼','');
+      const fromTo = mv.title.match(/(\d+)→(\d+)/);
+      return `<span class="text-red-600">▼${delta}</span> <b>${modeLabel}</b>: turun ${delta} peringkat${fromTo?` (#${fromTo[1]}→#${fromTo[2]})`:''}${ts?` · ${ts}`:''}`;
+    }
+    return null;
+  };
+
+  const r = buildPart(recRanked, 'Ranked');
+  const c = buildPart(recCurric, 'Kurikulum');
+  if (!r && !c) { el.classList.add('hidden'); return; }
+
+  const hasDown = (r&&r.includes('▼')) || (c&&c.includes('▼'));
+  const hasUp = (r&&r.includes('▲')) || (c&&c.includes('▲'));
+  let bgCls = 'bg-slate-50 border border-slate-200 text-slate-700';
+  if (hasDown && !hasUp) bgCls = 'bg-red-50 border border-red-200 text-red-800';
+  else if (hasUp && !hasDown) bgCls = 'bg-green-50 border border-green-200 text-green-800';
+  else bgCls = 'bg-blue-50 border border-blue-200 text-blue-800';
+
+  el.className = `rounded-xl px-3 py-2.5 mb-3 text-xs font-semibold text-center leading-snug ${bgCls}`;
+  el.innerHTML = [r, c].filter(Boolean).join('<br>');
+  el.classList.remove('hidden');
+}
+
 function updateNameHint() {
   const el = document.getElementById('name-hint');
   if(!el) return;
@@ -4004,6 +4227,7 @@ function updateNameHint() {
     
     el.innerHTML = hintText;
     renderPlayCountBadge();
+    renderStartRankNotif(name);
   }).catch(() => {
     // Fallback tanpa DC count
     if(rankedIdx >= 0 || curriculumIdx >= 0) {
@@ -4016,6 +4240,7 @@ function updateNameHint() {
       el.textContent = `Belum ada di leaderboard. Total Ranked: ${rankedFiltered.length} pemain, Kurikulum: ${curriculumFiltered.length} pemain.`;
     }
     renderPlayCountBadge();
+    renderStartRankNotif(name);
   });
 }
 
