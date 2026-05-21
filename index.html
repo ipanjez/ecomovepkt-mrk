@@ -1225,13 +1225,35 @@ async function saveDC() {
 }
 
 function evalDCProgress(snap) {
-  const sp=Math.min(1,(snap.score||0)/Math.max(1,DC.targetScore));
-  const ap=Math.min(1,(snap.acc||0)/Math.max(1,DC.minAcc));
-  const fc=(snap.catStats&&snap.catStats[DC.focusCat])?snap.catStats[DC.focusCat]:{correct:0,total:0};
-  const fp=Math.min(1,(fc.correct||0)/Math.max(1,DC.minCorrect));
-  const pct=Math.round(((sp+ap+fp)/3)*100);
-  const done=(snap.score||0)>=DC.targetScore&&(snap.acc||0)>=DC.minAcc&&(fc.correct||0)>=DC.minCorrect;
-  return {pct,done,fCorrect:fc.correct||0};
+  // Support different DC types
+  if(!DC.type || DC.type === 'category') {
+    const sp=Math.min(1,(snap.score||0)/Math.max(1,DC.targetScore||500));
+    const ap=Math.min(1,(snap.acc||0)/Math.max(1,DC.minAcc||75));
+    const fc=(snap.catStats&&snap.catStats[DC.focusCat])?snap.catStats[DC.focusCat]:{correct:0,total:0};
+    const fp=Math.min(1,(fc.correct||0)/Math.max(1,DC.minCorrect||3));
+    const pct=Math.round(((sp+ap+fp)/3)*100);
+    const done=(snap.score||0)>=DC.targetScore&&(snap.acc||0)>=DC.minAcc&&(fc.correct||0)>=DC.minCorrect;
+    return {pct,done,fCorrect:fc.correct||0};
+  } else if(DC.type === 'combo') {
+    const ap=Math.min(1,(snap.acc||0)/Math.max(1,DC.minAcc||70));
+    const cp=Math.min(1,(GS.currentCombo||0)/Math.max(1,DC.targetCombo||10));
+    const pct=Math.round(((ap+cp)/2)*100);
+    const done=(GS.currentCombo||0)>=DC.targetCombo&&(snap.acc||0)>=DC.minAcc;
+    return {pct,done,fCorrect:GS.currentCombo||0};
+  } else if(DC.type === 'score') {
+    const sp=Math.min(1,(snap.score||0)/Math.max(1,DC.targetScore||700));
+    const ap=Math.min(1,(snap.acc||0)/Math.max(1,DC.minAcc||80));
+    const pct=Math.round(((sp+ap)/2)*100);
+    const done=(snap.score||0)>=DC.targetScore&&(snap.acc||0)>=DC.minAcc;
+    return {pct,done,fCorrect:snap.score||0};
+  } else if(DC.type === 'mode') {
+    const sp=Math.min(1,(snap.score||0)/Math.max(1,DC.targetScore||400));
+    const ap=Math.min(1,(snap.acc||0)/Math.max(1,DC.minAcc||75));
+    const pct=Math.round(((sp+ap)/2)*100);
+    const done=(snap.score||0)>=DC.targetScore&&(snap.acc||0)>=DC.minAcc;
+    return {pct,done,fCorrect:snap.score||0};
+  }
+  return {pct:0,done:false,fCorrect:0};
 }
 
 // ──────────────────────────────────────────
