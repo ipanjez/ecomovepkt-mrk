@@ -810,7 +810,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
           <li><b>🔥 Grinder Gamer</b> - Tantangan untuk pemain giat: bermain banyak kali dalam sesi dan kumpulkan skor tinggi.</li>
           <li><b>⚡ Streak Master</b> - Jawab soal berturut-turut dengan akurasi tinggi untuk menguji konsistensi.</li>
         </ul>
-        <p class="text-xs">Selesaikan tantangan hari ini untuk dapat badge <b>Daily Challenger</b> dan tambah streak. Pantau riwayat dan preview tantangan mendatang dengan klik <b>⚡ Daily Challenge (Klik untuk Riwayat)</b> di awal game. Di sana kamu bisa lihat tantangan sebelumnya, hari ini, dan 7 hari mendatang!</p>
+        <p class="text-xs">Selesaikan tantangan hari ini untuk dapat badge <b>Daily Challenger</b> dan tambah streak. Pantau riwayat dan preview tantangan mendatang dengan klik <b>⚡ Daily Challenge (Klik untuk Riwayat)</b> di awal game. Di modal Mendatang kamu dapat menambahkan tantangan ke <b>Google Calendar</b> untuk pengingat. Perlu diketahui: Daily Challenge hanya aktif di <b>Mode Ranked</b> (tidak muncul di Mode Kurikulum).</p>
       </div>
       <div>
         <h3 class="font-black text-gray-900 mb-1.5 border-l-4 border-pktBlue pl-3">🏆 Leaderboard</h3>
@@ -1163,7 +1163,7 @@ function deriveDC(dk) {
     dcData.title=`🎮 Mode Spesial: ${dcData.modeNames[dcData.targetMode]}`;
     dcData.description=`Bermain di mode ${dcData.modeNames[dcData.targetMode]} dan capai skor ${dcData.targetScore}+ dengan akurasi ${dcData.minAcc}%+.`;
     dcData.focusCat=dcData.targetMode;
-    dcData.rankOnly = true; // this DC applies only to Ranked mode
+    // DC are global concept but only active in Mode Ranked; no per-DC flag needed
   } else if(type==='accuracy') {
     dcData.minAcc=90+Math.floor(seededRand(s+300)*10);
     dcData.minCorrect=15+Math.floor(seededRand(s+310)*15);
@@ -1425,7 +1425,7 @@ function enrichDCData(dc) {
       const modeNames={ 'Bumi Lestari':'🐢 Bumi Lestari', 'Eko Aktif':'🚶 Eko Aktif', 'Penjaga Bumi':'🔥 Penjaga Bumi' };
       dc.title=`🎮 Mode Spesial: ${modeNames[dc.focusCat]||dc.focusCat}`;
       dc.description=`Bermain di mode ${modeNames[dc.focusCat]||dc.focusCat} dan capai skor ${dc.targetScore||400}+ dengan akurasi ${dc.minAcc||75}%+.`;
-      if(dc.rankOnly) dc.description += ' (Hanya berlaku di Mode Ranked)';
+      // DC are only active in Mode Ranked globally; no per-card note needed
     } else if(dc.type==='accuracy') {
       dc.title=`🎯 Master Presisi: ${dc.minAcc||90}%`;
       dc.description=`Raih akurasi ${dc.minAcc||90}%+ dengan minimal ${dc.minCorrect||15} jawaban benar dalam satu sesi!`;
@@ -1442,17 +1442,34 @@ function enrichDCData(dc) {
 
 function renderDCHistoryCard(dc, dateLabel, badge, isCompleted) {
   const badgeColor = isCompleted ? 'bg-emerald-100 text-emerald-700' : 'bg-blue-100 text-blue-700';
-  const typeEmoji = {category: '🎯', combo: '💥', score: '📈', mode: '🎮'}[dc.type] || '⚡';
-  
+  const typeMap = {
+    category: {emoji:'🎯', label:'Kategori', cls:'bg-amber-100 text-amber-800'},
+    combo: {emoji:'💥', label:'Combo', cls:'bg-pink-100 text-pink-800'},
+    score: {emoji:'📈', label:'Skor', cls:'bg-cyan-100 text-cyan-800'},
+    mode: {emoji:'🎮', label:'Mode', cls:'bg-violet-100 text-violet-800'},
+    accuracy: {emoji:'🎯', label:'Akurasi', cls:'bg-emerald-100 text-emerald-800'},
+    attempt: {emoji:'🔥', label:'Percobaan', cls:'bg-yellow-100 text-yellow-800'},
+    streak: {emoji:'⚡', label:'Streak', cls:'bg-blue-50 text-blue-800'}
+  };
+  const t = typeMap[dc.type] || {emoji:'⚡',label:'Tantangan',cls:'bg-gray-100 text-gray-800'};
+
+  const calendarBtn = (dc && dc.dateKey) ? `<button onclick="openGoogleCalendar('${dc.dateKey}')" class="text-[0.68rem] px-2 py-1 bg-slate-100 hover:bg-slate-200 rounded-md">📅 Tambah ke Google Calendar</button>` : '';
+
   return `
     <div class="rounded-lg border border-gray-200 bg-white p-3 mb-2">
       <div class="flex items-start justify-between gap-2 mb-1">
         <div class="flex-1">
           <p class="text-[0.7rem] font-black text-gray-500 uppercase">${dateLabel}</p>
-          <p class="text-xs font-semibold text-gray-800">${typeEmoji} ${dc.title || 'Tantangan'}</p>
+          <p class="text-xs font-semibold text-gray-800">${t.emoji} ${dc.title || 'Tantangan'}</p>
           <p class="text-[0.7rem] text-gray-600 mt-0.5">${escHtml(dc.description || 'Selesaikan tantangan hari ini')}</p>
+          <div class="mt-2 flex items-center gap-2">
+            <span class="text-[0.6rem] font-semibold px-2 py-0.5 rounded-full ${t.cls}">${t.label}</span>
+          </div>
         </div>
-        <span class="text-[0.65rem] font-bold ${badgeColor} px-2 py-1 rounded-full whitespace-nowrap">${badge}</span>
+        <div class="flex flex-col items-end gap-2">
+          <span class="text-[0.65rem] font-bold ${badgeColor} px-2 py-1 rounded-full whitespace-nowrap">${badge}</span>
+          ${calendarBtn}
+        </div>
       </div>
     </div>
   `;
@@ -1516,16 +1533,24 @@ function renderFutureChallenges() {
     const timeLabel = daysUntil === 1 ? 'Besok' : `${daysUntil} hari lagi`;
     const dateDisplay = formatDateDisplay(dateKey);
     
+    const t = (function(){
+      const map={category:'🎯',combo:'💥',score:'📈',mode:'🎮',accuracy:'🎯',attempt:'🔥',streak:'⚡'};
+      return map[dc.type]||'⚡';
+    })();
+    const calendarBtn = `<button onclick="openGoogleCalendar('${dc.dateKey}')" class="text-[0.68rem] px-2 py-1 bg-slate-100 hover:bg-slate-200 rounded-md">📅 Tambah ke Google Calendar</button>`;
     html += `
       <div class="rounded-lg border border-blue-100 bg-gradient-to-r from-blue-50 to-cyan-50 p-3 mb-2">
         <div class="flex items-start justify-between gap-2">
           <div class="flex-1">
             <p class="text-[0.7rem] font-black text-blue-600 uppercase">${timeLabel} • ${dateDisplay}</p>
-            <p class="text-xs font-semibold text-gray-800 mt-0.5">${dc.title}</p>
+            <p class="text-xs font-semibold text-gray-800 mt-0.5">${t} ${dc.title}</p>
             <p class="text-[0.7rem] text-gray-600 mt-1">${escHtml(dc.description)}</p>
+            <div class="mt-2">
+              <span class="text-[0.6rem] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-800">${dc.type.toUpperCase()}</span>
+            </div>
           </div>
-          <div class="flex flex-col items-end gap-1">
-            ${dc.rankOnly?'<span class="text-[0.6rem] font-semibold text-rose-600">Hanya Ranked</span>':''}
+          <div class="flex flex-col items-end gap-2">
+            ${calendarBtn}
             <span class="text-[0.65rem] font-bold bg-blue-200 text-blue-700 px-2 py-1 rounded-full whitespace-nowrap">🔮 Menyenang</span>
           </div>
         </div>
@@ -1557,6 +1582,44 @@ function renderDCCard() {
   
   // Make card clickable
   if(dccard) dccard.style.cursor='pointer';
+}
+
+function downloadDCIcs(dateKey) {
+  try {
+    const dc = deriveDC(dateKey);
+    const title = (dc && dc.title) ? dc.title.replace(/\"/g,'') : 'Daily Challenge';
+    const description = (dc && dc.description) ? dc.description.replace(/\"/g,'') : '';
+    const startDate = new Date(dateKey + 'T12:00:00');
+    const endDate = new Date(startDate.getTime() + 30*60000); // 30 minutes event
+    const pad = (n)=>String(n).padStart(2,'0');
+    const toIcsDate = (d)=>`${d.getUTCFullYear()}${pad(d.getUTCMonth()+1)}${pad(d.getUTCDate())}T${pad(d.getUTCHours())}${pad(d.getUTCMinutes())}00Z`;
+    const ics = `BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//EcoMove//EN\nBEGIN:VEVENT\nUID:${dateKey}-dc@ecomove.local\nDTSTAMP:${toIcsDate(new Date())}\nDTSTART:${toIcsDate(startDate)}\nDTEND:${toIcsDate(endDate)}\nSUMMARY:${title}\nDESCRIPTION:${description}\nEND:VEVENT\nEND:VCALENDAR`;
+    const blob = new Blob([ics],{type:'text/calendar;charset=utf-8'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `ecomove-dc-${dateKey}.ics`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  } catch(e) { console.warn('ICS error',e); alert('Gagal membuat file kalender.'); }
+}
+
+function openGoogleCalendar(dateKey) {
+  try {
+    const dc = deriveDC(dateKey);
+    const title = encodeURIComponent((dc && dc.title) ? dc.title : 'Daily Challenge');
+    const description = encodeURIComponent((dc && dc.description) ? dc.description : '');
+    // default event time midday local -> convert to UTC format YYYYMMDDTHHMMSSZ
+    const startDate = new Date(dateKey + 'T12:00:00');
+    const endDate = new Date(startDate.getTime() + 30*60000);
+    const pad = (n)=>String(n).padStart(2,'0');
+    const toUtc = (d)=>`${d.getUTCFullYear()}${pad(d.getUTCMonth()+1)}${pad(d.getUTCDate())}T${pad(d.getUTCHours())}${pad(d.getUTCMinutes())}00Z`;
+    const dates = `${toUtc(startDate)}/${toUtc(endDate)}`;
+    const url = `https://www.google.com/calendar/render?action=TEMPLATE&text=${title}&details=${description}&dates=${dates}`;
+    window.open(url, '_blank');
+  } catch(e) { console.warn('Google Calendar error', e); alert('Gagal membuka Google Calendar.'); }
 }
 
 // ──────────────────────────────────────────
