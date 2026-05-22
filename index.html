@@ -2150,7 +2150,8 @@ async function syncUserStateFromFirebase() {
     const refLogin = DB.ref(`users/${userId}/loginData`);
     const refPM = DB.ref(`users/${userId}/playMilestones`);
     const refDaily = DB.ref(`users/${userId}/dailyPlay/${today}`);
-    const [snapLogin, snapPM, snapDaily] = await Promise.all([refLogin.get(), refPM.get(), refDaily.get()].map(p=>p.catch(e=>null)));
+    const refPU = DB.ref(`users/${userId}/puInventory`);
+    const [snapLogin, snapPM, snapDaily, snapPU] = await Promise.all([refLogin.get(), refPM.get(), refDaily.get(), refPU.get()].map(p=>p.catch(e=>null)));
     if (snapLogin && snapLogin.exists()) {
       try { localStorage.setItem(getLoginStorageKey(), JSON.stringify(snapLogin.val())); } catch(e){}
     }
@@ -2160,6 +2161,21 @@ async function syncUserStateFromFirebase() {
     if (snapDaily && snapDaily.exists()) {
       try { const key = getDailyPlayKey(); if (key) localStorage.setItem(key, JSON.stringify({ date: today, sessions: snapDaily.val().sessions||0 })); } catch(e){}
     }
+    if (snapPU && snapPU.exists()) {
+      try {
+        const p = snapPU.val() || { freeze:0,double:0,skip:0 };
+        puInventory = { freeze: p.freeze||0, double: p.double||0, skip: p.skip||0 };
+        // also update in-session POWERUPS counts
+        try { POWERUPS.freeze.count = puInventory.freeze; POWERUPS.double.count = puInventory.double; POWERUPS.skip.count = puInventory.skip; } catch(e){}
+        try { renderPowerupBar(); } catch(e){}
+        try { savePuInventory(); } catch(e){}
+      } catch(e){}
+    }
+
+    // Trigger UI refreshes so loaded state is visible
+    try { updateLoginStreakCard(); } catch(e){}
+    try { renderPlayCountBadge(); } catch(e){}
+    try { renderPlayMilestoneOnStart(); } catch(e){}
   } catch(e) { /* ignore sync errors */ }
 }
 // Legacy alias for backward compat (not used, kept for reference)
@@ -2196,6 +2212,12 @@ function savePuInventory() {
   try {
     const key = getPuInventoryKey();
     localStorage.setItem(key, JSON.stringify(puInventory));
+    try {
+      const userId = getUserId();
+      if (userId && DB && DB.ref) {
+        DB.ref(`users/${userId}/puInventory`).set(puInventory).catch(()=>{});
+      }
+    } catch(e){}
   } catch(e) {}
 }
 
