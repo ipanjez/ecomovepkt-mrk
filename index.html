@@ -2731,14 +2731,11 @@ function animateScorePop() {
 
 // Grant power-up back when player starts fresh game
 function awardSessionPowerups(difficulty) {
-  // Base amounts from difficulty
-  const base = { freeze: difficulty==='Hard'?2:1, double: difficulty==='Hard'?2:1, skip: difficulty==='Hard'?3:2 };
-  
-  // Add from persistent inventory (consumed at game start)
+  // Only use the account's stored inventory for this session.
   const inv = { ...puInventory };
-  POWERUPS.freeze.count = base.freeze + inv.freeze;
-  POWERUPS.double.count = base.double + inv.double;
-  POWERUPS.skip.count   = base.skip   + inv.skip;
+  POWERUPS.freeze.count = inv.freeze;
+  POWERUPS.double.count = inv.double;
+  POWERUPS.skip.count   = inv.skip;
   POWERUPS.freeze.active = false;
   POWERUPS.double.active = false;
   POWERUPS.skip.active   = false;
