@@ -34,6 +34,8 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
   overflow:hidden;
   background:linear-gradient(180deg,#eef7ff 0%,#f4fef6 55%,#f8fafc 100%);
 }
+#game-screen.active.ranked-mode{background:linear-gradient(180deg,#eef6ff 0%,#f8fbff 52%,#f8fafc 100%);}
+#game-screen.active.curriculum-mode{background:linear-gradient(180deg,#effcf3 0%,#fbfffd 52%,#f8fafc 100%);}
 
 /* ─── GAME HEADER ─── */
 .game-header{
@@ -47,6 +49,32 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
   padding:2px 12px 3px;display:flex;flex-direction:column;gap:2px;
   background:rgba(255,255,255,0.75);border-bottom:1px solid #f1f5f9;
 }
+.game-momentum-card{
+  margin:4px 12px 0;padding:8px 10px 9px;border-radius:16px;
+  border:1px solid rgba(148,163,184,0.18);
+  background:linear-gradient(135deg,rgba(255,255,255,0.95),rgba(239,246,255,0.9));
+  box-shadow:0 6px 18px rgba(15,23,42,0.05);
+}
+#game-screen.active.ranked-mode .game-momentum-card{
+  background:linear-gradient(135deg,rgba(239,246,255,0.98),rgba(255,255,255,0.92));
+  border-color:rgba(37,99,235,0.14);
+}
+#game-screen.active.curriculum-mode .game-momentum-card{
+  background:linear-gradient(135deg,rgba(240,253,244,0.98),rgba(255,255,255,0.92));
+  border-color:rgba(34,197,94,0.14);
+}
+.game-momentum-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;}
+.game-momentum-title{font-size:0.62rem;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;color:#64748b;}
+.game-momentum-copy{font-size:0.75rem;font-weight:800;line-height:1.25;color:#0f172a;margin-top:2px;}
+.game-momentum-sub{font-size:0.58rem;font-weight:700;line-height:1.2;color:#64748b;margin-top:2px;}
+.game-momentum-badge{display:inline-flex;align-items:center;gap:4px;white-space:nowrap;border-radius:999px;padding:3px 8px;font-size:0.58rem;font-weight:900;}
+.game-momentum-badge.ranked{background:linear-gradient(135deg,#dbeafe,#bfdbfe);color:#1d4ed8;}
+.game-momentum-badge.curriculum{background:linear-gradient(135deg,#dcfce7,#bbf7d0);color:#047857;}
+.game-momentum-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
+.game-momentum-chip{display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:4px 8px;font-size:0.58rem;font-weight:900;background:#fff;border:1px solid #e2e8f0;color:#334155;}
+.game-momentum-chip strong{color:#0f172a;}
+.game-momentum-card.pulse{animation:momentumPulse 0.6s ease-out;}
+@keyframes momentumPulse{0%{transform:scale(1);}45%{transform:scale(1.015);}100%{transform:scale(1);}}
 
 /* ─── PLAY AREA – 1fr – always has space ─── */
 .game-play{
@@ -1286,6 +1314,17 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
         <span id="mission-pct" class="text-[0.6rem] font-black text-blue-600">0%</span>
       </div>
       <div id="mission-detail" class="flex flex-wrap gap-2 text-[0.55rem] text-slate-500"></div>
+    </div>
+    <div id="game-momentum-card" class="game-momentum-card">
+      <div class="game-momentum-head">
+        <div class="min-w-0">
+          <p id="game-momentum-title" class="game-momentum-title">Momentum</p>
+          <p id="game-momentum-copy" class="game-momentum-copy">Mulai sesi untuk membaca ritme permainan.</p>
+          <p id="game-momentum-sub" class="game-momentum-sub">Ranked dan Kurikulum punya gaya main yang berbeda.</p>
+        </div>
+        <span id="game-momentum-badge" class="game-momentum-badge ranked">RANKED</span>
+      </div>
+      <div id="game-momentum-chips" class="game-momentum-chips"></div>
     </div>
     <div class="flex items-center justify-between gap-2">
       <span id="session-progress" class="text-[0.6rem] font-bold text-gray-400">0/500 unik</span>
@@ -4439,6 +4478,85 @@ function showRankNotification(playerName, isCurriculum) {
   }, 5000);
 }
 
+function updateGameplayMomentumUI(forcePulse = false) {
+  const card = document.getElementById('game-momentum-card');
+  const titleEl = document.getElementById('game-momentum-title');
+  const copyEl = document.getElementById('game-momentum-copy');
+  const subEl = document.getElementById('game-momentum-sub');
+  const badgeEl = document.getElementById('game-momentum-badge');
+  const chipsEl = document.getElementById('game-momentum-chips');
+  if (!card || !titleEl || !copyEl || !subEl || !badgeEl || !chipsEl) return;
+
+  const isCurriculum = !!GS.isCurriculum;
+  const modeLabel = isCurriculum ? 'KURIKULUM' : 'RANKED';
+  const combo = GS.combo || 0;
+  const score = GS.score || 0;
+  const timeLeft = GS.timeLeft || 0;
+  const totalAnswered = GS.totalAnswered || 0;
+  const acc = totalAnswered > 0 ? Math.round((GS.correctAnswers / totalAnswered) * 100) : 0;
+  const currentFocus = GS.curriculumFocus || 'Fokus bebas';
+
+  let title = isCurriculum ? 'Sesi Belajar Aktif' : 'Arena Ranked Aktif';
+  let copy = isCurriculum
+    ? `Kamu sedang latihan ${currentFocus.toLowerCase()} — jaga akurasi dan ritme.`
+    : 'Kejar skor, jaga combo, dan tekan rival terdekat sebelum waktu habis.';
+  let sub = isCurriculum
+    ? 'Setiap jawaban benar membantu membangun fondasi kategori.'
+    : 'Sesi ranked paling enak saat tempo stabil dan salah seminim mungkin.';
+
+  if (isCurriculum) {
+    if (acc >= 90 && totalAnswered >= 5) {
+      title = 'Mode Tutor: Sangat Stabil';
+      copy = `Akurasi ${acc}% sudah kuat. Tinggal pertahankan fokus di ${currentFocus}.`;
+    } else if (combo >= 5) {
+      title = 'Mode Tutor: Ritme Terbentuk';
+      copy = `Combo ${combo}x membantu latihan jadi lebih cair dan cepat.`;
+    } else if (timeLeft <= 15) {
+      title = 'Mode Tutor: Sprint Akhir';
+      copy = 'Sisa waktu menipis, pilih jawaban dengan cepat dan tetap tenang.';
+    }
+  } else {
+    if (score >= 1500) {
+      title = 'Elite Run';
+      copy = 'Kamu sudah masuk fase skor tinggi. Pertahankan presisi sampai akhir.';
+    } else if (score >= 700) {
+      title = 'High Scorer Hunt';
+      copy = 'Target skor tinggi sudah dekat. Satu atau dua combo bagus bisa mengubah hasil.';
+    } else if (combo >= 10) {
+      title = 'Momentum Panas';
+      copy = `Combo ${combo}x bikin poin melonjak. Jangan putus sekarang.`;
+    } else if (timeLeft <= 10) {
+      title = 'Ngebut!';
+      copy = 'Waktu kritis. Fokus ke keputusan cepat dan bersih.';
+    }
+    if (nearestRival) {
+      const diff = Math.max(0, (nearestRival.score || 0) - score);
+      sub = diff > 0 ? `Kejar ${escHtml((nearestRival.name || nearestRival.playerName || 'rival').substring(0, 12))} dengan selisih ${diff} poin.` : 'Rival terdekat sudah terlampaui.';
+    }
+  }
+
+  titleEl.textContent = title;
+  copyEl.textContent = copy;
+  subEl.textContent = sub;
+  badgeEl.textContent = modeLabel;
+  badgeEl.className = `game-momentum-badge ${isCurriculum ? 'curriculum' : 'ranked'}`;
+
+  const chips = [
+    { label: 'Tempo', value: timeLeft <= 10 ? 'Darurat' : timeLeft <= 25 ? 'Ngebut' : 'Stabil' },
+    { label: 'Combo', value: `x${combo}` },
+    { label: 'Akurasi', value: `${acc}%` },
+  ];
+  if (isCurriculum) {
+    chips.push({ label: 'Fokus', value: currentFocus });
+  } else {
+    chips.push({ label: 'Skor', value: score >= 1500 ? 'Elite' : score >= 700 ? 'High Scorer' : 'Build Up' });
+  }
+
+  chipsEl.innerHTML = chips.map(chip => `<span class="game-momentum-chip"><strong>${escHtml(chip.label)}:</strong> ${escHtml(chip.value)}</span>`).join('');
+  card.classList.toggle('pulse', forcePulse);
+  if (forcePulse) setTimeout(() => card.classList.remove('pulse'), 650);
+}
+
 // ──────────────────────────────────────────
 //  GAME ENGINE
 // ──────────────────────────────────────────
@@ -4496,6 +4614,11 @@ function startGame(time, diff, name, isCurriculum) {
   document.getElementById('combo-display').style.opacity='0';
   const tipStrip = document.getElementById('eco-tip-strip');
   if (tipStrip) tipStrip.textContent='Pilah sampah dari sumber untuk kurangi beban TPA.';
+  const gameScreen = document.getElementById('game-screen');
+  if (gameScreen) {
+    gameScreen.classList.toggle('ranked-mode', !isCurriculum);
+    gameScreen.classList.toggle('curriculum-mode', !!isCurriculum);
+  }
 
   const focusBadge = document.getElementById('curriculum-focus-badge');
   if (isCurriculum && GS.curriculumFocus) {
@@ -4524,6 +4647,7 @@ function startGame(time, diff, name, isCurriculum) {
   showScreen('game');
   // Show rank change notification for this player
   setTimeout(() => showRankNotification(name, isCurriculum), 400);
+  updateGameplayMomentumUI(true);
   updateMissionUI();
   spawnTrash();
   GS.timerInterval=setInterval(()=>{
@@ -4672,6 +4796,7 @@ function updateTimerUI() {
     tEl.style.color = '';
     tEl.style.textShadow = '';
   }
+  updateGameplayMomentumUI();
 }
 
 function togglePause() {
@@ -4761,6 +4886,7 @@ function spawnTrash() {
   const catTips=tips[GS.currentTrash.c]||['Mulai pilah sampah dari sekarang!'];
   const tipStrip = document.getElementById('eco-tip-strip');
   if (tipStrip) tipStrip.textContent=catTips[Math.floor(Math.random()*catTips.length)];
+  updateGameplayMomentumUI();
 }
 
 // Guard against duplicate answer submissions (drag+click double-fire)
@@ -4844,7 +4970,7 @@ function checkBin(cat) {
     if (comboMult > 1) feedbackText += ` (${comboMult}x)`;
     if (isLuckyTrash) feedbackText += ` ⭐`;
     if (POWERUPS.double.active) feedbackText += ` 💰`;
-    showFeedback(feedbackText, 'text-green-500');
+    showFeedback(GS.isCurriculum ? `✅ Tepat! ${feedbackText}` : `✅ Bersih! ${feedbackText}`, 'text-green-500');
     setTimeout(()=>{ tc2.classList.remove('anim-toss'); spawnTrash(); },320);
     checkRival();
   } else {
@@ -4853,7 +4979,10 @@ function checkBin(cat) {
     GS.timeLeft=Math.max(0,GS.timeLeft-5);
     updateComboFire(0);
     document.getElementById('trash-name').classList.add('anim-shake');
-    showFeedback(`❌ ${tc}`, 'text-red-500');
+    const missMsg = GS.isCurriculum
+      ? `❌ Belum tepat. Fokus pada ${GS.curriculumFocus || 'kategori yang dipilih'}.`
+      : `❌ Salah kategori. Coba baca petunjuk sampah berikutnya.`;
+    showFeedback(missMsg, 'text-red-500');
     setTimeout(()=>{ document.getElementById('trash-name').classList.remove('anim-shake'); updateTimerUI(); spawnTrash(); },420);
   }
 
@@ -4872,6 +5001,7 @@ function showFeedback(text, colorClass) {
 function updateScoreUI() {
   document.getElementById('score-display').textContent=GS.score;
   updateRivalStrip();
+  updateGameplayMomentumUI();
 }
 
 function addRipple(e) {
@@ -5011,6 +5141,7 @@ function updateMissionUI() {
   if (GS.isCurriculum) {
     if (dailyRow) dailyRow.style.display = 'none';
     if (detailEl) detailEl.style.display = 'none';
+    updateGameplayMomentumUI();
     return;
   }
 
@@ -5083,6 +5214,7 @@ function updateMissionUI() {
     saveDC();
     renderDCCard();
   }
+  updateGameplayMomentumUI();
 }
 
 function updateRivalStrip() {
