@@ -4235,7 +4235,8 @@ function handleCurriculumAnswer(userSaysMatch) {
     actualMatch:actualMatch,
     answeredMatch:userSaysMatch,
     correct:isCorrect,
-    correctAnswer: actualMatch ? 'Sesuai' : 'Tidak Sesuai'
+    correctAnswer: actualMatch ? 'Sesuai' : 'Tidak Sesuai',
+    trashId: GS.currentTrashInstanceId
   });
   
   if (isCorrect) {
@@ -4377,6 +4378,8 @@ function spawnTrash() {
   sessionAsked.add(idx);
   saveUserUniqueProgress(GS.currentSessionId, sessionAsked);
   GS.currentTrash=trashData[idx];
+  GS.currentTrashInstanceId = ++_trashInstanceSeq;
+  GS.answerLocked = false;
 
   if (!GS.currentTrash) {
     console.error("Invalid trash at index:", idx);
@@ -4413,10 +4416,14 @@ function spawnTrash() {
 
 // Guard against duplicate answer submissions (drag+click double-fire)
 let _lastAnswerTs = 0;
+let _trashInstanceSeq = 0;
 function _answerGuard() {
+  if(!GS.isPlaying||GS.paused||!GS.currentTrash) return false;
+  if (GS.answerLocked) return false;
   const now = Date.now();
   if (now - _lastAnswerTs < 350) return false; // ignore if < 350ms since last answer
   _lastAnswerTs = now;
+  GS.answerLocked = true;
   return true;
 }
 
@@ -4439,7 +4446,8 @@ function checkBin(cat) {
     selected:cat,
     correct:tc===cat,
     expected:tc,
-    answered:cat
+    answered:cat,
+    trashId: GS.currentTrashInstanceId
   });
 
   if(tc===cat) {
@@ -5015,6 +5023,26 @@ function renderLearningReport() {
   el.innerHTML=html;
 }
 
+function compactConsecutiveHistory(history) {
+  if (!Array.isArray(history) || history.length === 0) return [];
+  const compacted = [];
+  let lastSignature = null;
+  history.forEach(entry => {
+    const signature = [
+      entry.trashId || '',
+      entry.type || '',
+      entry.item || '',
+      entry.correct ? 1 : 0,
+      entry.answered || entry.answeredMatch || entry.selected || '',
+      entry.expected || entry.correctAnswer || ''
+    ].join('|');
+    if (signature === lastSignature) return;
+    compacted.push(entry);
+    lastSignature = signature;
+  });
+  return compacted;
+}
+
 function renderCurriculumSummary() {
   const card=document.getElementById('curriculum-results-card');
   const list=document.getElementById('curriculum-results-list');
@@ -5025,13 +5053,15 @@ function renderCurriculumSummary() {
   }
 
   card.classList.remove('hidden');
-  const total=GS.history.length;
-  const wrong=GS.totalAnswered-GS.correctAnswers;
+  const displayHistory = compactConsecutiveHistory(GS.history);
+  const total=displayHistory.length;
+  const correctCount = displayHistory.filter(e => e.correct).length;
+  const wrong=total-correctCount;
   const focusLabel = GS.curriculumFocus || 'Kurikulum';
-  const acc = total > 0 ? Math.round((GS.correctAnswers / GS.totalAnswered) * 100) : 0;
+  const acc = total > 0 ? Math.round((correctCount / total) * 100) : 0;
   
   // Score distribution
-  const matching = GS.history.filter(e => e.actualMatch).length;
+  const matching = displayHistory.filter(e => e.actualMatch).length;
   const notMatching = total - matching;
   
   let html = `<div class="grid grid-cols-3 gap-1.5 mb-3">
@@ -5058,7 +5088,7 @@ function renderCurriculumSummary() {
   </div>`;
   
   html += `<p class="text-[0.65rem] font-black text-slate-500 uppercase mb-1.5">5 Jawaban Terakhir</p>`;
-  const items = GS.history.slice(-5).reverse();
+  const items = displayHistory.slice(-5).reverse();
   html += `<div class="space-y-1">${items.map(entry => {
     const isCorrect = entry.correct;
     const answered = entry.answeredMatch !== undefined ? (entry.answeredMatch ? 'Sesuai' : 'Tidak Sesuai') : entry.answered;
@@ -5073,7 +5103,7 @@ function renderCurriculumSummary() {
       <span class="text-[0.65rem] font-black ${isCorrect?'text-emerald-700':'text-red-600'} whitespace-nowrap">${isCorrect?'Benar':'Salah'}</span>
     </div>`;
   }).join('')}</div>`;
-  if(total>5) html += `<p class="text-[0.65rem] text-slate-500 mt-2 text-center">Menampilkan 5 jawaban terakhir dari ${total} total jawaban.</p>`;
+  if(total>5) html += `<p class="text-[0.65rem] text-slate-500 mt-2 text-center">Menampilkan 5 jawaban terakhir dari ${total} jawaban yang tidak duplikat berurutan.</p>`;
   list.innerHTML=html;
 }
 
@@ -5087,10 +5117,12 @@ function renderRankedSummary() {
   }
 
   card.classList.remove('hidden');
-  const total=GS.history.length;
-  const wrong=GS.totalAnswered-GS.correctAnswers;
+  const displayHistory = compactConsecutiveHistory(GS.history);
+  const total=displayHistory.length;
+  const correctCount = displayHistory.filter(e => e.correct).length;
+  const wrong=total-correctCount;
   const difficultyLabel = getDifficultyDisplayName(GS.difficulty);
-  const acc = total > 0 ? Math.round((GS.correctAnswers/GS.totalAnswered)*100) : 0;
+  const acc = total > 0 ? Math.round((correctCount/total)*100) : 0;
   
   // Category accuracy breakdown
   const cats = ['SISA MAKANAN', 'LAKU JUAL', 'RESIDU'];
@@ -5115,8 +5147,8 @@ function renderRankedSummary() {
   </div>`;
   html += `<p class="text-[0.72rem] text-slate-600 mb-2 font-semibold">Total: <strong>${total}</strong> · Benar: <strong class="text-green-600">${GS.correctAnswers}</strong> · Salah: <strong class="text-red-500">${wrong}</strong> · Level: <strong>${difficultyLabel}</strong> · Akurasi: <strong>${acc}%</strong></p>`;
   
-  const maxShow = rankedHistoryExpanded ? GS.history.length : 5;
-  const items = GS.history.slice(-maxShow).reverse();
+  const maxShow = rankedHistoryExpanded ? displayHistory.length : 5;
+  const items = displayHistory.slice(-maxShow).reverse();
   html += `<div class="space-y-1">${items.map((entry, i) => {
     const isCorrect = entry.correct;
     const color = isCorrect ? 'text-emerald-700' : 'text-red-600';
@@ -5846,6 +5878,8 @@ function saveImage() {
 // ──────────────────────────────────────────
 function cleanupGame() {
   _lastAnswerTs = 0; // reset duplicate-answer guard
+  GS.answerLocked = false;
+  GS.currentTrashInstanceId = null;
   if (saveUserUniqueProgress._timer) {
     clearTimeout(saveUserUniqueProgress._timer);
     saveUserUniqueProgress._timer = null;
