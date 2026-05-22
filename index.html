@@ -29,37 +29,37 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
 #game-screen{display:none;}
 #game-screen.active{
   display:grid!important;
-  grid-template-rows:auto auto auto auto 1fr auto;
+  grid-template-rows:auto auto auto 1fr auto;
   height:100dvh;max-height:100dvh;
   overflow:hidden;
-  background:linear-gradient(180deg,#f0f9ff 0%,#f7fff9 60%,#f8fafc 100%);
+  background:linear-gradient(180deg,#eef7ff 0%,#f4fef6 55%,#f8fafc 100%);
 }
 
 /* ─── GAME HEADER ─── */
 .game-header{
   background:white;border-bottom:1px solid #e2e8f0;
-  padding:5px 12px;display:flex;justify-content:space-between;align-items:center;gap:8px;
-  z-index:10;min-height:46px;
+  padding:4px 12px;display:flex;justify-content:space-between;align-items:center;gap:8px;
+  z-index:10;min-height:44px;
 }
 
 /* ─── PROGRESS AREA ─── */
 .game-progress{
-  padding:3px 12px 4px;display:flex;flex-direction:column;gap:3px;
-  background:rgba(255,255,255,0.7);border-bottom:1px solid #f1f5f9;
+  padding:2px 12px 3px;display:flex;flex-direction:column;gap:2px;
+  background:rgba(255,255,255,0.75);border-bottom:1px solid #f1f5f9;
 }
 
 /* ─── PLAY AREA – 1fr – always has space ─── */
 .game-play{
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  position:relative;overflow:hidden;padding:4px 12px;gap:5px;
+  display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
+  position:relative;overflow:hidden;padding:4px 12px 4px;gap:4px;
 }
 
 /* ─── BINS ROW ─── */
 .game-bins{
-  display:grid;grid-template-columns:repeat(3,1fr);gap:6px;
-  padding:6px 10px max(env(safe-area-inset-bottom,6px),8px);
-  background:rgba(255,255,255,0.92);border-top:1px solid #e2e8f0;
-  min-height:110px;height:min(24vh,165px);
+  display:grid;grid-template-columns:repeat(3,1fr);gap:5px;
+  padding:5px 8px max(env(safe-area-inset-bottom,6px),8px);
+  background:rgba(255,255,255,0.95);border-top:2px solid #e2e8f0;
+  min-height:100px;height:min(23vh,155px);
   position:relative;z-index:20;
 }
 
@@ -85,16 +85,20 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
 
 /* ─── TRASH CARD ─── */
 #trash-container{
-  background:white;border-radius:20px;border:2px solid #e2e8f0;
-  box-shadow:0 8px 24px rgba(0,0,0,0.08);
+  background:white;border-radius:22px;border:2px solid #e2e8f0;
+  box-shadow:0 8px 28px rgba(0,0,0,0.10),0 2px 8px rgba(0,91,159,0.06);
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   text-align:center;cursor:pointer;transition:transform 0.2s,box-shadow 0.2s;
-  width:min(86vw,300px);min-height:120px;padding:12px 16px;
+  width:min(88vw,320px);
+  flex:1;min-height:130px;max-height:280px;
+  padding:14px 18px;
   position:relative;z-index:10;
+  background-image:radial-gradient(rgba(0,91,159,0.03) 1.5px,transparent 1.5px);
+  background-size:20px 20px;
 }
-#trash-container:hover{transform:scale(1.02);box-shadow:0 12px 32px rgba(0,0,0,0.12);}
-@media(min-height:680px){#trash-container{min-height:145px;padding:16px 20px;}}
-@media(min-height:780px){#trash-container{min-height:170px;width:min(86vw,330px);}}
+#trash-container:hover{transform:scale(1.02);box-shadow:0 14px 36px rgba(0,0,0,0.13);}
+@media(min-height:680px){#trash-container{min-height:160px;padding:16px 20px;}}
+@media(min-height:780px){#trash-container{min-height:190px;width:min(88vw,340px);}}
 
 /* ─── BIN BUTTON ─── */
 .bin{
@@ -169,8 +173,8 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
   padding:4px 10px;
   display:flex;flex-direction:row;align-items:center;justify-content:space-between;gap:8px;
   font-size:0.72rem;font-weight:700;color:#e2e8f0;
-  width:min(86vw,300px);text-align:left;line-height:1.3;
-  min-height:30px;max-height:40px;
+  width:min(88vw,320px);text-align:left;line-height:1.3;
+  min-height:28px;max-height:38px;
   box-shadow:0 4px 12px rgba(0,0,0,0.2);
   position:relative;overflow:hidden;flex-shrink:0;
 }
@@ -396,14 +400,16 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
 
 /* ─── POWER-UP BAR ─── */
 #powerup-bar{
-  display:flex;gap:5px;align-items:center;justify-content:center;
-  padding:3px 10px;background:rgba(255,255,255,0.85);
+  display:flex;gap:4px;align-items:center;justify-content:center;
+  padding:3px 8px;background:rgba(255,255,255,0.9);
   border-bottom:1px solid #f1f5f9;flex-wrap:nowrap;min-height:32px;
+  overflow-x:auto;
 }
+#powerup-bar::-webkit-scrollbar{display:none;}
 .powerup-btn{
-  border:none;border-radius:10px;padding:4px 10px;font-size:0.68rem;font-weight:900;
-  cursor:pointer;transition:all 0.15s;display:flex;align-items:center;gap:4px;
-  position:relative;overflow:hidden;
+  border:none;border-radius:10px;padding:4px 8px;font-size:0.65rem;font-weight:900;
+  cursor:pointer;transition:all 0.15s;display:flex;align-items:center;gap:3px;
+  position:relative;overflow:hidden;white-space:nowrap;flex-shrink:0;
 }
 .powerup-btn:disabled{opacity:0.4;cursor:not-allowed;}
 .powerup-btn:not(:disabled):active{transform:scale(0.92);}
@@ -411,6 +417,10 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
 .powerup-double{background:linear-gradient(135deg,#fde68a,#f59e0b);color:#78350f;box-shadow:0 2px 8px rgba(245,158,11,0.3);}
 .powerup-skip{background:linear-gradient(135deg,#d9f99d,#84cc16);color:#365314;box-shadow:0 2px 8px rgba(132,204,22,0.3);}
 .powerup-hint{background:linear-gradient(135deg,#e9d5ff,#a855f7);color:#3b0764;box-shadow:0 2px 8px rgba(168,85,247,0.3);}
+.powerup-timeextend{background:linear-gradient(135deg,#fde8ff,#c026d3);color:#4a044e;box-shadow:0 2px 10px rgba(192,38,211,0.4);}
+.powerup-timeextend::before{content:'⚗️';position:absolute;font-size:0.5rem;top:1px;right:4px;opacity:0.6;}
+@keyframes rareGlow{0%,100%{box-shadow:0 2px 10px rgba(192,38,211,0.4);}50%{box-shadow:0 2px 22px rgba(192,38,211,0.85),0 0 12px rgba(250,200,255,0.5);}}
+.powerup-timeextend:not(:disabled){animation:rareGlow 2.4s ease-in-out infinite;}
 .powerup-cooldown{
   position:absolute;bottom:0;left:0;height:2px;background:rgba(0,0,0,0.2);
   transition:width 0.1s linear;
@@ -987,7 +997,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
           </div>
           <div class="text-right">
             <p class="text-[0.6rem] font-black text-amber-700 uppercase">Power-up Tersimpan</p>
-            <p class="text-base font-black text-amber-800" id="ls-pu-count">❄️×<span id="ls-freeze">0</span> 2️⃣×<span id="ls-double">0</span> ⏭️×<span id="ls-skip">0</span></p>
+            <p class="text-base font-black text-amber-800" id="ls-pu-count">❄️×<span id="ls-freeze">0</span> 2️⃣×<span id="ls-double">0</span> ⏭️×<span id="ls-skip">0</span> ⏳×<span id="ls-timeextend">0</span></p>
           </div>
         </div>
 
@@ -1268,12 +1278,17 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
       <span class="pu-tooltip">Lewati 1 soal<br>Shortcut: E</span>
       <div class="powerup-cooldown" id="pu-skip-cd" style="width:0%"></div>
     </button>
+    <button id="pu-timeextend" class="powerup-btn powerup-timeextend" onclick="activatePowerup('timeExtend')" title="Tambah +15 detik waktu — LANGKA! (R)">
+      ⏳ +15s <span id="pu-timeextend-count" class="powerup-stack-count">0</span>
+      <span class="pu-tooltip">Tambah +15 detik waktu<br>✨ Power-up LANGKA!<br>Shortcut: R</span>
+      <div class="powerup-cooldown" id="pu-timeextend-cd" style="width:0%"></div>
+    </button>
   </div>
 
   <!-- ROW 4: Play area (1fr) -->
   <main class="game-play">
     <!-- rank change notification (shown briefly at game start) -->
-    <div id="rank-notif-banner" class="hidden w-full rounded-xl px-3 py-2 text-xs font-bold text-center leading-snug" style="max-width:min(86vw,300px)"></div>
+    <div id="rank-notif-banner" class="hidden w-full rounded-xl px-3 py-2 text-xs font-bold text-center leading-snug" style="max-width:min(88vw,320px)"></div>
 
     <!-- rival strip -->
     <div id="rival-strip">⚡ Mulai jawab untuk lihat rival terdekat!</div>
@@ -1285,9 +1300,10 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
     <div id="trash-container" style="position:relative;">
       <div id="lucky-badge">⭐ LUCKY +3x</div>
       <div id="rival-achieved-banner">🎉 Rival Terlampaui!</div>
-      <div id="trash-emoji" class="text-5xl mb-2 drop-shadow-md transition-transform hover:scale-110" style="line-height:1">🗑️</div>
-      <h2 id="trash-name" class="text-xl font-black text-gray-900 leading-tight break-words px-2">Sampah</h2>
-      <div id="streak-fire" style="font-size:1.4rem;">🔥</div>
+      <div id="trash-emoji" class="drop-shadow-lg transition-transform hover:scale-110" style="font-size:clamp(3.5rem,12vw,5.5rem);line-height:1;margin-bottom:10px;">🗑️</div>
+      <h2 id="trash-name" class="font-black text-gray-900 leading-tight break-words px-2" style="font-size:clamp(1rem,4.5vw,1.4rem)">Sampah</h2>
+      <p class="text-[0.6rem] text-gray-400 font-semibold mt-1" id="trash-category-hint"></p>
+      <div id="streak-fire" style="font-size:1.4rem;margin-top:4px;">🔥</div>
     </div>
 
     <!-- combo splash -->
@@ -2090,7 +2106,7 @@ function getLoginStorageKey() {
 const LOGIN_STORAGE_KEY = 'eco_daily_login_v1';
 
 // Power-up inventory persisted across sessions
-let puInventory = { freeze: 0, double: 0, skip: 0 };
+let puInventory = { freeze: 0, double: 0, skip: 0, timeExtend: 0 };
 
 function getPuInventoryKey() {
   try {
@@ -2108,12 +2124,12 @@ function loadPuInventory() {
     // Try per-account key first
     const key = getPuInventoryKey();
     const raw = localStorage.getItem(key);
-    if (raw) { const p = JSON.parse(raw); puInventory = { freeze: p.freeze||0, double: p.double||0, skip: p.skip||0 }; return; }
+    if (raw) { const p = JSON.parse(raw); puInventory = { freeze: p.freeze||0, double: p.double||0, skip: p.skip||0, timeExtend: p.timeExtend||0 }; return; }
     // Fallback to global key (backward compat)
     const globalRaw = localStorage.getItem('eco_pu_inventory');
-    if (globalRaw) { const p = JSON.parse(globalRaw); puInventory = { freeze: p.freeze||0, double: p.double||0, skip: p.skip||0 }; return; }
+    if (globalRaw) { const p = JSON.parse(globalRaw); puInventory = { freeze: p.freeze||0, double: p.double||0, skip: p.skip||0, timeExtend: p.timeExtend||0 }; return; }
   } catch(e) {}
-  puInventory = { freeze: 0, double: 0, skip: 0 };
+  puInventory = { freeze: 0, double: 0, skip: 0, timeExtend: 0 };
 }
 
 // ─── Load all per-player data from Firebase (called on name change) ──────────
@@ -2131,7 +2147,7 @@ async function loadAllPlayerDataFromFirebase(name) {
     // --- Power-up inventory ---
     if (playerData.puInventory) {
       const p = playerData.puInventory;
-      puInventory = { freeze: p.freeze||0, double: p.double||0, skip: p.skip||0 };
+      puInventory = { freeze: p.freeze||0, double: p.double||0, skip: p.skip||0, timeExtend: p.timeExtend||0 };
       try { const key = getPuInventoryKey(); if (key) localStorage.setItem(key, JSON.stringify(puInventory)); } catch(e) {}
     }
 
@@ -2189,7 +2205,7 @@ async function loadPuInventoryFromFirebase(name) {
     ]);
     if (snap && snap.exists()) {
       const p = snap.val();
-      puInventory = { freeze: p.freeze||0, double: p.double||0, skip: p.skip||0 };
+      puInventory = { freeze: p.freeze||0, double: p.double||0, skip: p.skip||0, timeExtend: p.timeExtend||0 };
       // Also update localStorage cache
       try { const key = getPuInventoryKey(); localStorage.setItem(key, JSON.stringify(puInventory)); } catch(e) {}
       return true;
@@ -2274,7 +2290,7 @@ function getDailyLoginRewards(streak) {
   else if (day === 4) rewards.push({ key:'double', amount:1, label:'2️⃣ +1 Double Poin' });
   else if (day === 5) { rewards.push({ key:'freeze', amount:1, label:'❄️ +1 Freeze' }); rewards.push({ key:'skip', amount:1, label:'⏭️ +1 Skip' }); }
   else if (day === 6) { rewards.push({ key:'double', amount:2, label:'2️⃣ +2 Double Poin' }); }
-  else if (day === 7) { rewards.push({ key:'freeze', amount:2, label:'❄️ +2 Freeze' }); rewards.push({ key:'double', amount:2, label:'2️⃣ +2 Double Poin' }); rewards.push({ key:'skip', amount:3, label:'⏭️ +3 Skip' }); }
+  else if (day === 7) { rewards.push({ key:'freeze', amount:2, label:'❄️ +2 Freeze' }); rewards.push({ key:'double', amount:2, label:'2️⃣ +2 Double Poin' }); rewards.push({ key:'skip', amount:3, label:'⏭️ +3 Skip' }); rewards.push({ key:'timeExtend', amount:1, label:'⏳ +1 Time Extend (LANGKA!)' }); }
   return rewards;
 }
 
@@ -2345,9 +2361,9 @@ function showDailyLoginModal() {
   // Reward list
   const rewardsList = document.getElementById('login-rewards-list');
   if (rewardsList) {
-    const puIcons = {freeze:'❄️', double:'2️⃣', skip:'⏭️'};
-    const puNames = {freeze:'Freeze Time', double:'Double Poin', skip:'Skip Soal'};
-    const puDesc = {freeze:'Tambah 5 detik waktu', double:'Poin ×2 selama 10 detik', skip:'Lewati 1 soal'};
+    const puIcons = {freeze:'❄️', double:'2️⃣', skip:'⏭️', timeExtend:'⏳'};
+    const puNames = {freeze:'Freeze Time', double:'Double Poin', skip:'Skip Soal', timeExtend:'Time Extend (LANGKA!)'};
+    const puDesc = {freeze:'Tambah 5 detik waktu', double:'Poin ×2 selama 10 detik', skip:'Lewati 1 soal', timeExtend:'Tambah +15 detik waktu — power-up sangat langka!'};
     if (fresh.claimedToday) {
       rewardsList.innerHTML = `<div class="login-reward-item claimed"><span class="text-xl">✅</span><span class="text-sm font-semibold">Hadiah sudah diambil hari ini</span></div>`;
     } else {
@@ -2390,8 +2406,8 @@ function claimDailyLoginReward() {
   saveLoginData(data);
   
   // Build reward summary
-  const puIcons = {freeze:'❄️', double:'2️⃣', skip:'⏭️'};
-  const puNames = {freeze:'Freeze Time', double:'Double Poin', skip:'Skip Soal'};
+  const puIcons = {freeze:'❄️', double:'2️⃣', skip:'⏭️', timeExtend:'⏳'};
+  const puNames = {freeze:'Freeze Time', double:'Double Poin', skip:'Skip Soal', timeExtend:'Time Extend (LANGKA!)'};
   const rewardRows = rewards.map(r => 
     `<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);border-radius:10px;">
       <span style="font-size:1.3rem;">${puIcons[r.key]||'🎁'}</span>
@@ -2405,10 +2421,12 @@ function claimDailyLoginReward() {
 
   const list = document.getElementById('login-rewards-list');
   if (list) {
+    const teCount = puInventory.timeExtend || 0;
+    const teStr = teCount > 0 ? ` &nbsp; ⏳×${teCount}` : '';
     list.innerHTML = `
       <div style="text-align:center;padding:6px 0 8px;font-size:1.5rem;">🎉</div>
       ${rewardRows}
-      <p style="text-align:center;font-size:0.62rem;color:#93c5fd;margin-top:6px;">Inventori: ❄️×${puInventory.freeze} &nbsp; 2️⃣×${puInventory.double} &nbsp; ⏭️×${puInventory.skip}</p>
+      <p style="text-align:center;font-size:0.62rem;color:#93c5fd;margin-top:6px;">Inventori: ❄️×${puInventory.freeze} &nbsp; 2️⃣×${puInventory.double} &nbsp; ⏭️×${puInventory.skip}${teStr}</p>
     `;
   }
   
@@ -2465,9 +2483,11 @@ function updateLoginStreakCard() {
   const f = document.getElementById('ls-freeze');
   const d = document.getElementById('ls-double');
   const s = document.getElementById('ls-skip');
+  const te = document.getElementById('ls-timeextend');
   if (f) f.textContent = puInventory.freeze;
   if (d) d.textContent = puInventory.double;
   if (s) s.textContent = puInventory.skip;
+  if (te) te.textContent = puInventory.timeExtend || 0;
 }
 
 // ─── Play Count Milestones ─────────────────
@@ -2582,7 +2602,8 @@ function showMilestoneToast(msg) {
 const POWERUPS = {
   freeze: { count: 1, active: false, cdTimer: null, label: '❄️ Freeze', duration: 5000 },
   double: { count: 1, active: false, cdTimer: null, label: '2️⃣ 2x Poin', duration: 10000 },
-  skip:   { count: 2, active: false, cdTimer: null, label: '⏭️ Skip', duration: 0 }
+  skip:   { count: 2, active: false, cdTimer: null, label: '⏭️ Skip', duration: 0 },
+  timeExtend: { count: 0, active: false, cdTimer: null, label: '⏳ +15s', duration: 0 }
 };
 let freezeTimeout = null;
 let doubleTimeout = null;
@@ -2592,6 +2613,7 @@ function resetPowerups() {
   POWERUPS.freeze.count = 0; POWERUPS.freeze.active = false;
   POWERUPS.double.count = 0; POWERUPS.double.active = false;
   POWERUPS.skip.count   = 0; POWERUPS.skip.active   = false;
+  POWERUPS.timeExtend.count = 0; POWERUPS.timeExtend.active = false;
   clearTimeout(freezeTimeout);
   clearTimeout(doubleTimeout);
   if (doubleTimeout) { clearTimeout(doubleTimeout); }
@@ -2616,6 +2638,16 @@ function renderPowerupBar() {
     if (pu.count >= 3) btn.classList.add('has-many'); else btn.classList.remove('has-many');
     if (pu.active) btn.classList.add('active-pu'); else btn.classList.remove('active-pu');
   });
+  // Time Extend special handling
+  const tebtn = document.getElementById('pu-timeextend');
+  const tecnt = document.getElementById('pu-timeextend-count');
+  if (tebtn && tecnt) {
+    const pu = POWERUPS.timeExtend;
+    tecnt.textContent = pu.count;
+    tebtn.disabled = (pu.count <= 0) || pu.active || !GS.isPlaying || GS.paused;
+    if (pu.count >= 2) tebtn.classList.add('has-many'); else tebtn.classList.remove('has-many');
+    if (pu.active) tebtn.classList.add('active-pu'); else tebtn.classList.remove('active-pu');
+  }
 }
 
 function activatePowerup(key) {
@@ -2678,6 +2710,27 @@ function activatePowerup(key) {
     }
     renderPowerupBar();
     return;
+  } else if (key === 'timeExtend') {
+    pu.active = false; // instant
+    playPowerupSound('timeExtend');
+    const addTime = 15;
+    GS.timeLeft = Math.min(GS.initialTime + addTime, GS.timeLeft + addTime);
+    updateTimerUI();
+    showFeedback('+15s ⏳✨', 'text-purple-500');
+    showAchievementToast('⏳ +15 Detik! Power-up Langka aktif!');
+    const timerEl = document.getElementById('timer-text');
+    if (timerEl) {
+      timerEl.classList.add('time-bonus-flash');
+      timerEl.style.color = '#c026d3';
+      timerEl.style.textShadow = '0 0 16px rgba(192,38,211,0.9)';
+      setTimeout(() => {
+        timerEl.classList.remove('time-bonus-flash');
+        timerEl.style.color = '';
+        timerEl.style.textShadow = '';
+      }, 1200);
+    }
+    renderPowerupBar();
+    return;
   }
 }
 
@@ -2701,6 +2754,7 @@ function playPowerupSound(type) {
     if (type==='freeze') { beep(880,0.05);beep(1047,0.08,0.06,'triangle');beep(1318,0.12,0.06,'triangle'); }
     else if (type==='double') { beep(523,0.06);beep(659,0.06);beep(784,0.06);beep(1047,0.1,0.09); }
     else if (type==='skip') { beep(523,0.05,0.06,'triangle');beep(784,0.08,0.06,'triangle'); }
+    else if (type==='timeExtend') { beep(392,0.05,0.06,'sawtooth');beep(523,0.05,0.07,'sine');beep(659,0.07,0.07,'sine');beep(784,0.07,0.08,'sine');beep(1047,0.15,0.09,'triangle'); }
   } catch(e) {}
 }
 
@@ -2715,6 +2769,8 @@ function checkPowerupReward(combo) {
   } else if (combo === 20) {
     grantPowerupReward('double', 1, '🔥 20 COMBO!! Double reward!');
     grantPowerupReward('skip', 1);
+  } else if (combo === 25) {
+    grantPowerupReward('timeExtend', 1, '✨ 25 COMBO LEGENDARIS!! +15s Power-up Langka!');
   }
 }
 
@@ -2833,18 +2889,23 @@ function awardSessionPowerups(difficulty) {
   POWERUPS.freeze.count = inv.freeze;
   POWERUPS.double.count = inv.double;
   POWERUPS.skip.count   = inv.skip;
+  POWERUPS.timeExtend.count = inv.timeExtend || 0;
   POWERUPS.freeze.active = false;
   POWERUPS.double.active = false;
   POWERUPS.skip.active   = false;
+  POWERUPS.timeExtend.active = false;
   
   // Consume inventory (it goes into the session)
   puInventory.freeze = 0;
   puInventory.double = 0;
   puInventory.skip = 0;
+  puInventory.timeExtend = 0;
   savePuInventory();
   
-  if (inv.freeze + inv.double + inv.skip > 0) {
-    setTimeout(() => showAchievementToast(`🎁 Inventori diklaim: ❄️×${inv.freeze} 2️⃣×${inv.double} ⏭️×${inv.skip}`), 800);
+  const total = inv.freeze + inv.double + inv.skip + (inv.timeExtend||0);
+  if (total > 0) {
+    const teStr = inv.timeExtend > 0 ? ` ⏳×${inv.timeExtend}` : '';
+    setTimeout(() => showAchievementToast(`🎁 Inventori diklaim: ❄️×${inv.freeze} 2️⃣×${inv.double} ⏭️×${inv.skip}${teStr}`), 800);
   }
 }
 
@@ -5138,8 +5199,8 @@ function renderScoreBreakdown(sessionBonusPoints) {
   html += rowHtml('⭐ Lucky Trash Bonus', bd.luckyBonus);
   html += rowHtml('🎮 Bonus Sesi Harian', sessionBonusPoints || bd.sessionBonus);
   
-  if (puUsed.freeze || puUsed.double || puUsed.skip) {
-    const puStr = [puUsed.freeze?`❄️×${puUsed.freeze}`:'', puUsed.double?`2️⃣×${puUsed.double}`:'', puUsed.skip?`⏭️×${puUsed.skip}`:''].filter(Boolean).join(' ');
+  if (puUsed.freeze || puUsed.double || puUsed.skip || puUsed.timeExtend) {
+    const puStr = [puUsed.freeze?`❄️×${puUsed.freeze}`:'', puUsed.double?`2️⃣×${puUsed.double}`:'', puUsed.skip?`⏭️×${puUsed.skip}`:'', puUsed.timeExtend?`⏳×${puUsed.timeExtend}`:''].filter(Boolean).join(' ');
     html += `<div class="score-breakdown-row"><span class="text-blue-300 text-[0.6rem]">Power-up digunakan: ${puStr}</span></div>`;
   }
   
@@ -6113,6 +6174,57 @@ function renderFinalBadges(rec) {
   if(tags.length>0) {
     html += `<div class="w-full flex flex-wrap gap-1 mt-1">` + tags.map(t=>`<span class="text-[0.6rem] font-bold text-purple-600 bg-purple-50 border border-purple-200 rounded-full px-2 py-0.5">#${t}</span>`).join('') + `</div>`;
   }
+
+  // ── TARGET (LOCKED) BADGES ────────────────────────────────────────
+  // Next primary badge target
+  const BADGE_ORDER = ['Bronze','Silver','Gold','Platinum','Epic','Grandmaster','Diamond','Legend','Master','Immortal'];
+  const nextPrimaryIdx = BADGE_ORDER.indexOf(primary) + 1;
+  const lockedBadges = [];
+  if (nextPrimaryIdx < BADGE_ORDER.length) {
+    lockedBadges.push({ label: `${formatBadge(BADGE_ORDER[nextPrimaryIdx])}`, cls: getBadgeClass(BADGE_ORDER[nextPrimaryIdx]), tip: 'Badge Utama Berikutnya' });
+  }
+  // Next secondary badge targets (most achievable)
+  const score = rec.score||0; const acc = rec.accuracy||0; const combo = rec.bestCombo||0; const attempts = rec.attempts||0;
+  const secTargets = [
+    !secArr.includes('Daily Challenger') && { label:'Daily Challenger', cls:'badge-daily', tip:'Selesaikan Daily Challenge hari ini' },
+    !secArr.includes('Rising Star') && score > 0 && { label:'Rising Star', cls:'badge-rising', tip:`Tingkatkan skor +100 dari rekor` },
+    !secArr.includes('High Scorer') && score < 700 && { label:'High Scorer', cls:'badge-epic', tip:'Raih skor 700+' },
+    !secArr.includes('Elite') && (score < 1000 || acc < 85) && { label:'Elite', cls:'badge-grandmaster', tip:'Skor 1000+ & akurasi 85%+' },
+    !secArr.includes('Hot Streak') && combo < 12 && { label:'Hot Streak', cls:'badge-epic', tip:'Raih combo 12x beruntun' },
+    !secArr.includes('Combo Master') && combo < 20 && { label:'Combo Master', cls:'badge-master', tip:'Raih combo 20x beruntun' },
+    !secArr.includes('Sharpshooter') && acc < 88 && { label:'Sharpshooter', cls:'badge-sharpshooter', tip:'Akurasi 88%+ minimal 10 jawaban' },
+    !secArr.includes('Newcomer') && attempts < 3 && { label:'Newcomer', cls:'badge-newcomer', tip:'Main 3 kali untuk unlock' },
+    !secArr.includes('Explorer') && attempts < 10 && { label:'Explorer', cls:'badge-curious', tip:'Main 10 kali untuk unlock' },
+    !secArr.includes('Regular') && attempts < 30 && attempts >= 10 && { label:'Regular', cls:'badge-consistent', tip:'Main 30 kali untuk unlock' },
+  ].filter(Boolean).slice(0,4);
+
+  // Next tag targets
+  const tagTargets = [
+    !tags.includes('ComboPro') && combo < 20 && { label:'#ComboPro', tip:'Combo 20x dalam satu sesi' },
+    !tags.includes('ComboInsane') && combo < 30 && { label:'#ComboInsane', tip:'Combo 30x dalam satu sesi' },
+    !tags.includes('OrganikPro') && { label:'#OrganikPro', tip:'Akurasi 95%+ di Sisa Makanan' },
+    !tags.includes('DaurUlangPro') && { label:'#DaurUlangPro', tip:'Akurasi 95%+ di Laku Jual' },
+    !tags.includes('ResiduPro') && { label:'#ResiduPro', tip:'Akurasi 95%+ di Residu' },
+  ].filter(Boolean).slice(0,3);
+
+  if (lockedBadges.length > 0 || secTargets.length > 0 || tagTargets.length > 0) {
+    html += `<div class="w-full mt-2 pt-2 border-t border-dashed border-gray-200">`;
+    html += `<p class="text-[0.58rem] font-black text-gray-400 uppercase tracking-widest mb-1.5">🎯 Target Berikutnya</p>`;
+    html += `<div class="flex flex-wrap gap-1.5">`;
+    lockedBadges.forEach(b => {
+      html += `<span title="${b.tip}" class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-black ${b.cls} opacity-30 cursor-default select-none" style="filter:grayscale(0.5)">🔒 ${escHtml(b.label)}</span>`;
+    });
+    secTargets.forEach(b => {
+      html += `<span title="${b.tip}" class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-bold ${b.cls} opacity-25 cursor-default select-none" style="filter:grayscale(0.4)">🔒 ${escHtml(b.label)}</span>`;
+    });
+    tagTargets.forEach(b => {
+      html += `<span title="${b.tip}" class="text-[0.6rem] font-bold text-purple-400 bg-purple-50 border border-purple-100 rounded-full px-2 py-0.5 opacity-40 cursor-default select-none">🔒 ${escHtml(b.label)}</span>`;
+    });
+    html += `</div>`;
+    html += `<p class="text-[0.55rem] text-gray-400 mt-1 italic">Badge buram = belum diraih. Hover untuk lihat syarat.</p>`;
+    html += `</div>`;
+  }
+
   row.innerHTML=html;
   const pbEl=document.getElementById('final-pb');
   if(pbEl) pbEl.textContent=`Personal best – Skor: ${rec.score} | Akurasi: ${rec.accuracy||0}% | D/B/S: ${rec.total||0}/${rec.correct||0}/${rec.wrong||0}`;
@@ -6492,6 +6604,7 @@ document.addEventListener('keydown', e=>{
   else if(k==='q') activatePowerup('freeze');
   else if(k==='w') activatePowerup('double');
   else if(k==='e') activatePowerup('skip');
+  else if(k==='r') activatePowerup('timeExtend');
 });
 
 // ──────────────────────────────────────────
