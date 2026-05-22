@@ -448,6 +448,123 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
 /* ─── MOBILE SWIPE ARROWS ─── */
 @keyframes swipeArrowL{0%{opacity:0.7;transform:translateX(0);}50%{opacity:0.3;transform:translateX(-6px);}100%{opacity:0.7;transform:translateX(0);}}
 @keyframes swipeArrowR{0%{opacity:0.7;transform:translateX(0);}50%{opacity:0.3;transform:translateX(6px);}100%{opacity:0.7;transform:translateX(0);}}
+
+/* ─── DAILY LOGIN MODAL ─── */
+#daily-login-modal .modal-card{
+  width:min(92vw,380px);background:linear-gradient(160deg,#0f172a 0%,#1e3a5f 50%,#0f172a 100%);
+  border:1px solid rgba(255,255,255,0.12);color:white;overflow:hidden;
+}
+@keyframes loginGlow{0%,100%{box-shadow:0 0 0 0 rgba(251,191,36,0.3);}50%{box-shadow:0 0 30px 8px rgba(251,191,36,0.15);}}
+.login-reward-item{
+  background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);
+  border-radius:14px;padding:10px 14px;display:flex;align-items:center;gap:12px;
+  transition:transform 0.2s;
+}
+.login-reward-item.claimed{background:rgba(34,197,94,0.15);border-color:rgba(34,197,94,0.4);}
+@keyframes rewardPop{0%{transform:scale(0.5);opacity:0;}70%{transform:scale(1.1);}100%{transform:scale(1);opacity:1;}}
+.reward-pop{animation:rewardPop 0.5s cubic-bezier(0.34,1.56,0.64,1) forwards;}
+.streak-flame{display:inline-flex;align-items:center;gap:3px;background:linear-gradient(135deg,#f97316,#ef4444);
+  color:white;border-radius:999px;padding:4px 12px;font-size:0.72rem;font-weight:900;
+  box-shadow:0 2px 12px rgba(239,68,68,0.4);}
+@keyframes flameFlicker{0%,100%{transform:scale(1)rotate(-1deg);}50%{transform:scale(1.08)rotate(1deg);}}
+.streak-flame{animation:flameFlicker 1.5s ease-in-out infinite;}
+#daily-login-modal .reward-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+
+/* ─── POWERUP BAR ENHANCED ─── */
+.powerup-stack-count{
+  min-width:20px;height:20px;background:rgba(0,0,0,0.25);
+  border-radius:999px;display:inline-flex;align-items:center;justify-content:center;
+  font-size:0.7rem;font-weight:900;padding:0 5px;
+}
+.powerup-btn.has-many .powerup-stack-count{background:rgba(255,255,255,0.4);animation:stackPulse 1.2s ease-in-out infinite;}
+@keyframes stackPulse{0%,100%{transform:scale(1);}50%{transform:scale(1.15);}}
+.powerup-btn.active-pu{animation:puActivePulse 0.6s ease-in-out infinite;}
+@keyframes puActivePulse{0%,100%{box-shadow:0 2px 8px rgba(0,0,0,0.2);}50%{box-shadow:0 0 18px rgba(255,255,255,0.6);}}
+
+/* ─── PLAY MILESTONE BADGE ─── */
+.play-milestone-bar{
+  height:6px;background:#e2e8f0;border-radius:999px;overflow:hidden;margin-top:4px;
+}
+.play-milestone-fill{height:100%;background:linear-gradient(90deg,#7AB800,#F37021,#7c3aed);border-radius:999px;transition:width 0.6s ease-out;}
+.milestone-badge{
+  display:inline-flex;align-items:center;gap:4px;
+  border-radius:999px;padding:3px 10px;font-size:0.65rem;font-weight:900;
+}
+.milestone-badge.active{background:linear-gradient(135deg,#fbbf24,#f97316);color:white;box-shadow:0 2px 8px rgba(251,191,36,0.4);}
+.milestone-badge.locked{background:#f1f5f9;color:#94a3b8;}
+
+/* ─── LOGIN STREAK DISPLAY ─── */
+.login-streak-card{
+  background:linear-gradient(135deg,#fef9c3,#fef3c7);border:1.5px solid #fde68a;
+  border-radius:14px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:8px;
+}
+.login-day-pip{
+  width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+  font-size:0.65rem;font-weight:900;flex-shrink:0;transition:transform 0.2s;
+}
+.login-day-pip.done{background:linear-gradient(135deg,#22c55e,#16a34a);color:white;box-shadow:0 2px 6px rgba(34,197,94,0.4);}
+.login-day-pip.today{background:linear-gradient(135deg,#f59e0b,#ea580c);color:white;animation:pipPulse 1.4s ease-in-out infinite;box-shadow:0 2px 8px rgba(245,158,11,0.5);}
+.login-day-pip.empty{background:#f1f5f9;color:#94a3b8;}
+
+/* ─── SCORE BREAKDOWN SECTION ─── */
+.score-breakdown-card{
+  background:linear-gradient(135deg,#1e1b4b,#1e3a5f);color:white;
+  border-radius:18px;padding:14px;border:1px solid rgba(255,255,255,0.1);
+}
+.score-breakdown-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.08);font-size:0.72rem;
+}
+.score-breakdown-row:last-child{border-bottom:none;}
+.score-breakdown-row.total{
+  border-top:1px solid rgba(255,255,255,0.25);padding-top:10px;margin-top:4px;
+  font-size:1rem;font-weight:900;
+}
+@keyframes countUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+.count-up{animation:countUp 0.4s ease-out forwards;}
+
+/* ─── ENHANCED RESULT CARDS ─── */
+.result-history-item{
+  display:flex;align-items:center;gap:8px;padding:8px 10px;
+  border-radius:12px;border:1px solid #f1f5f9;background:white;
+  font-size:0.72rem;transition:background 0.15s;
+}
+.result-history-item.correct{border-left:3px solid #22c55e;}
+.result-history-item.wrong{border-left:3px solid #ef4444;}
+.result-toggle-btn{
+  width:100%;padding:8px;background:#f8fafc;border:1px solid #e2e8f0;
+  border-radius:10px;font-size:0.7rem;font-weight:700;color:#64748b;
+  cursor:pointer;transition:all 0.15s;text-align:center;
+}
+.result-toggle-btn:hover{background:#eff6ff;color:#2563eb;}
+
+/* ─── POWERUP INVENTORY TOOLTIP ─── */
+.pu-tooltip{
+  position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);
+  background:#1e293b;color:white;border-radius:8px;padding:6px 10px;
+  font-size:0.62rem;font-weight:700;white-space:nowrap;pointer-events:none;
+  opacity:0;transition:opacity 0.2s;z-index:100;
+}
+.powerup-btn:hover .pu-tooltip{opacity:1;}
+
+/* ─── NEW BADGE: LOGIN STREAK ─── */
+.badge-login-streak{background:linear-gradient(135deg,#f59e0b,#b45309);color:#fff;border:1px solid #92400e;animation:badgeGlow 2s ease-in-out infinite;}
+
+/* ─── MILESTONE TOAST ─── */
+@keyframes milestoneToastIn{
+  0%{transform:translate(-50%,60px);opacity:0;}
+  60%{transform:translate(-50%,-8px);opacity:1;}
+  100%{transform:translate(-50%,0);opacity:1;}
+}
+#milestone-toast{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(60px);
+  background:linear-gradient(135deg,#7c3aed,#1e40af);color:white;
+  border-radius:18px;padding:12px 20px;font-size:0.78rem;font-weight:800;
+  box-shadow:0 8px 28px rgba(0,0,0,0.3);z-index:600;opacity:0;
+  pointer-events:none;white-space:nowrap;text-align:center;
+  transition:transform 0.5s cubic-bezier(0.34,1.56,0.64,1),opacity 0.5s;
+}
+#milestone-toast.visible{transform:translateX(-50%) translateY(0);opacity:1;}
 </style>
 </head>
 <body class="bg-dots">
@@ -455,8 +572,58 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
 <!-- Achievement Toast -->
 <div id="achievement-toast">🏆 <span id="achievement-text">Achievement!</span></div>
 
+<!-- Milestone Toast (bottom) -->
+<div id="milestone-toast">🎁 <span id="milestone-text">Milestone!</span></div>
+
 <!-- ════════════════════════════════════════ -->
-<!--            START SCREEN                -->
+<!--        DAILY LOGIN REWARD MODAL        -->
+<!-- ════════════════════════════════════════ -->
+<div id="daily-login-modal" class="modal-backdrop hidden">
+  <div class="modal-card w-full" style="max-width:min(92vw,400px);background:linear-gradient(160deg,#0f172a 0%,#1e3a5f 60%,#0f172a 100%);border:1px solid rgba(255,255,255,0.12);color:white;overflow:hidden;">
+    <!-- Header glow orb -->
+    <div style="position:absolute;top:-40px;left:50%;transform:translateX(-50%);width:160px;height:160px;background:radial-gradient(circle,rgba(251,191,36,0.25),transparent 70%);pointer-events:none;z-index:0;"></div>
+    <div class="relative z-10 p-5">
+      <div class="text-center mb-4">
+        <div class="text-5xl mb-2" id="login-reward-emoji">🎁</div>
+        <h3 class="text-xl font-black text-white leading-tight" id="login-modal-title">Selamat Datang Kembali!</h3>
+        <p class="text-sm text-blue-200 mt-1" id="login-modal-subtitle">Login hari ini untuk bonus power-up</p>
+        <!-- Streak display -->
+        <div class="mt-3 flex justify-center">
+          <div class="streak-flame" id="login-streak-display">🔥 Streak: 1 hari</div>
+        </div>
+      </div>
+
+      <!-- 7-day streak progress -->
+      <div class="mb-4">
+        <p class="text-[0.65rem] font-black text-blue-300 uppercase tracking-widest mb-2 text-center">Streak 7 Hari Kamu</p>
+        <div class="flex justify-center gap-1.5" id="login-streak-pips"></div>
+      </div>
+
+      <!-- Rewards received -->
+      <div class="mb-4">
+        <p class="text-[0.65rem] font-black text-yellow-300 uppercase tracking-widest mb-2">🎁 Hadiah Hari Ini:</p>
+        <div id="login-rewards-list" class="space-y-2">
+          <!-- filled by JS -->
+        </div>
+      </div>
+
+      <!-- Play count milestone -->
+      <div id="login-milestone-section" class="hidden mb-4 rounded-xl bg-gradient-to-r from-purple-900/50 to-indigo-900/50 border border-purple-500/30 p-3">
+        <p class="text-[0.65rem] font-black text-purple-300 uppercase tracking-widest mb-1">🏆 Milestone Dimainkan!</p>
+        <p id="login-milestone-text" class="text-sm font-bold text-white"></p>
+        <p id="login-milestone-reward" class="text-xs text-purple-200 mt-0.5"></p>
+      </div>
+
+      <button id="claim-login-reward-btn" onclick="claimDailyLoginReward()" 
+        class="w-full bg-gradient-to-r from-yellow-400 to-orange-500 text-white font-black py-3.5 rounded-xl shadow-lg active:scale-95 transition text-base tracking-wide border-b-4 border-orange-700">
+        ⚡ Ambil Hadiah & Main!
+      </button>
+      <button onclick="closeDailyLoginModal()" class="w-full mt-2 text-blue-300 text-xs font-semibold py-2 hover:text-white transition text-center block">
+        Nanti saja
+      </button>
+    </div>
+  </div>
+</div>
 <!-- ════════════════════════════════════════ -->
 <div id="start-screen" class="screen active">
   <!-- decorative blobs -->
@@ -506,7 +673,30 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
         <!-- rank change notification for this name -->
         <div id="start-rank-notif" class="hidden rounded-xl px-3 py-2.5 mb-3 text-xs font-semibold text-center leading-snug"></div>
 
-        <!-- daily challenge card - CLICKABLE -->
+        <!-- LOGIN STREAK & PLAY MILESTONE (shown after name entered) -->
+        <div id="login-streak-card" class="login-streak-card mb-3 hidden">
+          <div class="flex-1">
+            <div class="flex items-center gap-2 mb-1.5">
+              <span class="streak-flame text-sm" id="ls-flame">🔥 0 hari</span>
+              <span id="ls-claim-btn" onclick="showDailyLoginModal()" class="text-[0.65rem] font-black px-2 py-0.5 rounded-full cursor-pointer bg-orange-500 text-white hidden">🎁 Ambil!</span>
+            </div>
+            <div class="flex gap-1" id="ls-pips"></div>
+          </div>
+          <div class="text-right">
+            <p class="text-[0.6rem] font-black text-amber-700 uppercase">Power-up</p>
+            <p class="text-base font-black text-amber-800" id="ls-pu-count">❄️×<span id="ls-freeze">0</span> 2️⃣×<span id="ls-double">0</span> ⏭️×<span id="ls-skip">0</span></p>
+          </div>
+        </div>
+
+        <!-- Play count milestone progress -->
+        <div id="play-milestone-card" class="hidden mb-3 bg-gradient-to-r from-purple-50 to-indigo-50 border border-purple-100 rounded-xl px-4 py-3">
+          <div class="flex items-center justify-between mb-1">
+            <p class="text-[0.62rem] font-black text-purple-700 uppercase tracking-widest">🏆 Milestone Main</p>
+            <span id="play-milestone-badge" class="milestone-badge locked">–</span>
+          </div>
+          <div class="play-milestone-bar"><div id="play-milestone-fill" class="play-milestone-fill" style="width:0%"></div></div>
+          <p id="play-milestone-label" class="text-[0.62rem] text-purple-600 font-semibold mt-1.5">Main lebih banyak untuk bonus!</p>
+        </div>
         <div id="dc-card-container" class="mb-3 rounded-xl border border-blue-100 bg-gradient-to-r from-blue-50 to-sky-50 px-4 py-3 hover:shadow-md hover:border-blue-200 transition cursor-pointer" onclick="openDCHistoryModal()">
           <div class="flex items-center justify-between gap-2 mb-1">
             <p class="text-[0.65rem] font-black text-pktBlue uppercase tracking-wider">⚡ Daily Challenge (Klik untuk Riwayat)</p>
@@ -759,16 +949,19 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
     <!-- Power-up bar -->
     <div id="powerup-bar">
       <span class="text-[0.58rem] font-black text-gray-400 uppercase tracking-wide">⚡ Power-up:</span>
-      <button id="pu-freeze" class="powerup-btn powerup-freeze" onclick="activatePowerup('freeze')" title="Bekukan waktu 5 detik">
-        ❄️ Freeze <span id="pu-freeze-count" class="bg-white/50 rounded px-1">1</span>
+      <button id="pu-freeze" class="powerup-btn powerup-freeze" onclick="activatePowerup('freeze')" title="Bekukan waktu 5 detik (Q)">
+        ❄️ Freeze <span id="pu-freeze-count" class="powerup-stack-count">0</span>
+        <span class="pu-tooltip">Tambah 5 detik waktu<br>Shortcut: Q</span>
         <div class="powerup-cooldown" id="pu-freeze-cd" style="width:0%"></div>
       </button>
-      <button id="pu-double" class="powerup-btn powerup-double" onclick="activatePowerup('double')" title="Double poin 10 detik">
-        2️⃣ 2x Poin <span id="pu-double-count" class="bg-white/50 rounded px-1">1</span>
+      <button id="pu-double" class="powerup-btn powerup-double" onclick="activatePowerup('double')" title="Double poin 10 detik (W)">
+        2️⃣ 2x Poin <span id="pu-double-count" class="powerup-stack-count">0</span>
+        <span class="pu-tooltip">Poin ×2 selama 10 detik<br>Shortcut: W</span>
         <div class="powerup-cooldown" id="pu-double-cd" style="width:0%"></div>
       </button>
-      <button id="pu-skip" class="powerup-btn powerup-skip" onclick="activatePowerup('skip')" title="Lewati sampah ini">
-        ⏭️ Skip <span id="pu-skip-count" class="bg-white/50 rounded px-1">2</span>
+      <button id="pu-skip" class="powerup-btn powerup-skip" onclick="activatePowerup('skip')" title="Lewati sampah ini (E)">
+        ⏭️ Skip <span id="pu-skip-count" class="powerup-stack-count">0</span>
+        <span class="pu-tooltip">Lewati 1 soal<br>Shortcut: E</span>
         <div class="powerup-cooldown" id="pu-skip-cd" style="width:0%"></div>
       </button>
     </div>
@@ -866,6 +1059,13 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
             <p class="text-xl font-black text-gray-700"><span id="final-correct">0</span>/<span id="final-wrong">0</span></p>
           </div>
         </div>
+
+        <!-- Score Breakdown (dark card) -->
+        <div id="score-breakdown-card" class="score-breakdown-card mb-2 hidden">
+          <p class="text-[0.6rem] font-black text-blue-300 uppercase tracking-widest mb-2">💡 Rincian Skor</p>
+          <div id="score-breakdown-rows"></div>
+        </div>
+
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-2">
           <div class="bg-white rounded-xl p-2.5 border border-gray-100 shadow-sm sm:col-span-1 flex flex-col justify-center min-h-[86px]">
             <p class="text-[0.58rem] text-gray-400 font-black uppercase">Peringkat</p>
@@ -891,11 +1091,14 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
           <div id="eco-tip-strip" class="hidden text-[0.62rem] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-100 rounded-lg px-3 py-2 mt-3">–</div>
         </div>
         <div id="curriculum-results-card" class="rounded-xl border border-blue-100 bg-white p-3 mb-2 hidden">
-          <p class="text-[0.62rem] font-black text-pktBlue uppercase tracking-wider mb-2">Hasil Mode Kurikulum</p>
+          <p class="text-[0.62rem] font-black text-pktBlue uppercase tracking-wider mb-2">📚 Hasil Mode Kurikulum</p>
           <div id="curriculum-results-list" class="space-y-1 text-[0.68rem] text-slate-700"></div>
         </div>
         <div id="ranked-results-card" class="rounded-xl border border-blue-100 bg-white p-3 mb-2 hidden">
-          <p class="text-[0.62rem] font-black text-pktBlue uppercase tracking-wider mb-2">Hasil Mode Ranked</p>
+          <div class="flex items-center justify-between mb-2">
+            <p class="text-[0.62rem] font-black text-pktBlue uppercase tracking-wider">🎯 Hasil Mode Ranked</p>
+            <button id="ranked-toggle-btn" onclick="toggleRankedHistory()" class="result-toggle-btn" style="width:auto;padding:3px 10px">Lihat Semua</button>
+          </div>
           <div id="ranked-results-list" class="space-y-1 text-[0.68rem] text-slate-700"></div>
         </div>
         <!-- learning report -->
@@ -1390,6 +1593,322 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
 <!-- ════════════════════════════════════════ -->
 <script>
 // ──────────────────────────────────────────
+//  DAILY LOGIN & PLAY COUNT BONUS SYSTEM
+// ──────────────────────────────────────────
+
+const LOGIN_STORAGE_KEY = 'eco_daily_login_v1';
+const PLAY_MILESTONE_KEY = 'eco_play_milestone_v1';
+const MAX_PU_STACK = 7; // max stackable per type
+
+// Power-up inventory persisted across sessions
+let puInventory = { freeze: 0, double: 0, skip: 0 };
+
+function loadPuInventory() {
+  try {
+    const raw = localStorage.getItem('eco_pu_inventory');
+    if (raw) { const p = JSON.parse(raw); puInventory = { freeze: p.freeze||0, double: p.double||0, skip: p.skip||0 }; }
+  } catch(e) {}
+}
+
+function savePuInventory() {
+  try { localStorage.setItem('eco_pu_inventory', JSON.stringify(puInventory)); } catch(e) {}
+}
+
+function addToPuInventory(key, amount) {
+  puInventory[key] = Math.min(MAX_PU_STACK, (puInventory[key] || 0) + amount);
+  savePuInventory();
+}
+
+// ─── Daily Login Streak ────────────────────
+function getLoginData() {
+  try {
+    const raw = localStorage.getItem(LOGIN_STORAGE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch(e) {}
+  return { streak: 0, lastLoginDate: null, totalDaysPlayed: 0, claimedToday: false };
+}
+
+function saveLoginData(data) {
+  try { localStorage.setItem(LOGIN_STORAGE_KEY, JSON.stringify(data)); } catch(e) {}
+}
+
+function getTodayStr() { return new Date().toISOString().split('T')[0]; }
+
+function getYesterdayStr() {
+  const d = new Date(); d.setDate(d.getDate()-1);
+  return d.toISOString().split('T')[0];
+}
+
+function getDailyLoginRewards(streak) {
+  const rewards = [];
+  const day = ((streak - 1) % 7) + 1; // cycles every 7 days
+  if (day === 1) rewards.push({ key:'skip', amount:1, label:'⏭️ +1 Skip' });
+  else if (day === 2) rewards.push({ key:'double', amount:1, label:'2️⃣ +1 Double Poin' });
+  else if (day === 3) { rewards.push({ key:'skip', amount:1, label:'⏭️ +1 Skip' }); rewards.push({ key:'freeze', amount:1, label:'❄️ +1 Freeze' }); }
+  else if (day === 4) rewards.push({ key:'double', amount:1, label:'2️⃣ +1 Double Poin' });
+  else if (day === 5) { rewards.push({ key:'freeze', amount:1, label:'❄️ +1 Freeze' }); rewards.push({ key:'skip', amount:1, label:'⏭️ +1 Skip' }); }
+  else if (day === 6) { rewards.push({ key:'double', amount:2, label:'2️⃣ +2 Double Poin' }); }
+  else if (day === 7) { rewards.push({ key:'freeze', amount:2, label:'❄️ +2 Freeze' }); rewards.push({ key:'double', amount:2, label:'2️⃣ +2 Double Poin' }); rewards.push({ key:'skip', amount:3, label:'⏭️ +3 Skip' }); }
+  return rewards;
+}
+
+function checkAndInitLoginStreak() {
+  const today = getTodayStr();
+  const data = getLoginData();
+  
+  if (data.lastLoginDate === today) {
+    // Already visited today, update claimedToday flag if not set
+    return data;
+  }
+  
+  // New day
+  const yesterday = getYesterdayStr();
+  if (data.lastLoginDate === yesterday) {
+    data.streak = (data.streak || 0) + 1;
+  } else if (!data.lastLoginDate) {
+    data.streak = 1;
+  } else {
+    data.streak = 1; // Streak broken
+  }
+  
+  data.lastLoginDate = today;
+  data.totalDaysPlayed = (data.totalDaysPlayed || 0) + 1;
+  data.claimedToday = false;
+  saveLoginData(data);
+  return data;
+}
+
+function showDailyLoginModal() {
+  const playerName = (document.getElementById('player-name')?.value || '').trim();
+  if (!playerName) { return; } // No modal without name
+  
+  const data = getLoginData();
+  const today = getTodayStr();
+  
+  if (data.lastLoginDate !== today) {
+    checkAndInitLoginStreak();
+  }
+  const fresh = getLoginData();
+  
+  // Build modal content
+  const streak = fresh.streak || 1;
+  const day = ((streak - 1) % 7) + 1;
+  const rewards = getDailyLoginRewards(streak);
+  
+  const emojis = ['🌱','🌿','🌲','🌳','🦋','🦅','🌟'];
+  document.getElementById('login-reward-emoji').textContent = emojis[day-1] || '🎁';
+  document.getElementById('login-modal-title').textContent = fresh.claimedToday ? 'Sudah Login Hari Ini!' : `Selamat Datang Kembali, ${playerName}!`;
+  document.getElementById('login-modal-subtitle').textContent = fresh.claimedToday ? 'Kamu sudah mengambil hadiah hari ini.' : `Hari ke-${streak} — Ambil hadiahmu!`;
+  document.getElementById('login-streak-display').innerHTML = `🔥 Streak: ${streak} hari`;
+  
+  // Streak pips (7-day cycle)
+  const pipsEl = document.getElementById('login-streak-pips');
+  if (pipsEl) {
+    let pipsHtml = '';
+    const dayNames = ['Sen','Sel','Rab','Kam','Jum','Sab','Min'];
+    for (let i = 1; i <= 7; i++) {
+      let cls = 'login-day-pip empty';
+      let icon = dayNames[i-1];
+      if (i < day) { cls = 'login-day-pip done'; icon = '✓'; }
+      else if (i === day) { cls = 'login-day-pip today'; icon = '⭐'; }
+      pipsHtml += `<div class="${cls}" title="Hari ${i}">${icon}</div>`;
+    }
+    pipsEl.innerHTML = pipsHtml;
+  }
+  
+  // Reward list
+  const rewardsList = document.getElementById('login-rewards-list');
+  if (rewardsList) {
+    if (fresh.claimedToday) {
+      rewardsList.innerHTML = `<div class="login-reward-item claimed"><span class="text-xl">✅</span><span class="text-sm font-semibold">Hadiah sudah diambil hari ini</span></div>`;
+    } else {
+      rewardsList.innerHTML = rewards.map(r => 
+        `<div class="login-reward-item reward-pop"><span class="text-2xl">${r.label.split(' ')[0]}</span><div><p class="text-sm font-black text-white">${r.label}</p><p class="text-xs text-blue-300">Ditambahkan ke inventori</p></div></div>`
+      ).join('');
+    }
+  }
+  
+  // Check play count milestone
+  checkPlayCountMilestoneDisplay(playerName);
+  
+  document.getElementById('claim-login-reward-btn').textContent = fresh.claimedToday ? '▶ Main Sekarang!' : '⚡ Ambil Hadiah & Main!';
+  document.getElementById('claim-login-reward-btn').onclick = fresh.claimedToday ? () => closeDailyLoginModal() : claimDailyLoginReward;
+  
+  document.getElementById('daily-login-modal').classList.remove('hidden');
+}
+
+function closeDailyLoginModal() {
+  document.getElementById('daily-login-modal').classList.add('hidden');
+  updateLoginStreakCard();
+}
+
+function claimDailyLoginReward() {
+  const data = getLoginData();
+  if (data.claimedToday) { closeDailyLoginModal(); return; }
+  
+  const streak = data.streak || 1;
+  const rewards = getDailyLoginRewards(streak);
+  
+  rewards.forEach(r => addToPuInventory(r.key, r.amount));
+  
+  data.claimedToday = true;
+  saveLoginData(data);
+  
+  // Animate claim
+  const list = document.getElementById('login-rewards-list');
+  if (list) {
+    list.innerHTML = `<div class="login-reward-item claimed reward-pop"><span class="text-2xl">✅</span><div><p class="text-sm font-black text-white">Hadiah diklaim!</p><p class="text-xs text-green-300">❄️×${puInventory.freeze} 2️⃣×${puInventory.double} ⏭️×${puInventory.skip} tersedia</p></div></div>`;
+  }
+  
+  setTimeout(() => {
+    closeDailyLoginModal();
+    showMilestoneToast(`🎁 Login Streak ${streak} hari! Power-up diklaim!`);
+    updateLoginStreakCard();
+  }, 1200);
+}
+
+function updateLoginStreakCard() {
+  const nameInput = document.getElementById('player-name');
+  const name = nameInput ? nameInput.value.trim() : '';
+  const data = getLoginData();
+  const card = document.getElementById('login-streak-card');
+  if (!card) return;
+  
+  if (!name) { card.classList.add('hidden'); return; }
+  card.classList.remove('hidden');
+  
+  const streak = data.streak || 0;
+  const flameEl = document.getElementById('ls-flame');
+  const claimBtn = document.getElementById('ls-claim-btn');
+  if (flameEl) flameEl.innerHTML = `🔥 ${streak} hari`;
+  if (claimBtn) {
+    const canClaim = data.lastLoginDate === getTodayStr() && !data.claimedToday;
+    claimBtn.classList.toggle('hidden', !canClaim);
+  }
+  
+  // Pips
+  const pips = document.getElementById('ls-pips');
+  if (pips) {
+    let html = '';
+    const day = ((streak - 1) % 7) + 1;
+    for (let i = 1; i <= 7; i++) {
+      let cls = 'login-day-pip empty';
+      let icon = i;
+      if (streak === 0) {}
+      else if (i < day) { cls = 'login-day-pip done'; icon = '✓'; }
+      else if (i === day) { cls = 'login-day-pip today'; icon = '⭐'; }
+      html += `<div class="${cls}" style="width:24px;height:24px;border-radius:6px;">${icon}</div>`;
+    }
+    pips.innerHTML = html;
+  }
+  
+  // Power-up inventory display
+  const f = document.getElementById('ls-freeze');
+  const d = document.getElementById('ls-double');
+  const s = document.getElementById('ls-skip');
+  if (f) f.textContent = puInventory.freeze;
+  if (d) d.textContent = puInventory.double;
+  if (s) s.textContent = puInventory.skip;
+}
+
+// ─── Play Count Milestones ─────────────────
+const PLAY_MILESTONES = [
+  { at: 5,   rewards: { skip:1 },            label:'🎮 5 Game! +1 Skip',          badge:'Pemula Aktif' },
+  { at: 10,  rewards: { double:1 },           label:'🎮 10 Game! +1 Double',        badge:'Penjelajah' },
+  { at: 25,  rewards: { freeze:1, double:1 }, label:'🎮 25 Game! Freeze + Double',  badge:'Veteran' },
+  { at: 50,  rewards: { freeze:2, double:2, skip:3 }, label:'🎮 50 Game! MEGA PACK!', badge:'Master Ekologi' },
+  { at: 100, rewards: { freeze:3, double:3, skip:5 }, label:'🏆 100 Game! LEGENDARY PACK!', badge:'Legenda Ekologi' },
+];
+
+function getPlayMilestoneData() {
+  try { const r=localStorage.getItem(PLAY_MILESTONE_KEY); return r?JSON.parse(r):{claimed:[]}; } catch(e) { return {claimed:[]}; }
+}
+
+function savePlayMilestoneData(data) {
+  try { localStorage.setItem(PLAY_MILESTONE_KEY, JSON.stringify(data)); } catch(e) {}
+}
+
+function checkPlayCountMilestone(attempts) {
+  const mData = getPlayMilestoneData();
+  const unclaimed = PLAY_MILESTONES.filter(m => m.at <= attempts && !mData.claimed.includes(m.at));
+  unclaimed.forEach(m => {
+    Object.entries(m.rewards).forEach(([key, amount]) => addToPuInventory(key, amount));
+    mData.claimed.push(m.at);
+    setTimeout(() => showMilestoneToast(`${m.label}`), 300);
+  });
+  if (unclaimed.length > 0) savePlayMilestoneData(mData);
+}
+
+function checkPlayCountMilestoneDisplay(name) {
+  if (!name) return;
+  const cachedRecord = lbCache.find(r => r.id === name.replace(/[.#$[\]/\s]/g,'_').toUpperCase());
+  const attempts = cachedRecord ? (cachedRecord.attempts || 0) : 0;
+  const mData = getPlayMilestoneData();
+  
+  const next = PLAY_MILESTONES.find(m => m.at > attempts);
+  const last = [...PLAY_MILESTONES].reverse().find(m => m.at <= attempts);
+  const unclaimed = PLAY_MILESTONES.filter(m => m.at <= attempts && !mData.claimed.includes(m.at));
+  
+  const section = document.getElementById('login-milestone-section');
+  const textEl = document.getElementById('login-milestone-text');
+  const rewardEl = document.getElementById('login-milestone-reward');
+  
+  if (unclaimed.length > 0) {
+    if (section) section.classList.remove('hidden');
+    if (textEl) textEl.textContent = `${unclaimed[0].badge} — ${unclaimed[0].label}`;
+    if (rewardEl) rewardEl.textContent = 'Hadiah bonus belum diklaim! Akan diklaim otomatis saat main.';
+  } else if (next) {
+    if (section) section.classList.remove('hidden');
+    if (textEl) textEl.textContent = `Menuju ${next.at} game (${attempts}/${next.at})`;
+    if (rewardEl) rewardEl.textContent = `Reward: ${Object.entries(next.rewards).map(([k,v])=>({freeze:'❄️',double:'2️⃣',skip:'⏭️'}[k]+` ×${v}`)).join(' ')}`;
+  } else {
+    if (section) section.classList.add('hidden');
+  }
+}
+
+function renderPlayMilestoneOnStart() {
+  const name = (document.getElementById('player-name')?.value || '').trim();
+  const card = document.getElementById('play-milestone-card');
+  if (!card) return;
+  if (!name) { card.classList.add('hidden'); return; }
+  card.classList.remove('hidden');
+  
+  const cachedRecord = lbCache.find(r => r.id === name.replace(/[.#$[\]/\s]/g,'_').toUpperCase());
+  const attempts = cachedRecord ? (cachedRecord.attempts || 0) : 0;
+  const mData = getPlayMilestoneData();
+  const next = PLAY_MILESTONES.find(m => m.at > attempts);
+  const last = [...PLAY_MILESTONES].reverse().find(m => m.at <= attempts && mData.claimed.includes(m.at));
+  
+  const fill = document.getElementById('play-milestone-fill');
+  const label = document.getElementById('play-milestone-label');
+  const badge = document.getElementById('play-milestone-badge');
+  
+  if (next) {
+    const prev = PLAY_MILESTONES.find(m => m.at < next.at) || {at:0};
+    const pct = Math.round(((attempts - prev.at) / (next.at - prev.at)) * 100);
+    if (fill) fill.style.width = Math.max(3, pct) + '%';
+    if (label) label.textContent = `${attempts}/${next.at} game → ${Object.entries(next.rewards).map(([k,v])=>({freeze:'❄️',double:'2️⃣',skip:'⏭️'}[k]+` ×${v}`)).join(' ')}`;
+    if (badge) { badge.textContent = next.badge; badge.className = 'milestone-badge locked'; }
+  } else {
+    if (fill) fill.style.width = '100%';
+    if (label) label.textContent = `🏆 Semua milestone tercapai! (${attempts} game total)`;
+    if (badge) { badge.textContent = 'LEGEND'; badge.className = 'milestone-badge active'; }
+  }
+}
+
+// ─── Milestone Toast ───────────────────────
+let milestoneToastTimer = null;
+function showMilestoneToast(msg) {
+  const toast = document.getElementById('milestone-toast');
+  const textEl = document.getElementById('milestone-text');
+  if (!toast || !textEl) return;
+  textEl.textContent = msg;
+  toast.classList.add('visible');
+  clearTimeout(milestoneToastTimer);
+  milestoneToastTimer = setTimeout(() => toast.classList.remove('visible'), 3000);
+}
+
+// ──────────────────────────────────────────
 //  POWER-UP SYSTEM
 // ──────────────────────────────────────────
 const POWERUPS = {
@@ -1402,9 +1921,9 @@ let doubleTimeout = null;
 let isLuckyTrash = false;
 
 function resetPowerups() {
-  POWERUPS.freeze.count = 1; POWERUPS.freeze.active = false;
-  POWERUPS.double.count = 1; POWERUPS.double.active = false;
-  POWERUPS.skip.count   = 2; POWERUPS.skip.active   = false;
+  POWERUPS.freeze.count = 0; POWERUPS.freeze.active = false;
+  POWERUPS.double.count = 0; POWERUPS.double.active = false;
+  POWERUPS.skip.count   = 0; POWERUPS.skip.active   = false;
   clearTimeout(freezeTimeout);
   clearTimeout(doubleTimeout);
   if (doubleTimeout) { clearTimeout(doubleTimeout); }
@@ -1425,6 +1944,9 @@ function renderPowerupBar() {
     const pu = POWERUPS[key];
     cnt.textContent = pu.count;
     btn.disabled = (pu.count <= 0) || pu.active || !GS.isPlaying || GS.paused;
+    // Visual indicator for multiple stacks
+    if (pu.count >= 3) btn.classList.add('has-many'); else btn.classList.remove('has-many');
+    if (pu.active) btn.classList.add('active-pu'); else btn.classList.remove('active-pu');
   });
 }
 
@@ -1437,6 +1959,7 @@ function activatePowerup(key) {
   pu.count--;
   pu.active = true;
   renderPowerupBar();
+  if (GS.puUsed) GS.puUsed[key] = (GS.puUsed[key]||0) + 1;
 
   if (key === 'freeze') {
     GS.frozen = true;
@@ -1645,12 +2168,27 @@ function animateScorePop() {
 
 // Grant power-up back when player starts fresh game
 function awardSessionPowerups(difficulty) {
-  POWERUPS.freeze.count = difficulty === 'Hard' ? 2 : 1;
-  POWERUPS.double.count = difficulty === 'Hard' ? 2 : 1;
-  POWERUPS.skip.count   = difficulty === 'Hard' ? 3 : 2;
+  // Base amounts from difficulty
+  const base = { freeze: difficulty==='Hard'?2:1, double: difficulty==='Hard'?2:1, skip: difficulty==='Hard'?3:2 };
+  
+  // Add from persistent inventory (consumed at game start)
+  const inv = { ...puInventory };
+  POWERUPS.freeze.count = base.freeze + inv.freeze;
+  POWERUPS.double.count = base.double + inv.double;
+  POWERUPS.skip.count   = base.skip   + inv.skip;
   POWERUPS.freeze.active = false;
   POWERUPS.double.active = false;
   POWERUPS.skip.active   = false;
+  
+  // Consume inventory (it goes into the session)
+  puInventory.freeze = 0;
+  puInventory.double = 0;
+  puInventory.skip = 0;
+  savePuInventory();
+  
+  if (inv.freeze + inv.double + inv.skip > 0) {
+    setTimeout(() => showAchievementToast(`🎁 Inventori diklaim: ❄️×${inv.freeze} 2️⃣×${inv.double} ⏭️×${inv.skip}`), 800);
+  }
 }
 
 
@@ -3030,7 +3568,10 @@ function startGame(time, diff, name, isCurriculum) {
     isPlaying:true, paused:false, currentSessionId:null, combo:0, bestCombo:0, previousBest:0,
     categoryStats:{'LAKU JUAL':{correct:0,total:0},'SISA MAKANAN':{correct:0,total:0},'RESIDU':{correct:0,total:0}},
     history:[],
-    isCurriculum, curriculumFilter: GS.curriculumFilter, curriculumFocus: GS.curriculumFocus
+    isCurriculum, curriculumFilter: GS.curriculumFilter, curriculumFocus: GS.curriculumFocus,
+    // Score breakdown tracking
+    breakdown:{ base:0, comboBonus:0, puBonus:0, luckyBonus:0, sessionBonus:0, loginBonus:0 },
+    puUsed:{ freeze:0, double:0, skip:0 }
   };
   nearestRival=null; nearestRivalReached=false;
 
@@ -3366,6 +3907,13 @@ function checkBin(cat) {
     const puMult = getPowerupMultiplier();
     const pts=base*comboMult*puMult;
     GS.score+=pts;
+    // Track breakdown
+    if (GS.breakdown) {
+      GS.breakdown.base += base;
+      if (comboMult > 1) GS.breakdown.comboBonus += base * (comboMult - 1);
+      if (puMult > 1) GS.breakdown.puBonus += base * comboMult * (puMult - 1);
+      if (isLuckyTrash && puMult < 3) GS.breakdown.luckyBonus += base * comboMult * 2;
+    }
     animateScorePop();
 
     // Combo milestones
@@ -3686,12 +4234,23 @@ async function endGame() {
   // Track daily session & apply bonus BEFORE cleanup
   const dailyPlayData = incrementDailyPlay(GS.playerName);
   const sessionBonus = getDailySessionBonus(dailyPlayData.sessions - 1);
+  let sessionBonusPoints = 0;
   if (sessionBonus > 0 && GS.score > 0) {
-    const bonusPoints = Math.round(GS.score * sessionBonus);
-    GS.score += bonusPoints;
+    sessionBonusPoints = Math.round(GS.score * sessionBonus);
+    GS.score += sessionBonusPoints;
+    if (GS.breakdown) GS.breakdown.sessionBonus = sessionBonusPoints;
   }
 
   cleanupGame();
+
+  // Check play count milestones (attempts = how many times they've played)
+  const cachedRecord = lbCache.find(r => r.id === GS.playerName.replace(/[.#$[\]/\s]/g,'_').toUpperCase());
+  const prevAttempts = cachedRecord ? (cachedRecord.attempts || 0) : 0;
+  checkPlayCountMilestone(prevAttempts + 1);
+  
+  // Update login streak display
+  updateLoginStreakCard();
+  renderPlayMilestoneOnStart();
 
   // Always show game over popup and end screen regardless of any errors below
   setLbMode(GS.isCurriculum ? 'curriculum' : 'ranked');
@@ -3714,6 +4273,9 @@ async function endGame() {
     document.getElementById('final-total').textContent=GS.totalAnswered;
     document.getElementById('final-correct').textContent=GS.correctAnswers;
     document.getElementById('final-wrong').textContent=wrong;
+
+    // Render score breakdown
+    renderScoreBreakdown(sessionBonusPoints);
 
     updateMissionUI();
     const dailySummary = document.getElementById('daily-challenge-summary');
@@ -3754,10 +4316,12 @@ async function endGame() {
     const sessionInfoEl = document.getElementById('daily-session-info');
     if (sessionInfoEl) {
       const sesBonus = getDailySessionBonus(dailyPlayData.sessions - 1);
+      const loginData = getLoginData();
+      const streakTxt = loginData.streak > 1 ? ` · 🔥 Streak ${loginData.streak} hari` : '';
       if (sesBonus > 0) {
-        sessionInfoEl.textContent = `🎮 Sesi ke-${dailyPlayData.sessions} hari ini • +${Math.round(sesBonus*100)}% bonus poin diterapkan!`;
+        sessionInfoEl.textContent = `🎮 Sesi ke-${dailyPlayData.sessions} hari ini • +${Math.round(sesBonus*100)}% bonus${streakTxt}`;
       } else {
-        sessionInfoEl.textContent = `🎮 Sesi ke-${dailyPlayData.sessions} hari ini`;
+        sessionInfoEl.textContent = `🎮 Sesi ke-${dailyPlayData.sessions} hari ini${streakTxt}`;
       }
     }
 
@@ -3784,6 +4348,47 @@ async function endGame() {
     console.error('endGame error:', err);
     setTimeout(()=>renderLbTable(), 1000);
   }
+}
+
+function renderScoreBreakdown(sessionBonusPoints) {
+  const card = document.getElementById('score-breakdown-card');
+  const rows = document.getElementById('score-breakdown-rows');
+  if (!card || !rows || !GS.breakdown) return;
+  
+  const bd = GS.breakdown;
+  const total = GS.score;
+  if (total === 0) { card.classList.add('hidden'); return; }
+  
+  const puTotal = bd.puBonus || 0;
+  const diffLabel = {'Easy':'Bumi Lestari','Medium':'Eko Aktif','Hard':'Penjaga Bumi'}[GS.difficulty]||GS.difficulty;
+  const puUsed = GS.puUsed || {};
+  
+  let html = '';
+  const rowHtml = (label, val) => val > 0 ? `<div class="score-breakdown-row"><span class="text-blue-200">${label}</span><span class="font-black text-white">+${val}</span></div>` : '';
+  
+  html += `<div class="score-breakdown-row"><span class="text-blue-200">⚡ Base Skor (${diffLabel})</span><span class="font-bold text-white">${bd.base}</span></div>`;
+  html += rowHtml('🔥 Bonus Combo', bd.comboBonus);
+  html += rowHtml('2️⃣ Bonus Double Poin', puTotal);
+  html += rowHtml('⭐ Lucky Trash Bonus', bd.luckyBonus);
+  html += rowHtml('🎮 Bonus Sesi Harian', sessionBonusPoints || bd.sessionBonus);
+  
+  if (puUsed.freeze || puUsed.double || puUsed.skip) {
+    const puStr = [puUsed.freeze?`❄️×${puUsed.freeze}`:'', puUsed.double?`2️⃣×${puUsed.double}`:'', puUsed.skip?`⏭️×${puUsed.skip}`:''].filter(Boolean).join(' ');
+    html += `<div class="score-breakdown-row"><span class="text-blue-300 text-[0.6rem]">Power-up digunakan: ${puStr}</span></div>`;
+  }
+  
+  html += `<div class="score-breakdown-row total"><span>🏆 Total Skor</span><span class="text-yellow-300">${total}</span></div>`;
+  
+  rows.innerHTML = html;
+  card.classList.remove('hidden');
+}
+
+let rankedHistoryExpanded = false;
+function toggleRankedHistory() {
+  rankedHistoryExpanded = !rankedHistoryExpanded;
+  const btn = document.getElementById('ranked-toggle-btn');
+  if (btn) btn.textContent = rankedHistoryExpanded ? 'Tampilkan Lebih Sedikit' : 'Lihat Semua';
+  renderRankedSummary();
 }
 
 function showGameOverPopup() {
@@ -3844,23 +4449,52 @@ function renderCurriculumSummary() {
   const total=GS.history.length;
   const wrong=GS.totalAnswered-GS.correctAnswers;
   const focusLabel = GS.curriculumFocus || 'Kurikulum';
-  let html=`<p class="text-[0.72rem] text-slate-600 mb-2">Total jawaban: <strong>${total}</strong> · Benar: <strong>${GS.correctAnswers}</strong> · Salah: <strong>${wrong}</strong> · Fokus: <strong>${focusLabel}</strong></p>`;
-  const items=GS.history.slice(-5).reverse();
+  const acc = total > 0 ? Math.round((GS.correctAnswers / GS.totalAnswered) * 100) : 0;
+  
+  // Score distribution
+  const matching = GS.history.filter(e => e.actualMatch).length;
+  const notMatching = total - matching;
+  
+  let html = `<div class="grid grid-cols-3 gap-1.5 mb-3">
+    <div class="bg-blue-50 rounded-xl p-2 text-center border border-blue-100">
+      <p class="text-[0.58rem] text-blue-400 font-black uppercase">Total</p>
+      <p class="text-xl font-black text-pktBlue">${total}</p>
+    </div>
+    <div class="bg-green-50 rounded-xl p-2 text-center border border-green-100">
+      <p class="text-[0.58rem] text-green-400 font-black uppercase">Benar</p>
+      <p class="text-xl font-black text-green-600">${GS.correctAnswers}</p>
+    </div>
+    <div class="bg-red-50 rounded-xl p-2 text-center border border-red-100">
+      <p class="text-[0.58rem] text-red-400 font-black uppercase">Salah</p>
+      <p class="text-xl font-black text-red-500">${wrong}</p>
+    </div>
+  </div>`;
+  
+  // Accuracy bar
+  const accColor = acc >= 80 ? 'bg-green-500' : acc >= 60 ? 'bg-yellow-500' : 'bg-red-500';
+  html += `<div class="mb-3 p-2 bg-slate-50 rounded-xl border border-slate-100">
+    <div class="flex justify-between text-[0.65rem] font-semibold mb-1"><span class="text-slate-600">Akurasi Fokus: <strong>${focusLabel}</strong></span><span class="font-black text-slate-800">${acc}%</span></div>
+    <div class="h-2 bg-slate-200 rounded-full overflow-hidden"><div class="${accColor} h-full rounded-full transition-all" style="width:${acc}%"></div></div>
+    <p class="text-[0.6rem] text-slate-500 mt-1">${matching} soal sesuai · ${notMatching} tidak sesuai dari fokus ${focusLabel}</p>
+  </div>`;
+  
+  html += `<p class="text-[0.65rem] font-black text-slate-500 uppercase mb-1.5">5 Jawaban Terakhir</p>`;
+  const items = GS.history.slice(-5).reverse();
   html += `<div class="space-y-1">${items.map(entry => {
-    const status = entry.correct ? 'Benar' : 'Salah';
-    const color = entry.correct ? 'text-emerald-700' : 'text-red-600';
+    const isCorrect = entry.correct;
     const answered = entry.answeredMatch !== undefined ? (entry.answeredMatch ? 'Sesuai' : 'Tidak Sesuai') : entry.answered;
-    return `<div class="rounded-xl border border-slate-100 bg-slate-50/80 p-2 text-[0.68rem]">` +
-      `<div class="flex items-center justify-between gap-2 font-semibold ${color}">` +
-      `<span class="truncate">${escHtml(entry.item)}</span>` +
-      `<span>${status}</span>` +
-      `</div>` +
-      `<div class="mt-1 text-slate-500 text-[0.65rem] leading-tight">` +
-      `Fokus: <strong>${escHtml(entry.focus||focusLabel)}</strong> · Jawab: <strong>${escHtml(answered)}</strong> · Aktual: <strong>${escHtml(entry.correctAnswer||entry.expected||'–')}</strong>` +
-      `</div>` +
-      `</div>`;
+    const expected = entry.correctAnswer || (entry.actualMatch ? 'Sesuai' : 'Tidak Sesuai');
+    const bgCls = isCorrect ? 'correct' : 'wrong';
+    return `<div class="result-history-item ${bgCls}">
+      <span>${isCorrect ? '✅' : '❌'}</span>
+      <div class="flex-1 min-w-0">
+        <p class="font-bold text-[0.72rem] text-slate-800 truncate">${escHtml(entry.item)}</p>
+        <p class="text-[0.62rem] text-slate-500">Kategori: <strong>${escHtml(entry.focus||focusLabel)}</strong> · Jawab: <strong>${escHtml(answered)}</strong>${!isCorrect?` · Harusnya: <strong>${escHtml(expected)}</strong>`:''}</p>
+      </div>
+      <span class="text-[0.65rem] font-black ${isCorrect?'text-emerald-700':'text-red-600'} whitespace-nowrap">${isCorrect?'Benar':'Salah'}</span>
+    </div>`;
   }).join('')}</div>`;
-  if(total>5) html += `<p class="text-[0.65rem] text-slate-500 mt-2">Menampilkan 5 jawaban terakhir.</p>`;
+  if(total>5) html += `<p class="text-[0.65rem] text-slate-500 mt-2 text-center">Menampilkan 5 jawaban terakhir dari ${total} total jawaban.</p>`;
   list.innerHTML=html;
 }
 
@@ -3877,22 +4511,51 @@ function renderRankedSummary() {
   const total=GS.history.length;
   const wrong=GS.totalAnswered-GS.correctAnswers;
   const difficultyLabel = getDifficultyDisplayName(GS.difficulty);
-  let html=`<p class="text-[0.72rem] text-slate-600 mb-2">Total jawaban: <strong>${total}</strong> · Benar: <strong>${GS.correctAnswers}</strong> · Salah: <strong>${wrong}</strong> · Level: <strong>${difficultyLabel}</strong></p>`;
-  const items=GS.history.slice(-5).reverse();
-  html += `<div class="space-y-1">${items.map(entry => {
-    const status = entry.correct ? 'Benar' : 'Salah';
-    const color = entry.correct ? 'text-emerald-700' : 'text-red-600';
-    return `<div class="rounded-xl border border-slate-100 bg-slate-50/80 p-2 text-[0.68rem]">` +
-      `<div class="flex items-center justify-between gap-2 font-semibold ${color}">` +
-      `<span class="truncate">${escHtml(entry.item)}</span>` +
-      `<span>${status}</span>` +
-      `</div>` +
-      `<div class="mt-1 text-slate-500 text-[0.65rem] leading-tight">` +
-      `Kategori: <strong>${escHtml(entry.category||entry.expected||'–')}</strong> · Jawab: <strong>${escHtml(entry.answered)}</strong> · Seharusnya: <strong>${escHtml(entry.expected)}</strong>` +
-      `</div>` +
-      `</div>`;
+  const acc = total > 0 ? Math.round((GS.correctAnswers/GS.totalAnswered)*100) : 0;
+  
+  // Category accuracy breakdown
+  const cats = ['SISA MAKANAN', 'LAKU JUAL', 'RESIDU'];
+  const catEmoji = {'SISA MAKANAN':'🍏','LAKU JUAL':'♻️','RESIDU':'🗑️'};
+  let catHtml = cats.map(cat => {
+    const st = GS.categoryStats[cat]||{correct:0,total:0};
+    const a = st.total > 0 ? Math.round((st.correct/st.total)*100) : 0;
+    const color = a >= 80 ? 'bg-green-400' : a >= 60 ? 'bg-yellow-400' : 'bg-red-400';
+    return `<div class="flex items-center gap-2 text-[0.65rem]">
+      <span class="w-5">${catEmoji[cat]}</span>
+      <span class="text-slate-600 font-semibold flex-1 truncate">${cat}</span>
+      <div class="flex items-center gap-1">
+        <div class="w-16 h-1.5 bg-gray-100 rounded-full overflow-hidden"><div class="${color} h-full rounded-full" style="width:${Math.max(3,a)}%"></div></div>
+        <span class="font-black text-slate-700 w-10 text-right">${st.correct}/${st.total} (${a}%)</span>
+      </div>
+    </div>`;
+  }).join('');
+  
+  let html = `<div class="mb-2 p-2 bg-slate-50 rounded-xl border border-slate-100">
+    <p class="text-[0.6rem] font-black text-slate-500 uppercase mb-1.5">Akurasi per Kategori</p>
+    <div class="space-y-1.5">${catHtml}</div>
+  </div>`;
+  html += `<p class="text-[0.72rem] text-slate-600 mb-2 font-semibold">Total: <strong>${total}</strong> · Benar: <strong class="text-green-600">${GS.correctAnswers}</strong> · Salah: <strong class="text-red-500">${wrong}</strong> · Level: <strong>${difficultyLabel}</strong> · Akurasi: <strong>${acc}%</strong></p>`;
+  
+  const maxShow = rankedHistoryExpanded ? GS.history.length : 5;
+  const items = GS.history.slice(-maxShow).reverse();
+  html += `<div class="space-y-1">${items.map((entry, i) => {
+    const isCorrect = entry.correct;
+    const color = isCorrect ? 'text-emerald-700' : 'text-red-600';
+    const bgCls = isCorrect ? 'correct' : 'wrong';
+    return `<div class="result-history-item ${bgCls}">
+      <span class="text-base">${isCorrect ? '✅' : '❌'}</span>
+      <div class="flex-1 min-w-0">
+        <p class="font-bold text-[0.72rem] text-slate-800 truncate">${escHtml(entry.item)}</p>
+        <p class="text-[0.62rem] text-slate-500">Kategori: <strong>${escHtml(entry.category||entry.expected||'–')}</strong> · Jawab: <strong>${escHtml(entry.answered)}</strong></p>
+      </div>
+      <span class="text-[0.65rem] font-black ${color} whitespace-nowrap">${isCorrect?'Benar':'Salah'}</span>
+    </div>`;
   }).join('')}</div>`;
-  if(total>5) html += `<p class="text-[0.65rem] text-slate-500 mt-2">Menampilkan 5 jawaban terakhir.</p>`;
+  
+  if(total > 5) {
+    const shown = Math.min(maxShow, total);
+    html += `<button onclick="toggleRankedHistory()" class="result-toggle-btn mt-2">${rankedHistoryExpanded ? `▲ Tampilkan 5 saja` : `▼ Lihat semua ${total} jawaban (${total-5} tersembunyi)`}</button>`;
+  }
   list.innerHTML=html;
 }
 
@@ -4810,11 +5473,17 @@ document.addEventListener('keydown', e=>{
 //  INIT
 // ──────────────────────────────────────────
 (function init() {
+  // Load persistent power-up inventory
+  loadPuInventory();
+  
+  // Initialize daily login streak
+  checkAndInitLoginStreak();
+
   // Load DC setelah nama tersedia
   const nameInput = document.getElementById('player-name');
   if (nameInput) {
-    nameInput.addEventListener('change', () => { loadDC(); });
-    nameInput.addEventListener('input', debounce(() => { loadDC(); }, 500));
+    nameInput.addEventListener('change', () => { loadDC(); updateLoginStreakCard(); renderPlayMilestoneOnStart(); });
+    nameInput.addEventListener('input', debounce(() => { loadDC(); updateLoginStreakCard(); renderPlayMilestoneOnStart(); }, 500));
   }
   setTimeout(() => { loadDC(); }, 100);
   
@@ -4822,8 +5491,8 @@ document.addEventListener('keydown', e=>{
   renderLbPrevFilterChips();
   renderPlayCountBadge();
 
-  try { const n=localStorage.getItem('eco_player_name'); if(n) document.getElementById('player-name').value=n; } catch(e){}
-  document.getElementById('player-name').addEventListener('input',e=>{ try { localStorage.setItem('eco_player_name',e.target.value); } catch(err){} updateNameHint(); renderPlayCountBadge(); });
+  try { const n=localStorage.getItem('eco_player_name'); if(n) { document.getElementById('player-name').value=n; updateLoginStreakCard(); renderPlayMilestoneOnStart(); } } catch(e){}
+  document.getElementById('player-name').addEventListener('input',e=>{ try { localStorage.setItem('eco_player_name',e.target.value); } catch(err){} updateNameHint(); renderPlayCountBadge(); updateLoginStreakCard(); renderPlayMilestoneOnStart(); });
 
   const ambKey='eco_ambient';
   const musicBtn=document.getElementById('music-btn');
@@ -4838,6 +5507,15 @@ document.addEventListener('keydown', e=>{
   }
 
   document.body.style.overflow='auto';
+  
+  // Show daily login modal after a brief delay if player name is saved
+  setTimeout(() => {
+    const savedName = localStorage.getItem('eco_player_name');
+    const loginData = getLoginData();
+    if (savedName && loginData.lastLoginDate === getTodayStr() && !loginData.claimedToday) {
+      showDailyLoginModal();
+    }
+  }, 1500);
 })();
 </script>
 </body>
