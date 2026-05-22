@@ -1392,15 +1392,20 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
           <div id="score-breakdown-rows"></div>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-2">
-          <div class="bg-white rounded-xl p-2.5 border border-gray-100 shadow-sm sm:col-span-1 flex flex-col justify-center min-h-[86px]">
-            <p class="text-[0.58rem] text-gray-400 font-black uppercase">Peringkat</p>
-            <p class="text-3xl font-black text-pktBlue mt-1" id="final-rank">–</p>
-          </div>
-          <div class="bg-white rounded-xl p-2.5 border border-gray-100 shadow-sm sm:col-span-2">
-            <p class="text-[0.58rem] text-gray-400 font-black uppercase mb-1">Badge Performa</p>
-            <div class="flex flex-wrap gap-1.5" id="final-badges-row">
-              <span id="final-badge-main" class="inline-flex items-center rounded-full px-3 py-1.5 text-sm font-bold badge-bronze">–</span>
+        <!-- Rank + Badge Performa: satu card terpadu -->
+        <div class="bg-white rounded-xl border border-gray-100 shadow-sm mb-2 overflow-hidden">
+          <div class="flex min-h-0">
+            <!-- Peringkat (kolom kiri, lebar tetap) -->
+            <div class="flex flex-col items-center justify-center px-3 py-3 border-r border-gray-100 shrink-0" style="min-width:66px;background:linear-gradient(180deg,#f0f9ff,#e8f4ff);">
+              <p class="text-[0.5rem] text-blue-400 font-black uppercase tracking-wide leading-none mb-1">Rank</p>
+              <p class="font-black text-pktBlue leading-none" id="final-rank" style="font-size:clamp(1.5rem,5vw,2.2rem);">–</p>
+            </div>
+            <!-- Badge Performa (kolom kanan, flex-1) -->
+            <div class="flex-1 min-w-0 px-3 py-2.5">
+              <p class="text-[0.55rem] text-gray-400 font-black uppercase tracking-wide mb-1.5">Badge Performa</p>
+              <div id="final-badges-row" class="flex flex-wrap gap-1.5">
+                <span id="final-badge-main" class="inline-flex items-center rounded-full px-3 py-1.5 text-sm font-bold badge-bronze">–</span>
+              </div>
             </div>
           </div>
         </div>
@@ -2215,16 +2220,6 @@ async function loadPuInventoryFromFirebase(name) {
 }
 
 function addToPuInventory(key, amount) {
-  // Jika sedang bermain: tambahkan langsung ke POWERUPS (sesi aktif),
-  // supaya di endGame cukup kembalikan POWERUPS.count ke puInventory sekali.
-  if (GS.isPlaying) {
-    if (POWERUPS[key]) {
-      POWERUPS[key].count = Math.min(MAX_PU_STACK, (POWERUPS[key].count || 0) + amount);
-      renderPowerupBar();
-    }
-    return;
-  }
-  // Di luar game (login reward, milestone): tambahkan ke puInventory dan simpan
   puInventory[key] = Math.min(MAX_PU_STACK, (puInventory[key] || 0) + amount);
   savePuInventory();
   if (POWERUPS[key]) {
@@ -4586,16 +4581,6 @@ function togglePause() {
 function restartGame() {
   if(!GS.isPlaying) return;
   if(!confirm('Restart? Skor sesi ini TIDAK disimpan.')) return;
-  // Kembalikan sisa power-up ke inventori sebelum restart
-  const remainFreeze = POWERUPS.freeze.count || 0;
-  const remainDouble = POWERUPS.double.count || 0;
-  const remainSkip   = POWERUPS.skip.count   || 0;
-  const remainTE     = POWERUPS.timeExtend.count || 0;
-  puInventory.freeze    = Math.min(MAX_PU_STACK, (puInventory.freeze    || 0) + remainFreeze);
-  puInventory.double    = Math.min(MAX_PU_STACK, (puInventory.double    || 0) + remainDouble);
-  puInventory.skip      = Math.min(MAX_PU_STACK, (puInventory.skip      || 0) + remainSkip);
-  puInventory.timeExtend= Math.min(MAX_PU_STACK, (puInventory.timeExtend|| 0) + remainTE);
-  savePuInventory();
   cleanupGame();
   document.getElementById('pause-overlay').classList.remove('visible');
   showScreen('start');
@@ -5066,18 +5051,6 @@ function launchConfetti(count=24) {
 //  END GAME
 // ──────────────────────────────────────────
 async function endGame() {
-  // ── Kembalikan sisa power-up yang tidak terpakai ke inventori ──
-  // Harus dilakukan SEBELUM cleanupGame/resetPowerups mengosongkan POWERUPS.x.count
-  const remainFreeze = POWERUPS.freeze.count || 0;
-  const remainDouble = POWERUPS.double.count || 0;
-  const remainSkip   = POWERUPS.skip.count   || 0;
-  const remainTE     = POWERUPS.timeExtend.count || 0;
-  puInventory.freeze    = Math.min(MAX_PU_STACK, (puInventory.freeze    || 0) + remainFreeze);
-  puInventory.double    = Math.min(MAX_PU_STACK, (puInventory.double    || 0) + remainDouble);
-  puInventory.skip      = Math.min(MAX_PU_STACK, (puInventory.skip      || 0) + remainSkip);
-  puInventory.timeExtend= Math.min(MAX_PU_STACK, (puInventory.timeExtend|| 0) + remainTE);
-  savePuInventory();
-
   // Track daily session & apply bonus BEFORE cleanup
   const dailyPlayData = incrementDailyPlay(GS.playerName);
   const sessionBonus = getDailySessionBonus(dailyPlayData.sessions - 1);
@@ -6197,29 +6170,37 @@ function renderFinalBadges(rec) {
   ];
 
   const tags=computeSpecialTags(rec.score||0,rec.accuracy||0,rec.bestCombo||0,rec.categoryStats||{},null,rec.attempts||0,rec.dcCompleted||0,{dcType:rec.dcType,dcFocusCat:rec.dcFocusCat,dcDateKey:rec.dcDateKey,dcDone:completedDC});
-  
-  // Primary badge (large)
-  let html=`<span class="inline-flex items-center rounded-full px-3 py-1.5 text-sm font-black ${getBadgeClass(primary)}">${escHtml(formatBadge(primary))}</span>`;
-  // Secondary badges (show all earned badges)
-  secArr.forEach(b=>{ html+=`<span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-bold ${getSecondaryBadgeClass(b)}">${escHtml(b)}</span>`; });
-  // Tags (styled distinctly)
-  if(tags.length>0) {
-    html += `<div class="w-full flex flex-wrap gap-1 mt-1">` + tags.map(t=>`<span class="text-[0.6rem] font-bold text-purple-600 bg-purple-50 border border-purple-200 rounded-full px-2 py-0.5">#${t}</span>`).join('') + `</div>`;
+
+  // ── SEKSI 1: Badge Utama + Sekunder yang sudah diraih ──
+  let html = '';
+  // Primary badge
+  html += `<span class="inline-flex items-center rounded-full px-3 py-1.5 text-sm font-black ${getBadgeClass(primary)}">${escHtml(formatBadge(primary))}</span>`;
+  // Secondary badges
+  secArr.forEach(b => {
+    html += `<span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-bold ${getSecondaryBadgeClass(b)}">${escHtml(b)}</span>`;
+  });
+
+  // ── SEKSI 2: Tags (baris terpisah) ──
+  if (tags.length > 0) {
+    html += `<div class="w-full mt-1.5 flex flex-wrap gap-1">`;
+    tags.forEach(t => {
+      html += `<span class="text-[0.58rem] font-bold text-purple-700 bg-purple-50 border border-purple-200 rounded-full px-2 py-0.5">#${escHtml(t)}</span>`;
+    });
+    html += `</div>`;
   }
 
-  // ── TARGET (LOCKED) BADGES ────────────────────────────────────────
-  // Next primary badge target
+  // ── SEKSI 3: Target Berikutnya (locked) ──
   const BADGE_ORDER = ['Bronze','Silver','Gold','Platinum','Epic','Grandmaster','Diamond','Legend','Master','Immortal'];
   const nextPrimaryIdx = BADGE_ORDER.indexOf(primary) + 1;
   const lockedBadges = [];
   if (nextPrimaryIdx < BADGE_ORDER.length) {
-    lockedBadges.push({ label: `${formatBadge(BADGE_ORDER[nextPrimaryIdx])}`, cls: getBadgeClass(BADGE_ORDER[nextPrimaryIdx]), tip: 'Badge Utama Berikutnya' });
+    lockedBadges.push({ label: formatBadge(BADGE_ORDER[nextPrimaryIdx]), cls: getBadgeClass(BADGE_ORDER[nextPrimaryIdx]), tip: 'Badge Utama Berikutnya' });
   }
-  // Next secondary badge targets (most achievable)
+
   const score = rec.score||0; const acc = rec.accuracy||0; const combo = rec.bestCombo||0; const attempts = rec.attempts||0;
   const secTargets = [
     !secArr.includes('Daily Challenger') && { label:'Daily Challenger', cls:'badge-daily', tip:'Selesaikan Daily Challenge hari ini' },
-    !secArr.includes('Rising Star') && score > 0 && { label:'Rising Star', cls:'badge-rising', tip:`Tingkatkan skor +100 dari rekor` },
+    !secArr.includes('Rising Star') && score > 0 && { label:'Rising Star', cls:'badge-rising', tip:'Tingkatkan skor +100 dari rekor' },
     !secArr.includes('High Scorer') && score < 700 && { label:'High Scorer', cls:'badge-epic', tip:'Raih skor 700+' },
     !secArr.includes('Elite') && (score < 1000 || acc < 85) && { label:'Elite', cls:'badge-grandmaster', tip:'Skor 1000+ & akurasi 85%+' },
     !secArr.includes('Hot Streak') && combo < 12 && { label:'Hot Streak', cls:'badge-epic', tip:'Raih combo 12x beruntun' },
@@ -6228,38 +6209,55 @@ function renderFinalBadges(rec) {
     !secArr.includes('Newcomer') && attempts < 3 && { label:'Newcomer', cls:'badge-newcomer', tip:'Main 3 kali untuk unlock' },
     !secArr.includes('Explorer') && attempts < 10 && { label:'Explorer', cls:'badge-curious', tip:'Main 10 kali untuk unlock' },
     !secArr.includes('Regular') && attempts < 30 && attempts >= 10 && { label:'Regular', cls:'badge-consistent', tip:'Main 30 kali untuk unlock' },
-  ].filter(Boolean).slice(0,4);
+  ].filter(Boolean).slice(0, 4);
 
-  // Next tag targets
   const tagTargets = [
     !tags.includes('ComboPro') && combo < 20 && { label:'#ComboPro', tip:'Combo 20x dalam satu sesi' },
     !tags.includes('ComboInsane') && combo < 30 && { label:'#ComboInsane', tip:'Combo 30x dalam satu sesi' },
     !tags.includes('OrganikPro') && { label:'#OrganikPro', tip:'Akurasi 95%+ di Sisa Makanan' },
     !tags.includes('DaurUlangPro') && { label:'#DaurUlangPro', tip:'Akurasi 95%+ di Laku Jual' },
     !tags.includes('ResiduPro') && { label:'#ResiduPro', tip:'Akurasi 95%+ di Residu' },
-  ].filter(Boolean).slice(0,3);
+  ].filter(Boolean).slice(0, 3);
 
-  if (lockedBadges.length > 0 || secTargets.length > 0 || tagTargets.length > 0) {
+  const hasTargets = lockedBadges.length > 0 || secTargets.length > 0 || tagTargets.length > 0;
+  if (hasTargets) {
     html += `<div class="w-full mt-2 pt-2 border-t border-dashed border-gray-200">`;
-    html += `<p class="text-[0.58rem] font-black text-gray-400 uppercase tracking-widest mb-1.5">🎯 Target Berikutnya</p>`;
-    html += `<div class="flex flex-wrap gap-1.5">`;
-    lockedBadges.forEach(b => {
-      html += `<span title="${b.tip}" class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-black ${b.cls} opacity-30 cursor-default select-none" style="filter:grayscale(0.5)">🔒 ${escHtml(b.label)}</span>`;
-    });
-    secTargets.forEach(b => {
-      html += `<span title="${b.tip}" class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-bold ${b.cls} opacity-25 cursor-default select-none" style="filter:grayscale(0.4)">🔒 ${escHtml(b.label)}</span>`;
-    });
-    tagTargets.forEach(b => {
-      html += `<span title="${b.tip}" class="text-[0.6rem] font-bold text-purple-400 bg-purple-50 border border-purple-100 rounded-full px-2 py-0.5 opacity-40 cursor-default select-none">🔒 ${escHtml(b.label)}</span>`;
-    });
-    html += `</div>`;
-    html += `<p class="text-[0.55rem] text-gray-400 mt-1 italic">Badge buram = belum diraih. Hover untuk lihat syarat.</p>`;
+    html += `<p class="text-[0.55rem] font-black text-gray-400 uppercase tracking-widest mb-1.5">🔒 Target Berikutnya</p>`;
+
+    // Primary target (jika ada) — tampil lebih besar
+    if (lockedBadges.length > 0) {
+      html += `<div class="flex flex-wrap gap-1.5 mb-1">`;
+      lockedBadges.forEach(b => {
+        html += `<span title="${escHtml(b.tip)}" class="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-black ${b.cls} select-none" style="opacity:0.3;filter:grayscale(0.5);">🔒 ${escHtml(b.label)}</span>`;
+      });
+      html += `</div>`;
+    }
+
+    // Secondary targets
+    if (secTargets.length > 0) {
+      html += `<div class="flex flex-wrap gap-1.5 mb-1">`;
+      secTargets.forEach(b => {
+        html += `<span title="${escHtml(b.tip)}" class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[0.65rem] font-bold ${b.cls} select-none" style="opacity:0.28;filter:grayscale(0.4);">🔒 ${escHtml(b.label)}</span>`;
+      });
+      html += `</div>`;
+    }
+
+    // Tag targets
+    if (tagTargets.length > 0) {
+      html += `<div class="flex flex-wrap gap-1">`;
+      tagTargets.forEach(b => {
+        html += `<span title="${escHtml(b.tip)}" class="text-[0.58rem] font-bold text-purple-300 bg-purple-50 border border-dashed border-purple-200 rounded-full px-2 py-0.5 select-none">🔒 ${escHtml(b.label)}</span>`;
+      });
+      html += `</div>`;
+    }
+
+    html += `<p class="text-[0.52rem] text-gray-300 mt-1.5 italic">Hover/tap badge buram untuk lihat syarat</p>`;
     html += `</div>`;
   }
 
-  row.innerHTML=html;
-  const pbEl=document.getElementById('final-pb');
-  if(pbEl) pbEl.textContent=`Personal best – Skor: ${rec.score} | Akurasi: ${rec.accuracy||0}% | D/B/S: ${rec.total||0}/${rec.correct||0}/${rec.wrong||0}`;
+  row.innerHTML = html;
+  const pbEl = document.getElementById('final-pb');
+  if (pbEl) pbEl.textContent = `Personal best – Skor: ${rec.score} | Akurasi: ${rec.accuracy||0}% | D/B/S: ${rec.total||0}/${rec.correct||0}/${rec.wrong||0}`;
 }
 
 function renderLbPrev() {
