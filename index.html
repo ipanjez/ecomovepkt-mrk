@@ -907,83 +907,6 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
     </div>
   </div>
 
-  <div id="buddy-recycle" class="eco-buddy" style="right:4%;top:28%;width:54px;" data-buddy="recycle">
-    <div class="eco-buddy-wrap">
-      <svg viewBox="0 0 80 100" xmlns="http://www.w3.org/2000/svg" width="54" height="68">
-        <!-- head -->
-        <circle cx="40" cy="28" r="22" fill="#fed7aa"/>
-        <text x="40" y="26" text-anchor="middle" font-size="18" fill="#ea580c">♻️</text>
-        <!-- face -->
-        <circle cx="33" cy="32" r="3.5" fill="#c2410c"/>
-        <circle cx="47" cy="32" r="3.5" fill="#c2410c"/>
-        <path d="M34 40 q6 4 12 0" stroke="#c2410c" stroke-width="1.8" fill="none" stroke-linecap="round"/>
-        <circle cx="32" cy="31" r="1.2" fill="white"/>
-        <circle cx="46" cy="31" r="1.2" fill="white"/>
-        <!-- torso -->
-        <rect x="33" y="48" width="14" height="16" rx="5" fill="#fb923c"/>
-        <!-- left arm -->
-        <line x1="33" y1="53" x2="19" y2="59" stroke="#fb923c" stroke-width="5" stroke-linecap="round"/>
-        <circle cx="17" cy="60" r="4" fill="#fed7aa"/>
-        <!-- right arm (raised/waving) -->
-        <line x1="47" y1="52" x2="61" y2="44" stroke="#fb923c" stroke-width="5" stroke-linecap="round"/>
-        <circle cx="63" cy="43" r="4" fill="#fed7aa"/>
-        <!-- left leg -->
-        <line x1="37" y1="64" x2="32" y2="78" stroke="#c2410c" stroke-width="5" stroke-linecap="round"/>
-        <ellipse cx="31" cy="81" rx="6" ry="3.5" fill="#c2410c"/>
-        <!-- right leg -->
-        <line x1="43" y1="64" x2="48" y2="78" stroke="#c2410c" stroke-width="5" stroke-linecap="round"/>
-        <ellipse cx="49" cy="81" rx="6" ry="3.5" fill="#c2410c"/>
-      </svg>
-      <div class="eco-tip-bubble" id="buddy-recycle-tip">♻️ Botol plastik bisa jadi baju!</div>
-    </div>
-  </div>
-
-  <div id="buddy-drop" class="eco-buddy" style="left:4%;bottom:20%;width:50px;" data-buddy="drop">
-    <div class="eco-buddy-wrap">
-      <svg viewBox="0 0 80 100" xmlns="http://www.w3.org/2000/svg" width="50" height="63">
-        <!-- head/body (water drop shape) -->
-        <ellipse cx="40" cy="28" rx="20" ry="22" fill="#bfdbfe"/>
-        <ellipse cx="40" cy="22" rx="10" ry="12" fill="#3b82f6"/>
-        <!-- face -->
-        <circle cx="34" cy="30" r="3.5" fill="#1d4ed8"/>
-        <circle cx="46" cy="30" r="3.5" fill="#1d4ed8"/>
-        <path d="M35 38 q5 4 10 0" stroke="#1d4ed8" stroke-width="1.8" fill="none" stroke-linecap="round"/>
-        <circle cx="33" cy="29" r="1.2" fill="white"/>
-        <circle cx="45" cy="29" r="1.2" fill="white"/>
-        <!-- torso -->
-        <rect x="33" y="48" width="14" height="14" rx="5" fill="#3b82f6"/>
-        <!-- left arm -->
-        <line x1="33" y1="53" x2="19" y2="48" stroke="#3b82f6" stroke-width="5" stroke-linecap="round"/>
-        <circle cx="17" cy="47" r="4" fill="#bfdbfe"/>
-        <!-- right arm -->
-        <line x1="47" y1="53" x2="61" y2="48" stroke="#3b82f6" stroke-width="5" stroke-linecap="round"/>
-        <circle cx="63" cy="47" r="4" fill="#bfdbfe"/>
-        <!-- left leg -->
-        <line x1="37" y1="62" x2="32" y2="76" stroke="#1d4ed8" stroke-width="5" stroke-linecap="round"/>
-        <ellipse cx="31" cy="79" rx="6" ry="3.5" fill="#1d4ed8"/>
-        <!-- right leg -->
-        <line x1="43" y1="62" x2="48" y2="76" stroke="#1d4ed8" stroke-width="5" stroke-linecap="round"/>
-        <ellipse cx="49" cy="79" rx="6" ry="3.5" fill="#1d4ed8"/>
-      </svg>
-      <div class="eco-tip-bubble" id="buddy-drop-tip">💧 Hemat air — matikan keran!</div>
-    </div>
-  </div>
-
-  <div id="buddy-star" class="eco-buddy" style="right:7%;bottom:28%;width:46px;" data-buddy="star">
-    <div class="eco-buddy-wrap">
-      <svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg" width="46" height="46">
-        <circle cx="40" cy="40" r="34" fill="#fef9c3"/>
-        <text x="40" y="38" text-anchor="middle" font-size="20">🌟</text>
-        <circle cx="30" cy="52" r="4" fill="#854d0e"/>
-        <circle cx="50" cy="52" r="4" fill="#854d0e"/>
-        <path d="M31 60 q9 5 18 0" stroke="#854d0e" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-        <circle cx="29" cy="50" r="1.5" fill="white"/>
-        <circle cx="49" cy="50" r="1.5" fill="white"/>
-      </svg>
-      <div class="eco-tip-bubble" id="buddy-star-tip">⭐ Bawa tas belanja sendiri — kurangi 700 plastik/tahun!</div>
-    </div>
-  </div>
-
   <div class="relative z-10 w-full flex flex-col items-center px-4 py-6 pb-10">
     <div class="w-full max-w-md bg-white/95 rounded-3xl shadow-2xl overflow-hidden border border-white/80 backdrop-blur-md">
       <!-- hero -->
@@ -6600,10 +6523,7 @@ document.addEventListener('keydown', e=>{
   ];
 
   const BUDDIES = [
-    { id: 'buddy-leaf',    tipId: 'buddy-leaf-tip',    animDelay: '0s',    floatDir: 1   },
-    { id: 'buddy-recycle', tipId: 'buddy-recycle-tip', animDelay: '0.8s',  floatDir: -1  },
-    { id: 'buddy-drop',    tipId: 'buddy-drop-tip',    animDelay: '1.6s',  floatDir: 1   },
-    { id: 'buddy-star',    tipId: 'buddy-star-tip',    animDelay: '2.4s',  floatDir: -1  },
+    { id: 'buddy-leaf', tipId: 'buddy-leaf-tip', animDelay: '0s', floatDir: 1 },
   ];
 
   let usedTips = [];
