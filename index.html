@@ -913,19 +913,22 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
       <div class="bg-gradient-to-br from-pktBlue via-blue-700 to-blue-900 p-6 text-center relative overflow-hidden">
         <div class="absolute inset-0 opacity-10 bg-[url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2220%22 height=%2220%22><circle cx=%2210%22 cy=%2210%22 r=%222%22 fill=%22white%22/></svg>')]"></div>
         <!-- globe character -->
-        <div id="eco-character" class="mx-auto char-bounce cursor-pointer relative" style="width:80px;height:80px;touch-action:none;">
-          <svg id="eco-char-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
-            <defs><filter id="sh"><feDropShadow dx="0" dy="5" stdDeviation="5" flood-opacity="0.2"/></filter></defs>
-            <g filter="url(#sh)">
-              <circle cx="50" cy="50" r="34" fill="#2DA7F5"/>
-              <path d="M34 44c6-6 12-6 18-4s8 6 6 10-8 8-14 6-10-6-10-12z" fill="#2FA36B" opacity="0.95"/>
-              <path d="M62 32c4 2 8 6 6 10s-6 4-10 2-6-6-4-10 6-4 8-2z" fill="#2FA36B" opacity="0.95"/>
-              <circle cx="40" cy="46" r="3" fill="#072A1A"/>
-              <circle cx="60" cy="46" r="3" fill="#072A1A"/>
-              <path d="M38 56 q12 10 24 0" stroke="#072A1A" stroke-width="2" fill="none" stroke-linecap="round"/>
-            </g>
-          </svg>
-          <div id="eco-character-tip" class="eco-tip-bubble" style="left:50%;bottom:calc(100% + 8px);transform:translateX(-50%) scale(0);width:180px;">Halo, pemain!</div>
+        <div class="flex flex-col items-center">
+          <div id="eco-character" class="mx-auto char-bounce cursor-pointer relative" style="width:80px;height:80px;touch-action:none;">
+            <svg id="eco-char-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
+              <defs><filter id="sh"><feDropShadow dx="0" dy="5" stdDeviation="5" flood-opacity="0.2"/></filter></defs>
+              <g filter="url(#sh)">
+                <circle cx="50" cy="50" r="34" fill="#2DA7F5"/>
+                <path d="M34 44c6-6 12-6 18-4s8 6 6 10-8 8-14 6-10-6-10-12z" fill="#2FA36B" opacity="0.95"/>
+                <path d="M62 32c4 2 8 6 6 10s-6 4-10 2-6-6-4-10 6-4 8-2z" fill="#2FA36B" opacity="0.95"/>
+                <circle cx="40" cy="46" r="3" fill="#072A1A"/>
+                <circle cx="60" cy="46" r="3" fill="#072A1A"/>
+                <path d="M38 56 q12 10 24 0" stroke="#072A1A" stroke-width="2" fill="none" stroke-linecap="round"/>
+              </g>
+            </svg>
+            <div id="eco-character-tip" class="eco-tip-bubble" style="left:50%;bottom:calc(100% + 8px);transform:translateX(-50%) scale(0);width:180px;">Halo, pemain!</div>
+          </div>
+          <div id="eco-character-greeting" style="margin-top:6px;font-size:0.78rem;font-weight:800;color:rgba(255,255,255,0.92);letter-spacing:0.01em;text-shadow:0 1px 4px rgba(0,0,0,0.25);min-height:1.2em;transition:opacity 0.3s;">Halo, pemain! 👋</div>
         </div>
         <h1 class="text-4xl font-black text-white mt-3 tracking-wide">ECO<span class="text-pktOrange">MOVE</span></h1>
         <p class="text-blue-200 text-xs font-bold uppercase tracking-widest mt-1">Trash Sorting Challenge</p>
@@ -6478,9 +6481,14 @@ document.addEventListener('keydown', e=>{
     const name=(document.getElementById('player-name')?.value || localStorage.getItem('eco_player_name') || '').trim();
     return name ? `Halo, ${name}!` : 'Halo, pemain!';
   };
+  const updateGreetingLabel=() => {
+    const label = document.getElementById('eco-character-greeting');
+    if (label) label.textContent = getPlayerGreeting() + ' 👋';
+  };
   const showGreeting=(autoHide=true) => {
     if (!tipEl) return;
     tipEl.textContent = getPlayerGreeting();
+    updateGreetingLabel();
     c.classList.add('show-tip');
     clearTimeout(greetTimer);
     if (autoHide) {
@@ -6638,8 +6646,8 @@ document.addEventListener('keydown', e=>{
   renderLbPrevFilterChips();
   renderPlayCountBadge();
 
-  try { const n=localStorage.getItem('eco_player_name'); if(n) { document.getElementById('player-name').value=n; updateLoginStreakCard(); renderPlayMilestoneOnStart(); loadAllPlayerDataFromFirebase(n); } } catch(e){}
-  document.getElementById('player-name').addEventListener('input',e=>{ try { localStorage.setItem('eco_player_name',e.target.value); } catch(err){} updateNameHint(); renderPlayCountBadge(); updateLoginStreakCard(); renderPlayMilestoneOnStart(); const ecoChar=document.getElementById('eco-character'); const ecoTip=document.getElementById('eco-character-tip'); if (ecoChar && ecoTip) { ecoTip.textContent = `Halo, ${(e.target.value || '').trim() || 'pemain'}!`; } });
+  try { const n=localStorage.getItem('eco_player_name'); if(n) { document.getElementById('player-name').value=n; updateLoginStreakCard(); renderPlayMilestoneOnStart(); loadAllPlayerDataFromFirebase(n); const greetLabel=document.getElementById('eco-character-greeting'); if(greetLabel) greetLabel.textContent=`Halo, ${n}! 👋`; } } catch(e){}
+  document.getElementById('player-name').addEventListener('input',e=>{ try { localStorage.setItem('eco_player_name',e.target.value); } catch(err){} updateNameHint(); renderPlayCountBadge(); updateLoginStreakCard(); renderPlayMilestoneOnStart(); const nm=(e.target.value||'').trim(); const ecoTip=document.getElementById('eco-character-tip'); if(ecoTip) ecoTip.textContent=`Halo, ${nm||'pemain'}!`; const greetLabel=document.getElementById('eco-character-greeting'); if(greetLabel) greetLabel.textContent=`Halo, ${nm||'pemain'}! 👋`; });
 
   const ambKey='eco_ambient';
   const musicBtn=document.getElementById('music-btn');
