@@ -6858,6 +6858,15 @@ document.addEventListener('keydown', e=>{
     localStorage.setItem(ambKey,'1');
   }
 
+  // Unlock WebAudio on first user gesture (some browsers block AudioContext until a gesture)
+  (function unlockAudioOnGesture(){
+    function _unlock() {
+      try { if (window.audioCtx && audioCtx.state === 'suspended') audioCtx.resume(); } catch(e) {}
+      document.body.removeEventListener('pointerdown', _unlock);
+    }
+    document.body.addEventListener('pointerdown', _unlock, { once: true });
+  })();
+
   document.body.style.overflow='auto';
   
   // Show daily login button instead of auto-popup
