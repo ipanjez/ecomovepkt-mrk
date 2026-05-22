@@ -1061,6 +1061,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
           </div>
           <div id="session-pips" class="flex gap-1 mb-1.5"></div>
           <p id="daily-next-reward" class="text-[0.6rem] text-emerald-600 font-semibold leading-snug"></p>
+          <p class="mt-1 text-[0.58rem] text-emerald-500 font-semibold leading-snug">Disimpan per nama/akun, jadi tetap sama walau kamu pindah device.</p>
         </div>
 
         <!-- difficulty -->
@@ -4960,10 +4961,11 @@ async function endGame() {
       const sesBonus = getDailySessionBonus(dailyPlayData.sessions - 1);
       const loginData = getLoginData();
       const streakTxt = loginData.streak > 1 ? ` · 🔥 Streak ${loginData.streak} hari` : '';
+      const accountTxt = ` · tersimpan per nama/akun aktif`;
       if (sesBonus > 0) {
-        sessionInfoEl.textContent = `🎮 Sesi ke-${dailyPlayData.sessions} hari ini • +${Math.round(sesBonus*100)}% bonus${streakTxt}`;
+        sessionInfoEl.textContent = `🎮 Sesi ke-${dailyPlayData.sessions} hari ini • +${Math.round(sesBonus*100)}% bonus${streakTxt}${accountTxt}`;
       } else {
-        sessionInfoEl.textContent = `🎮 Sesi ke-${dailyPlayData.sessions} hari ini${streakTxt}`;
+        sessionInfoEl.textContent = `🎮 Sesi ke-${dailyPlayData.sessions} hari ini${streakTxt}${accountTxt}`;
       }
     }
 
@@ -6260,7 +6262,7 @@ function updateNameHint() {
       hintText = `✅ ${rankedText} · ${curriculumText}${attText}${dcText} — <span class="font-bold">${escHtml(formatBadge(primary))}</span>`;
     } else {
       const dcText = dcCount > 0 ? ` (${dcCount} DC selesai)` : '';
-      hintText = `Belum di leaderboard. Total Ranked: ${rankedFiltered.length} pemain, Kurikulum: ${curriculumFiltered.length} pemain${dcText}`;
+      hintText = `Pamain Baru. Total Pemain Ranked: ${rankedFiltered.length} pemain, Kurikulum: ${curriculumFiltered.length} pemain${dcText}`;
     }
     
     el.innerHTML = hintText;
