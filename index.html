@@ -3512,6 +3512,8 @@ function setupFirebaseListener() {
 
       arr.forEach((r,i)=>{
         let sym='—', cls='text-gray-400', title='Tetap';
+        let oldRank = null;
+        let curRank = null;
 
         if (sessionBaseSnapshot) {
           const isC = r.isCurriculum;
@@ -3519,8 +3521,8 @@ function setupFirebaseListener() {
           const prevRankMap = isC ? sessionBaseSnapshot.curriculum : sessionBaseSnapshot.ranked;
           const prevIdSet   = isC ? sessionBaseSnapshot.ids_curriculum_set : sessionBaseSnapshot.ids_ranked_set;
           // curRank is the position within the same mode (ranked-only or curriculum-only)
-          const curRank     = isC ? (curriculumRankMap['id:'+r.id]||9999) : (rankedRankMap['id:'+r.id]||9999);
-          const oldRank     = prevRankMap['id:'+r.id];
+          curRank = isC ? (curriculumRankMap['id:'+r.id]||9999) : (rankedRankMap['id:'+r.id]||9999);
+          oldRank = prevRankMap['id:'+r.id];
           const wasPresent  = prevIdSet.has(r.id);
 
           if (!wasPresent) {
@@ -3535,7 +3537,7 @@ function setupFirebaseListener() {
           // else: same rank → —  (oldRank undefined = new in this session = 🆕 already handled above)
         }
 
-        r.__mv={sym,cls,title,oldRank,curRank:isC?(curriculumRankMap['id:'+r.id]||null):(rankedRankMap['id:'+r.id]||null)};
+        r.__mv={sym,cls,title,oldRank,curRank:r.isCurriculum?(curriculumRankMap['id:'+r.id]||null):(rankedRankMap['id:'+r.id]||null)};
         
         const rankedRank = rankedRankMap['id:'+r.id] || 9999;
         
