@@ -163,16 +163,51 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
 
 /* ─── RIVAL STRIP ─── */
 #rival-strip{
-  background:linear-gradient(135deg,#eff6ff,#fafafa);
-  border:1px solid #bfdbfe;border-radius:12px;
-  padding:10px 12px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:6px;
-  font-size:0.75rem;font-weight:700;color:#1e3a8a;
+  background:linear-gradient(135deg,#0f172a 0%,#1e3a5f 60%,#0c1a3a 100%);
+  border:1.5px solid rgba(99,179,237,0.35);
+  border-radius:14px;
+  padding:10px 12px;
+  display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:5px;
+  font-size:0.75rem;font-weight:700;color:#e2e8f0;
   width:min(86vw,300px);text-align:left;line-height:1.3;
-  min-height:40px;
+  min-height:44px;
+  box-shadow:0 4px 16px rgba(0,0,0,0.25),inset 0 1px 0 rgba(255,255,255,0.07);
+  position:relative;overflow:hidden;
+}
+#rival-strip::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(99,179,237,0.5),transparent);
+}
+.rival-strip-header{
+  display:flex;align-items:center;gap:6px;
+  font-size:0.6rem;font-weight:900;color:#93c5fd;
+  letter-spacing:0.06em;text-transform:uppercase;width:100%;
+}
+.rival-strip-header::after{
+  content:'';flex:1;height:1px;background:linear-gradient(90deg,rgba(147,197,253,0.3),transparent);
 }
 .rival-strip-list{display:flex;flex-direction:column;gap:4px;width:100%;}
-.rival-strip-item{display:flex;justify-content:space-between;gap:10px;align-items:center;font-size:0.77rem;}
-.rival-strip-item strong{font-weight:800;}
+.rival-strip-item{
+  display:flex;justify-content:space-between;gap:8px;align-items:center;
+  font-size:0.72rem;padding:3px 6px;border-radius:7px;
+}
+.rival-strip-item.nearest{
+  background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.25);
+}
+.rival-strip-item strong{font-weight:900;color:#f1f5f9;}
+.rival-gap-badge{
+  background:linear-gradient(135deg,#ef4444,#dc2626);
+  color:white;border-radius:999px;padding:1px 7px;
+  font-size:0.58rem;font-weight:900;white-space:nowrap;
+  box-shadow:0 1px 4px rgba(239,68,68,0.4);
+}
+.rival-rank-badge{color:#94a3b8;font-size:0.6rem;font-weight:700;}
+@keyframes rivalPulse{0%,100%{opacity:1;}50%{opacity:0.65;}}
+.rival-nearest-label{
+  font-size:0.55rem;font-weight:900;color:#fbbf24;
+  animation:rivalPulse 1.5s ease-in-out infinite;
+  text-transform:uppercase;letter-spacing:0.05em;
+}
 
 /* ─── PAUSE OVERLAY ─── */
 #pause-overlay{
@@ -269,13 +304,42 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
 /* ─── LEADERBOARD TABLE ─── */
 .lb-table{width:100%;border-collapse:collapse;}
 .lb-table th{
-  background:linear-gradient(135deg,#005B9F,#2563eb);color:white;
-  padding:7px 5px;font-size:0.6rem;text-transform:uppercase;letter-spacing:0.04em;
+  background:linear-gradient(135deg,#0f172a,#1e3a5f);color:rgba(255,255,255,0.85);
+  padding:8px 5px;font-size:0.58rem;text-transform:uppercase;letter-spacing:0.06em;
   text-align:center;position:sticky;top:0;z-index:5;
+  border-bottom:2px solid #2563eb;
 }
-.lb-table td{padding:6px 5px;border-bottom:1px solid #f1f5f9;font-size:0.72rem;vertical-align:middle;}
-.lb-table tr:hover td{background:#f8fafc;}
-.lb-table .my-row td{background:#eff6ff!important;border-left:3px solid #005B9F;}
+.lb-table th:first-child{border-radius:10px 0 0 0;}
+.lb-table th:last-child{border-radius:0 10px 0 0;}
+.lb-table td{padding:7px 5px;border-bottom:1px solid rgba(241,245,249,0.8);font-size:0.72rem;vertical-align:middle;}
+.lb-table tr:hover td{background:rgba(239,246,255,0.7);}
+.lb-table .my-row td{
+  background:linear-gradient(90deg,rgba(37,99,235,0.08),rgba(124,58,237,0.05))!important;
+  border-left:3px solid #2563eb;
+}
+/* Gold / Silver / Bronze row glow for top 3 */
+.lb-table tr.lb-rank-1 td{background:linear-gradient(90deg,rgba(251,191,36,0.12),rgba(245,158,11,0.05))!important;}
+.lb-table tr.lb-rank-2 td{background:linear-gradient(90deg,rgba(148,163,184,0.12),rgba(203,213,225,0.05))!important;}
+.lb-table tr.lb-rank-3 td{background:linear-gradient(90deg,rgba(234,88,12,0.1),rgba(249,115,22,0.04))!important;}
+
+/* Rank number medals */
+.rank-medal-1{background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#1c1917;border-radius:50%;width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;font-weight:900;font-size:0.7rem;box-shadow:0 2px 8px rgba(251,191,36,0.5);}
+.rank-medal-2{background:linear-gradient(135deg,#cbd5e1,#94a3b8);color:#1c1917;border-radius:50%;width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;font-weight:900;font-size:0.7rem;box-shadow:0 2px 8px rgba(148,163,184,0.4);}
+.rank-medal-3{background:linear-gradient(135deg,#fb923c,#ea580c);color:white;border-radius:50%;width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;font-weight:900;font-size:0.7rem;box-shadow:0 2px 8px rgba(234,88,12,0.4);}
+
+/* Leaderboard section header */
+.lb-section-header{
+  background:linear-gradient(135deg,#0f172a,#1e3a5f);
+  border-radius:18px 18px 0 0;padding:14px 16px 10px;
+  position:relative;overflow:hidden;
+}
+.lb-section-header::before{
+  content:'';position:absolute;top:-20px;right:-20px;
+  width:80px;height:80px;background:radial-gradient(circle,rgba(251,191,36,0.15),transparent 70%);
+  border-radius:50%;
+}
+.lb-section-title{font-size:1rem;font-weight:900;color:white;letter-spacing:0.02em;}
+.lb-section-subtitle{font-size:0.62rem;color:rgba(148,196,245,0.8);font-weight:600;margin-top:2px;}
 
 /* ─── PLAY COUNT BADGE ─── */
 .playcount-badge{
@@ -564,7 +628,65 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
   pointer-events:none;white-space:nowrap;text-align:center;
   transition:transform 0.5s cubic-bezier(0.34,1.56,0.64,1),opacity 0.5s;
 }
-#milestone-toast.visible{transform:translateX(-50%) translateY(0);opacity:1;}
+/* ─── COMPETITIVE RIVAL PROGRESS BAR (in rival-strip) ─── */
+.rival-progress-wrap{
+  width:100%;background:rgba(255,255,255,0.1);
+  border-radius:999px;height:4px;overflow:hidden;margin-top:2px;
+}
+.rival-progress-fill{
+  height:100%;background:linear-gradient(90deg,#22c55e,#fbbf24,#ef4444);
+  border-radius:999px;transition:width 0.4s ease-out;
+}
+
+/* ─── LEADERBOARD MY RANK PILL ─── */
+.lb-my-rank-pill{
+  display:inline-flex;align-items:center;gap:5px;
+  background:linear-gradient(135deg,#1e40af,#7c3aed);
+  color:white;border-radius:999px;padding:4px 12px;
+  font-size:0.7rem;font-weight:900;
+  box-shadow:0 3px 10px rgba(30,64,175,0.4);
+  animation:badgeGlow 2s ease-in-out infinite;
+}
+
+/* ─── TOP-3 CROWN INDICATOR ─── */
+@keyframes crownBounce{
+  0%,100%{transform:translateY(0) rotate(-5deg);}
+  50%{transform:translateY(-4px) rotate(5deg);}
+}
+.crown-anim{display:inline-block;animation:crownBounce 1.8s ease-in-out infinite;}
+
+/* ─── SCORE TABLE - GLOWING SCORE ON TOP ROW ─── */
+@keyframes scoreGlow{
+  0%,100%{text-shadow:0 0 0 rgba(243,112,33,0);}
+  50%{text-shadow:0 0 12px rgba(243,112,33,0.6);}
+}
+.lb-table tr.lb-rank-1 td.score-cell{
+  animation:scoreGlow 2s ease-in-out infinite;
+  font-weight:900!important;font-size:0.8rem!important;
+}
+
+/* ─── RIVAL ACHIEVED BANNER ─── */
+@keyframes rivalAchievedIn{
+  0%{transform:translate(-50%,20px);opacity:0;}
+  40%{transform:translate(-50%,-6px);opacity:1;}
+  100%{transform:translate(-50%,0);opacity:1;}
+}
+#rival-achieved-banner{
+  position:absolute;bottom:calc(100%+8px);left:50%;
+  transform:translateX(-50%);
+  background:linear-gradient(135deg,#22c55e,#16a34a);color:white;
+  border-radius:14px;padding:6px 14px;font-size:0.72rem;font-weight:900;
+  box-shadow:0 6px 20px rgba(34,197,94,0.5);pointer-events:none;
+  white-space:nowrap;z-index:90;display:none;
+}
+#rival-achieved-banner.visible{
+  display:block;
+  animation:rivalAchievedIn 0.5s cubic-bezier(0.34,1.56,0.64,1) forwards;
+}
+
+/* ─── LEADERBOARD SCORE BAR (inline visual width) ─── */
+.lb-score-bar-wrap{width:100%;background:#f1f5f9;border-radius:999px;height:3px;margin-top:2px;}
+.lb-score-bar-fill{height:100%;background:linear-gradient(90deg,#2563eb,#7c3aed);border-radius:999px;}
 </style>
 </head>
 <body class="bg-dots">
@@ -975,6 +1097,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
     <!-- trash card -->
     <div id="trash-container" style="position:relative;">
       <div id="lucky-badge">⭐ LUCKY +3x</div>
+      <div id="rival-achieved-banner">🎉 Rival Terlampaui!</div>
       <div id="trash-emoji" class="text-5xl mb-2 drop-shadow-md transition-transform hover:scale-110" style="line-height:1">🗑️</div>
       <h2 id="trash-name" class="text-xl font-black text-gray-900 leading-tight break-words px-2">Sampah</h2>
       <div id="streak-fire" style="font-size:1.4rem;">🔥</div>
@@ -1109,22 +1232,30 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
       </div>
 
       <!-- leaderboard section -->
-      <div class="bg-white rounded-2xl shadow-md border border-blue-50 p-3 mb-3">
-        <div class="flex items-center justify-between mb-2 flex-wrap gap-2">
-          <div class="flex items-center gap-2">
-            <h3 class="text-sm font-black text-gray-700">🏆 Leaderboard</h3>
-            <span id="lb-position-label" class="text-[0.65rem] font-bold text-gray-400">– dari – pemain</span>
+      <div class="rounded-2xl shadow-xl border border-slate-200 mb-3 overflow-hidden">
+        <!-- Dark competitive header -->
+        <div class="lb-section-header">
+          <div class="flex items-center justify-between">
+            <div>
+              <div class="lb-section-title">🏆 Leaderboard</div>
+              <div class="lb-section-subtitle">Real-time · Skor tertinggi di atas</div>
+            </div>
+            <div class="flex items-center gap-2">
+              <span id="db-status" class="text-[0.65rem] font-bold text-green-400"></span>
+              <button onclick="exportPdf()" class="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 transition" title="Export PDF">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.8)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
+              </button>
+              <button onclick="exportExcel()" class="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 transition" title="Export Excel">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.8)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/></svg>
+              </button>
+            </div>
           </div>
-          <div class="flex items-center gap-1">
-            <span id="db-status" class="text-[0.65rem] font-bold text-green-500"></span>
-            <button onclick="exportPdf()" class="p-1 rounded hover:bg-gray-100 transition" title="Export PDF">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#374151" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
-            </button>
-            <button onclick="exportExcel()" class="p-1 rounded hover:bg-gray-100 transition" title="Export Excel">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#374151" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/></svg>
-            </button>
+          <!-- My rank indicator -->
+          <div class="mt-2 flex items-center gap-2">
+            <span id="lb-position-label" class="text-[0.68rem] font-bold text-blue-200 bg-white/10 rounded-full px-2.5 py-0.5">– dari – pemain</span>
           </div>
         </div>
+        <div class="bg-white p-3">
         <div class="chip-row mb-2">
           <label class="filter-chip mode-ranked"><input type="radio" name="lb-mode" value="ranked" checked onchange="setLbMode('ranked')"><span>Mode Ranked</span></label>
           <label class="filter-chip mode-curriculum"><input type="radio" name="lb-mode" value="curriculum" onchange="setLbMode('curriculum')"><span>Mode Kurikulum</span></label>
@@ -1166,6 +1297,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
         </div>
         <!-- legend -->
         <div id="lb-legend-items" class="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[0.62rem] font-semibold text-gray-500"></div>
+        </div>
       </div>
 
       <button onclick="showScreen('start');playSound('tryagain')" class="w-full bg-gradient-to-b from-pktBlue to-blue-800 text-white font-black py-3.5 rounded-xl shadow-lg transition hover:-translate-y-0.5 active:scale-95 text-base">
@@ -1488,14 +1620,16 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
 <!--       LEADERBOARD PREVIEW MODAL        -->
 <!-- ════════════════════════════════════════ -->
 <div id="lb-modal" class="modal-backdrop hidden">
-  <div class="modal-card w-full max-w-3xl p-5">
-    <div class="sticky top-0 bg-white z-10 pb-3 border-b border-gray-100 flex justify-between items-center mb-4">
+  <div class="modal-card w-full max-w-3xl overflow-hidden">
+    <!-- Dark competitive header -->
+    <div class="lb-section-header sticky top-0 z-10 flex justify-between items-center">
       <div>
-        <h2 class="text-xl font-black text-pktBlue">🏆 Leaderboard</h2>
-        <p class="text-xs text-gray-400 mt-0.5">Semua skor pemain tersimpan di sini.</p>
+        <div class="lb-section-title">🏆 Leaderboard</div>
+        <div class="lb-section-subtitle">Real-time · Semua skor pemain</div>
       </div>
-      <button onclick="closeLbModal()" class="text-gray-400 hover:text-red-500 text-2xl font-bold leading-none">&times;</button>
+      <button onclick="closeLbModal()" class="text-white/60 hover:text-white text-2xl font-bold leading-none transition">&times;</button>
     </div>
+    <div class="p-5">
     <div class="chip-row mb-2">
       <label class="filter-chip mode-ranked"><input type="radio" name="lb-prev-mode" value="ranked" checked onchange="setLbPrevMode('ranked')"><span>Mode Ranked</span></label>
       <label class="filter-chip mode-curriculum"><input type="radio" name="lb-prev-mode" value="curriculum" onchange="setLbPrevMode('curriculum')"><span>Mode Kurikulum</span></label>
@@ -1509,7 +1643,6 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
       <label class="filter-chip"><input type="radio" name="lb-prev-filter" value="Bumi Lestari" onchange="setPrevFilter(this.value)"><span>Bumi Lestari</span></label>
       <label class="filter-chip"><input type="radio" name="lb-prev-filter" value="Eko Aktif" onchange="setPrevFilter(this.value)"><span>Eko Aktif</span></label>
       <label class="filter-chip"><input type="radio" name="lb-prev-filter" value="Penjaga Bumi" onchange="setPrevFilter(this.value)"><span>Penjaga Bumi</span></label>
-      <!-- Tab Kurikulum dihapus di modal leaderboard juga -->
     </div>
     <div id="lb-prev-meta" class="flex flex-wrap gap-2 items-center text-[0.72rem] text-gray-500 mb-3">
       <span id="lb-prev-filter-badge" class="rounded-full px-2 py-1 text-xs font-semibold bg-slate-100 text-slate-700">Semua</span>
@@ -1538,6 +1671,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
       </table>
     </div>
     <button onclick="closeLbModal()" class="w-full mt-4 bg-gradient-to-r from-pktBlue to-blue-700 text-white font-black py-3 rounded-xl active:scale-95 transition">Tutup</button>
+    </div>
   </div>
 </div>
 
@@ -3607,7 +3741,7 @@ function startGame(time, diff, name, isCurriculum) {
   document.getElementById('session-progress').textContent=`${sessionAsked.size}/${trashData.length} unik`;
   document.getElementById('mission-bar').style.width='0%';
   document.getElementById('mission-pct').textContent='0%';
-  document.getElementById('rival-strip').textContent='⚡ Mulai jawab!';
+  document.getElementById('rival-strip').innerHTML='<div class="rival-strip-header">⚔️ Rival</div><div style="color:#94a3b8;font-size:0.72rem;">Mulai jawab untuk lihat rival!</div>';
   document.getElementById('combo-display').style.opacity='0';
   const tipStrip = document.getElementById('eco-tip-strip');
   if (tipStrip) tipStrip.textContent='Pilah sampah dari sumber untuk kurangi beban TPA.';
@@ -4184,24 +4318,38 @@ function updateRivalStrip() {
   nearestRival = rivals[0] || null;
 
   if(rivals.length>0) {
-    const modeLabel = GS.isCurriculum ? 'Kurikulum' : 'Ranked';
-    strip.innerHTML = `⚡ Rival ${modeLabel}:`;
-    const list = document.createElement('div');
-    list.className = 'rival-strip-list';
+    const modeLabel = GS.isCurriculum ? '📚 Kurikulum' : '⚔️ Ranked';
+    // Progress toward nearest rival
+    const target = rivals[0].score;
+    // find score below player among rivals (or 0)
+    const below = leaderboard.filter(r=>r.id!==GS.currentSessionId && r.score<=ps).slice(-1)[0];
+    const baseScore = below ? below.score : 0;
+    const range = target - baseScore;
+    const prog = range>0 ? Math.min(100, Math.round(((ps-baseScore)/range)*100)) : 100;
+
+    let html = `<div class="rival-strip-header">⚔️ Rival ${modeLabel}</div>`;
+    html += `<div class="rival-strip-list">`;
     rivals.forEach((r,i)=>{
-      const diff = r.score-ps;
-      const opacity = i===0 ? 1 : (i===1 ? 0.8 : 0.65);
-      const item = document.createElement('div');
-      item.className = 'rival-strip-item';
-      item.style.opacity = opacity;
-      item.innerHTML = `<span><strong>${escHtml(r.name)}</strong> (${r.score})</span><span class="text-xs text-slate-500">+${diff}</span>`;
-      list.appendChild(item);
+      const diff = r.score - ps;
+      const actualRank = filterLb(lbCache,'All',mode).findIndex(x=>x.id===r.id)+1;
+      const isNearest = i === 0;
+      html += `<div class="rival-strip-item${isNearest?' nearest':''}">
+        <div class="flex items-center gap-1.5 min-w-0">
+          ${isNearest ? `<span class="rival-nearest-label">TARGET</span>` : `<span class="rival-rank-badge">#${actualRank}</span>`}
+          <strong class="truncate" style="max-width:95px">${escHtml(r.name||r.playerName||'–')}</strong>
+          <span style="color:#94a3b8;font-size:0.62rem">${r.score}</span>
+        </div>
+        <span class="rival-gap-badge">-${diff}</span>
+      </div>`;
     });
-    strip.appendChild(list);
+    html += `</div>`;
+    // Progress bar toward nearest
+    html += `<div class="rival-progress-wrap"><div class="rival-progress-fill" style="width:${prog}%"></div></div>`;
+    strip.innerHTML = html;
   } else if(ps>0) {
-    strip.innerHTML='🏆 Kamu peringkat 1! Pertahankan!';
+    strip.innerHTML=`<div class="rival-strip-header">👑 Peringkat 1!</div><div style="color:#86efac;font-size:0.72rem;font-weight:800;">Tidak ada rival di atas kamu — pertahankan!</div>`;
   } else {
-    strip.textContent='⚡ Mulai jawab untuk lihat rival!';
+    strip.innerHTML=`<div class="rival-strip-header">⚔️ Rival</div><div style="color:#94a3b8;font-size:0.72rem;">Mulai jawab untuk lihat rival!</div>`;
   }
 }
 
@@ -4209,8 +4357,16 @@ function checkRival() {
   if(nearestRival&&!nearestRivalReached&&GS.score>=nearestRival.score) {
     nearestRivalReached=true;
     showFeedback('🎉 Rival Terlampaui!','text-green-500');
-    launchConfetti(12);
-    setTimeout(()=>{ nearestRivalReached=false; },2000);
+    launchConfetti(18);
+    // Show floating rival-achieved banner
+    const banner = document.getElementById('rival-achieved-banner');
+    if(banner) {
+      banner.textContent = `🎉 Rival "${(nearestRival.name||nearestRival.playerName||'').substring(0,12)}" Terlampaui!`;
+      banner.classList.add('visible');
+      setTimeout(()=>banner.classList.remove('visible'), 2500);
+    }
+    // Re-render rival strip to show next rival
+    setTimeout(()=>{ nearestRivalReached=false; updateRivalStrip(); }, 2000);
   }
 }
 
@@ -4983,9 +5139,12 @@ function renderLbTable() {
     const ts=r.timestamp?new Date(r.timestamp).toLocaleString('id-ID',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):'-';
     const dcDisplay = r.isCurriculum ? '–' : (r.dcCompleted || 0);
 
-    const rankStyle=i===0?'font-black text-yellow-600 text-base':i===1?'font-black text-gray-500':i===2?'font-black text-orange-700':'font-normal';
+    const rankMedal = i===0 ? `<span class="rank-medal-1">1</span>` : i===1 ? `<span class="rank-medal-2">2</span>` : i===2 ? `<span class="rank-medal-3">3</span>` : (i+1);
     const tr=document.createElement('tr');
     if(isMe) tr.className='my-row';
+    else if(i===0) tr.className='lb-rank-1';
+    else if(i===1) tr.className='lb-rank-2';
+    else if(i===2) tr.className='lb-rank-3';
     else tr.className=i%2===0?'':'bg-blue-50/20';
 
     const secBadgesHtml=(() => {
@@ -5001,13 +5160,19 @@ function renderLbTable() {
     const tagsHtml=tags.length>0?`<span class="text-[0.55rem] text-gray-400 font-semibold">${tags.map(t=>'#'+t).join(' ')}</span>`:'';
     const primaryBadgeHtml = r.isCurriculum ? '' : `<span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold ${getBadgeClass(primary)}">${escHtml(formatBadge(primary))}</span>`;
 
+    const maxScore = filtered.length > 0 ? Math.max(...filtered.map(x=>x.score||0)) : 1;
+    const scorePct = Math.round(((r.score||0) / Math.max(maxScore,1)) * 100);
+    const crownHtml = i===0 ? `<span class="crown-anim">👑</span>` : '';
     tr.innerHTML=`
-      <td class="text-center ${rankStyle}"><div class="flex items-center justify-center gap-1" title="${escHtml(mv.title)}"><span>${i+1}</span><span class="text-[0.6rem] ${mv.cls}">${mv.sym}</span></div></td>
+      <td class="text-center"><div class="flex items-center justify-center gap-1" title="${escHtml(mv.title)}"><span>${rankMedal}</span><span class="text-[0.6rem] ${mv.cls}">${mv.sym}</span></div></td>
       <td class="pl-2">
-        <div class="flex flex-wrap items-center gap-1"><span class="font-bold text-gray-800 text-xs">${escHtml(getRecordName(r)||'–')}</span>${primaryBadgeHtml}${secBadgesHtml}</div>
+        <div class="flex flex-wrap items-center gap-1">${crownHtml}<span class="font-bold text-gray-800 text-xs">${escHtml(getRecordName(r)||'–')}</span>${primaryBadgeHtml}${secBadgesHtml}</div>
         <div class="flex gap-1 mt-0.5">${tagsHtml}<span class="text-[0.55rem] ${diffColor} font-bold">${escHtml(diffLabel)}</span></div>
       </td>
-      <td class="text-center font-black text-pktOrange text-xs">${r.score||0}</td>
+      <td class="text-center score-cell font-black text-pktOrange text-xs">
+        ${r.score||0}
+        <div class="lb-score-bar-wrap"><div class="lb-score-bar-fill" style="width:${scorePct}%"></div></div>
+      </td>
       <td class="text-center font-bold text-pktBlue text-xs">${r.bestCombo||0}</td>
       <td class="text-center text-xs font-bold">${r.accuracy||0}%</td>
       <td class="text-center text-xs">${r.total||0}/${r.correct||0}/${r.wrong||0}</td>
@@ -5120,17 +5285,27 @@ function renderLbPrev() {
     })();
     const tagsHtml=tags.length>0?`<span class="text-[0.55rem] text-gray-400 font-semibold">${tags.map(t=>'#'+t).join(' ')}</span>`:'';
     const primaryBadgeHtml = r.isCurriculum ? '' : `<span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold ${getBadgeClass(primary)}">${escHtml(formatBadge(primary))}</span>`;
+    const rankMedalP = i===0 ? `<span class="rank-medal-1">1</span>` : i===1 ? `<span class="rank-medal-2">2</span>` : i===2 ? `<span class="rank-medal-3">3</span>` : (i+1);
+    const crownPHtml = i===0 ? `<span class="crown-anim">👑</span>` : '';
+    const maxScoreP = filtered.length > 0 ? Math.max(...filtered.map(x=>x.score||0)) : 1;
+    const scorePctP = Math.round(((r.score||0) / Math.max(maxScoreP,1)) * 100);
     const tr=document.createElement('tr');
-    tr.className=i%2===0?'':'bg-blue-50/20';
+    if(i===0) tr.className='lb-rank-1';
+    else if(i===1) tr.className='lb-rank-2';
+    else if(i===2) tr.className='lb-rank-3';
+    else tr.className=i%2===0?'':'bg-blue-50/20';
     tr.innerHTML=`
-      <td class="text-center font-bold text-xs"><div class="flex items-center justify-center gap-1" title="${escHtml(mv.title)}"><span>${i+1}</span><span class="text-[0.6rem] ${mv.cls}">${mv.sym}</span></div></td>
+      <td class="text-center"><div class="flex items-center justify-center gap-1" title="${escHtml(mv.title)}"><span>${rankMedalP}</span><span class="text-[0.6rem] ${mv.cls}">${mv.sym}</span></div></td>
       <td class="pl-2">
-        <div class="flex flex-wrap items-center gap-1 mb-1"><span class="font-bold text-xs">${escHtml(getRecordName(r)||'–')}</span>${primaryBadgeHtml}</div>
+        <div class="flex flex-wrap items-center gap-1 mb-1">${crownPHtml}<span class="font-bold text-xs">${escHtml(getRecordName(r)||'–')}</span>${primaryBadgeHtml}</div>
         <div class="flex flex-wrap items-center gap-1 mb-1">${secBadgesHtml}</div>
         <div class="flex flex-wrap items-center gap-1 mb-1">${tagsHtml}</div>
         <div class="text-[0.58rem] text-gray-400">${escHtml(diffLabel)}</div>
       </td>
-      <td class="text-center font-black text-pktOrange text-xs">${r.score||0}</td>
+      <td class="text-center score-cell font-black text-pktOrange text-xs">
+        ${r.score||0}
+        <div class="lb-score-bar-wrap"><div class="lb-score-bar-fill" style="width:${scorePctP}%"></div></div>
+      </td>
       <td class="text-center font-bold text-pktBlue text-xs">${r.bestCombo||0}</td>
       <td class="text-center text-xs">${r.accuracy||0}%</td>
       <td class="text-center text-xs">${r.total||0}/${r.correct||0}/${r.wrong||0}</td>
