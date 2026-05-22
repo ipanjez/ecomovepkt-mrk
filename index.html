@@ -2161,6 +2161,15 @@ function savePuInventory() {
 function addToPuInventory(key, amount) {
   puInventory[key] = Math.min(MAX_PU_STACK, (puInventory[key] || 0) + amount);
   savePuInventory();
+  if (POWERUPS[key]) {
+    POWERUPS[key].count = Math.min(MAX_PU_STACK, (POWERUPS[key].count || 0) + amount);
+    renderPowerupBar();
+  }
+}
+
+function grantPowerupReward(key, amount, toastMessage) {
+  addToPuInventory(key, amount);
+  if (toastMessage) showAchievementToast(toastMessage);
 }
 
 // ─── Daily Login Streak ────────────────────
@@ -2631,22 +2640,14 @@ function playPowerupSound(type) {
 // Give extra power-ups for combo milestones
 function checkPowerupReward(combo) {
   if (combo === 5) {
-    POWERUPS.skip.count++;
-    showAchievementToast('🎁 5 Combo! Dapat Skip gratis!');
-    renderPowerupBar();
+    grantPowerupReward('skip', 1, '🎁 5 Combo! Dapat Skip gratis!');
   } else if (combo === 10) {
-    POWERUPS.double.count++;
-    showAchievementToast('🎁 10 Combo! Dapat 2x Poin!');
-    renderPowerupBar();
+    grantPowerupReward('double', 1, '🎁 10 Combo! Dapat 2x Poin!');
   } else if (combo === 15) {
-    POWERUPS.freeze.count++;
-    showAchievementToast('🎁 15 Combo! Dapat Freeze!');
-    renderPowerupBar();
+    grantPowerupReward('freeze', 1, '🎁 15 Combo! Dapat Freeze!');
   } else if (combo === 20) {
-    POWERUPS.double.count++;
-    POWERUPS.skip.count++;
-    showAchievementToast('🔥 20 COMBO!! Double reward!');
-    renderPowerupBar();
+    grantPowerupReward('double', 1, '🔥 20 COMBO!! Double reward!');
+    grantPowerupReward('skip', 1);
   }
 }
 
