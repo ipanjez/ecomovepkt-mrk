@@ -1843,7 +1843,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
           </div>
 
           <div id="badge-guide-detail" class="rounded-xl border border-purple-100 bg-gradient-to-br from-purple-50 to-white p-3 shadow-sm">
-            <p class="text-[0.68rem] font-black text-purple-800">Sorot badge untuk melihat detail</p>
+            <p class="text-[0.68rem] font-black text-purple-800">Klik badge untuk melihat detail</p>
             <p class="mt-1 text-[0.62rem] text-purple-700 leading-relaxed">Arahkan kursor atau fokus keyboard ke salah satu kartu badge di atas. Detail ini akan menampilkan cara mendapatkannya dan contoh kasus yang cocok dengan aturan game saat ini.</p>
           </div>
 
@@ -5663,7 +5663,7 @@ function renderGuideBadgeDetail(key) {
 
   const data = key ? GUIDE_BADGE_DETAILS[key] : null;
   if (!data) {
-    panel.innerHTML = '<p class="text-[0.68rem] font-black text-purple-800">Sorot badge untuk melihat detail</p><p class="mt-1 text-[0.62rem] text-purple-700 leading-relaxed">Arahkan kursor atau fokus keyboard ke salah satu kartu badge di atas. Detail ini akan menampilkan cara mendapatkannya dan contoh kasus yang cocok dengan aturan game saat ini.</p>';
+    panel.innerHTML = '<p class="text-[0.68rem] font-black text-purple-800">Klik badge untuk melihat detail</p><p class="mt-1 text-[0.62rem] text-purple-700 leading-relaxed">Arahkan kursor atau fokus keyboard ke salah satu kartu badge di atas. Detail ini akan menampilkan cara mendapatkannya dan contoh kasus yang cocok dengan aturan game saat ini.</p>';
     return;
   }
 
