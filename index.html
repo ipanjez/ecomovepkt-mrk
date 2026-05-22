@@ -2755,6 +2755,12 @@ function activatePowerup(key) {
 
   pu.count--;
   pu.active = true;
+  try {
+    if (puInventory && typeof puInventory[key] === 'number') {
+      puInventory[key] = Math.max(0, puInventory[key] - 1);
+      savePuInventory();
+    }
+  } catch(e) {}
   renderPowerupBar();
   if (GS.puUsed) GS.puUsed[key] = (GS.puUsed[key]||0) + 1;
 
@@ -2979,7 +2985,7 @@ function animateScorePop() {
   setTimeout(() => sc.classList.remove('score-pop'), 300);
 }
 
-// Grant power-up back when player starts fresh game
+// Mirror the account inventory into the current session without consuming it up front.
 function awardSessionPowerups(difficulty) {
   // Only use the account's stored inventory for this session.
   const inv = { ...puInventory };
@@ -2991,25 +2997,6 @@ function awardSessionPowerups(difficulty) {
   POWERUPS.double.active = false;
   POWERUPS.skip.active   = false;
   POWERUPS.timeExtend.active = false;
-  
-  // Consume inventory (it goes into the session)
-  puInventory.freeze = 0;
-  puInventory.double = 0;
-  puInventory.skip = 0;
-  puInventory.timeExtend = 0;
-  // Save only to localStorage — do NOT overwrite Firebase here.
-  // Firebase is the source of truth and should only be updated
-  // when power-ups are earned (addToPuInventory) or explicitly synced.
-  try {
-    const key = getPuInventoryKey();
-    if (key) localStorage.setItem(key, JSON.stringify(puInventory));
-  } catch(e) {}
-  
-  const total = inv.freeze + inv.double + inv.skip + (inv.timeExtend||0);
-  if (total > 0) {
-    const teStr = inv.timeExtend > 0 ? ` ⏳×${inv.timeExtend}` : '';
-    setTimeout(() => showAchievementToast(`🎁 Inventori diklaim: ❄️×${inv.freeze} 2️⃣×${inv.double} ⏭️×${inv.skip}${teStr}`), 800);
-  }
 }
 
 
@@ -6548,13 +6535,8 @@ function cleanupGame() {
   // Reset drag state
   trashDragState = {dragging:false, startX:0, startY:0, currentX:0, currentY:0, pointerId:null};
 
-  // Return unused power-ups from the session back to persistent inventory
-  // (they were taken out in awardSessionPowerups; give back what wasn't spent)
-  puInventory.freeze     = (puInventory.freeze     || 0) + (POWERUPS.freeze.count     || 0);
-  puInventory.double     = (puInventory.double     || 0) + (POWERUPS.double.count     || 0);
-  puInventory.skip       = (puInventory.skip       || 0) + (POWERUPS.skip.count       || 0);
-  puInventory.timeExtend = (puInventory.timeExtend || 0) + (POWERUPS.timeExtend.count || 0);
-  savePuInventory(); // Persist to localStorage + Firebase
+  // Persistent inventory is already consumed on use, so nothing needs to be returned here.
+  savePuInventory(); // Keep localStorage + Firebase in sync with any mid-game rewards.
 
   // Reset game state
   GS.isPlaying = false;
