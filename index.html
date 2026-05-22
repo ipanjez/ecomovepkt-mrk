@@ -1814,9 +1814,14 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
               <span class="text-[0.62rem] font-bold bg-blue-100 text-blue-800 rounded-full px-2.5 py-1" data-guide-badge="ResiduPro" tabindex="0">🗑️ ResiduPro</span>
               <span class="text-[0.62rem] font-bold bg-red-100 text-red-800 rounded-full px-2.5 py-1" data-guide-badge="ComboPro" tabindex="0">💥 ComboPro</span>
               <span class="text-[0.62rem] font-bold bg-purple-100 text-purple-800 rounded-full px-2.5 py-1" data-guide-badge="ComboInsane" tabindex="0">💥 ComboInsane</span>
+              <span class="text-[0.62rem] font-bold bg-fuchsia-100 text-fuchsia-800 rounded-full px-2.5 py-1" data-guide-badge="ComboLegend" tabindex="0">💥 ComboLegend</span>
+              <span class="text-[0.62rem] font-bold bg-emerald-100 text-emerald-800 rounded-full px-2.5 py-1" data-guide-badge="AccuracyMaster" tabindex="0">🎯 AccuracyMaster</span>
+              <span class="text-[0.62rem] font-bold bg-teal-100 text-teal-800 rounded-full px-2.5 py-1" data-guide-badge="PrecisionAce" tabindex="0">🎯 PrecisionAce</span>
               <span class="text-[0.62rem] font-bold bg-amber-100 text-amber-800 rounded-full px-2.5 py-1" data-guide-badge="Grinder75" tabindex="0">🔥 Grinder75</span>
               <span class="text-[0.62rem] font-bold bg-violet-100 text-violet-800 rounded-full px-2.5 py-1" data-guide-badge="Grinder150" tabindex="0">🔥 Grinder150</span>
               <span class="text-[0.62rem] font-bold bg-fuchsia-100 text-fuchsia-800 rounded-full px-2.5 py-1" data-guide-badge="Grinder300" tabindex="0">🔥 Grinder300</span>
+              <span class="text-[0.62rem] font-bold bg-orange-100 text-orange-800 rounded-full px-2.5 py-1" data-guide-badge="ScoreTitan" tabindex="0">🏆 ScoreTitan</span>
+              <span class="text-[0.62rem] font-bold bg-sky-100 text-sky-800 rounded-full px-2.5 py-1" data-guide-badge="TriplePro" tabindex="0">🏷️ TriplePro</span>
               <span class="text-[0.62rem] font-bold bg-cyan-100 text-cyan-800 rounded-full px-2.5 py-1" data-guide-badge="DCActive" tabindex="0">📅 DCActive</span>
               <span class="text-[0.62rem] font-bold bg-sky-100 text-sky-800 rounded-full px-2.5 py-1" data-guide-badge="DCDedicated" tabindex="0">🏆 DCDedicated</span>
               <span class="text-[0.62rem] font-bold bg-rose-100 text-rose-800 rounded-full px-2.5 py-1" data-guide-badge="DCMaster" tabindex="0">🏆 DCMaster</span>
@@ -1824,7 +1829,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
               <span class="text-[0.62rem] font-bold bg-slate-100 text-slate-800 rounded-full px-2.5 py-1" data-guide-badge="Hard Mode Hero" tabindex="0">🛡️ Hard Mode Hero</span>
               <span class="text-[0.62rem] font-bold bg-emerald-100 text-emerald-800 rounded-full px-2.5 py-1" data-guide-badge="Eco Guardian" tabindex="0">🌿 Eco Guardian</span>
             </div>
-            <p class="text-[0.6rem] text-gray-400 mt-1.5">Tag otomatis berdasarkan performa akun aktif dan akan muncul penuh di leaderboard.</p>
+            <p class="text-[0.6rem] text-gray-400 mt-1.5">Tag otomatis berdasarkan performa akun aktif, dan sekarang mencakup combo, akurasi, skor tinggi, grinding, daily challenge, serta multi-kategori. Semua akan muncul penuh di leaderboard.</p>
           </div>
 
           <div id="badge-guide-detail" class="rounded-xl border border-purple-100 bg-gradient-to-br from-purple-50 to-white p-3 shadow-sm">
@@ -5532,13 +5537,19 @@ function computeSpecialTags(score,acc,combo,catStats,rank,attempts,dcCompleted) 
   const tags=[];
   const checkCat=(cat,label)=>{ const s=catStats&&catStats[cat]; if(s&&s.total>=3&&(s.correct/s.total*100)>=95) tags.push(label); };
   checkCat('RESIDU','ResiduPro'); checkCat('SISA MAKANAN','OrganikPro'); checkCat('LAKU JUAL','DaurUlangPro');
+  const catEntries = Object.values(catStats||{}).filter(s=>s&&s.total>=3);
+  if(catEntries.length>=3 && catEntries.filter(s=>(s.correct/s.total*100)>=95).length>=3) tags.push('TriplePro');
   if(combo>=30) tags.push('ComboInsane');
   else if(combo>=20) tags.push('ComboPro');
+  if(combo>=40) tags.push('ComboLegend');
   if((attempts||0)>=300) tags.push('Grinder300');
   else if((attempts||0)>=150) tags.push('Grinder150');
   else if((attempts||0)>=75) tags.push('Grinder75');
   if(acc>=100&&(attempts||0)>=5) tags.push('GodAim');
+  if(acc>=98&&(attempts||0)>=15) tags.push('PrecisionAce');
+  else if(acc>=90&&(attempts||0)>=10) tags.push('AccuracyMaster');
   if(score>=1500) tags.push('ScoreLegend');
+  if(score>=2000) tags.push('ScoreTitan');
   const dc = dcCompleted || 0;
   if(dc>=50) tags.push('DCLegend');
   else if(dc>=30) tags.push('DCMaster');
@@ -5600,6 +5611,8 @@ const GUIDE_BADGE_DETAILS = {
   'God Aim': { title: 'God Aim', how: 'Akurasi 100% dengan minimal 10 jawaban benar.', example: 'Contoh case: kamu menjawab 12 dari 12 dengan benar dalam satu sesi.' },
   'Accuracy Ace': { title: 'Accuracy Ace', how: 'Akurasi minimal 95% dengan minimal 15 jawaban total.', example: 'Contoh case: 19 benar dari 20 jawaban atau 15 benar dari 15 jawaban.' },
   Elite: { title: 'Elite', how: 'Skor minimal 1000 dan akurasi minimal 85%.', example: 'Contoh case: skor 1200 dengan 90% akurasi di sesi Ranked yang rapi.' },
+  AccuracyMaster: { title: 'AccuracyMaster', how: 'Akurasi minimal 90% dengan minimal 10 jawaban total.', example: 'Contoh case: 18 benar dari 20 jawaban dalam satu sesi Ranked.' },
+  PrecisionAce: { title: 'PrecisionAce', how: 'Akurasi minimal 98% dengan minimal 15 jawaban total.', example: 'Contoh case: 15 benar dari 15, atau 19 benar dari 20 dengan nyaris tanpa salah.' },
   'Category Master': { title: 'Category Master', how: 'Satu kategori dijawab 100% benar dengan minimal 5 soal pada kategori itu.', example: 'Contoh case: 5 dari 5 pada Sisa Makanan semuanya benar.' },
   'Rising Star': { title: 'Rising Star', how: 'Skor sesi ini naik minimal 100 poin dibanding rekor terbaik sebelumnya.', example: 'Contoh case: best sebelumnya 540 lalu kamu menutup sesi di 650.' },
   Newcomer: { title: 'Newcomer', how: 'Sudah bermain minimal 3 kali pada akun aktif.', example: 'Contoh case: sesi ketiga akunmu baru selesai dan milestone ini aktif.' },
@@ -5613,9 +5626,12 @@ const GUIDE_BADGE_DETAILS = {
   ResiduPro: { title: 'ResiduPro', how: 'Kategori Residu punya minimal 3 jawaban dengan akurasi 95%+ pada akun aktif.', example: 'Contoh case: 3 soal Residu selesai tanpa salah pada mode Kurikulum.' },
   ComboPro: { title: 'ComboPro', how: 'Mencapai combo 20 atau lebih dalam satu sesi.', example: 'Contoh case: kamu menjaga rangkaian benar sampai combo menyentuh 20.' },
   ComboInsane: { title: 'ComboInsane', how: 'Mencapai combo 30 atau lebih dalam satu sesi.', example: 'Contoh case: run sangat bersih yang tidak putus sampai combo 30.' },
+  ComboLegend: { title: 'ComboLegend', how: 'Mencapai combo 40 atau lebih dalam satu sesi.', example: 'Contoh case: sesi super bersih tanpa putus sampai combo 40.' },
   Grinder75: { title: 'Grinder75', how: 'Total attempts akun mencapai 75.', example: 'Contoh case: akun yang sering latihan akhirnya melewati 75 percobaan.' },
   Grinder150: { title: 'Grinder150', how: 'Total attempts akun mencapai 150.', example: 'Contoh case: pemain aktif yang rajin mengulang sesi harian.' },
   Grinder300: { title: 'Grinder300', how: 'Total attempts akun mencapai 300.', example: 'Contoh case: akun yang sangat lama dipakai dan sering grinding.' },
+  ScoreTitan: { title: 'ScoreTitan', how: 'Skor minimal 2000. Ini level skor paling tinggi yang lebih jarang muncul.', example: 'Contoh case: akun sangat kuat yang menutup sesi dengan skor 2100+.' },
+  TriplePro: { title: 'TriplePro', how: 'Tiga kategori utama sama-sama punya akurasi 95%+ dengan minimal 3 soal per kategori.', example: 'Contoh case: Sisa Makanan, Laku Jual, dan Residu semuanya stabil di atas 95%.' },
   DCActive: { title: 'DCActive', how: 'Sudah menyelesaikan Daily Challenge minimal 5 kali.', example: 'Contoh case: akunmu rutin menyelesaikan challenge harian selama beberapa hari.' },
   DCDedicated: { title: 'DCDedicated', how: 'Sudah menyelesaikan Daily Challenge minimal 15 kali.', example: 'Contoh case: pemain yang hampir tiap hari menutup challenge harian.' },
   DCMaster: { title: 'DCMaster', how: 'Sudah menyelesaikan Daily Challenge minimal 30 kali.', example: 'Contoh case: akun yang sangat konsisten ikut tantangan harian.' },
@@ -5807,7 +5823,7 @@ function renderLbTable() {
 
     const secBadgesHtml=(() => {
       let badges = secArr || [];
-      const priorityOrder = ['Rank #1','Top 3','Top 10','God Aim','Daily Challenger','Combo God','Score Legend'];
+      const priorityOrder = ['Rank #1','Top 3','Top 10','ScoreTitan','ScoreLegend','PrecisionAce','AccuracyMaster','God Aim','Daily Challenger','ComboLegend','ComboInsane','ComboPro','Combo God'];
       badges = [
         ...priorityOrder.filter(b=>badges.includes(b)),
         ...badges.filter(b=>!priorityOrder.includes(b))
@@ -5815,8 +5831,9 @@ function renderLbTable() {
       return badges.map(b=>`<span class="rounded-full px-1.5 py-0.5 text-[0.55rem] font-bold ${getSecondaryBadgeClass(b)}" title="${escHtml(b)}">${escHtml(b)}</span>`).join('');
     })();
     // Show tags — prioritize most prestigious
-    const priorityTags = ['GodAim','ComboInsane','ComboPro','ScoreLegend','DCLegend','DCMaster','Rank1','Top3','Grinder300','Grinder150'];
-    const sortedTags = tags.sort((a,b) => priorityTags.indexOf(a) - priorityTags.indexOf(b));
+    const priorityTags = ['ScoreTitan','ScoreLegend','PrecisionAce','AccuracyMaster','GodAim','ComboLegend','ComboInsane','ComboPro','DCLegend','DCMaster','DCActive','Rank1','Top3','Grinder300','Grinder150','Grinder75','TriplePro'];
+    const tagPriority = Object.fromEntries(priorityTags.map((t, idx) => [t, idx]));
+    const sortedTags = [...tags].sort((a,b) => (tagPriority[a] ?? 999) - (tagPriority[b] ?? 999));
     const tagsHtml=sortedTags.length>0?`<span class="text-[0.52rem] text-purple-400 font-bold">${sortedTags.map(t=>'#'+t).join(' ')}</span>`:'';
     const primaryBadgeHtml = r.isCurriculum ? '' : `<span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold ${getBadgeClass(primary)}" title="${escHtml(primary)}">${escHtml(formatBadge(primary))}</span>`;
 
@@ -5945,14 +5962,17 @@ function renderLbPrev() {
     const diffLabel=r.isCurriculum?`📚 ${r.curriculumFilter||'Kurikulum'}`:getDifficultyDisplayName(r.difficulty);
     const secBadgesHtml=(() => {
       let badges = secArr || [];
-      const priorityOrder = ['Rank #1','Top 3','Top 10','God Aim','Daily Challenger','Combo God','Score Legend'];
+      const priorityOrder = ['Rank #1','Top 3','Top 10','ScoreTitan','ScoreLegend','PrecisionAce','AccuracyMaster','God Aim','Daily Challenger','ComboLegend','ComboInsane','ComboPro','Combo God'];
       badges = [
         ...priorityOrder.filter(b=>badges.includes(b)),
         ...badges.filter(b=>!priorityOrder.includes(b))
       ];
       return badges.map(b=>`<span class="rounded-full px-1.5 py-0.5 text-[0.55rem] font-bold ${getSecondaryBadgeClass(b)}">${escHtml(b)}</span>`).join(' ');
     })();
-    const tagsHtml=tags.length>0?`<span class="text-[0.52rem] text-purple-500 font-bold">${tags.map(t=>'#'+t).join(' ')}</span>`:'';
+    const priorityTags = ['ScoreTitan','ScoreLegend','PrecisionAce','AccuracyMaster','GodAim','ComboLegend','ComboInsane','ComboPro','DCLegend','DCMaster','DCActive','Rank1','Top3','Grinder300','Grinder150','Grinder75','TriplePro'];
+    const tagPriority = Object.fromEntries(priorityTags.map((t, idx) => [t, idx]));
+    const sortedTags = [...tags].sort((a,b) => (tagPriority[a] ?? 999) - (tagPriority[b] ?? 999));
+    const tagsHtml=sortedTags.length>0?`<span class="text-[0.52rem] text-purple-500 font-bold">${sortedTags.map(t=>'#'+t).join(' ')}</span>`:'';
     const primaryBadgeHtml = r.isCurriculum ? '' : `<span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold ${getBadgeClass(primary)}">${escHtml(formatBadge(primary))}</span>`;
     const rankMedalP = i===0 ? `<span class="rank-medal-1">1</span>` : i===1 ? `<span class="rank-medal-2">2</span>` : i===2 ? `<span class="rank-medal-3">3</span>` : (i+1);
     const crownPHtml = i===0 ? `<span class="crown-anim">👑</span>` : '';
