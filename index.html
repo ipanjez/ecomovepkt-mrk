@@ -5644,17 +5644,49 @@ function renderGuideBadgeDetail(key) {
     </div>`;
 }
 
+let _activeGuideBadge = null;
 function initGuideBadgeCards() {
-  const cards = document.querySelectorAll('[data-guide-badge]');
+  const cards = Array.from(document.querySelectorAll('[data-guide-badge]'));
   cards.forEach((card) => {
     const key = card.getAttribute('data-guide-badge');
     if (!key) return;
     card.setAttribute('aria-describedby', 'badge-guide-detail');
-    card.addEventListener('pointerenter', () => renderGuideBadgeDetail(key));
-    card.addEventListener('focus', () => renderGuideBadgeDetail(key));
-    card.addEventListener('pointerleave', () => renderGuideBadgeDetail(null));
-    card.addEventListener('blur', () => renderGuideBadgeDetail(null));
+    card.setAttribute('role', 'button');
+    card.setAttribute('tabindex', card.getAttribute('tabindex') || '0');
+    card.setAttribute('aria-expanded', 'false');
+
+    card.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (_activeGuideBadge === key) {
+        _activeGuideBadge = null;
+        renderGuideBadgeDetail(null);
+        card.classList.remove('ring', 'ring-purple-300');
+        card.setAttribute('aria-expanded', 'false');
+      } else {
+        _activeGuideBadge = key;
+        renderGuideBadgeDetail(key);
+        cards.forEach(c => { c.classList.remove('ring', 'ring-purple-300'); c.setAttribute('aria-expanded', 'false'); });
+        card.classList.add('ring', 'ring-purple-300');
+        card.setAttribute('aria-expanded', 'true');
+      }
+    });
+
+    card.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); card.click(); }
+    });
   });
+
+  // clicking outside closes the detail
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('[data-guide-badge]') && !e.target.closest('#badge-guide-detail')) {
+      if (_activeGuideBadge) {
+        _activeGuideBadge = null;
+        cards.forEach(c => { c.classList.remove('ring', 'ring-purple-300'); c.setAttribute('aria-expanded', 'false'); });
+        renderGuideBadgeDetail(null);
+      }
+    }
+  });
+
   renderGuideBadgeDetail(null);
 }
 
