@@ -5555,6 +5555,7 @@ function setupFirebaseListener() {
 
       updateNameHint();
       renderPlayCountBadge();
+      renderPlayMilestoneOnStart();
       // Also refresh start-screen rank notif with fresh lbCache
       try { const n=(document.getElementById('player-name')||{}).value||''; if(n.trim()) renderStartRankNotif(n.trim()); } catch(e) {}
       renderLbTable();
