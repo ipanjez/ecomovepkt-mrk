@@ -50,7 +50,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
 
 /* ─── PLAY AREA – 1fr – always has space ─── */
 .game-play{
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
   position:relative;overflow:hidden;padding:4px 12px 4px;gap:4px;
 }
 
@@ -89,16 +89,16 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
   box-shadow:0 8px 28px rgba(0,0,0,0.10),0 2px 8px rgba(0,91,159,0.06);
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   text-align:center;cursor:pointer;transition:transform 0.2s,box-shadow 0.2s;
-  width:min(88vw,340px);
-  flex:1;min-height:150px;max-height:300px;
-  padding:16px 20px;
+  width:min(88vw,320px);
+  flex:1;min-height:130px;max-height:280px;
+  padding:14px 18px;
   position:relative;z-index:10;
   background-image:radial-gradient(rgba(0,91,159,0.03) 1.5px,transparent 1.5px);
   background-size:20px 20px;
 }
 #trash-container:hover{transform:scale(1.02);box-shadow:0 14px 36px rgba(0,0,0,0.13);}
-@media(min-height:680px){#trash-container{min-height:170px;padding:18px 22px;}}
-@media(min-height:780px){#trash-container{min-height:200px;width:min(88vw,360px);}}
+@media(min-height:680px){#trash-container{min-height:160px;padding:16px 20px;}}
+@media(min-height:780px){#trash-container{min-height:190px;width:min(88vw,340px);}}
 
 /* ─── BIN BUTTON ─── */
 .bin{
@@ -170,11 +170,11 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
   background:linear-gradient(135deg,#0f172a 0%,#1e3a5f 60%,#0c1a3a 100%);
   border:1.5px solid rgba(99,179,237,0.35);
   border-radius:10px;
-  padding:3px 10px;
+  padding:4px 10px;
   display:flex;flex-direction:row;align-items:center;justify-content:space-between;gap:8px;
   font-size:0.72rem;font-weight:700;color:#e2e8f0;
-  width:min(88vw,340px);text-align:left;line-height:1.3;
-  min-height:24px;max-height:36px;
+  width:min(88vw,320px);text-align:left;line-height:1.3;
+  min-height:28px;max-height:38px;
   box-shadow:0 4px 12px rgba(0,0,0,0.2);
   position:relative;overflow:hidden;flex-shrink:0;
 }
@@ -381,11 +381,6 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
 /* ─── RIPPLE ─── */
 @keyframes ripple{0%{transform:scale(0);opacity:0.5;}100%{transform:scale(4);opacity:0;}}
 .ripple-el{position:absolute;border-radius:50%;background:rgba(255,255,255,0.5);pointer-events:none;animation:ripple 0.5s linear;}
-@keyframes timeExtendTimerGlow{
-  0%,100%{box-shadow:0 0 0 0 rgba(192,38,211,0);background:linear-gradient(90deg,#7AB800,#c026d3,#ef4444);}
-  50%{box-shadow:0 0 14px 4px rgba(192,38,211,0.55);background:linear-gradient(90deg,#c026d3,#f0abfc,#c026d3);}
-}
-#game-screen.timeextend-active #timer-bar{animation:timeExtendTimerGlow 0.8s ease-in-out 3;}
 
 /* ─── CORRECT BIN FLASH ─── */
 @keyframes binFlash{0%{filter:brightness(1);}40%{filter:brightness(1.35);}100%{filter:brightness(1);}}
@@ -1293,10 +1288,10 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
   <!-- ROW 4: Play area (1fr) -->
   <main class="game-play">
     <!-- rank change notification (shown briefly at game start) -->
-    <div id="rank-notif-banner" class="hidden w-full rounded-xl px-3 py-1.5 text-xs font-bold text-center leading-snug" style="max-width:min(88vw,340px);flex-shrink:0;"></div>
+    <div id="rank-notif-banner" class="hidden w-full rounded-xl px-3 py-2 text-xs font-bold text-center leading-snug" style="max-width:min(88vw,320px)"></div>
 
     <!-- rival strip -->
-    <div id="rival-strip" style="flex-shrink:0;"><span style="font-size:0.55rem;font-weight:900;color:#93c5fd;text-transform:uppercase;">⚔️ Rival</span><span style="color:#94a3b8;font-size:0.68rem;flex:1;text-align:right;padding-left:6px;">Jawab untuk lihat rival</span></div>
+    <div id="rival-strip">⚡ Mulai jawab untuk lihat rival terdekat!</div>
 
     <!-- curriculum focus display (hanya muncul di mode kurikulum) -->
     <div id="curriculum-focus-badge" class="curriculum-focus-badge hidden"></div>
@@ -1334,16 +1329,16 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
   <!-- ROW 4: Bins (normal mode) & curriculum buttons (akan diganti dinamis) -->
   <div class="game-bins" id="game-bins-container">
     <button onclick="checkBin('SISA MAKANAN')" class="bin bg-gradient-to-t from-green-200 to-green-50 border-b-[5px] border-pktGreen" data-category="SISA MAKANAN">
-      <span class="text-4xl opacity-70">🍏</span>
-      <h3 class="font-black text-pktGreen text-[0.65rem] sm:text-xs bg-white/80 px-2 py-1 rounded-lg border border-green-100 text-center leading-tight w-full">SISA<br>MAKANAN</h3>
+      <span class="text-3xl opacity-60">🍏</span>
+      <h3 class="font-black text-pktGreen text-[0.65rem] sm:text-xs bg-white/75 px-2 py-1 rounded-lg border border-green-100 text-center leading-tight">SISA<br>MAKANAN</h3>
     </button>
     <button onclick="checkBin('LAKU JUAL')" class="bin bg-gradient-to-t from-orange-200 to-orange-50 border-b-[5px] border-pktOrange" data-category="LAKU JUAL">
-      <span class="text-4xl opacity-70">♻️</span>
-      <h3 class="font-black text-pktOrange text-[0.65rem] sm:text-xs bg-white/80 px-2 py-1 rounded-lg border border-orange-100 text-center leading-tight w-full">LAKU<br>JUAL</h3>
+      <span class="text-3xl opacity-60">♻️</span>
+      <h3 class="font-black text-pktOrange text-[0.65rem] sm:text-xs bg-white/75 px-2 py-1 rounded-lg border border-orange-100 text-center leading-tight">LAKU<br>JUAL</h3>
     </button>
     <button onclick="checkBin('RESIDU')" class="bin bg-gradient-to-t from-blue-200 to-blue-50 border-b-[5px] border-pktBlue" data-category="RESIDU">
-      <span class="text-4xl opacity-70">🗑️</span>
-      <h3 class="font-black text-pktBlue text-[0.65rem] sm:text-xs bg-white/80 px-2 py-1 rounded-lg border border-blue-100 text-center leading-tight w-full">RESIDU</h3>
+      <span class="text-3xl opacity-60">🗑️</span>
+      <h3 class="font-black text-pktBlue text-[0.65rem] sm:text-xs bg-white/75 px-2 py-1 rounded-lg border border-blue-100 text-center leading-tight">RESIDU</h3>
     </button>
   </div>
 </div>
@@ -1877,7 +1872,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
               <div class="text-[0.62rem] text-amber-700 flex gap-1.5 items-center"><span class="w-5 h-5 rounded-full bg-amber-200 flex items-center justify-center font-black text-amber-800 text-[0.58rem] shrink-0">4</span> 2️⃣ +1 Double Poin</div>
               <div class="text-[0.62rem] text-amber-700 flex gap-1.5 items-center"><span class="w-5 h-5 rounded-full bg-amber-200 flex items-center justify-center font-black text-amber-800 text-[0.58rem] shrink-0">5</span> ❄️+1 ⏭️+1</div>
               <div class="text-[0.62rem] text-amber-700 flex gap-1.5 items-center"><span class="w-5 h-5 rounded-full bg-amber-200 flex items-center justify-center font-black text-amber-800 text-[0.58rem] shrink-0">6</span> 2️⃣ +2 Double Poin</div>
-              <div class="text-[0.62rem] text-amber-700 col-span-2 flex gap-1.5 items-center"><span class="w-5 h-5 rounded-full bg-orange-400 flex items-center justify-center font-black text-white text-[0.58rem] shrink-0">7</span> 🎉 BONUS BESAR: ❄️×2 + 2️⃣×2 + ⏭️×3 + ⏳×1 (Time Extend LANGKA!)</div>
+              <div class="text-[0.62rem] text-amber-700 col-span-2 flex gap-1.5 items-center"><span class="w-5 h-5 rounded-full bg-orange-400 flex items-center justify-center font-black text-white text-[0.58rem] shrink-0">7</span> 🎉 BONUS BESAR: ❄️×2 + 2️⃣×2 + ⏭️×3</div>
             </div>
           </div>
           <div class="flex items-start gap-2 rounded-xl bg-blue-50 border border-blue-100 px-3 py-2">
@@ -1940,22 +1935,14 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
 
       <!-- POWER-UP GUIDE -->
       <div class="rounded-2xl bg-gradient-to-br from-purple-50 to-blue-50 border border-purple-200 p-4">
-        <p class="font-black text-purple-800 text-sm mb-2">⚡ Panduan Power-up (tekan Q/W/E/R)</p>
+        <p class="font-black text-purple-800 text-sm mb-2">⚡ Panduan Power-up (tekan Q/W/E)</p>
         <div class="space-y-2 text-xs">
           <div class="rounded-xl bg-white/70 border border-purple-100 px-3 py-2 text-purple-800 font-semibold leading-relaxed">Power-up yang kamu dapat saat bermain tersimpan di inventori akun aktif, jadi bisa dipakai lagi di sesi berikutnya kapan saja selama kamu memakai nama/akun yang sama.</div>
           <div class="flex items-center gap-2"><span class="text-lg">❄️</span><div><b class="text-blue-700">Freeze [Q]</b> — Bekukan timer +5 detik.</div></div>
           <div class="flex items-center gap-2"><span class="text-lg">2️⃣</span><div><b class="text-yellow-700">2x Poin [W]</b> — Double poin 10 detik.</div></div>
           <div class="flex items-center gap-2"><span class="text-lg">⏭️</span><div><b class="text-green-700">Skip [E]</b> — Lewati tanpa penalti.</div></div>
-          <div class="flex items-center gap-2 rounded-xl bg-fuchsia-50 border border-fuchsia-200 px-2 py-2">
-            <span class="text-lg">⏳</span>
-            <div>
-              <b class="text-fuchsia-700">Time Extend [R]</b> — Tambah +15 detik waktu.
-              <span class="ml-1 inline-flex items-center rounded-full bg-fuchsia-600 text-white text-[0.55rem] font-black px-2 py-0.5">✨ LANGKA</span>
-              <p class="text-[0.65rem] text-fuchsia-600 mt-0.5">Sangat jarang! Bisa didapat dari: daily login hari ke-7, combo 25x beruntun, atau milestone game tertentu.</p>
-            </div>
-          </div>
           <div class="flex items-center gap-2"><span class="text-lg">⭐</span><div><b class="text-orange-700">Lucky Trash</b> — Acak 1/8 kartu. Benar = 3x poin!</div></div>
-          <div class="rounded-xl bg-blue-50 border border-blue-100 px-3 py-2 text-[0.7rem] text-blue-700 font-semibold leading-relaxed">Cara dapat power-up: dari daily login, combo milestone (5, 10, 15, 20, 25 combo), dan milestone main (3x, 10x, 25x, 50x, 100x). <b>Time Extend</b> hanya dari login hari ke-7 atau combo 25x. Semua masuk inventori dan bisa dipakai di sesi berikutnya.</div>
+          <div class="rounded-xl bg-blue-50 border border-blue-100 px-3 py-2 text-[0.7rem] text-blue-700 font-semibold leading-relaxed">Cara dapat power-up: dari daily login, combo milestone (5, 10, 15, 20 combo), dan milestone main (3x, 10x, 25x, 50x, 100x). Semua masuk ke inventori akun dan bisa dipakai lagi pada sesi berikutnya.</div>
         </div>
       </div>
 
@@ -2228,6 +2215,16 @@ async function loadPuInventoryFromFirebase(name) {
 }
 
 function addToPuInventory(key, amount) {
+  // Jika sedang bermain: tambahkan langsung ke POWERUPS (sesi aktif),
+  // supaya di endGame cukup kembalikan POWERUPS.count ke puInventory sekali.
+  if (GS.isPlaying) {
+    if (POWERUPS[key]) {
+      POWERUPS[key].count = Math.min(MAX_PU_STACK, (POWERUPS[key].count || 0) + amount);
+      renderPowerupBar();
+    }
+    return;
+  }
+  // Di luar game (login reward, milestone): tambahkan ke puInventory dan simpan
   puInventory[key] = Math.min(MAX_PU_STACK, (puInventory[key] || 0) + amount);
   savePuInventory();
   if (POWERUPS[key]) {
@@ -2741,12 +2738,6 @@ function activatePowerup(key) {
         timerEl.style.color = '';
         timerEl.style.textShadow = '';
       }, 1200);
-    }
-    // Visual: flash game screen and timer bar
-    const gs = document.getElementById('game-screen');
-    if (gs) {
-      gs.classList.add('timeextend-active');
-      setTimeout(() => gs.classList.remove('timeextend-active'), 2400);
     }
     renderPowerupBar();
     return;
@@ -4401,7 +4392,7 @@ function startGame(time, diff, name, isCurriculum) {
   document.getElementById('session-progress').textContent=`${sessionAsked.size}/${trashData.length} unik`;
   document.getElementById('mission-bar').style.width='0%';
   document.getElementById('mission-pct').textContent='0%';
-  document.getElementById('rival-strip').innerHTML='<span style="font-size:0.55rem;font-weight:900;color:#93c5fd;text-transform:uppercase;">⚔️ Rival</span><span style="color:#94a3b8;font-size:0.68rem;flex:1;text-align:right;padding-left:6px;">Jawab untuk lihat rival!</span>';
+  document.getElementById('rival-strip').innerHTML='<div class="rival-strip-header">⚔️ Rival</div><div style="color:#94a3b8;font-size:0.72rem;">Mulai jawab untuk lihat rival!</div>';
   document.getElementById('combo-display').style.opacity='0';
   const tipStrip = document.getElementById('eco-tip-strip');
   if (tipStrip) tipStrip.textContent='Pilah sampah dari sumber untuk kurangi beban TPA.';
@@ -4595,6 +4586,16 @@ function togglePause() {
 function restartGame() {
   if(!GS.isPlaying) return;
   if(!confirm('Restart? Skor sesi ini TIDAK disimpan.')) return;
+  // Kembalikan sisa power-up ke inventori sebelum restart
+  const remainFreeze = POWERUPS.freeze.count || 0;
+  const remainDouble = POWERUPS.double.count || 0;
+  const remainSkip   = POWERUPS.skip.count   || 0;
+  const remainTE     = POWERUPS.timeExtend.count || 0;
+  puInventory.freeze    = Math.min(MAX_PU_STACK, (puInventory.freeze    || 0) + remainFreeze);
+  puInventory.double    = Math.min(MAX_PU_STACK, (puInventory.double    || 0) + remainDouble);
+  puInventory.skip      = Math.min(MAX_PU_STACK, (puInventory.skip      || 0) + remainSkip);
+  puInventory.timeExtend= Math.min(MAX_PU_STACK, (puInventory.timeExtend|| 0) + remainTE);
+  savePuInventory();
   cleanupGame();
   document.getElementById('pause-overlay').classList.remove('visible');
   showScreen('start');
@@ -5065,6 +5066,18 @@ function launchConfetti(count=24) {
 //  END GAME
 // ──────────────────────────────────────────
 async function endGame() {
+  // ── Kembalikan sisa power-up yang tidak terpakai ke inventori ──
+  // Harus dilakukan SEBELUM cleanupGame/resetPowerups mengosongkan POWERUPS.x.count
+  const remainFreeze = POWERUPS.freeze.count || 0;
+  const remainDouble = POWERUPS.double.count || 0;
+  const remainSkip   = POWERUPS.skip.count   || 0;
+  const remainTE     = POWERUPS.timeExtend.count || 0;
+  puInventory.freeze    = Math.min(MAX_PU_STACK, (puInventory.freeze    || 0) + remainFreeze);
+  puInventory.double    = Math.min(MAX_PU_STACK, (puInventory.double    || 0) + remainDouble);
+  puInventory.skip      = Math.min(MAX_PU_STACK, (puInventory.skip      || 0) + remainSkip);
+  puInventory.timeExtend= Math.min(MAX_PU_STACK, (puInventory.timeExtend|| 0) + remainTE);
+  savePuInventory();
+
   // Track daily session & apply bonus BEFORE cleanup
   const dailyPlayData = incrementDailyPlay(GS.playerName);
   const sessionBonus = getDailySessionBonus(dailyPlayData.sessions - 1);
@@ -6228,19 +6241,19 @@ function renderFinalBadges(rec) {
 
   if (lockedBadges.length > 0 || secTargets.length > 0 || tagTargets.length > 0) {
     html += `<div class="w-full mt-2 pt-2 border-t border-dashed border-gray-200">`;
-    html += `<p class="text-[0.58rem] font-black text-gray-400 uppercase tracking-widest mb-1.5">🎯 Target Berikutnya — raih ini!</p>`;
+    html += `<p class="text-[0.58rem] font-black text-gray-400 uppercase tracking-widest mb-1.5">🎯 Target Berikutnya</p>`;
     html += `<div class="flex flex-wrap gap-1.5">`;
     lockedBadges.forEach(b => {
-      html += `<span title="${escHtml(b.tip)}" class="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-black ${b.cls} select-none" style="opacity:0.32;filter:grayscale(0.5);cursor:default;outline:1.5px dashed rgba(150,150,150,0.35);outline-offset:1px;">🔒 ${escHtml(b.label)}</span>`;
+      html += `<span title="${b.tip}" class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-black ${b.cls} opacity-30 cursor-default select-none" style="filter:grayscale(0.5)">🔒 ${escHtml(b.label)}</span>`;
     });
     secTargets.forEach(b => {
-      html += `<span title="${escHtml(b.tip)}" class="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-bold ${b.cls} select-none" style="opacity:0.28;filter:grayscale(0.4);cursor:default;outline:1.5px dashed rgba(150,150,150,0.3);outline-offset:1px;">🔒 ${escHtml(b.label)}</span>`;
+      html += `<span title="${b.tip}" class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-bold ${b.cls} opacity-25 cursor-default select-none" style="filter:grayscale(0.4)">🔒 ${escHtml(b.label)}</span>`;
     });
     tagTargets.forEach(b => {
-      html += `<span title="${escHtml(b.tip)}" class="text-[0.6rem] font-bold text-purple-400 bg-purple-50 border border-purple-100 border-dashed rounded-full px-2 py-0.5 select-none" style="opacity:0.45;cursor:default;">🔒 ${escHtml(b.label)}</span>`;
+      html += `<span title="${b.tip}" class="text-[0.6rem] font-bold text-purple-400 bg-purple-50 border border-purple-100 rounded-full px-2 py-0.5 opacity-40 cursor-default select-none">🔒 ${escHtml(b.label)}</span>`;
     });
     html += `</div>`;
-    html += `<p class="text-[0.55rem] text-gray-400 mt-1 italic">🔒 Badge buram = belum diraih. Hover/tap untuk lihat syarat. Badge di atas = target utama, tengah = sekunder, bawah = tag.</p>`;
+    html += `<p class="text-[0.55rem] text-gray-400 mt-1 italic">Badge buram = belum diraih. Hover untuk lihat syarat.</p>`;
     html += `</div>`;
   }
 
