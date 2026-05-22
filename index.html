@@ -29,7 +29,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
 #game-screen{display:none;}
 #game-screen.active{
   display:grid!important;
-  grid-template-rows:auto auto 1fr auto;
+  grid-template-rows:auto auto auto 1fr auto;
   height:100dvh;max-height:100dvh;
   overflow:hidden;
   background:linear-gradient(180deg,#f0f9ff 0%,#f7fff9 60%,#f8fafc 100%);
@@ -319,9 +319,141 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
   opacity:0;transition:opacity 0.5s;white-space:nowrap;
 }
 #swipe-hint.visible{opacity:1;}
+
+/* ─── POWER-UP BAR ─── */
+#powerup-bar{
+  display:flex;gap:6px;align-items:center;justify-content:center;
+  padding:4px 10px;background:rgba(255,255,255,0.85);
+  border-bottom:1px solid #f1f5f9;flex-wrap:wrap;min-height:36px;
+}
+.powerup-btn{
+  border:none;border-radius:10px;padding:4px 10px;font-size:0.68rem;font-weight:900;
+  cursor:pointer;transition:all 0.15s;display:flex;align-items:center;gap:4px;
+  position:relative;overflow:hidden;
+}
+.powerup-btn:disabled{opacity:0.4;cursor:not-allowed;}
+.powerup-btn:not(:disabled):active{transform:scale(0.92);}
+.powerup-freeze{background:linear-gradient(135deg,#bae6fd,#38bdf8);color:#0c4a6e;box-shadow:0 2px 8px rgba(56,189,248,0.3);}
+.powerup-double{background:linear-gradient(135deg,#fde68a,#f59e0b);color:#78350f;box-shadow:0 2px 8px rgba(245,158,11,0.3);}
+.powerup-skip{background:linear-gradient(135deg,#d9f99d,#84cc16);color:#365314;box-shadow:0 2px 8px rgba(132,204,22,0.3);}
+.powerup-hint{background:linear-gradient(135deg,#e9d5ff,#a855f7);color:#3b0764;box-shadow:0 2px 8px rgba(168,85,247,0.3);}
+.powerup-cooldown{
+  position:absolute;bottom:0;left:0;height:2px;background:rgba(0,0,0,0.2);
+  transition:width 0.1s linear;
+}
+.powerup-charge-bar{
+  position:absolute;bottom:0;left:0;height:2px;background:rgba(0,0,0,0.35);
+}
+
+/* ─── LUCKY TRASH ─── */
+@keyframes luckyPulse{
+  0%,100%{box-shadow:0 0 0 0 rgba(251,191,36,0.6);}
+  50%{box-shadow:0 0 0 12px rgba(251,191,36,0);}
+}
+#trash-container.lucky{
+  border-color:#f59e0b!important;
+  background:linear-gradient(145deg,#fffbeb,white)!important;
+  animation:luckyPulse 1s ease-in-out infinite;
+}
+#lucky-badge{
+  position:absolute;top:-10px;right:-10px;
+  background:linear-gradient(135deg,#f59e0b,#d97706);color:white;
+  border-radius:999px;padding:2px 8px;font-size:0.6rem;font-weight:900;
+  box-shadow:0 2px 8px rgba(245,158,11,0.5);z-index:5;
+  display:none;
+}
+#trash-container.lucky #lucky-badge{display:block;}
+
+/* ─── STREAK FIRE INDICATOR ─── */
+#streak-fire{
+  position:absolute;top:-2px;right:-2px;
+  font-size:1rem;line-height:1;pointer-events:none;
+  transition:all 0.3s;opacity:0;
+}
+#combo-milestone{
+  position:absolute;top:0;left:50%;
+  transform:translate(-50%,-50%) scale(0);
+  font-size:min(2.2rem,7vw);font-weight:900;z-index:55;
+  pointer-events:none;opacity:0;
+  white-space:nowrap;
+  text-shadow:0 2px 8px rgba(0,0,0,0.2);
+}
+@keyframes milestoneShow{
+  0%{transform:translate(-50%,-50%) scale(0.4);opacity:0;}
+  30%{transform:translate(-50%,-70%) scale(1.15);opacity:1;}
+  70%{transform:translate(-50%,-80%) scale(1.05);opacity:1;}
+  100%{transform:translate(-50%,-110%) scale(0.8);opacity:0;}
+}
+.milestone-anim{animation:milestoneShow 1.4s cubic-bezier(0.34,1.56,0.64,1) forwards;}
+
+/* ─── RAGE MODE (time < 10s) ─── */
+@keyframes rageFlash{
+  0%,100%{background:linear-gradient(180deg,#f0f9ff 0%,#f7fff9 60%,#f8fafc 100%);}
+  50%{background:linear-gradient(180deg,#fff1f2 0%,#fff5f5 60%,#fef2f2 100%);}
+}
+#game-screen.rage-mode{animation:rageFlash 0.5s ease-in-out infinite;}
+
+/* ─── ACHIEVEMENT TOAST ─── */
+#achievement-toast{
+  position:fixed;top:60px;left:50%;transform:translateX(-50%) translateY(-80px);
+  background:linear-gradient(135deg,#1e40af,#7c3aed);color:white;
+  border-radius:16px;padding:8px 16px;font-size:0.72rem;font-weight:800;
+  box-shadow:0 8px 24px rgba(0,0,0,0.25);z-index:500;
+  transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1),opacity 0.4s;
+  opacity:0;pointer-events:none;white-space:nowrap;display:flex;align-items:center;gap:6px;
+}
+#achievement-toast.visible{transform:translateX(-50%) translateY(0);opacity:1;}
+
+/* ─── CARD FLIP animation ─── */
+@keyframes cardFlipIn{
+  0%{transform:perspective(400px) rotateY(-90deg) scale(0.85);opacity:0;}
+  60%{transform:perspective(400px) rotateY(10deg) scale(1.03);opacity:1;}
+  100%{transform:perspective(400px) rotateY(0deg) scale(1);opacity:1;}
+}
+.card-flip-in{animation:cardFlipIn 0.32s cubic-bezier(0.34,1.56,0.64,1) forwards;}
+
+/* ─── TIME BONUS FLASH ─── */
+@keyframes timeBonusFlash{
+  0%{filter:brightness(1);}
+  30%{filter:brightness(1.4) hue-rotate(30deg);}
+  100%{filter:brightness(1);}
+}
+.time-bonus-flash{animation:timeBonusFlash 0.5s ease-out;}
+
+/* ─── SCORE PULSE (score goes up) ─── */
+@keyframes scorePop{
+  0%{transform:scale(1);}
+  40%{transform:scale(1.25);}
+  100%{transform:scale(1);}
+}
+.score-pop{animation:scorePop 0.25s cubic-bezier(0.34,1.56,0.64,1);}
+
+/* ─── DOUBLE POINTS ACTIVE ─── */
+@keyframes doubleGlow{
+  0%,100%{text-shadow:0 0 0px rgba(245,158,11,0);}
+  50%{text-shadow:0 0 16px rgba(245,158,11,0.9);}
+}
+.double-active{animation:doubleGlow 0.6s ease-in-out infinite;}
+
+/* ─── COMBO METER VISUAL ─── */
+#combo-meter{
+  height:3px;background:linear-gradient(90deg,#7AB800,#F37021,#e11d48);
+  border-radius:3px;transition:width 0.2s ease-out;
+  box-shadow:0 0 6px rgba(243,112,33,0.5);
+}
+#combo-meter-track{
+  height:3px;background:#f1f5f9;border-radius:3px;flex:1;overflow:hidden;
+}
+
+/* ─── MOBILE SWIPE ARROWS ─── */
+@keyframes swipeArrowL{0%{opacity:0.7;transform:translateX(0);}50%{opacity:0.3;transform:translateX(-6px);}100%{opacity:0.7;transform:translateX(0);}}
+@keyframes swipeArrowR{0%{opacity:0.7;transform:translateX(0);}50%{opacity:0.3;transform:translateX(6px);}100%{opacity:0.7;transform:translateX(0);}}
 </style>
 </head>
 <body class="bg-dots">
+
+<!-- Achievement Toast -->
+<div id="achievement-toast">🏆 <span id="achievement-text">Achievement!</span></div>
 
 <!-- ════════════════════════════════════════ -->
 <!--            START SCREEN                -->
@@ -596,6 +728,13 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
       </div>
       <span id="streak-display" class="text-[0.62rem] font-black text-pktOrange whitespace-nowrap">Combo x0</span>
     </div>
+    <!-- Combo meter -->
+    <div class="flex items-center gap-2">
+      <div id="combo-meter-track" class="flex-1">
+        <div id="combo-meter" style="width:0%"></div>
+      </div>
+      <span id="combo-meter-label" class="text-[0.55rem] font-bold text-gray-300 whitespace-nowrap">MAX 3x</span>
+    </div>
     <div class="flex flex-col gap-1">
       <div id="daily-challenge-row" class="flex items-center gap-2">
         <span class="text-[0.6rem] font-bold text-gray-400">⚡ Daily Challenge (Klik untuk Riwayat):</span>
@@ -617,6 +756,23 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
     <!-- rank change notification (shown briefly at game start) -->
     <div id="rank-notif-banner" class="hidden w-full rounded-xl px-3 py-2 text-xs font-bold text-center leading-snug" style="max-width:min(86vw,300px)"></div>
 
+    <!-- Power-up bar -->
+    <div id="powerup-bar">
+      <span class="text-[0.58rem] font-black text-gray-400 uppercase tracking-wide">⚡ Power-up:</span>
+      <button id="pu-freeze" class="powerup-btn powerup-freeze" onclick="activatePowerup('freeze')" title="Bekukan waktu 5 detik">
+        ❄️ Freeze <span id="pu-freeze-count" class="bg-white/50 rounded px-1">1</span>
+        <div class="powerup-cooldown" id="pu-freeze-cd" style="width:0%"></div>
+      </button>
+      <button id="pu-double" class="powerup-btn powerup-double" onclick="activatePowerup('double')" title="Double poin 10 detik">
+        2️⃣ 2x Poin <span id="pu-double-count" class="bg-white/50 rounded px-1">1</span>
+        <div class="powerup-cooldown" id="pu-double-cd" style="width:0%"></div>
+      </button>
+      <button id="pu-skip" class="powerup-btn powerup-skip" onclick="activatePowerup('skip')" title="Lewati sampah ini">
+        ⏭️ Skip <span id="pu-skip-count" class="bg-white/50 rounded px-1">2</span>
+        <div class="powerup-cooldown" id="pu-skip-cd" style="width:0%"></div>
+      </button>
+    </div>
+
     <!-- rival strip -->
     <div id="rival-strip">⚡ Mulai jawab untuk lihat rival terdekat!</div>
 
@@ -624,13 +780,18 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
     <div id="curriculum-focus-badge" class="curriculum-focus-badge hidden"></div>
 
     <!-- trash card -->
-    <div id="trash-container">
+    <div id="trash-container" style="position:relative;">
+      <div id="lucky-badge">⭐ LUCKY +3x</div>
       <div id="trash-emoji" class="text-5xl mb-2 drop-shadow-md transition-transform hover:scale-110" style="line-height:1">🗑️</div>
       <h2 id="trash-name" class="text-xl font-black text-gray-900 leading-tight break-words px-2">Sampah</h2>
+      <div id="streak-fire" style="font-size:1.4rem;">🔥</div>
     </div>
 
     <!-- combo splash -->
     <div id="combo-display">3x COMBO!</div>
+    
+    <!-- combo milestone -->
+    <div id="combo-milestone"></div>
 
     <!-- pause overlay -->
     <div id="pause-overlay">
@@ -1090,7 +1251,24 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
           <li class="flex items-start gap-2"><span>📚</span>Mulai dari Mode Kurikulum dulu untuk hafal kategori sampah.</li>
           <li class="flex items-start gap-2"><span>🔥</span>Main beberapa sesi per hari untuk bonus poin +5–15%!</li>
           <li class="flex items-start gap-2"><span>🎧</span>Nyalakan musik (🎶) untuk vibes bermain yang lebih seru.</li>
+          <li class="flex items-start gap-2"><span>❄️</span>Power-up Freeze (Q) menambah 5 detik! Gunakan saat kritis.</li>
+          <li class="flex items-start gap-2"><span>2️⃣</span>Power-up 2x Poin (W) aktif 10 detik — combo di saat itu = bonanza!</li>
+          <li class="flex items-start gap-2"><span>⏭️</span>Power-up Skip (E) berguna saat kamu ragu — lebih baik skip daripada salah!</li>
+          <li class="flex items-start gap-2"><span>⭐</span>Lucky Trash muncul acak — poinnya 3x lipat! Jangan sampai salah.</li>
+          <li class="flex items-start gap-2"><span>🎁</span>Capai 5, 10, 15, 20 combo untuk dapat power-up bonus gratis!</li>
         </ul>
+      </div>
+
+      <!-- POWER-UP GUIDE -->
+      <div class="rounded-2xl bg-gradient-to-br from-purple-50 to-blue-50 border border-purple-200 p-4">
+        <p class="font-black text-purple-800 text-sm mb-2">⚡ Panduan Power-up (tekan Q/W/E)</p>
+        <div class="space-y-2 text-xs">
+          <div class="flex items-center gap-2"><span class="text-lg">❄️</span><div><b class="text-blue-700">Freeze [Q]</b> — Bekukan timer +5 detik. Combo 15 → dapat gratis!</div></div>
+          <div class="flex items-center gap-2"><span class="text-lg">2️⃣</span><div><b class="text-yellow-700">2x Poin [W]</b> — Double poin 10 detik. Combo 10 → dapat gratis!</div></div>
+          <div class="flex items-center gap-2"><span class="text-lg">⏭️</span><div><b class="text-green-700">Skip [E]</b> — Lewati tanpa penalti. Combo 5 → dapat gratis!</div></div>
+          <div class="flex items-center gap-2"><span class="text-lg">⭐</span><div><b class="text-orange-700">Lucky Trash</b> — Acak 1/8 kartu. Benar = 3x poin!</div></div>
+          <p class="text-purple-600 font-semibold mt-1.5 text-[0.7rem]">🎮 Mode HARD mendapat lebih banyak power-up sejak awal!</p>
+        </div>
       </div>
 
     </div>
@@ -1212,8 +1390,270 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
 <!-- ════════════════════════════════════════ -->
 <script>
 // ──────────────────────────────────────────
-//  FIREBASE CONFIG  (fill in your keys)
+//  POWER-UP SYSTEM
 // ──────────────────────────────────────────
+const POWERUPS = {
+  freeze: { count: 1, active: false, cdTimer: null, label: '❄️ Freeze', duration: 5000 },
+  double: { count: 1, active: false, cdTimer: null, label: '2️⃣ 2x Poin', duration: 10000 },
+  skip:   { count: 2, active: false, cdTimer: null, label: '⏭️ Skip', duration: 0 }
+};
+let freezeTimeout = null;
+let doubleTimeout = null;
+let isLuckyTrash = false;
+
+function resetPowerups() {
+  POWERUPS.freeze.count = 1; POWERUPS.freeze.active = false;
+  POWERUPS.double.count = 1; POWERUPS.double.active = false;
+  POWERUPS.skip.count   = 2; POWERUPS.skip.active   = false;
+  clearTimeout(freezeTimeout);
+  clearTimeout(doubleTimeout);
+  if (doubleTimeout) { clearTimeout(doubleTimeout); }
+  isLuckyTrash = false;
+  renderPowerupBar();
+  // Remove double glow
+  const sc = document.getElementById('score-display');
+  if (sc) sc.classList.remove('double-active');
+  // Unfreeze timer if frozen
+  GS.frozen = false;
+}
+
+function renderPowerupBar() {
+  ['freeze','double','skip'].forEach(key => {
+    const btn = document.getElementById('pu-'+key);
+    const cnt = document.getElementById('pu-'+key+'-count');
+    if (!btn || !cnt) return;
+    const pu = POWERUPS[key];
+    cnt.textContent = pu.count;
+    btn.disabled = (pu.count <= 0) || pu.active || !GS.isPlaying || GS.paused;
+  });
+}
+
+function activatePowerup(key) {
+  if (!GS.isPlaying || GS.paused) return;
+  const pu = POWERUPS[key];
+  if (pu.count <= 0 || pu.active) return;
+  try { if(audioCtx.state==='suspended') audioCtx.resume(); } catch(e) {}
+
+  pu.count--;
+  pu.active = true;
+  renderPowerupBar();
+
+  if (key === 'freeze') {
+    GS.frozen = true;
+    playPowerupSound('freeze');
+    showAchievementToast('❄️ Waktu Dibekukan! +5 detik!');
+    GS.timeLeft = Math.min(GS.initialTime, GS.timeLeft + 5);
+    updateTimerUI();
+    showFeedback('+5s ❄️', 'text-blue-500');
+    // Visual: flash timer
+    const timerEl = document.getElementById('timer-text');
+    timerEl.classList.add('time-bonus-flash');
+    setTimeout(() => timerEl.classList.remove('time-bonus-flash'), 500);
+    // Show freeze overlay on trash card
+    const tc = document.getElementById('trash-container');
+    if (tc) { tc.style.filter = 'hue-rotate(190deg) brightness(1.1)'; }
+    clearTimeout(freezeTimeout);
+    freezeTimeout = setTimeout(() => {
+      pu.active = false;
+      GS.frozen = false;
+      const tc2 = document.getElementById('trash-container');
+      if (tc2) tc2.style.filter = '';
+      renderPowerupBar();
+    }, pu.duration);
+
+  } else if (key === 'double') {
+    playPowerupSound('double');
+    showAchievementToast('2️⃣ DOUBLE POIN aktif 10 detik!');
+    const sc = document.getElementById('score-display');
+    if (sc) sc.classList.add('double-active');
+    showFeedback('2x Poin ON!', 'text-yellow-500');
+    clearTimeout(doubleTimeout);
+    doubleTimeout = setTimeout(() => {
+      pu.active = false;
+      const sc2 = document.getElementById('score-display');
+      if (sc2) sc2.classList.remove('double-active');
+      showFeedback('2x Poin OFF', 'text-gray-400');
+      renderPowerupBar();
+    }, pu.duration);
+
+  } else if (key === 'skip') {
+    pu.active = false; // skip is instant
+    playPowerupSound('skip');
+    showFeedback('⏭️ Dilewati!', 'text-green-500');
+    const tc = document.getElementById('trash-container');
+    if (tc) {
+      tc.classList.add('anim-toss');
+      setTimeout(() => { tc.classList.remove('anim-toss'); spawnTrash(); }, 300);
+    }
+    renderPowerupBar();
+    return;
+  }
+}
+
+function getPowerupMultiplier() {
+  let mult = POWERUPS.double.active ? 2 : 1;
+  if (isLuckyTrash) mult = Math.max(mult, 3);
+  return mult;
+}
+
+function playPowerupSound(type) {
+  try {
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    const ctx = audioCtx; const t = ctx.currentTime;
+    function beep(freq, dur, vol=0.07, wave='sine') {
+      const o=ctx.createOscillator();const g=ctx.createGain();
+      o.type=wave;o.frequency.value=freq;
+      g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol,t+0.01);
+      g.gain.exponentialRampToValueAtTime(0.001,t+dur);
+      o.connect(g);g.connect(ctx.destination);o.start(t);o.stop(t+dur+0.01);
+    }
+    if (type==='freeze') { beep(880,0.05);beep(1047,0.08,0.06,'triangle');beep(1318,0.12,0.06,'triangle'); }
+    else if (type==='double') { beep(523,0.06);beep(659,0.06);beep(784,0.06);beep(1047,0.1,0.09); }
+    else if (type==='skip') { beep(523,0.05,0.06,'triangle');beep(784,0.08,0.06,'triangle'); }
+  } catch(e) {}
+}
+
+// Give extra power-ups for combo milestones
+function checkPowerupReward(combo) {
+  if (combo === 5) {
+    POWERUPS.skip.count++;
+    showAchievementToast('🎁 5 Combo! Dapat Skip gratis!');
+    renderPowerupBar();
+  } else if (combo === 10) {
+    POWERUPS.double.count++;
+    showAchievementToast('🎁 10 Combo! Dapat 2x Poin!');
+    renderPowerupBar();
+  } else if (combo === 15) {
+    POWERUPS.freeze.count++;
+    showAchievementToast('🎁 15 Combo! Dapat Freeze!');
+    renderPowerupBar();
+  } else if (combo === 20) {
+    POWERUPS.double.count++;
+    POWERUPS.skip.count++;
+    showAchievementToast('🔥 20 COMBO!! Double reward!');
+    renderPowerupBar();
+  }
+}
+
+// ──────────────────────────────────────────
+//  ACHIEVEMENT TOAST SYSTEM
+// ──────────────────────────────────────────
+let toastQueue = [];
+let toastShowing = false;
+
+function showAchievementToast(msg) {
+  toastQueue.push(msg);
+  if (!toastShowing) processToastQueue();
+}
+
+function processToastQueue() {
+  if (toastQueue.length === 0) { toastShowing = false; return; }
+  toastShowing = true;
+  const msg = toastQueue.shift();
+  const toast = document.getElementById('achievement-toast');
+  const textEl = document.getElementById('achievement-text');
+  if (!toast || !textEl) { toastShowing = false; return; }
+  textEl.textContent = msg;
+  toast.classList.add('visible');
+  setTimeout(() => {
+    toast.classList.remove('visible');
+    setTimeout(processToastQueue, 300);
+  }, 2000);
+}
+
+// ──────────────────────────────────────────
+//  LUCKY TRASH SYSTEM
+// ──────────────────────────────────────────
+function maybeSetLucky() {
+  // 1 in 8 chance for lucky trash
+  isLuckyTrash = Math.random() < 0.125;
+  const tc = document.getElementById('trash-container');
+  if (!tc) return;
+  if (isLuckyTrash) {
+    tc.classList.add('lucky');
+    showAchievementToast('⭐ LUCKY TRASH! 3x Poin!');
+  } else {
+    tc.classList.remove('lucky');
+  }
+}
+
+// ──────────────────────────────────────────
+//  COMBO FIRE & MILESTONE VISUALS
+// ──────────────────────────────────────────
+function updateComboFire(combo) {
+  const fire = document.getElementById('streak-fire');
+  const meter = document.getElementById('combo-meter');
+  const meterLabel = document.getElementById('combo-meter-label');
+  if (fire) {
+    if (combo >= 15) { fire.textContent='🌋'; fire.style.opacity='1'; fire.style.fontSize='2rem'; }
+    else if (combo >= 10) { fire.textContent='🔥🔥'; fire.style.opacity='1'; fire.style.fontSize='1.6rem'; }
+    else if (combo >= 5) { fire.textContent='🔥'; fire.style.opacity='1'; fire.style.fontSize='1.3rem'; }
+    else if (combo >= 3) { fire.textContent='✨'; fire.style.opacity='0.8'; fire.style.fontSize='1rem'; }
+    else { fire.style.opacity='0'; }
+  }
+  if (meter) {
+    const pct = Math.min(100, (combo / 20) * 100);
+    meter.style.width = pct + '%';
+    if (combo >= 10) meter.style.boxShadow = '0 0 8px rgba(239,68,68,0.8)';
+    else if (combo >= 5) meter.style.boxShadow = '0 0 6px rgba(243,112,33,0.6)';
+    else meter.style.boxShadow = '0 0 4px rgba(122,184,0,0.4)';
+  }
+  if (meterLabel) {
+    const remaining = 3 - Math.min(combo, 3);
+    if (combo >= 3) { meterLabel.textContent = '🔥 MAX!'; meterLabel.style.color = '#dc2626'; }
+    else { meterLabel.textContent = `MAX 3x`; meterLabel.style.color = '#94a3b8'; }
+  }
+}
+
+function showComboMilestone(combo) {
+  const milestones = {5:'🌟 5 STREAK!', 10:'💥 10 STREAK!', 15:'🔥 15 INSANE!', 20:'🌋 20 LEGENDARY!'};
+  if (!milestones[combo]) return;
+  const el = document.getElementById('combo-milestone');
+  if (!el) return;
+  const msgs = {5:'💚',10:'🧡',15:'❤️',20:'🌈'};
+  el.innerHTML = `${msgs[combo]||''} ${milestones[combo]}`;
+  el.style.color = combo >= 15 ? '#dc2626' : combo >= 10 ? '#ea580c' : '#7AB800';
+  el.classList.remove('milestone-anim');
+  void el.offsetWidth;
+  el.classList.add('milestone-anim');
+  setTimeout(() => el.classList.remove('milestone-anim'), 1400);
+  // Launch extra confetti for big milestones
+  if (combo >= 10) launchConfetti(combo >= 15 ? 35 : 20);
+}
+
+// ──────────────────────────────────────────
+//  RAGE MODE (time < 10s)
+// ──────────────────────────────────────────
+function updateRageMode(timeLeft) {
+  const gs = document.getElementById('game-screen');
+  if (!gs) return;
+  if (timeLeft <= 10 && timeLeft > 0) gs.classList.add('rage-mode');
+  else gs.classList.remove('rage-mode');
+}
+
+// ──────────────────────────────────────────
+//  SCORE POP ANIMATION
+// ──────────────────────────────────────────
+function animateScorePop() {
+  const sc = document.getElementById('score-display');
+  if (!sc) return;
+  sc.classList.remove('score-pop');
+  void sc.offsetWidth;
+  sc.classList.add('score-pop');
+  setTimeout(() => sc.classList.remove('score-pop'), 300);
+}
+
+// Grant power-up back when player starts fresh game
+function awardSessionPowerups(difficulty) {
+  POWERUPS.freeze.count = difficulty === 'Hard' ? 2 : 1;
+  POWERUPS.double.count = difficulty === 'Hard' ? 2 : 1;
+  POWERUPS.skip.count   = difficulty === 'Hard' ? 3 : 2;
+  POWERUPS.freeze.active = false;
+  POWERUPS.double.active = false;
+  POWERUPS.skip.active   = false;
+}
+
+
 const firebaseConfig = {
   apiKey: "AIzaSyAAr7BXusC8klGB_cZKUhqi8-q2vOQ3FOQ",
   authDomain: "enviro-agent.firebaseapp.com",
@@ -2597,6 +3037,12 @@ function startGame(time, diff, name, isCurriculum) {
   GS.currentSessionId=name.replace(/[.#$[\]/\s]/g,'_').toUpperCase();
   const cached=lbCache.find(r=>r.id===GS.currentSessionId);
   GS.previousBest=cached?(cached.score||0):0;
+  GS.frozen = false;
+
+  // Initialize power-ups for this session
+  resetPowerups();
+  awardSessionPowerups(diff);
+  renderPowerupBar();
 
   sessionAsked = getUserUniqueProgress(GS.currentSessionId);
   if (sessionAsked.size >= trashData.length) {
@@ -2655,7 +3101,7 @@ function startGame(time, diff, name, isCurriculum) {
   updateMissionUI();
   spawnTrash();
   GS.timerInterval=setInterval(()=>{
-    if(!GS.isPlaying||GS.paused) return;
+    if(!GS.isPlaying||GS.paused||GS.frozen) return;
     GS.timeLeft--;
     updateTimerUI();
     if(GS.timeLeft<=0) endGame();
@@ -2716,11 +3162,16 @@ function handleCurriculumAnswer(userSaysMatch) {
     GS.correctAnswers++;
     GS.categoryStats[tc].correct++;
     document.getElementById('streak-display').textContent = `Combo x${GS.bestCombo}`;
+    updateComboFire(GS.combo);
+    showComboMilestone(GS.combo);
+    checkPowerupReward(GS.combo);
     
     let base = {'Easy':10,'Medium':15,'Hard':20}[GS.difficulty] || 10;
     const mult = Math.min(GS.combo, 3);
-    const pts = base * mult;
+    const puMult = getPowerupMultiplier();
+    const pts = base * mult * puMult;
     GS.score += pts;
+    animateScorePop();
     
     const cd = document.getElementById('combo-display');
     if(GS.combo>1) {
@@ -2731,13 +3182,18 @@ function handleCurriculumAnswer(userSaysMatch) {
     
     const tc2 = document.getElementById('trash-container');
     tc2.classList.add('anim-toss');
-    showFeedback(`+${pts}${mult>1?' ('+mult+'x)':''}`, 'text-green-500');
+    let feedbackText = `+${pts}`;
+    if (mult > 1) feedbackText += ` (${mult}x)`;
+    if (isLuckyTrash) feedbackText += ' ⭐';
+    if (POWERUPS.double.active) feedbackText += ' 💰';
+    showFeedback(feedbackText, 'text-green-500');
     setTimeout(()=>{ tc2.classList.remove('anim-toss'); spawnTrash(); },320);
     checkRival();
   } else {
     playSound('wrong');
     GS.combo = 0;
     GS.timeLeft = Math.max(0, GS.timeLeft-5);
+    updateComboFire(0);
     document.getElementById('trash-name').classList.add('anim-shake');
     showFeedback('-5s', 'text-red-500');
     setTimeout(()=>{ 
@@ -2768,12 +3224,20 @@ function updateTimerUI() {
   if(bar) bar.style.width=`${GS.initialTime>0?Math.max(0,(s/GS.initialTime)*100):0}%`;
   if(s<=10) {
     tEl.classList.add('text-red-600','animate-pulse');
-    // Pulse every second when <= 10s
     tEl.classList.remove('countdown-pulse');
-    void tEl.offsetWidth; // force reflow
+    void tEl.offsetWidth;
     tEl.classList.add('countdown-pulse');
   } else {
     tEl.classList.remove('text-red-600','animate-pulse','countdown-pulse');
+  }
+  updateRageMode(s);
+  // Show frozen indicator
+  if (GS.frozen) {
+    tEl.style.color = '#38bdf8';
+    tEl.style.textShadow = '0 0 10px rgba(56,189,248,0.8)';
+  } else {
+    tEl.style.color = '';
+    tEl.style.textShadow = '';
   }
 }
 
@@ -2842,6 +3306,18 @@ function spawnTrash() {
   document.getElementById('trash-name').classList.remove('anim-shake');
   document.getElementById('session-progress').textContent=`${sessionAsked.size}/${trashData.length} unik`;
 
+  // Card flip animation
+  const tc3 = document.getElementById('trash-container');
+  if (tc3) {
+    tc3.classList.remove('card-flip-in');
+    void tc3.offsetWidth;
+    tc3.classList.add('card-flip-in');
+    setTimeout(() => tc3.classList.remove('card-flip-in'), 350);
+  }
+  
+  // Maybe make this a lucky trash
+  maybeSetLucky();
+
   const tips={
     'SISA MAKANAN':['Sisa makanan bisa jadi kompos, kurangi emisi metana di TPA.','Pisahkan sampah dapur basah agar tidak mencemari daur ulang.'],
     'LAKU JUAL':['Sampah bernilai jual: bersihkan & keringkan sebelum disetor.','Pisahkan plastik, kertas, logam agar nilainya tetap tinggi.'],
@@ -2883,28 +3359,42 @@ function checkBin(cat) {
     GS.correctAnswers++;
     GS.categoryStats[tc].correct++;
     document.getElementById('streak-display').textContent=`Combo x${GS.bestCombo}`;
+    updateComboFire(GS.combo);
 
     let base={'Easy':10,'Medium':15,'Hard':20}[GS.difficulty]||10;
-    const mult=Math.min(GS.combo,3);
-    const pts=base*mult;
+    const comboMult=Math.min(GS.combo,3);
+    const puMult = getPowerupMultiplier();
+    const pts=base*comboMult*puMult;
     GS.score+=pts;
+    animateScorePop();
+
+    // Combo milestones
+    showComboMilestone(GS.combo);
+    checkPowerupReward(GS.combo);
 
     const cd=document.getElementById('combo-display');
     if(GS.combo>1) {
-      cd.textContent=`${GS.combo}x COMBO!`;
+      let comboText = `${GS.combo}x COMBO!`;
+      if (puMult > 1) comboText += ` 💰`;
+      cd.textContent = comboText;
       cd.style.opacity='1'; cd.style.transform='translate(-50%,-50%) scale(1)';
       setTimeout(()=>{ cd.style.opacity='0'; cd.style.transform='translate(-50%,-50%) scale(0.5)'; },700);
     }
 
     const tc2=document.getElementById('trash-container');
     tc2.classList.add('anim-toss');
-    showFeedback(`+${pts}${mult>1?' ('+mult+'x)':''}`, 'text-green-500');
+    let feedbackText = `+${pts}`;
+    if (comboMult > 1) feedbackText += ` (${comboMult}x)`;
+    if (isLuckyTrash) feedbackText += ` ⭐`;
+    if (POWERUPS.double.active) feedbackText += ` 💰`;
+    showFeedback(feedbackText, 'text-green-500');
     setTimeout(()=>{ tc2.classList.remove('anim-toss'); spawnTrash(); },320);
     checkRival();
   } else {
     playSound('wrong');
     GS.combo=0;
     GS.timeLeft=Math.max(0,GS.timeLeft-5);
+    updateComboFire(0);
     document.getElementById('trash-name').classList.add('anim-shake');
     showFeedback(`❌ ${tc}`, 'text-red-500');
     setTimeout(()=>{ document.getElementById('trash-name').classList.remove('anim-shake'); updateTimerUI(); spawnTrash(); },420);
@@ -3205,6 +3695,13 @@ async function endGame() {
 
   // Always show game over popup and end screen regardless of any errors below
   setLbMode(GS.isCurriculum ? 'curriculum' : 'ranked');
+  
+  // Check for new personal best
+  const prevBest = GS.previousBest || 0;
+  if (GS.score > prevBest && GS.score > 0) {
+    setTimeout(() => showAchievementToast(`🏆 NEW PERSONAL BEST! +${GS.score - prevBest} poin!`), 800);
+  }
+  
   showGameOverPopup();
   showScreen('end');
 
@@ -3295,6 +3792,17 @@ function showGameOverPopup() {
   ov.classList.remove('hidden');
   ov.style.opacity='0';
   requestAnimationFrame(()=>{ ov.style.transition='opacity 0.15s'; ov.style.opacity='1'; });
+
+  // Enhanced game over overlay with score and combo
+  if (posEl) {
+    const acc = GS.totalAnswered > 0 ? Math.round((GS.correctAnswers / GS.totalAnswered)*100) : 0;
+    let emoji = acc >= 90 ? '🌟' : acc >= 75 ? '😊' : acc >= 50 ? '😤' : '😅';
+    posEl.innerHTML = `
+      <div style="font-size:3rem;line-height:1.2">${emoji}</div>
+      <div style="font-size:1.6rem;font-weight:900;margin:4px 0">Skor: ${GS.score}</div>
+      <div style="font-size:0.9rem;opacity:0.85">Akurasi ${acc}% · Best Combo ${GS.bestCombo}x</div>
+    `;
+  }
 
   playSound('gameover');
   let tid=setTimeout(hide,2800);
@@ -4084,7 +4592,16 @@ function cleanupGame() {
   // Reset game state
   GS.isPlaying = false;
   GS.paused = false;
-}
+  GS.frozen = false;
+  
+  // Reset rage mode
+  const gs = document.getElementById('game-screen');
+  if (gs) gs.classList.remove('rage-mode');
+  
+  // Clear power-up timers
+  if (freezeTimeout) { clearTimeout(freezeTimeout); freezeTimeout = null; }
+  if (doubleTimeout) { clearTimeout(doubleTimeout); doubleTimeout = null; }
+  isLuckyTrash = false;
 
 // startAmbient and stopAmbient defined above near audio section
 
@@ -4267,6 +4784,10 @@ document.addEventListener('keydown', e=>{
   else if(k==='3') { if (!GS.isCurriculum || !GS.curriculumFocus) checkBin('RESIDU'); }
   else if(k==='p') togglePause();
   else if(k==='m') toggleMute();
+  // Power-up shortcuts
+  else if(k==='q') activatePowerup('freeze');
+  else if(k==='w') activatePowerup('double');
+  else if(k==='e') activatePowerup('skip');
 });
 
 // ──────────────────────────────────────────
