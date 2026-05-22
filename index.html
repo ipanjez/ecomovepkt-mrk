@@ -2134,6 +2134,34 @@ function getLoginStorageKey() {
   } catch(e) {}
   return null;
 }
+
+function getUserId() {
+  const name = getActivePlayerName();
+  if (!name) return null;
+  return name.replace(/[.#$[\]/\s]/g, '_').toUpperCase();
+}
+
+async function syncUserStateFromFirebase() {
+  try {
+    const userId = getUserId();
+    if (!userId || !DB || !DB.ref) return;
+    // Read loginData, playMilestones, and today's dailyPlay
+    const today = getTodayKey();
+    const refLogin = DB.ref(`users/${userId}/loginData`);
+    const refPM = DB.ref(`users/${userId}/playMilestones`);
+    const refDaily = DB.ref(`users/${userId}/dailyPlay/${today}`);
+    const [snapLogin, snapPM, snapDaily] = await Promise.all([refLogin.get(), refPM.get(), refDaily.get()].map(p=>p.catch(e=>null)));
+    if (snapLogin && snapLogin.exists()) {
+      try { localStorage.setItem(getLoginStorageKey(), JSON.stringify(snapLogin.val())); } catch(e){}
+    }
+    if (snapPM && snapPM.exists()) {
+      try { localStorage.setItem(getAccountScopedKey(PLAY_MILESTONE_KEY), JSON.stringify(snapPM.val())); } catch(e){}
+    }
+    if (snapDaily && snapDaily.exists()) {
+      try { const key = getDailyPlayKey(); if (key) localStorage.setItem(key, JSON.stringify({ date: today, sessions: snapDaily.val().sessions||0 })); } catch(e){}
+    }
+  } catch(e) { /* ignore sync errors */ }
+}
 // Legacy alias for backward compat (not used, kept for reference)
 const LOGIN_STORAGE_KEY = 'eco_daily_login_v1';
 
@@ -2192,6 +2220,8 @@ function getLoginData() {
     if (!key) return { streak: 0, lastLoginDate: null, totalDaysPlayed: 0, claimedToday: false };
     const raw = localStorage.getItem(key);
     if (raw) return JSON.parse(raw);
+    // Attempt background sync from Firebase to populate local cache
+    try { syncUserStateFromFirebase(); } catch(e){}
   } catch(e) {}
   return { streak: 0, lastLoginDate: null, totalDaysPlayed: 0, claimedToday: false };
 }
@@ -2201,6 +2231,13 @@ function saveLoginData(data) {
     const key = getLoginStorageKey();
     if (!key) return;
     localStorage.setItem(key, JSON.stringify(data));
+    // Also persist to Firebase under users/<userId>/loginData when available
+    try {
+      const userId = getUserId();
+      if (userId && DB && DB.ref) {
+        DB.ref(`users/${userId}/loginData`).set(data).catch(()=>{});
+      }
+    } catch(e){}
   } catch(e) {}
 }
 
@@ -2430,6 +2467,8 @@ function getPlayMilestoneData() {
     const key = getAccountScopedKey(PLAY_MILESTONE_KEY);
     if (!key) return {claimed:[]};
     const r=localStorage.getItem(key);
+    // kick off background sync from Firebase to keep per-account milestones in sync across devices
+    try { syncUserStateFromFirebase(); } catch(e){}
     return r?JSON.parse(r):{claimed:[]};
   } catch(e) { return {claimed:[]}; }
 }
@@ -2439,6 +2478,10 @@ function savePlayMilestoneData(data) {
     const key = getAccountScopedKey(PLAY_MILESTONE_KEY);
     if (!key) return;
     localStorage.setItem(key, JSON.stringify(data));
+    try {
+      const userId = getUserId();
+      if (userId && DB && DB.ref) DB.ref(`users/${userId}/playMilestones`).set(data).catch(()=>{});
+    } catch(e){}
   } catch(e) {}
 }
 
@@ -3344,6 +3387,8 @@ function fallbackLoadDC(dk) {
     if (!key) { DC = deriveDC(dk); return; }
     const raw = localStorage.getItem(key);
     if (raw) {
+      // attempt background sync to fetch today's sessions from Firebase
+      try { syncUserStateFromFirebase(); } catch(e){}
       const p = JSON.parse(raw);
       if (p.dateKey === dk) DC = p;
       else DC = deriveDC(dk);
@@ -3808,6 +3853,13 @@ function incrementDailyPlay(name) {
     const key = getDailyPlayKey(name);
     if (!key) return d;
     localStorage.setItem(key, JSON.stringify(d));
+    try {
+      const userId = getUserId();
+      if (userId && DB && DB.ref) {
+        const dateKey = d.date || getTodayKey();
+        DB.ref(`users/${userId}/dailyPlay/${dateKey}`).set({ sessions: d.sessions }).catch(()=>{});
+      }
+    } catch(e){}
   } catch(e) {}
   return d;
 }
@@ -4054,6 +4106,7 @@ function startCurriculumGame() {
   GS.curriculumFocus = currSelectedCategory;
   GS.curriculumFilter = null;
   try { localStorage.setItem('eco_player_name', name); } catch(e){}
+  try { syncUserStateFromFirebase(); } catch(e){}
   playSound('start');
   startGame(currDiff.time, currDiff.name, name, true);
 }
@@ -4121,6 +4174,7 @@ function attemptStart() {
   GS.curriculumFilter = null;
   GS.curriculumFocus = null;
   try { localStorage.setItem('eco_player_name', name); } catch(e){}
+  try { syncUserStateFromFirebase(); } catch(e){}
   playSound('start');
   startGame(selectedDiff.time, selectedDiff.name, name, false);
 }
