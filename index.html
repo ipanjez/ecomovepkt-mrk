@@ -1335,7 +1335,15 @@ function loadLbSnapshot() {
   try {
     const raw = localStorage.getItem(LB_SNAPSHOT_KEY);
     if (!raw) return null;
-    return JSON.parse(raw); // { ranked: {id:rank}, curriculum: {id:rank}, ids_ranked: [...], ids_curriculum: [...] }
+    const parsed = JSON.parse(raw); // { ranked: {id:rank}, curriculum: {id:rank}, ids_ranked: [...], ids_curriculum: [...] }
+    if (!parsed || typeof parsed !== 'object') return null;
+    if (!Array.isArray(parsed.ids_ranked)) {
+      parsed.ids_ranked = Object.keys(parsed.ranked || {}).filter(k => k.startsWith('id:')).map(k => k.slice(3));
+    }
+    if (!Array.isArray(parsed.ids_curriculum)) {
+      parsed.ids_curriculum = Object.keys(parsed.curriculum || {}).filter(k => k.startsWith('id:')).map(k => k.slice(3));
+    }
+    return parsed;
   } catch(e) { return null; }
 }
 
