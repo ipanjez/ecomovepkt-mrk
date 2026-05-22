@@ -245,6 +245,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
 .badge-legend{background:linear-gradient(135deg,#dc2626,#991b1b);color:#fff;border:1px solid #7f1d1d;}
 .badge-master{background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;border:1px solid #92400e;animation:badgeGlow 2s ease-in-out infinite;}
 .badge-immortal{background:linear-gradient(135deg,#e11d48,#be185d);color:#fff;border:2px solid #831843;animation:badgeGlitter 3s ease-in-out infinite;}
+.badge-admin{background:linear-gradient(135deg,#fffbe6 0%,#facc15 40%,#ffffff 100%);color:#5b2500;border:2px solid #fff;box-shadow:0 0 0 2px rgba(250,204,21,0.35),0 0 28px rgba(255,255,255,0.9),0 0 42px rgba(250,204,21,0.6);animation:badgeAdminGlow 1.2s ease-in-out infinite;}
 .badge-daily{background:linear-gradient(135deg,#059669,#047857);color:#fff;border:1px solid #065f46;}
 /* New secondary badge styles */
 .badge-top3{background:linear-gradient(135deg,#f59e0b,#b45309);color:#fff;border:1px solid #92400e;animation:badgeGlow 1.5s ease-in-out infinite;}
@@ -259,6 +260,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
 .badge-consistent{background:linear-gradient(135deg,#4f46e5,#4338ca);color:#fff;border:1px solid #3730a3;}
 @keyframes badgeGlow{0%,100%{box-shadow:0 3px 12px rgba(245,158,11,0.55);}50%{box-shadow:0 3px 22px rgba(245,158,11,0.9);}}
 @keyframes badgeGlitter{0%,100%{box-shadow:0 3px 12px rgba(225,29,72,0.55);}50%{box-shadow:0 3px 28px rgba(225,29,72,0.9);}}
+@keyframes badgeAdminGlow{0%,100%{filter:brightness(1.08) saturate(1.1);transform:translateY(0);}50%{filter:brightness(1.28) saturate(1.3);transform:translateY(-1px);}}
 
 /* ─── FILTER CHIPS ─── */
 .filter-chip{display:inline-flex;cursor:pointer;position:relative;}
@@ -1817,6 +1819,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
               <div class="flex items-center gap-1.5 rounded-full bg-gray-100 px-2.5 py-1" data-guide-badge="Veteran" tabindex="0"><span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-epic">Veteran</span><span class="text-[0.6rem] text-gray-500">75x</span></div>
               <div class="flex items-center gap-1.5 rounded-full bg-gray-100 px-2.5 py-1" data-guide-badge="Champion" tabindex="0"><span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-immortal">Champion</span><span class="text-[0.6rem] text-gray-500">150x</span></div>
               <div class="flex items-center gap-1.5 rounded-full bg-gray-100 px-2.5 py-1" data-guide-badge="Legend Player" tabindex="0"><span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-legend">Legend Player</span><span class="text-[0.6rem] text-gray-500">300x</span></div>
+              <div class="flex items-center gap-1.5 rounded-full bg-gray-100 px-2.5 py-1" data-guide-badge="Admin" tabindex="0"><span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-admin">Admin</span><span class="text-[0.6rem] text-gray-500">1000x</span></div>
             </div>
           </div>
 
@@ -5571,7 +5574,8 @@ function computeSecondaryBadges(score,acc,combo,prevBest,correct,wrong,total,cat
   }
 
   // ── Experience tier badges ──
-  if(totalAttempts>=300||ex.includes('Legend Player')) badges.push('Legend Player');
+  if(totalAttempts>=1000||ex.includes('Admin')) badges.push('Admin');
+  else if(totalAttempts>=300||ex.includes('Legend Player')) badges.push('Legend Player');
   else if(totalAttempts>=150||ex.includes('Champion')) badges.push('Champion');
   else if(totalAttempts>=75||ex.includes('Veteran')) badges.push('Veteran');
   else if(totalAttempts>=30||ex.includes('Regular')) badges.push('Regular');
@@ -5650,7 +5654,7 @@ function getSecondaryBadgeClass(badge) {
     'Rising Star':'badge-rising','Daily Challenger':'badge-daily',
     'DCCategory':'badge-grandmaster','DCCombo':'badge-combo-god','DCScore':'badge-legend','DCMode':'badge-epic','DCPrecision':'badge-diamond','DCGrinder':'badge-master','DCStreak':'badge-immortal','Calendar Keeper':'badge-silver',
     // Experience
-    'Legend Player':'badge-immortal','Champion':'badge-legend','Veteran':'badge-diamond',
+    'Admin':'badge-admin','Legend Player':'badge-immortal','Champion':'badge-legend','Veteran':'badge-diamond',
     'Regular':'badge-grandmaster','Explorer':'badge-epic','Newcomer':'badge-newcomer',
     // Special
     'Hard Mode Hero':'badge-hardmode','Eco Guardian':'badge-eco-guardian',
@@ -5699,6 +5703,7 @@ const GUIDE_BADGE_DETAILS = {
   Veteran: { title: 'Veteran', how: 'Sudah bermain minimal 75 kali.', example: 'Contoh case: attempts 75x, menandakan akun sudah dipakai latihan cukup lama.' },
   Champion: { title: 'Champion', how: 'Sudah bermain minimal 150 kali.', example: 'Contoh case: attempts 150x, misalnya 150 sesi terakumulasi pada nama akun yang sama.' },
   'Legend Player': { title: 'Legend Player', how: 'Sudah bermain minimal 300 kali.', example: 'Contoh case: attempts 300x+ di akun veteran yang dipakai jangka panjang.' },
+  Admin: { title: 'Admin', how: 'Sudah bermain minimal 1000 kali pada akun aktif.', example: 'Contoh case: attempts 1000x, misalnya 1000 sesi dalam satu akun yang sama, dan badge tampil paling terang.' },
   OrganikPro: { title: 'OrganikPro', how: 'Kategori Sisa Makanan punya minimal 3 jawaban dengan akurasi 95%+ pada akun aktif.', example: 'Contoh case: 3/3 di Sisa Makanan benar semua, atau 19/20 benar dengan fokus tinggi.' },
   DaurUlangPro: { title: 'DaurUlangPro', how: 'Kategori Laku Jual punya minimal 3 jawaban dengan akurasi 95%+ pada akun aktif.', example: 'Contoh case: 4/4 pada Laku Jual benar semua, atau 18/19 benar.' },
   ResiduPro: { title: 'ResiduPro', how: 'Kategori Residu punya minimal 3 jawaban dengan akurasi 95%+ pada akun aktif.', example: 'Contoh case: 5/5 Residu benar semua, atau 19/20 benar.' },
@@ -5901,7 +5906,7 @@ function renderLbTable() {
 
     const secBadgesHtml=(() => {
       let badges = secArr || [];
-      const priorityOrder = ['Rank #1','Top 3','Top 10','ScoreTitan','ScoreLegend','PrecisionAce','AccuracyMaster','God Aim','Daily Challenger','DCCategory','DCCombo','DCScore','DCMode','DCPrecision','DCGrinder','DCStreak','Calendar Keeper','ComboLegend','ComboInsane','ComboPro','Combo God'];
+      const priorityOrder = ['Rank #1','Top 3','Top 10','ScoreTitan','ScoreLegend','PrecisionAce','AccuracyMaster','God Aim','Daily Challenger','DCCategory','DCCombo','DCScore','DCMode','DCPrecision','DCGrinder','DCStreak','Calendar Keeper','Admin','ComboLegend','ComboInsane','ComboPro','Combo God'];
       badges = [
         ...priorityOrder.filter(b=>badges.includes(b)),
         ...badges.filter(b=>!priorityOrder.includes(b))
@@ -6001,7 +6006,7 @@ function renderFinalBadges(rec) {
     secArr = [...secArr, 'Daily Challenger'];
   }
   // Prioritize rank and daily badges first
-  const priorityOrder = ['Rank #1','Top 3','Top 10','God Aim','Daily Challenger','DCCategory','DCCombo','DCScore','DCMode','DCPrecision','DCGrinder','DCStreak','Calendar Keeper','Combo God','Score Legend'];
+  const priorityOrder = ['Rank #1','Top 3','Top 10','God Aim','Daily Challenger','DCCategory','DCCombo','DCScore','DCMode','DCPrecision','DCGrinder','DCStreak','Calendar Keeper','Admin','Combo God','Score Legend'];
   secArr = [
     ...priorityOrder.filter(b=>secArr.includes(b)),
     ...secArr.filter(b=>!priorityOrder.includes(b))
@@ -6040,7 +6045,7 @@ function renderLbPrev() {
     const diffLabel=r.isCurriculum?`📚 ${r.curriculumFilter||'Kurikulum'}`:getDifficultyDisplayName(r.difficulty);
     const secBadgesHtml=(() => {
       let badges = secArr || [];
-      const priorityOrder = ['Rank #1','Top 3','Top 10','ScoreTitan','ScoreLegend','PrecisionAce','AccuracyMaster','God Aim','Daily Challenger','DCCategory','DCCombo','DCScore','DCMode','DCPrecision','DCGrinder','DCStreak','Calendar Keeper','ComboLegend','ComboInsane','ComboPro','Combo God'];
+      const priorityOrder = ['Rank #1','Top 3','Top 10','ScoreTitan','ScoreLegend','PrecisionAce','AccuracyMaster','God Aim','Daily Challenger','DCCategory','DCCombo','DCScore','DCMode','DCPrecision','DCGrinder','DCStreak','Calendar Keeper','Admin','ComboLegend','ComboInsane','ComboPro','Combo God'];
       badges = [
         ...priorityOrder.filter(b=>badges.includes(b)),
         ...badges.filter(b=>!priorityOrder.includes(b))
