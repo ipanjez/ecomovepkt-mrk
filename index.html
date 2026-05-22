@@ -4359,6 +4359,11 @@ function handleCurriculumAnswer(userSaysMatch) {
       spawnTrash(); 
     },420);
   }
+
+    setTimeout(() => {
+      const ecoChar = document.getElementById('eco-character');
+      if (ecoChar) ecoChar.click();
+    }, 650);
   
   updateScoreUI();
   updateTimerUI();
@@ -6510,7 +6515,7 @@ document.addEventListener('keydown', e=>{
   renderPlayCountBadge();
 
   try { const n=localStorage.getItem('eco_player_name'); if(n) { document.getElementById('player-name').value=n; updateLoginStreakCard(); renderPlayMilestoneOnStart(); } } catch(e){}
-  document.getElementById('player-name').addEventListener('input',e=>{ try { localStorage.setItem('eco_player_name',e.target.value); } catch(err){} updateNameHint(); renderPlayCountBadge(); updateLoginStreakCard(); renderPlayMilestoneOnStart(); });
+  document.getElementById('player-name').addEventListener('input',e=>{ try { localStorage.setItem('eco_player_name',e.target.value); } catch(err){} updateNameHint(); renderPlayCountBadge(); updateLoginStreakCard(); renderPlayMilestoneOnStart(); const ecoChar=document.getElementById('eco-character'); const ecoTip=document.getElementById('eco-character-tip'); if (ecoChar && ecoTip) { ecoTip.textContent = `Halo, ${(e.target.value || '').trim() || 'pemain'}!`; } });
 
   const ambKey='eco_ambient';
   const musicBtn=document.getElementById('music-btn');
