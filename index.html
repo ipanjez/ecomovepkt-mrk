@@ -687,6 +687,40 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
 /* ─── LEADERBOARD SCORE BAR (inline visual width) ─── */
 .lb-score-bar-wrap{width:100%;background:#f1f5f9;border-radius:999px;height:3px;margin-top:2px;}
 .lb-score-bar-fill{height:100%;background:linear-gradient(90deg,#2563eb,#7c3aed);border-radius:999px;}
+
+/* ─── CUTE DRAGGABLE ECO CHARACTERS ─── */
+.eco-buddy{
+  position:fixed;cursor:grab;user-select:none;z-index:5;
+  filter:drop-shadow(0 4px 12px rgba(0,0,0,0.15));
+  transition:filter 0.2s;
+}
+.eco-buddy:active{cursor:grabbing;filter:drop-shadow(0 8px 20px rgba(0,0,0,0.25));}
+.eco-buddy-wrap{position:relative;display:inline-block;}
+.eco-tip-bubble{
+  position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%) scale(0);
+  background:white;border:2px solid #7AB800;border-radius:16px;padding:8px 12px;
+  font-size:0.65rem;font-weight:700;color:#1e3a5f;white-space:nowrap;max-width:200px;
+  white-space:normal;text-align:center;z-index:100;
+  box-shadow:0 4px 16px rgba(0,0,0,0.12);line-height:1.4;
+  transform-origin:center bottom;
+  transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1),opacity 0.3s;
+  opacity:0;pointer-events:none;
+}
+.eco-tip-bubble::after{
+  content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);
+  border:7px solid transparent;border-top-color:white;
+}
+.eco-tip-bubble::before{
+  content:'';position:absolute;top:calc(100% + 2px);left:50%;transform:translateX(-50%);
+  border:7px solid transparent;border-top-color:#7AB800;
+}
+.eco-buddy.show-tip .eco-tip-bubble{transform:translateX(-50%) scale(1);opacity:1;}
+@keyframes buddyFloat{0%,100%{transform:translateY(0) rotate(-3deg);}50%{transform:translateY(-10px) rotate(3deg);}}
+@keyframes buddyBounce{0%,100%{transform:scale(1);}40%{transform:scale(1.12) rotate(-5deg);}70%{transform:scale(0.95) rotate(3deg);}}
+.eco-buddy svg{transition:transform 0.2s;}
+.eco-buddy:not(.dragging) svg{animation:buddyFloat 3s ease-in-out infinite;}
+.eco-buddy.bounce svg{animation:buddyBounce 0.5s cubic-bezier(0.34,1.56,0.64,1);}
+
 </style>
 </head>
 <body class="bg-dots">
@@ -756,6 +790,71 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
   <div class="fixed bottom-24 right-[8%] text-5xl opacity-30 animate-bounce pointer-events-none" style="animation-delay:1s;animation-duration:4s">🌱</div>
   <div class="fixed top-1/3 right-[12%] text-3xl opacity-25 animate-pulse pointer-events-none" style="animation-duration:2s">🗑️</div>
   <div class="fixed bottom-16 left-[12%] text-4xl opacity-25 animate-pulse pointer-events-none" style="animation-duration:3s;animation-delay:1.5s">🌍</div>
+
+  <!-- ─── CUTE DRAGGABLE ECO BUDDIES ─── -->
+  <div id="buddy-leaf" class="eco-buddy" style="left:5%;top:30%;width:54px;" data-buddy="leaf">
+    <div class="eco-buddy-wrap">
+      <svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg" width="54" height="54">
+        <circle cx="40" cy="40" r="34" fill="#a7f3d0"/>
+        <ellipse cx="40" cy="30" rx="16" ry="22" fill="#22c55e" transform="rotate(-15 40 30)"/>
+        <line x1="40" y1="52" x2="35" y2="22" stroke="#15803d" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="37" y1="38" x2="28" y2="30" stroke="#15803d" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="39" y1="30" x2="32" y2="22" stroke="#15803d" stroke-width="1.5" stroke-linecap="round"/>
+        <circle cx="32" cy="50" r="4" fill="#166534"/>
+        <circle cx="48" cy="50" r="4" fill="#166534"/>
+        <path d="M33 58 q7 5 14 0" stroke="#166534" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <circle cx="31" cy="48" r="1.5" fill="white"/>
+        <circle cx="47" cy="48" r="1.5" fill="white"/>
+      </svg>
+      <div class="eco-tip-bubble" id="buddy-leaf-tip">🌱 Kompos sisa makananmu — bisa jadi pupuk gratis!</div>
+    </div>
+  </div>
+
+  <div id="buddy-recycle" class="eco-buddy" style="right:5%;top:35%;width:52px;" data-buddy="recycle">
+    <div class="eco-buddy-wrap">
+      <svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg" width="52" height="52">
+        <circle cx="40" cy="40" r="34" fill="#fed7aa"/>
+        <text x="40" y="36" text-anchor="middle" font-size="22" fill="#ea580c">♻️</text>
+        <circle cx="30" cy="52" r="4.5" fill="#c2410c"/>
+        <circle cx="50" cy="52" r="4.5" fill="#c2410c"/>
+        <path d="M31 61 q9 6 18 0" stroke="#c2410c" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        <circle cx="29" cy="50" r="1.5" fill="white"/>
+        <circle cx="49" cy="50" r="1.5" fill="white"/>
+      </svg>
+      <div class="eco-tip-bubble" id="buddy-recycle-tip">♻️ Botol plastik bisa didaur ulang jadi baju lho!</div>
+    </div>
+  </div>
+
+  <div id="buddy-drop" class="eco-buddy" style="left:8%;bottom:22%;width:48px;" data-buddy="drop">
+    <div class="eco-buddy-wrap">
+      <svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg" width="48" height="48">
+        <circle cx="40" cy="40" r="34" fill="#bfdbfe"/>
+        <ellipse cx="40" cy="44" rx="17" ry="20" fill="#3b82f6"/>
+        <ellipse cx="40" cy="28" rx="8" ry="10" fill="#3b82f6"/>
+        <circle cx="33" cy="44" r="4" fill="#1d4ed8"/>
+        <circle cx="47" cy="44" r="4" fill="#1d4ed8"/>
+        <path d="M33 53 q7 5 14 0" stroke="#1d4ed8" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <circle cx="32" cy="42" r="1.5" fill="white"/>
+        <circle cx="46" cy="42" r="1.5" fill="white"/>
+      </svg>
+      <div class="eco-tip-bubble" id="buddy-drop-tip">💧 Matikan keran saat gosok gigi — hemat 6 liter air!</div>
+    </div>
+  </div>
+
+  <div id="buddy-star" class="eco-buddy" style="right:7%;bottom:28%;width:46px;" data-buddy="star">
+    <div class="eco-buddy-wrap">
+      <svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg" width="46" height="46">
+        <circle cx="40" cy="40" r="34" fill="#fef9c3"/>
+        <text x="40" y="38" text-anchor="middle" font-size="20">🌟</text>
+        <circle cx="30" cy="52" r="4" fill="#854d0e"/>
+        <circle cx="50" cy="52" r="4" fill="#854d0e"/>
+        <path d="M31 60 q9 5 18 0" stroke="#854d0e" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        <circle cx="29" cy="50" r="1.5" fill="white"/>
+        <circle cx="49" cy="50" r="1.5" fill="white"/>
+      </svg>
+      <div class="eco-tip-bubble" id="buddy-star-tip">⭐ Bawa tas belanja sendiri — kurangi 700 plastik/tahun!</div>
+    </div>
+  </div>
 
   <div class="relative z-10 w-full flex flex-col items-center px-4 py-6 pb-10">
     <div class="w-full max-w-md bg-white/95 rounded-3xl shadow-2xl overflow-hidden border border-white/80 backdrop-blur-md">
@@ -1479,7 +1578,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
           </div>
           <div class="rounded-xl bg-amber-50 border border-amber-200 px-3 py-2">
             <p class="text-xs text-amber-800"><b>Bonus Sesi Harian</b> — Makin sering main hari ini, makin besar bonus! Sesi ke-2: <b>+5%</b> · Sesi ke-3: <b>+10%</b> · Sesi ke-4+: <b>+15%</b></p>
-            <p class="text-[0.62rem] text-amber-600 mt-1">💡 Aktivitas Hari Ini terhubung dengan namamu sebagai akun — ganti nama = reset aktivitas harian.</p>
+            <p class="text-[0.62rem] text-amber-600 mt-1">💡 Bonus sesi & daily reward terhubung ke <b>nama/akunmu</b> — bukan perangkat. Ganti nama = akun berbeda.</p>
           </div>
         </div>
       </div>
@@ -1490,36 +1589,115 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
           <span class="text-lg">🏅</span>
           <p class="font-black text-white text-sm">Badge & Peringkat</p>
         </div>
-        <div class="bg-white p-4 space-y-3">
+        <div class="bg-white p-4 space-y-4">
+
+          <!-- Primary Badge -->
           <div>
-            <p class="text-xs font-black text-gray-700 mb-2">Badge Utama — naik seiring skor, akurasi & combo:</p>
+            <div class="flex items-center gap-2 mb-2.5">
+              <span class="text-base">⭐</span>
+              <p class="text-xs font-black text-gray-800">Badge Utama — berdasarkan skor, akurasi & combo</p>
+            </div>
             <div class="grid grid-cols-2 gap-1.5">
-              <div class="flex items-center gap-2"><span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-bronze">★1 Bronze</span><span class="text-[0.62rem] text-gray-500">Pemula</span></div>
-              <div class="flex items-center gap-2"><span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-silver">★2 Silver</span><span class="text-[0.62rem] text-gray-500">Berkembang</span></div>
-              <div class="flex items-center gap-2"><span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-gold">★3 Gold</span><span class="text-[0.62rem] text-gray-500">Cakap</span></div>
-              <div class="flex items-center gap-2"><span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-platinum">★4 Platinum</span><span class="text-[0.62rem] text-gray-500">Mahir</span></div>
-              <div class="flex items-center gap-2"><span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-epic">★5 Epic</span><span class="text-[0.62rem] text-gray-500">Andal</span></div>
-              <div class="flex items-center gap-2"><span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-grandmaster">★6 Grandmaster</span><span class="text-[0.62rem] text-gray-500">Hebat</span></div>
-              <div class="flex items-center gap-2"><span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-diamond">★7 Diamond</span><span class="text-[0.62rem] text-gray-500">Luar biasa</span></div>
-              <div class="flex items-center gap-2"><span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-legend">★8 Legend</span><span class="text-[0.62rem] text-gray-500">Legenda</span></div>
-              <div class="flex items-center gap-2"><span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-master">★9 Master</span><span class="text-[0.62rem] text-gray-500">Master</span></div>
-              <div class="flex items-center gap-2"><span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-immortal">★10 Immortal</span><span class="text-[0.62rem] text-gray-500">Puncak!</span></div>
+              <div class="flex items-center gap-2 rounded-lg px-2.5 py-2 bg-amber-50 border border-amber-100">
+                <span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-bronze shrink-0">★1</span>
+                <div><p class="text-[0.65rem] font-black text-gray-700">Bronze</p><p class="text-[0.58rem] text-gray-400">Pemula · skor &lt;300</p></div>
+              </div>
+              <div class="flex items-center gap-2 rounded-lg px-2.5 py-2 bg-slate-50 border border-slate-100">
+                <span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-silver shrink-0">★2</span>
+                <div><p class="text-[0.65rem] font-black text-gray-700">Silver</p><p class="text-[0.58rem] text-gray-400">Berkembang · skor ~400</p></div>
+              </div>
+              <div class="flex items-center gap-2 rounded-lg px-2.5 py-2 bg-yellow-50 border border-yellow-100">
+                <span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-gold shrink-0">★3</span>
+                <div><p class="text-[0.65rem] font-black text-gray-700">Gold</p><p class="text-[0.58rem] text-gray-400">Cakap · skor ~550</p></div>
+              </div>
+              <div class="flex items-center gap-2 rounded-lg px-2.5 py-2 bg-slate-50 border border-slate-100">
+                <span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-platinum shrink-0">★4</span>
+                <div><p class="text-[0.65rem] font-black text-gray-700">Platinum</p><p class="text-[0.58rem] text-gray-400">Mahir · skor ~700</p></div>
+              </div>
+              <div class="flex items-center gap-2 rounded-lg px-2.5 py-2 bg-blue-50 border border-blue-100">
+                <span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-epic shrink-0">★5</span>
+                <div><p class="text-[0.65rem] font-black text-gray-700">Epic</p><p class="text-[0.58rem] text-gray-400">Andal · skor ~850</p></div>
+              </div>
+              <div class="flex items-center gap-2 rounded-lg px-2.5 py-2 bg-blue-50 border border-blue-100">
+                <span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-grandmaster shrink-0">★6</span>
+                <div><p class="text-[0.65rem] font-black text-gray-700">Grandmaster</p><p class="text-[0.58rem] text-gray-400">Hebat · skor ~1000</p></div>
+              </div>
+              <div class="flex items-center gap-2 rounded-lg px-2.5 py-2 bg-purple-50 border border-purple-100">
+                <span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-diamond shrink-0">★7</span>
+                <div><p class="text-[0.65rem] font-black text-gray-700">Diamond</p><p class="text-[0.58rem] text-gray-400">Luar biasa · skor ~1150</p></div>
+              </div>
+              <div class="flex items-center gap-2 rounded-lg px-2.5 py-2 bg-red-50 border border-red-100">
+                <span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-legend shrink-0">★8</span>
+                <div><p class="text-[0.65rem] font-black text-gray-700">Legend</p><p class="text-[0.58rem] text-gray-400">Legenda · skor ~1250</p></div>
+              </div>
+              <div class="flex items-center gap-2 rounded-lg px-2.5 py-2 bg-amber-50 border border-amber-100">
+                <span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-master shrink-0">★9</span>
+                <div><p class="text-[0.65rem] font-black text-gray-700">Master</p><p class="text-[0.58rem] text-gray-400">Master · skor ~1300+</p></div>
+              </div>
+              <div class="flex items-center gap-2 rounded-lg px-2.5 py-2 bg-pink-50 border border-pink-100">
+                <span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-immortal shrink-0">★10</span>
+                <div><p class="text-[0.65rem] font-black text-gray-700">Immortal</p><p class="text-[0.58rem] text-gray-400">Puncak! Akurasi + combo max</p></div>
+              </div>
+            </div>
+            <div class="mt-2 rounded-xl bg-purple-50 border border-purple-100 px-3 py-2 text-[0.63rem] text-purple-700 font-semibold">
+              💡 Badge utama dihitung dari: Skor (50%) + Akurasi (30%) + Combo (15%) + Jumlah Main (5%)
             </div>
           </div>
+
+          <!-- Secondary Badges -->
           <div>
-            <p class="text-xs font-black text-gray-700 mb-2">Badge Bonus (bisa didapat bersamaan):</p>
-            <div class="space-y-1">
-              <div class="flex items-start gap-2"><span class="text-sm">🥇</span><p class="text-xs text-gray-600"><b>Top 10</b> — masuk 10 besar Ranked</p></div>
-              <div class="flex items-start gap-2"><span class="text-sm">🏅</span><p class="text-xs text-gray-600"><b>Daily Challenger</b> — selesaikan DC hari ini</p></div>
-              <div class="flex items-start gap-2"><span class="text-sm">🎭</span><p class="text-xs text-gray-600"><b>Versatile</b> — akurasi merata di semua kategori (≥70%, selisih ≤15%)</p></div>
-              <div class="flex items-start gap-2"><span class="text-sm">⭐</span><p class="text-xs text-gray-600"><b>Rising Star</b> — skor naik ≥75 poin dari personal best</p></div>
-              <div class="flex items-start gap-2"><span class="text-sm">🎯</span><p class="text-xs text-gray-600"><b>Accuracy Ace</b> — akurasi ≥95% dengan ≥20 jawaban</p></div>
-              <div class="flex items-start gap-2"><span class="text-sm">💎</span><p class="text-xs text-gray-600"><b>God Aim</b> — akurasi 100% dengan ≥10 jawaban</p></div>
-              <div class="flex items-start gap-2"><span class="text-sm">🚀</span><p class="text-xs text-gray-600"><b>Elite</b> — skor ≥1000 + akurasi ≥90%</p></div>
-              <div class="flex items-start gap-2"><span class="text-sm">👑</span><p class="text-xs text-gray-600"><b>Category Master</b> — 100% benar di satu kategori (min. 5 soal)</p></div>
-              <div class="flex items-start gap-2"><span class="text-sm">🔥</span><p class="text-xs text-gray-600"><b>Grinder / Veteran / Champion</b> — milestone bermain 50x / 50x / 100x</p></div>
+            <div class="flex items-center gap-2 mb-2">
+              <span class="text-base">🥇</span>
+              <p class="text-xs font-black text-gray-800">Badge Sekunder — bisa dapat bersamaan</p>
+            </div>
+            <div class="space-y-1.5">
+              <div class="flex items-start gap-2 rounded-lg border border-yellow-100 bg-yellow-50 px-3 py-2"><span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-gold shrink-0">Top 10</span><p class="text-xs text-gray-600">Masuk 10 besar leaderboard Ranked</p></div>
+              <div class="flex items-start gap-2 rounded-lg border border-emerald-100 bg-emerald-50 px-3 py-2"><span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-daily shrink-0">Daily Challenger</span><p class="text-xs text-gray-600">Selesaikan Daily Challenge hari ini</p></div>
+              <div class="flex items-start gap-2 rounded-lg border border-blue-100 bg-blue-50 px-3 py-2"><span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-epic shrink-0">Versatile</span><p class="text-xs text-gray-600">Akurasi merata semua kategori ≥70%, selisih ≤15%</p></div>
+              <div class="flex items-start gap-2 rounded-lg border border-purple-100 bg-purple-50 px-3 py-2"><span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-diamond shrink-0">God Aim</span><p class="text-xs text-gray-600">Akurasi 100% dengan ≥10 jawaban benar</p></div>
+              <div class="flex items-start gap-2 rounded-lg border border-slate-100 bg-slate-50 px-3 py-2"><span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-platinum shrink-0">Accuracy Ace</span><p class="text-xs text-gray-600">Akurasi ≥95% dengan ≥20 jawaban</p></div>
+              <div class="flex items-start gap-2 rounded-lg border border-amber-100 bg-amber-50 px-3 py-2"><span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-master shrink-0">Elite</span><p class="text-xs text-gray-600">Skor ≥1000 dan akurasi ≥90%</p></div>
+              <div class="flex items-start gap-2 rounded-lg border border-blue-100 bg-blue-50 px-3 py-2"><span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-grandmaster shrink-0">Category Master</span><p class="text-xs text-gray-600">Jawab 100% benar di satu kategori (min. 5 soal)</p></div>
+              <div class="flex items-start gap-2 rounded-lg border border-gray-100 bg-gray-50 px-3 py-2"><span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-silver shrink-0">Rising Star</span><p class="text-xs text-gray-600">Skor naik ≥75 poin dari rekor pribadi</p></div>
             </div>
           </div>
+
+          <!-- Play Milestone Badges -->
+          <div>
+            <div class="flex items-center gap-2 mb-2">
+              <span class="text-base">🎮</span>
+              <p class="text-xs font-black text-gray-800">Badge Milestone Main</p>
+            </div>
+            <div class="flex flex-wrap gap-1.5">
+              <div class="flex items-center gap-1.5 rounded-full bg-gray-100 px-2.5 py-1"><span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-bronze">Newcomer</span><span class="text-[0.6rem] text-gray-500">5x main</span></div>
+              <div class="flex items-center gap-1.5 rounded-full bg-gray-100 px-2.5 py-1"><span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-silver">Regular</span><span class="text-[0.6rem] text-gray-500">20x</span></div>
+              <div class="flex items-center gap-1.5 rounded-full bg-gray-100 px-2.5 py-1"><span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-gold">Veteran</span><span class="text-[0.6rem] text-gray-500">50x</span></div>
+              <div class="flex items-center gap-1.5 rounded-full bg-gray-100 px-2.5 py-1"><span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-epic">Champion</span><span class="text-[0.6rem] text-gray-500">100x</span></div>
+              <div class="flex items-center gap-1.5 rounded-full bg-gray-100 px-2.5 py-1"><span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-immortal">Legend Player</span><span class="text-[0.6rem] text-gray-500">200x</span></div>
+            </div>
+          </div>
+
+          <!-- Tags Section -->
+          <div>
+            <div class="flex items-center gap-2 mb-2">
+              <span class="text-base">🏷️</span>
+              <p class="text-xs font-black text-gray-800">Tag Spesial — ditampilkan di leaderboard</p>
+            </div>
+            <div class="flex flex-wrap gap-1.5">
+              <span class="text-[0.62rem] font-bold bg-green-100 text-green-800 rounded-full px-2.5 py-1">🎯 SisaMakananExpert</span>
+              <span class="text-[0.62rem] font-bold bg-orange-100 text-orange-800 rounded-full px-2.5 py-1">♻️ LayakJualExpert</span>
+              <span class="text-[0.62rem] font-bold bg-blue-100 text-blue-800 rounded-full px-2.5 py-1">🗑️ ResiduExpert</span>
+              <span class="text-[0.62rem] font-bold bg-red-100 text-red-800 rounded-full px-2.5 py-1">💥 ComboPro</span>
+              <span class="text-[0.62rem] font-bold bg-purple-100 text-purple-800 rounded-full px-2.5 py-1">💎 GodAim</span>
+              <span class="text-[0.62rem] font-bold bg-amber-100 text-amber-800 rounded-full px-2.5 py-1">🔥 Grinder100</span>
+              <span class="text-[0.62rem] font-bold bg-violet-100 text-violet-800 rounded-full px-2.5 py-1">🔥 Grinder200</span>
+              <span class="text-[0.62rem] font-bold bg-cyan-100 text-cyan-800 rounded-full px-2.5 py-1">📅 DailyDedicated</span>
+              <span class="text-[0.62rem] font-bold bg-rose-100 text-rose-800 rounded-full px-2.5 py-1">🏆 DCMaster</span>
+              <span class="text-[0.62rem] font-bold bg-slate-100 text-slate-800 rounded-full px-2.5 py-1">💪 Persistence</span>
+            </div>
+            <p class="text-[0.6rem] text-gray-400 mt-1.5">Tag otomatis berdasarkan performa kamu di semua permainan.</p>
+          </div>
+
         </div>
       </div>
 
@@ -1542,6 +1720,34 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
             <div class="flex items-center gap-2.5 rounded-lg bg-yellow-50 border border-yellow-100 px-3 py-2"><span>⚡</span><p class="text-xs text-yellow-800"><b>Streak Master</b> — konsistensi jawaban benar dengan akurasi tinggi</p></div>
           </div>
           <p class="text-[0.65rem] text-gray-400 mt-2">Klik kartu ⚡ Daily Challenge di layar utama untuk melihat riwayat & tantangan mendatang 7 hari ke depan.</p>
+        </div>
+      </div>
+
+      <!-- SECTION: DAILY LOGIN REWARD -->
+      <div class="rounded-2xl border border-amber-100 overflow-hidden">
+        <div class="bg-gradient-to-r from-amber-400 to-orange-500 px-4 py-2.5 flex items-center gap-2">
+          <span class="text-lg">🎁</span>
+          <p class="font-black text-white text-sm">Daily Login Reward</p>
+          <span class="ml-auto text-xs font-bold text-white/80 bg-white/20 px-2 py-0.5 rounded-full">Per Akun/Nama</span>
+        </div>
+        <div class="bg-white p-4 space-y-2.5">
+          <p class="text-xs text-gray-700">Login setiap hari untuk mendapat <b>power-up gratis</b>! Reward dihitung per akun (nama pemain) — bukan per perangkat, sehingga kamu bisa main di perangkat mana saja asalkan nama sama.</p>
+          <div class="rounded-xl bg-amber-50 border border-amber-200 px-3 py-2.5">
+            <p class="text-[0.68rem] font-black text-amber-800 mb-1.5">🔥 Siklus Hadiah 7 Hari:</p>
+            <div class="grid grid-cols-2 gap-1.5">
+              <div class="text-[0.62rem] text-amber-700 flex gap-1.5 items-center"><span class="w-5 h-5 rounded-full bg-amber-200 flex items-center justify-center font-black text-amber-800 text-[0.58rem] shrink-0">1</span> ⏭️ +1 Skip</div>
+              <div class="text-[0.62rem] text-amber-700 flex gap-1.5 items-center"><span class="w-5 h-5 rounded-full bg-amber-200 flex items-center justify-center font-black text-amber-800 text-[0.58rem] shrink-0">2</span> 2️⃣ +1 Double Poin</div>
+              <div class="text-[0.62rem] text-amber-700 flex gap-1.5 items-center"><span class="w-5 h-5 rounded-full bg-amber-200 flex items-center justify-center font-black text-amber-800 text-[0.58rem] shrink-0">3</span> ⏭️+1 ❄️+1</div>
+              <div class="text-[0.62rem] text-amber-700 flex gap-1.5 items-center"><span class="w-5 h-5 rounded-full bg-amber-200 flex items-center justify-center font-black text-amber-800 text-[0.58rem] shrink-0">4</span> 2️⃣ +1 Double Poin</div>
+              <div class="text-[0.62rem] text-amber-700 flex gap-1.5 items-center"><span class="w-5 h-5 rounded-full bg-amber-200 flex items-center justify-center font-black text-amber-800 text-[0.58rem] shrink-0">5</span> ❄️+1 ⏭️+1</div>
+              <div class="text-[0.62rem] text-amber-700 flex gap-1.5 items-center"><span class="w-5 h-5 rounded-full bg-amber-200 flex items-center justify-center font-black text-amber-800 text-[0.58rem] shrink-0">6</span> 2️⃣ +2 Double Poin</div>
+              <div class="text-[0.62rem] text-amber-700 col-span-2 flex gap-1.5 items-center"><span class="w-5 h-5 rounded-full bg-orange-400 flex items-center justify-center font-black text-white text-[0.58rem] shrink-0">7</span> 🎉 BONUS BESAR: ❄️×2 + 2️⃣×2 + ⏭️×3</div>
+            </div>
+          </div>
+          <div class="flex items-start gap-2 rounded-xl bg-blue-50 border border-blue-100 px-3 py-2">
+            <span class="text-lg shrink-0">💡</span>
+            <p class="text-[0.65rem] text-blue-700 font-semibold">Setiap nama pemain punya login streak sendiri. Masukkan nama yang sama tiap hari untuk menjaga streak-mu!</p>
+          </div>
         </div>
       </div>
 
@@ -1573,7 +1779,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
               </div>
             </div>
           </div>
-          <p class="text-[0.65rem] text-gray-400">💡 Nama kamu = akun kamu. Gunakan nama yang sama setiap sesi agar progress dan aktivitas harianmu terhubung.</p>
+          <p class="text-[0.65rem] text-gray-400">💡 <b>Namamu = akunmu.</b> Gunakan nama yang sama setiap sesi agar progress, aktivitas harian, dan daily reward-mu terhubung.</p>
         </div>
       </div>
 
@@ -1730,9 +1936,23 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
 //  DAILY LOGIN & PLAY COUNT BONUS SYSTEM
 // ──────────────────────────────────────────
 
-const LOGIN_STORAGE_KEY = 'eco_daily_login_v1';
+// LOGIN_STORAGE_KEY is now per-account (per player name)
+// Use getLoginStorageKey() instead of LOGIN_STORAGE_KEY directly
 const PLAY_MILESTONE_KEY = 'eco_play_milestone_v1';
 const MAX_PU_STACK = 7; // max stackable per type
+
+function getLoginStorageKey() {
+  try {
+    const name = (document.getElementById('player-name')?.value || '').trim();
+    if (name) {
+      const safe = name.replace(/[^a-zA-Z0-9_]/g,'_').toUpperCase();
+      return `eco_daily_login_v2_${safe}`;
+    }
+  } catch(e) {}
+  return 'eco_daily_login_v2'; // anonymous fallback
+}
+// Legacy alias for backward compat (not used, kept for reference)
+const LOGIN_STORAGE_KEY = 'eco_daily_login_v1';
 
 // Power-up inventory persisted across sessions
 let puInventory = { freeze: 0, double: 0, skip: 0 };
@@ -1756,14 +1976,22 @@ function addToPuInventory(key, amount) {
 // ─── Daily Login Streak ────────────────────
 function getLoginData() {
   try {
-    const raw = localStorage.getItem(LOGIN_STORAGE_KEY);
+    const key = getLoginStorageKey();
+    const raw = localStorage.getItem(key);
     if (raw) return JSON.parse(raw);
+    // Migrate from legacy key if exists
+    const legacyRaw = localStorage.getItem(LOGIN_STORAGE_KEY);
+    if (legacyRaw) {
+      const d = JSON.parse(legacyRaw);
+      localStorage.setItem(key, legacyRaw);
+      return d;
+    }
   } catch(e) {}
   return { streak: 0, lastLoginDate: null, totalDaysPlayed: 0, claimedToday: false };
 }
 
 function saveLoginData(data) {
-  try { localStorage.setItem(LOGIN_STORAGE_KEY, JSON.stringify(data)); } catch(e) {}
+  try { localStorage.setItem(getLoginStorageKey(), JSON.stringify(data)); } catch(e) {}
 }
 
 function getTodayStr() { return new Date().toISOString().split('T')[0]; }
@@ -1832,7 +2060,7 @@ function showDailyLoginModal() {
   const emojis = ['🌱','🌿','🌲','🌳','🦋','🦅','🌟'];
   document.getElementById('login-reward-emoji').textContent = emojis[day-1] || '🎁';
   document.getElementById('login-modal-title').textContent = fresh.claimedToday ? 'Sudah Login Hari Ini!' : `Selamat Datang Kembali, ${playerName}!`;
-  document.getElementById('login-modal-subtitle').textContent = fresh.claimedToday ? 'Kamu sudah mengambil hadiah hari ini.' : `Hari ke-${streak} — Ambil hadiahmu!`;
+  document.getElementById('login-modal-subtitle').textContent = fresh.claimedToday ? 'Kamu sudah mengambil hadiah hari ini.' : `Hari ke-${streak} — Ambil hadiahmu! (Akun: ${playerName})`;
   document.getElementById('login-streak-display').innerHTML = `🔥 Streak: ${streak} hari`;
   
   // Streak pips (7-day cycle)
@@ -5148,17 +5376,23 @@ function renderLbTable() {
     else tr.className=i%2===0?'':'bg-blue-50/20';
 
     const secBadgesHtml=(() => {
-      // Prioritize Top 10 badge to always display
+      // Prioritize Top 10 badge to always display first
       let badges = secArr || [];
       const top10Idx = badges.indexOf('Top 10');
       if(top10Idx > 0) {
-        // Move Top 10 to first position if present
         badges = ['Top 10', ...badges.filter(b => b !== 'Top 10')];
       }
-      return badges.slice(0,3).map(b=>`<span class="rounded-full px-1.5 py-0.5 text-[0.55rem] font-bold ${getSecondaryBadgeClass(b)}">${escHtml(b)}</span>`).join('');
+      const dcIdx = badges.indexOf('Daily Challenger');
+      if(dcIdx > 1) {
+        badges = [badges[0], 'Daily Challenger', ...badges.filter((b,bi) => bi!==0 && b !== 'Daily Challenger')];
+      }
+      return badges.slice(0,3).map(b=>`<span class="rounded-full px-1.5 py-0.5 text-[0.55rem] font-bold ${getSecondaryBadgeClass(b)}" title="${escHtml(b)}">${escHtml(b)}</span>`).join('');
     })();
-    const tagsHtml=tags.length>0?`<span class="text-[0.55rem] text-gray-400 font-semibold">${tags.map(t=>'#'+t).join(' ')}</span>`:'';
-    const primaryBadgeHtml = r.isCurriculum ? '' : `<span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold ${getBadgeClass(primary)}">${escHtml(formatBadge(primary))}</span>`;
+    // Show tags (special) distinctly — show top 2 only to save space
+    const priorityTags = ['GodAim','ComboPro','DCMaster','DailyDedicated','Grinder200','Grinder100','ResiduExpert','SisaMakananExpert','LayakJualExpert','Persistence'];
+    const sortedTags = tags.sort((a,b) => priorityTags.indexOf(a) - priorityTags.indexOf(b));
+    const tagsHtml=sortedTags.length>0?`<span class="text-[0.52rem] text-purple-400 font-bold">${sortedTags.slice(0,2).map(t=>'#'+t).join(' ')}</span>`:'';
+    const primaryBadgeHtml = r.isCurriculum ? '' : `<span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold ${getBadgeClass(primary)}" title="${escHtml(primary)}">${escHtml(formatBadge(primary))}</span>`;
 
     const maxScore = filtered.length > 0 ? Math.max(...filtered.map(x=>x.score||0)) : 1;
     const scorePct = Math.round(((r.score||0) / Math.max(maxScore,1)) * 100);
@@ -5244,15 +5478,22 @@ function renderFinalBadges(rec) {
   if (completedDC && !secArr.includes('Daily Challenger')) {
     secArr = [...secArr, 'Daily Challenger'];
   }
-  // Prioritize Top 10 badge to always display
+  // Prioritize Top 10 and Daily Challenger badges
   const top10Idx = secArr.indexOf('Top 10');
-  if(top10Idx > 0) {
-    secArr = ['Top 10', ...secArr.filter(b => b !== 'Top 10')];
-  }
+  if(top10Idx > 0) secArr = ['Top 10', ...secArr.filter(b => b !== 'Top 10')];
+  const dcIdx = secArr.indexOf('Daily Challenger');
+  if(dcIdx > 1) secArr = [secArr[0], 'Daily Challenger', ...secArr.filter((b,bi) => bi!==0 && b !== 'Daily Challenger')];
+
   const tags=computeSpecialTags(rec.score||0,rec.accuracy||0,rec.bestCombo||0,rec.categoryStats||{},null,rec.attempts||0,rec.dcCompleted||0);
+  
+  // Primary badge (large)
   let html=`<span class="inline-flex items-center rounded-full px-3 py-1.5 text-sm font-black ${getBadgeClass(primary)}">${escHtml(formatBadge(primary))}</span>`;
-  secArr.slice(0,3).forEach(b=>{ html+=`<span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-bold ${getSecondaryBadgeClass(b)}">${escHtml(b)}</span>`; });
-  if(tags.length>0) html+=`<span class="text-[0.65rem] text-gray-400 font-semibold self-center">${tags.map(t=>'#'+t).join(' ')}</span>`;
+  // Secondary badges
+  secArr.forEach(b=>{ html+=`<span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-bold ${getSecondaryBadgeClass(b)}">${escHtml(b)}</span>`; });
+  // Tags (styled distinctly)
+  if(tags.length>0) {
+    html += `<div class="w-full flex flex-wrap gap-1 mt-1">` + tags.map(t=>`<span class="text-[0.6rem] font-bold text-purple-600 bg-purple-50 border border-purple-200 rounded-full px-2 py-0.5">#${t}</span>`).join('') + `</div>`;
+  }
   row.innerHTML=html;
   const pbEl=document.getElementById('final-pb');
   if(pbEl) pbEl.textContent=`Personal best – Skor: ${rec.score} | Akurasi: ${rec.accuracy||0}% | D/B/S: ${rec.total||0}/${rec.correct||0}/${rec.wrong||0}`;
@@ -5275,15 +5516,15 @@ function renderLbPrev() {
     const ts=r.timestamp?new Date(r.timestamp).toLocaleString('id-ID',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):'-';
     const diffLabel=r.isCurriculum?`📚 ${r.curriculumFilter||'Kurikulum'}`:getDifficultyDisplayName(r.difficulty);
     const secBadgesHtml=(() => {
-      // Prioritize Top 10 badge to always display
+      // Prioritize Top 10 and Daily Challenger badges
       let badges = secArr || [];
       const top10Idx = badges.indexOf('Top 10');
-      if(top10Idx > 0) {
-        badges = ['Top 10', ...badges.filter(b => b !== 'Top 10')];
-      }
+      if(top10Idx > 0) badges = ['Top 10', ...badges.filter(b => b !== 'Top 10')];
+      const dcIdx = badges.indexOf('Daily Challenger');
+      if(dcIdx > 1) badges = [badges[0], 'Daily Challenger', ...badges.filter((b,bi) => bi!==0 && b !== 'Daily Challenger')];
       return badges.slice(0,3).map(b=>`<span class="rounded-full px-1.5 py-0.5 text-[0.55rem] font-bold ${getSecondaryBadgeClass(b)}">${escHtml(b)}</span>`).join(' ');
     })();
-    const tagsHtml=tags.length>0?`<span class="text-[0.55rem] text-gray-400 font-semibold">${tags.map(t=>'#'+t).join(' ')}</span>`:'';
+    const tagsHtml=tags.length>0?`<span class="text-[0.52rem] text-purple-500 font-bold">${tags.slice(0,2).map(t=>'#'+t).join(' ')}</span>`:'';
     const primaryBadgeHtml = r.isCurriculum ? '' : `<span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold ${getBadgeClass(primary)}">${escHtml(formatBadge(primary))}</span>`;
     const rankMedalP = i===0 ? `<span class="rank-medal-1">1</span>` : i===1 ? `<span class="rank-medal-2">2</span>` : i===2 ? `<span class="rank-medal-3">3</span>` : (i+1);
     const crownPHtml = i===0 ? `<span class="crown-anim">👑</span>` : '';
@@ -5645,6 +5886,129 @@ document.addEventListener('keydown', e=>{
 })();
 
 // ──────────────────────────────────────────
+//  ECO BUDDY DRAGGABLE CHARACTERS
+// ──────────────────────────────────────────
+(function initEcoBuddies() {
+  const ECO_TIPS = [
+    '🌱 Kompos sisa makananmu — bisa jadi pupuk gratis!',
+    '♻️ Botol plastik bisa didaur ulang jadi baju lho!',
+    '💧 Matikan keran saat gosok gigi — hemat 6 liter air!',
+    '⭐ Bawa tas belanja sendiri — kurangi 700 plastik/tahun!',
+    '🌍 Pilah sampah dari rumah — bantu TPA lebih lega!',
+    '🚲 Jalan kaki/bersepeda untuk jarak dekat — kurangi emisi!',
+    '🔋 Cabut charger saat tidak dipakai — hemat listrik!',
+    '🥤 Pakai tumbler sendiri — tolak sedotan & cup plastik!',
+    '🍃 Belanja produk lokal — kurangi jejak karbon!',
+    '💡 Matikan lampu saat keluar ruangan — hemat energi!',
+    '🌊 Jangan buang sampah di sungai — jaga ekosistem!',
+    '🐝 Tanam bunga — bantu populasi lebah yang makin sedikit!',
+    '📦 Beli second-hand daripada baru — kurangi sampah elektronik!',
+    '🥕 Makan lebih banyak sayur — lebih hemat air & energi!',
+    '🌿 Satu pohon bisa menyerap 22 kg CO₂ per tahun!',
+    '🗑️ Residu bukan sampah asal-asalan — ada yang bisa dipilah!',
+    '🎉 Kamu sudah pilah sampah hari ini? Keren banget!',
+    '🦋 Hutan kota menyerap polutan & mendinginkan suhu kota!',
+    '📱 Repair HP rusak daripada ganti baru — save e-waste!',
+    '🌞 Panel surya bisa dipasang di atap rumah — energi bersih!',
+  ];
+
+  const BUDDIES = [
+    { id: 'buddy-leaf',    tipId: 'buddy-leaf-tip',    animDelay: '0s',    floatDir: 1   },
+    { id: 'buddy-recycle', tipId: 'buddy-recycle-tip', animDelay: '0.8s',  floatDir: -1  },
+    { id: 'buddy-drop',    tipId: 'buddy-drop-tip',    animDelay: '1.6s',  floatDir: 1   },
+    { id: 'buddy-star',    tipId: 'buddy-star-tip',    animDelay: '2.4s',  floatDir: -1  },
+  ];
+
+  let usedTips = [];
+
+  function getRandomTip() {
+    if (usedTips.length >= ECO_TIPS.length) usedTips = [];
+    const remaining = ECO_TIPS.filter(t => !usedTips.includes(t));
+    const tip = remaining[Math.floor(Math.random() * remaining.length)];
+    usedTips.push(tip);
+    return tip;
+  }
+
+  BUDDIES.forEach((cfg, idx) => {
+    const el = document.getElementById(cfg.id);
+    const tipEl = document.getElementById(cfg.tipId);
+    if (!el || !tipEl) return;
+
+    // Stagger float animation
+    const svgEl = el.querySelector('svg');
+    if (svgEl) svgEl.style.animationDelay = cfg.animDelay;
+
+    // Drag support
+    let dragging = false, startX = 0, startY = 0, initLeft = 0, initTop = 0;
+    const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+
+    el.addEventListener('pointerdown', e => {
+      e.preventDefault();
+      el.setPointerCapture?.(e.pointerId);
+      dragging = true;
+      el.classList.add('dragging');
+      el.style.transition = 'none';
+      el.classList.remove('show-tip');
+      const rect = el.getBoundingClientRect();
+      initLeft = rect.left;
+      initTop = rect.top;
+      startX = e.clientX;
+      startY = e.clientY;
+    });
+
+    el.addEventListener('pointermove', e => {
+      if (!dragging) return;
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+      const newLeft = clamp(initLeft + dx, 0, window.innerWidth - el.offsetWidth);
+      const newTop  = clamp(initTop  + dy, 0, window.innerHeight - el.offsetHeight);
+      el.style.left = newLeft + 'px';
+      el.style.top  = newTop  + 'px';
+      el.style.right = 'auto';
+      el.style.bottom = 'auto';
+    });
+
+    el.addEventListener('pointerup', e => {
+      if (!dragging) return;
+      dragging = false;
+      el.classList.remove('dragging');
+      el.style.transition = '';
+      // Bounce animation
+      el.classList.remove('bounce');
+      void el.offsetWidth;
+      el.classList.add('bounce');
+      // Show a new random tip
+      tipEl.textContent = getRandomTip();
+      el.classList.add('show-tip');
+      clearTimeout(el._tipTimer);
+      el._tipTimer = setTimeout(() => el.classList.remove('show-tip'), 3500);
+      setTimeout(() => el.classList.remove('bounce'), 600);
+    });
+
+    el.addEventListener('pointercancel', () => {
+      dragging = false;
+      el.classList.remove('dragging');
+    });
+
+    // Auto-tip on a random schedule
+    function scheduleTip() {
+      const delay = 5000 + idx * 2500 + Math.random() * 8000;
+      el._autoTipTimer = setTimeout(() => {
+        if (!dragging && document.getElementById('start-screen')?.classList.contains('active')) {
+          tipEl.textContent = getRandomTip();
+          el.classList.add('show-tip');
+          clearTimeout(el._tipTimer);
+          el._tipTimer = setTimeout(() => { el.classList.remove('show-tip'); scheduleTip(); }, 3500);
+        } else {
+          scheduleTip();
+        }
+      }, delay);
+    }
+    scheduleTip();
+  });
+})();
+
+// ──────────────────────────────────────────
 //  INIT
 // ──────────────────────────────────────────
 (function init() {
@@ -5686,8 +6050,22 @@ document.addEventListener('keydown', e=>{
   // Show daily login modal after a brief delay if player name is saved
   setTimeout(() => {
     const savedName = localStorage.getItem('eco_player_name');
-    const loginData = getLoginData();
-    if (savedName && loginData.lastLoginDate === getTodayStr() && !loginData.claimedToday) {
+    if (!savedName) return;
+    // ensure getLoginStorageKey() can read the correct key for savedName
+    const safeId = savedName.trim().replace(/[^a-zA-Z0-9_]/g,'_').toUpperCase();
+    const key = `eco_daily_login_v2_${safeId}`;
+    try {
+      const raw = localStorage.getItem(key);
+      const loginData = raw ? JSON.parse(raw) : { claimedToday: true }; // default: no modal if no data
+      if (savedName && loginData.lastLoginDate === getTodayStr() && !loginData.claimedToday) {
+        showDailyLoginModal();
+      } else if (savedName && loginData.lastLoginDate !== getTodayStr()) {
+        // New day — check and init so streak is updated, then show modal
+        checkAndInitLoginStreak();
+        showDailyLoginModal();
+      }
+    } catch(e) {
+      checkAndInitLoginStreak();
       showDailyLoginModal();
     }
   }, 1500);
