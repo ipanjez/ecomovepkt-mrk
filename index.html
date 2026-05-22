@@ -2150,7 +2150,9 @@ async function loadAllPlayerDataFromFirebase(name) {
     const playerData = snap.val();
 
     // --- Power-up inventory ---
-    if (playerData.puInventory) {
+    // Only load from Firebase when NOT in an active game session,
+    // to avoid overwriting the session's in-use inventory.
+    if (playerData.puInventory && !(typeof GS !== 'undefined' && GS.isPlaying)) {
       const p = playerData.puInventory;
       puInventory = { freeze: p.freeze||0, double: p.double||0, skip: p.skip||0, timeExtend: p.timeExtend||0 };
       try { const key = getPuInventoryKey(); if (key) localStorage.setItem(key, JSON.stringify(puInventory)); } catch(e) {}
@@ -2905,7 +2907,13 @@ function awardSessionPowerups(difficulty) {
   puInventory.double = 0;
   puInventory.skip = 0;
   puInventory.timeExtend = 0;
-  savePuInventory();
+  // Save only to localStorage — do NOT overwrite Firebase here.
+  // Firebase is the source of truth and should only be updated
+  // when power-ups are earned (addToPuInventory) or explicitly synced.
+  try {
+    const key = getPuInventoryKey();
+    if (key) localStorage.setItem(key, JSON.stringify(puInventory));
+  } catch(e) {}
   
   const total = inv.freeze + inv.double + inv.skip + (inv.timeExtend||0);
   if (total > 0) {
@@ -6433,6 +6441,14 @@ function cleanupGame() {
 
   // Reset drag state
   trashDragState = {dragging:false, startX:0, startY:0, currentX:0, currentY:0, pointerId:null};
+
+  // Return unused power-ups from the session back to persistent inventory
+  // (they were taken out in awardSessionPowerups; give back what wasn't spent)
+  puInventory.freeze     = (puInventory.freeze     || 0) + (POWERUPS.freeze.count     || 0);
+  puInventory.double     = (puInventory.double     || 0) + (POWERUPS.double.count     || 0);
+  puInventory.skip       = (puInventory.skip       || 0) + (POWERUPS.skip.count       || 0);
+  puInventory.timeExtend = (puInventory.timeExtend || 0) + (POWERUPS.timeExtend.count || 0);
+  savePuInventory(); // Persist to localStorage + Firebase
 
   // Reset game state
   GS.isPlaying = false;
