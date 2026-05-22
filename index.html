@@ -165,31 +165,28 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
 #rival-strip{
   background:linear-gradient(135deg,#0f172a 0%,#1e3a5f 60%,#0c1a3a 100%);
   border:1.5px solid rgba(99,179,237,0.35);
-  border-radius:14px;
-  padding:10px 12px;
-  display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:5px;
-  font-size:0.75rem;font-weight:700;color:#e2e8f0;
+  border-radius:12px;
+  padding:6px 10px;
+  display:flex;flex-direction:row;align-items:center;justify-content:space-between;gap:8px;
+  font-size:0.72rem;font-weight:700;color:#e2e8f0;
   width:min(86vw,300px);text-align:left;line-height:1.3;
-  min-height:44px;
-  box-shadow:0 4px 16px rgba(0,0,0,0.25),inset 0 1px 0 rgba(255,255,255,0.07);
-  position:relative;overflow:hidden;
+  min-height:36px;max-height:48px;
+  box-shadow:0 4px 12px rgba(0,0,0,0.2);
+  position:relative;overflow:hidden;flex-shrink:0;
 }
 #rival-strip::before{
   content:'';position:absolute;top:0;left:0;right:0;height:1px;
   background:linear-gradient(90deg,transparent,rgba(99,179,237,0.5),transparent);
 }
 .rival-strip-header{
-  display:flex;align-items:center;gap:6px;
-  font-size:0.6rem;font-weight:900;color:#93c5fd;
-  letter-spacing:0.06em;text-transform:uppercase;width:100%;
+  display:flex;align-items:center;gap:4px;
+  font-size:0.55rem;font-weight:900;color:#93c5fd;
+  letter-spacing:0.06em;text-transform:uppercase;flex-shrink:0;
 }
-.rival-strip-header::after{
-  content:'';flex:1;height:1px;background:linear-gradient(90deg,rgba(147,197,253,0.3),transparent);
-}
-.rival-strip-list{display:flex;flex-direction:column;gap:4px;width:100%;}
+.rival-strip-list{display:flex;flex-direction:column;gap:2px;width:100%;}
 .rival-strip-item{
   display:flex;justify-content:space-between;gap:8px;align-items:center;
-  font-size:0.72rem;padding:3px 6px;border-radius:7px;
+  font-size:0.72rem;padding:2px 4px;border-radius:6px;
 }
 .rival-strip-item.nearest{
   background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.25);
@@ -249,6 +246,17 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
 .badge-master{background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;border:1px solid #92400e;animation:badgeGlow 2s ease-in-out infinite;}
 .badge-immortal{background:linear-gradient(135deg,#e11d48,#be185d);color:#fff;border:2px solid #831843;animation:badgeGlitter 3s ease-in-out infinite;}
 .badge-daily{background:linear-gradient(135deg,#059669,#047857);color:#fff;border:1px solid #065f46;}
+/* New secondary badge styles */
+.badge-top3{background:linear-gradient(135deg,#f59e0b,#b45309);color:#fff;border:1px solid #92400e;animation:badgeGlow 1.5s ease-in-out infinite;}
+.badge-newcomer{background:linear-gradient(135deg,#6b7280,#4b5563);color:#fff;border:1px solid #374151;}
+.badge-curious{background:linear-gradient(135deg,#06b6d4,#0891b2);color:#fff;border:1px solid #0e7490;}
+.badge-rising{background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:1px solid #047857;}
+.badge-sharpshooter{background:linear-gradient(135deg,#8b5cf6,#7c3aed);color:#fff;border:1px solid #6d28d9;}
+.badge-speedrun{background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff;border:1px solid #b91c1c;}
+.badge-hardmode{background:linear-gradient(135deg,#1e3a8a,#1e40af);color:#fff;border:1px solid #1d4ed8;}
+.badge-combo-god{background:linear-gradient(135deg,#d97706,#92400e);color:#fff;border:2px solid #78350f;animation:badgeGlow 1.8s ease-in-out infinite;}
+.badge-eco-guardian{background:linear-gradient(135deg,#065f46,#047857);color:#fff;border:1px solid #059669;}
+.badge-consistent{background:linear-gradient(135deg,#4f46e5,#4338ca);color:#fff;border:1px solid #3730a3;}
 @keyframes badgeGlow{0%,100%{box-shadow:0 3px 12px rgba(245,158,11,0.55);}50%{box-shadow:0 3px 22px rgba(245,158,11,0.9);}}
 @keyframes badgeGlitter{0%,100%{box-shadow:0 3px 12px rgba(225,29,72,0.55);}50%{box-shadow:0 3px 28px rgba(225,29,72,0.9);}}
 
@@ -744,8 +752,8 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
 <!-- ════════════════════════════════════════ -->
 <!--        DAILY LOGIN REWARD MODAL        -->
 <!-- ════════════════════════════════════════ -->
-<div id="daily-login-modal" class="modal-backdrop hidden">
-  <div class="modal-card w-full" style="max-width:min(92vw,380px);background:linear-gradient(160deg,#0f172a 0%,#1e3a5f 60%,#0f172a 100%);border:1px solid rgba(255,255,255,0.12);color:white;overflow:hidden;">
+<div id="daily-login-modal" class="modal-backdrop hidden" onclick="if(event.target===this)closeDailyLoginModal()">
+  <div class="modal-card w-full" style="max-width:min(92vw,380px);background:linear-gradient(160deg,#0f172a 0%,#1e3a5f 60%,#0f172a 100%);border:1px solid rgba(255,255,255,0.12);color:white;overflow:hidden;" onclick="event.stopPropagation()">
     <!-- Header glow orb -->
     <div style="position:absolute;top:-40px;left:50%;transform:translateX(-50%);width:160px;height:160px;background:radial-gradient(circle,rgba(251,191,36,0.25),transparent 70%);pointer-events:none;z-index:0;"></div>
     <div class="relative z-10 p-5">
@@ -908,12 +916,13 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
           <div class="flex-1">
             <div class="flex items-center gap-2 mb-1.5">
               <span class="streak-flame text-sm" id="ls-flame">🔥 0 hari</span>
-              <span id="ls-claim-btn" onclick="showDailyLoginModal()" class="text-[0.65rem] font-black px-2 py-0.5 rounded-full cursor-pointer bg-orange-500 text-white hidden">🎁 Ambil!</span>
+              <button id="ls-claim-btn" onclick="showDailyLoginModal()" class="text-[0.65rem] font-black px-3 py-1 rounded-full cursor-pointer bg-gradient-to-r from-orange-500 to-yellow-500 text-white hidden border-b-2 border-orange-700 active:scale-95 transition">🎁 Klaim!</button>
+              <button onclick="showDailyLoginModal()" class="text-[0.6rem] font-semibold text-amber-700 underline cursor-pointer bg-none border-none">Login</button>
             </div>
             <div class="flex gap-1" id="ls-pips"></div>
           </div>
           <div class="text-right">
-            <p class="text-[0.6rem] font-black text-amber-700 uppercase">Power-up</p>
+            <p class="text-[0.6rem] font-black text-amber-700 uppercase">Power-up Tersimpan</p>
             <p class="text-base font-black text-amber-800" id="ls-pu-count">❄️×<span id="ls-freeze">0</span> 2️⃣×<span id="ls-double">0</span> ⏭️×<span id="ls-skip">0</span></p>
           </div>
         </div>
@@ -1434,8 +1443,8 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
 <!-- ════════════════════════════════════════ -->
 <!--         HOW TO PLAY MODAL              -->
 <!-- ════════════════════════════════════════ -->
-<div id="htp-modal" class="modal-backdrop hidden">
-  <div class="modal-card w-full max-w-lg" style="max-height:92vh;overflow-y:auto;">
+<div id="htp-modal" class="modal-backdrop hidden" onclick="if(event.target===this)closeHowToPlay()">
+  <div class="modal-card w-full max-w-lg" style="max-height:92vh;overflow-y:auto;" onclick="event.stopPropagation()">
     <!-- Hero Header -->
     <div class="sticky top-0 z-10 bg-gradient-to-r from-pktBlue via-blue-700 to-blue-900 px-5 py-4 flex justify-between items-center">
       <div>
@@ -1839,15 +1848,15 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
 <!-- ════════════════════════════════════════ -->
 <!--       LEADERBOARD PREVIEW MODAL        -->
 <!-- ════════════════════════════════════════ -->
-<div id="lb-modal" class="modal-backdrop hidden">
-  <div class="modal-card w-full max-w-3xl overflow-hidden">
+<div id="lb-modal" class="modal-backdrop hidden" onclick="if(event.target===this)closeLbModal()">
+  <div class="modal-card w-full max-w-3xl overflow-hidden" onclick="event.stopPropagation()">
     <!-- Dark competitive header -->
     <div class="lb-section-header sticky top-0 z-10 flex justify-between items-center">
       <div>
         <div class="lb-section-title">🏆 Leaderboard</div>
         <div class="lb-section-subtitle">Real-time · Semua skor pemain</div>
       </div>
-      <button onclick="closeLbModal()" class="text-white/60 hover:text-white text-2xl font-bold leading-none transition">&times;</button>
+      <button onclick="closeLbModal()" style="background:rgba(255,255,255,0.15);border:1.5px solid rgba(255,255,255,0.3);border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;color:white;font-size:1.1rem;font-weight:900;cursor:pointer;transition:background 0.15s;flex-shrink:0;" onmouseover="this.style.background='rgba(255,255,255,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.15)'">&times;</button>
     </div>
     <div class="p-5">
     <div class="chip-row mb-2">
@@ -1971,15 +1980,35 @@ const LOGIN_STORAGE_KEY = 'eco_daily_login_v1';
 // Power-up inventory persisted across sessions
 let puInventory = { freeze: 0, double: 0, skip: 0 };
 
+function getPuInventoryKey() {
+  try {
+    const name = (document.getElementById('player-name')?.value || '').trim();
+    if (name) {
+      const safe = name.replace(/[^a-zA-Z0-9_]/g,'_').toUpperCase();
+      return `eco_pu_inventory_${safe}`;
+    }
+  } catch(e) {}
+  return 'eco_pu_inventory'; // anonymous fallback
+}
+
 function loadPuInventory() {
   try {
-    const raw = localStorage.getItem('eco_pu_inventory');
-    if (raw) { const p = JSON.parse(raw); puInventory = { freeze: p.freeze||0, double: p.double||0, skip: p.skip||0 }; }
+    // Try per-account key first
+    const key = getPuInventoryKey();
+    const raw = localStorage.getItem(key);
+    if (raw) { const p = JSON.parse(raw); puInventory = { freeze: p.freeze||0, double: p.double||0, skip: p.skip||0 }; return; }
+    // Fallback to global key (backward compat)
+    const globalRaw = localStorage.getItem('eco_pu_inventory');
+    if (globalRaw) { const p = JSON.parse(globalRaw); puInventory = { freeze: p.freeze||0, double: p.double||0, skip: p.skip||0 }; return; }
   } catch(e) {}
+  puInventory = { freeze: 0, double: 0, skip: 0 };
 }
 
 function savePuInventory() {
-  try { localStorage.setItem('eco_pu_inventory', JSON.stringify(puInventory)); } catch(e) {}
+  try {
+    const key = getPuInventoryKey();
+    localStorage.setItem(key, JSON.stringify(puInventory));
+  } catch(e) {}
 }
 
 function addToPuInventory(key, amount) {
@@ -4091,6 +4120,7 @@ function setupGameUI() {
 
 function handleCurriculumAnswer(userSaysMatch) {
   if(!GS.isPlaying||GS.paused||!GS.currentTrash) return;
+  if(!_answerGuard()) return; // prevent double-trigger
   try { if(audioCtx.state==='suspended') audioCtx.resume(); } catch(e){}
   
   const actualMatch = (GS.currentTrash.c === GS.curriculumFocus);
@@ -4282,8 +4312,18 @@ function spawnTrash() {
   if (tipStrip) tipStrip.textContent=catTips[Math.floor(Math.random()*catTips.length)];
 }
 
+// Guard against duplicate answer submissions (drag+click double-fire)
+let _lastAnswerTs = 0;
+function _answerGuard() {
+  const now = Date.now();
+  if (now - _lastAnswerTs < 350) return false; // ignore if < 350ms since last answer
+  _lastAnswerTs = now;
+  return true;
+}
+
 function checkBin(cat) {
   if(!GS.isPlaying||GS.paused||!GS.currentTrash) return;
+  if(!_answerGuard()) return; // prevent double-trigger
   try { if(audioCtx.state==='suspended') audioCtx.resume(); } catch(e){}
 
   // Hide swipe hint after first interaction
@@ -4416,7 +4456,7 @@ function onDragOver(e) {
 function onDropBin(e) {
   e.preventDefault();
   const cat = e.currentTarget.dataset.category;
-  if (cat) checkBin(cat);
+  if (cat) checkBin(cat); // _answerGuard inside checkBin handles dedup
   endDragFeedback();
 }
 
@@ -4487,6 +4527,9 @@ function endTrashPointerDrag(e) {
     if(target) {
       const drop = target.closest('.bin, .curriculum-btn');
       if(drop) {
+        // Prevent the bin's onclick from also firing after pointer drag
+        const stopClick = (ev) => { ev.stopPropagation(); ev.preventDefault(); };
+        drop.addEventListener('click', stopClick, { once: true, capture: true });
         if(drop.classList.contains('bin') && drop.dataset.category) {
           checkBin(drop.dataset.category);
         } else if(drop.classList.contains('curriculum-btn')) {
@@ -4593,42 +4636,33 @@ function updateRivalStrip() {
   const mode = GS.isCurriculum ? 'curriculum' : 'ranked';
   const leaderboard = filterLb(lbCache, 'All', mode).sort((a,b)=>a.score-b.score);
   const ahead = leaderboard.filter(r=>r.id!==GS.currentSessionId && r.score>ps);
-  const rivals = ahead.slice(0,3);
-  nearestRival = rivals[0] || null;
+  nearestRival = ahead[0] || null;
 
-  if(rivals.length>0) {
-    const modeLabel = GS.isCurriculum ? '📚 Kurikulum' : '⚔️ Ranked';
-    // Progress toward nearest rival
-    const target = rivals[0].score;
-    // find score below player among rivals (or 0)
+  if(nearestRival) {
+    const target = nearestRival.score;
     const below = leaderboard.filter(r=>r.id!==GS.currentSessionId && r.score<=ps).slice(-1)[0];
     const baseScore = below ? below.score : 0;
     const range = target - baseScore;
     const prog = range>0 ? Math.min(100, Math.round(((ps-baseScore)/range)*100)) : 100;
+    const diff = target - ps;
+    const rivalName = (nearestRival.name||nearestRival.playerName||'???').substring(0,14);
+    const actualRank = filterLb(lbCache,'All',mode).findIndex(x=>x.id===nearestRival.id)+1;
 
-    let html = `<div class="rival-strip-header">⚔️ Rival ${modeLabel}</div>`;
-    html += `<div class="rival-strip-list">`;
-    rivals.forEach((r,i)=>{
-      const diff = r.score - ps;
-      const actualRank = filterLb(lbCache,'All',mode).findIndex(x=>x.id===r.id)+1;
-      const isNearest = i === 0;
-      html += `<div class="rival-strip-item${isNearest?' nearest':''}">
-        <div class="flex items-center gap-1.5 min-w-0">
-          ${isNearest ? `<span class="rival-nearest-label">TARGET</span>` : `<span class="rival-rank-badge">#${actualRank}</span>`}
-          <strong class="truncate" style="max-width:95px">${escHtml(r.name||r.playerName||'–')}</strong>
-          <span style="color:#94a3b8;font-size:0.62rem">${r.score}</span>
-        </div>
-        <span class="rival-gap-badge">-${diff}</span>
-      </div>`;
-    });
-    html += `</div>`;
-    // Progress bar toward nearest
-    html += `<div class="rival-progress-wrap"><div class="rival-progress-fill" style="width:${prog}%"></div></div>`;
-    strip.innerHTML = html;
+    strip.innerHTML = `
+      <div style="display:flex;align-items:center;gap:4px;flex-shrink:0;">
+        <span style="font-size:0.5rem;font-weight:900;color:#fbbf24;text-transform:uppercase;letter-spacing:0.04em;">⚔️ Target</span>
+        <span style="font-size:0.6rem;font-weight:700;color:#94a3b8;">#${actualRank}</span>
+      </div>
+      <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px;">
+        <div style="font-size:0.72rem;font-weight:900;color:#f1f5f9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(rivalName)} <span style="color:#94a3b8;font-size:0.62rem;">(${target})</span></div>
+        <div style="height:3px;background:rgba(255,255,255,0.1);border-radius:999px;overflow:hidden;"><div style="height:100%;width:${prog}%;background:linear-gradient(90deg,#22c55e,#fbbf24,#ef4444);border-radius:999px;transition:width 0.4s;"></div></div>
+      </div>
+      <div style="background:linear-gradient(135deg,#ef4444,#dc2626);color:white;border-radius:999px;padding:1px 7px;font-size:0.58rem;font-weight:900;white-space:nowrap;flex-shrink:0;">-${diff}</div>
+    `;
   } else if(ps>0) {
-    strip.innerHTML=`<div class="rival-strip-header">👑 Peringkat 1!</div><div style="color:#86efac;font-size:0.72rem;font-weight:800;">Tidak ada rival di atas kamu — pertahankan!</div>`;
+    strip.innerHTML=`<span style="font-size:0.55rem;font-weight:900;color:#93c5fd;text-transform:uppercase;">⚔️ Rival</span><span style="color:#86efac;font-size:0.72rem;font-weight:800;flex:1;text-align:right;">👑 #1 — Bertahan!</span>`;
   } else {
-    strip.innerHTML=`<div class="rival-strip-header">⚔️ Rival</div><div style="color:#94a3b8;font-size:0.72rem;">Mulai jawab untuk lihat rival!</div>`;
+    strip.innerHTML=`<span style="font-size:0.55rem;font-weight:900;color:#93c5fd;text-transform:uppercase;">⚔️ Rival</span><span style="color:#94a3b8;font-size:0.68rem;flex:1;text-align:right;">Jawab untuk lihat rival</span>`;
   }
 }
 
@@ -4686,6 +4720,17 @@ async function endGame() {
   // Update login streak display
   updateLoginStreakCard();
   renderPlayMilestoneOnStart();
+
+  // Grant Hard Mode Hero if played on Hard
+  if (GS.difficulty === 'Hard' && !GS.isCurriculum) {
+    try {
+      const safeId = GS.playerName.replace(/[.#$[\]/\s]/g,'_').toUpperCase();
+      const cachedRec = lbCache.find(r => r.id === safeId);
+      if (cachedRec && cachedRec.secondaryBadges && !cachedRec.secondaryBadges.includes('Hard Mode Hero')) {
+        cachedRec.secondaryBadges.push('Hard Mode Hero');
+      }
+    } catch(e) {}
+  }
 
   // Always show game over popup and end screen regardless of any errors below
   setLbMode(GS.isCurriculum ? 'curriculum' : 'ranked');
@@ -5158,18 +5203,12 @@ function setupFirebaseListener() {
         if(!r.secondaryBadges) {
           r.secondaryBadges=computeSecondaryBadges(r.score||0,r.accuracy||0,r.bestCombo||0,0,r.correct||0,r.wrong||0,r.total||0,r.categoryStats||{},rankedRank,r.attempts||0,[], false, r.isCurriculum)||[];
         } else {
-          // Handle existing badges but ensure Top 10 badge correctness
-          if(r.isCurriculum) {
-            // Remove Top 10 badge if player is now in curriculum mode
-            r.secondaryBadges = (r.secondaryBadges||[]).filter(b => b !== 'Top 10');
-          } else if(rankedRank > 0 && rankedRank <= 10) {
-            // Ensure Top 10 badge exists for ranked top 10
-            if(!r.secondaryBadges.includes('Top 10')) {
-              r.secondaryBadges = [...(r.secondaryBadges||[]), 'Top 10'];
-            }
-          } else {
-            // Remove Top 10 badge if rank no longer qualifies
-            r.secondaryBadges = (r.secondaryBadges||[]).filter(b => b !== 'Top 10');
+          // Handle existing badges but ensure rank badges are correct
+          r.secondaryBadges = (r.secondaryBadges||[]).filter(b => b !== 'Top 10' && b !== 'Top 3' && b !== 'Rank #1');
+          if(!r.isCurriculum && rankedRank > 0) {
+            if(rankedRank === 1) r.secondaryBadges = ['Rank #1', ...r.secondaryBadges];
+            else if(rankedRank <= 3) r.secondaryBadges = ['Top 3', ...r.secondaryBadges];
+            else if(rankedRank <= 10) r.secondaryBadges = ['Top 10', ...r.secondaryBadges];
           }
         }
       });
@@ -5221,76 +5260,104 @@ function setupFirebaseListener() {
 setupFirebaseListener();
 
 // ──────────────────────────────────────────
-//  BADGE SYSTEM
+//  BADGE SYSTEM (Revamped)
 // ──────────────────────────────────────────
 function computePrimaryBadge(score,acc,combo,attempts) {
-  const sp=Math.min(Math.max(score,0),1300)/13;
-  const ap=Math.min(Math.max(acc,0),100);
-  const cp=Math.min(combo,25)*4;
-  const att=Math.min(Math.max(attempts,0),100);
-  const aw=(att/100)*0.05;
-  const c=sp*0.50+ap*0.30+cp*0.15+att*aw;
-  if(c<30) return 'Bronze';
-  if(c<45) return 'Silver';
-  if(c<58) return 'Gold';
-  if(c<70) return 'Platinum';
-  if(c<80) return 'Epic';
-  if(c<88) return 'Grandmaster';
-  if(c<93) return 'Diamond';
-  if(c<96) return 'Legend';
-  if(c<99) return 'Master';
+  // More balanced scoring: score ceiling raised, combo more impactful
+  const sp=Math.min(Math.max(score,0),2000)/20;        // 0-100 from score (up to 2000)
+  const ap=Math.min(Math.max(acc,0),100);               // 0-100 accuracy
+  const cp=Math.min(combo,30)*3.33;                     // 0-100 combo (max at 30)
+  const att=Math.min(Math.max(attempts,0),150);
+  const aw=(att/150)*5;                                 // tiny experience weight
+  const c=sp*0.45+ap*0.30+cp*0.20+aw;
+  if(c<22) return 'Bronze';
+  if(c<36) return 'Silver';
+  if(c<50) return 'Gold';
+  if(c<62) return 'Platinum';
+  if(c<72) return 'Epic';
+  if(c<81) return 'Grandmaster';
+  if(c<88) return 'Diamond';
+  if(c<93) return 'Legend';
+  if(c<97) return 'Master';
   return 'Immortal';
 }
 
 function computeSecondaryBadges(score,acc,combo,prevBest,correct,wrong,total,catStats,rank,attempts,existing, isCurrentSession=false, rowIsCurriculum=false) {
-  const sp=Math.min(Math.max(score,0),1300)/13;
-  const ap=Math.min(Math.max(acc,0),100);
-  const cp=Math.min(combo,25)*4;
-  const att=Math.min(attempts,100);
-  const composite=sp*0.50+ap*0.30+cp*0.15+(att/100)*0.05*att;
-
-  const accs=Object.values(catStats||{}).filter(s=>s&&s.total>0).map(s=>s.correct/s.total*100);
-  const versatile=accs.length>=3&&Math.max(...accs)-Math.min(...accs)<=15&&Math.min(...accs)>=70;
-  const perfectCategory=Object.values(catStats||{}).some(s=>s&&s.total>=5&&s.correct===s.total);
-
   const ex=Array.isArray(existing)?existing:[];
   const badges=[];
   const totalAttempts = attempts || 0;
 
-  if(!rowIsCurriculum && Number.isFinite(rank)&&rank>0&&rank<=10) badges.push('Top 10');
+  // ── Rank-based badges ──
+  if(!rowIsCurriculum && Number.isFinite(rank) && rank>0) {
+    if(rank===1) badges.push('Rank #1');
+    else if(rank<=3) badges.push('Top 3');
+    else if(rank<=10) badges.push('Top 10');
+  }
+
+  // ── Performance badges ──
+  if(acc>=100 && total>=10) badges.push('God Aim');
+  else if(acc>=95 && total>=15) badges.push('Accuracy Ace');
+  else if(acc>=88 && total>=10) badges.push('Sharpshooter');
+
+  // ── Combo badges ──
+  if(combo>=30) badges.push('Combo God');
+  else if(combo>=20) badges.push('Combo Master');
+  else if(combo>=12) badges.push('Hot Streak');
+
+  // ── Score-based badges ──
+  if(score>=1500) badges.push('Score Legend');
+  else if(score>=1000 && acc>=85) badges.push('Elite');
+  else if(score>=700) badges.push('High Scorer');
+
+  // ── Versatility badges ──
+  const accs=Object.values(catStats||{}).filter(s=>s&&s.total>0).map(s=>s.correct/s.total*100);
+  const versatile=accs.length>=3&&Math.max(...accs)-Math.min(...accs)<=20&&Math.min(...accs)>=65;
   if(versatile||ex.includes('Versatile')) badges.push('Versatile');
-  if((typeof prevBest==='number'&&prevBest>0&&score>=(prevBest+75)&&composite>=45)||ex.includes('Rising Star')) badges.push('Rising Star');
-  if(!rowIsCurriculum && ((isCurrentSession && (DC.completed || DC.bestProgress >= 100)) || ex.includes('Daily Challenger'))) badges.push('Daily Challenger');
-  if((acc>=95&&total>=20)||ex.includes('Accuracy Ace')) badges.push('Accuracy Ace');
+
+  const perfectCategory=Object.values(catStats||{}).some(s=>s&&s.total>=5&&s.correct===s.total);
   if(perfectCategory||ex.includes('Category Master')) badges.push('Category Master');
-  if((acc>=100&&total>=10)||ex.includes('God Aim')) badges.push('God Aim');
-  if((score>=1000&&acc>=90)||ex.includes('Elite')) badges.push('Elite');
 
-  // Play count milestone badges (replaces streak)
-  if(totalAttempts>=200||ex.includes('Legend Player')) badges.push('Legend Player');
-  else if(totalAttempts>=100||ex.includes('Champion')) badges.push('Champion');
-  else if(totalAttempts>=50||ex.includes('Veteran')) badges.push('Veteran');
-  else if(totalAttempts>=20||ex.includes('Regular')) badges.push('Regular');
-  else if(totalAttempts>=5||ex.includes('Newcomer')) badges.push('Newcomer');
+  // ── Progress/growth badges ──
+  if((typeof prevBest==='number'&&prevBest>0&&score>=(prevBest+100))||ex.includes('Rising Star')) badges.push('Rising Star');
 
-  // Grinder badge (kept for backward compat, now based on play count)
-  if(totalAttempts>=50||ex.includes('Grinder')) badges.push('Grinder');
+  // ── Daily challenge ──
+  if(!rowIsCurriculum && ((isCurrentSession && (DC.completed || DC.bestProgress >= 100)) || ex.includes('Daily Challenger'))) badges.push('Daily Challenger');
+
+  // ── Experience tier badges ──
+  if(totalAttempts>=300||ex.includes('Legend Player')) badges.push('Legend Player');
+  else if(totalAttempts>=150||ex.includes('Champion')) badges.push('Champion');
+  else if(totalAttempts>=75||ex.includes('Veteran')) badges.push('Veteran');
+  else if(totalAttempts>=30||ex.includes('Regular')) badges.push('Regular');
+  else if(totalAttempts>=10||ex.includes('Explorer')) badges.push('Explorer');
+  else if(totalAttempts>=3||ex.includes('Newcomer')) badges.push('Newcomer');
+
+  // ── Hard mode badges ──
+  if(!rowIsCurriculum && ex.includes('Hard Mode Hero')) badges.push('Hard Mode Hero');
+
+  // ── Eco-expertise ──
+  if(ex.includes('Eco Guardian')) badges.push('Eco Guardian');
 
   return badges;
 }
 
 function computeSpecialTags(score,acc,combo,catStats,rank,attempts,dcCompleted) {
   const tags=[];
-  const checkCat=(cat,label)=>{ const s=catStats&&catStats[cat]; if(s&&s.total>0&&(s.correct/s.total*100)>=95) tags.push(label); };
-  checkCat('RESIDU','ResiduExpert'); checkCat('SISA MAKANAN','SisaMakananExpert'); checkCat('LAKU JUAL','LayakJualExpert');
-  if(combo>=25) tags.push('ComboPro');
-  if((attempts||0)>=200) tags.push('Grinder200');
-  else if((attempts||0)>=100) tags.push('Grinder100');
-  if(acc>=100) tags.push('GodAim');
-  if((attempts||0)>=50&&rank!==1) tags.push('Persistence');
+  const checkCat=(cat,label)=>{ const s=catStats&&catStats[cat]; if(s&&s.total>=3&&(s.correct/s.total*100)>=95) tags.push(label); };
+  checkCat('RESIDU','ResiduPro'); checkCat('SISA MAKANAN','OrganikPro'); checkCat('LAKU JUAL','DaurUlangPro');
+  if(combo>=30) tags.push('ComboInsane');
+  else if(combo>=20) tags.push('ComboPro');
+  if((attempts||0)>=300) tags.push('Grinder300');
+  else if((attempts||0)>=150) tags.push('Grinder150');
+  else if((attempts||0)>=75) tags.push('Grinder75');
+  if(acc>=100&&(attempts||0)>=5) tags.push('GodAim');
+  if(score>=1500) tags.push('ScoreLegend');
   const dc = dcCompleted || 0;
-  if(dc>=30) tags.push('DCMaster');
-  else if(dc>=10) tags.push('DailyDedicated');
+  if(dc>=50) tags.push('DCLegend');
+  else if(dc>=30) tags.push('DCMaster');
+  else if(dc>=15) tags.push('DCDedicated');
+  else if(dc>=5) tags.push('DCActive');
+  if(rank===1) tags.push('Rank1');
+  else if(Number.isFinite(rank)&&rank<=3&&rank>0) tags.push('Top3');
   return tags;
 }
 
@@ -5301,17 +5368,32 @@ function getBadgeClass(primary) {
 
 function getSecondaryBadgeClass(badge) {
   const m={
-    'Top 10':'badge-gold','Versatile':'badge-epic','Rising Star':'badge-silver',
-    'Daily Challenger':'badge-daily','Accuracy Ace':'badge-platinum','Grinder':'badge-legend',
-    'Category Master':'badge-grandmaster','God Aim':'badge-diamond','Elite':'badge-master',
-    'Newcomer':'badge-bronze','Regular':'badge-silver','Veteran':'badge-gold',
-    'Champion':'badge-epic','Legend Player':'badge-immortal'
+    // Rank badges
+    'Rank #1':'badge-top3','Top 3':'badge-top3','Top 10':'badge-gold',
+    // Performance
+    'God Aim':'badge-immortal','Accuracy Ace':'badge-diamond','Sharpshooter':'badge-sharpshooter',
+    // Combo
+    'Combo God':'badge-combo-god','Combo Master':'badge-master','Hot Streak':'badge-epic',
+    // Score
+    'Score Legend':'badge-legend','Elite':'badge-grandmaster','High Scorer':'badge-epic',
+    // Skill
+    'Versatile':'badge-epic','Category Master':'badge-grandmaster',
+    // Progress
+    'Rising Star':'badge-rising','Daily Challenger':'badge-daily',
+    // Experience
+    'Legend Player':'badge-immortal','Champion':'badge-legend','Veteran':'badge-diamond',
+    'Regular':'badge-grandmaster','Explorer':'badge-epic','Newcomer':'badge-newcomer',
+    // Special
+    'Hard Mode Hero':'badge-hardmode','Eco Guardian':'badge-eco-guardian',
   };
   return m[badge]||'badge-bronze';
 }
 
 const BADGE_ORD={'Bronze':1,'Silver':2,'Gold':3,'Platinum':4,'Epic':5,'Grandmaster':6,'Diamond':7,'Legend':8,'Master':9,'Immortal':10};
-function formatBadge(primary) { const o=BADGE_ORD[primary]||1; return `*${o} ${primary}`; }
+function formatBadge(primary) {
+  const icons={'Bronze':'🥉','Silver':'🥈','Gold':'🥇','Platinum':'💎','Epic':'⚡','Grandmaster':'👑','Diamond':'💠','Legend':'🔱','Master':'🌟','Immortal':'🔥'};
+  return `${icons[primary]||''} ${primary}`;
+}
 
 function getRecordName(record) {
   return (record && (record.name || record.playerName || '')).trim();
@@ -5427,21 +5509,16 @@ function renderLbTable() {
     else tr.className=i%2===0?'':'bg-blue-50/20';
 
     const secBadgesHtml=(() => {
-      // Prioritize Top 10 badge to always display first
       let badges = secArr || [];
-      const top10Idx = badges.indexOf('Top 10');
-      if(top10Idx > 0) {
-        badges = ['Top 10', ...badges.filter(b => b !== 'Top 10')];
-      }
-      const dcIdx = badges.indexOf('Daily Challenger');
-      if(dcIdx > 1) {
-        badges = [badges[0], 'Daily Challenger', ...badges.filter((b,bi) => bi!==0 && b !== 'Daily Challenger')];
-      }
-      // Show all badges (no slice limit)
-      return badges.map(b=>`<span class="rounded-full px-1.5 py-0.5 text-[0.55rem] font-bold ${getSecondaryBadgeClass(b)}" title="${escHtml(b)}">${escHtml(b)}</span>`).join('');
+      const priorityOrder = ['Rank #1','Top 3','Top 10','God Aim','Daily Challenger','Combo God','Score Legend'];
+      badges = [
+        ...priorityOrder.filter(b=>badges.includes(b)),
+        ...badges.filter(b=>!priorityOrder.includes(b))
+      ];
+      return badges.slice(0,4).map(b=>`<span class="rounded-full px-1.5 py-0.5 text-[0.55rem] font-bold ${getSecondaryBadgeClass(b)}" title="${escHtml(b)}">${escHtml(b)}</span>`).join('');
     })();
-    // Show tags (special) distinctly — show top 2 only to save space
-    const priorityTags = ['GodAim','ComboPro','DCMaster','DailyDedicated','Grinder200','Grinder100','ResiduExpert','SisaMakananExpert','LayakJualExpert','Persistence'];
+    // Show tags — prioritize most prestigious
+    const priorityTags = ['GodAim','ComboInsane','ComboPro','ScoreLegend','DCLegend','DCMaster','Rank1','Top3','Grinder300','Grinder150'];
     const sortedTags = tags.sort((a,b) => priorityTags.indexOf(a) - priorityTags.indexOf(b));
     const tagsHtml=sortedTags.length>0?`<span class="text-[0.52rem] text-purple-400 font-bold">${sortedTags.slice(0,2).map(t=>'#'+t).join(' ')}</span>`:'';
     const primaryBadgeHtml = r.isCurriculum ? '' : `<span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold ${getBadgeClass(primary)}" title="${escHtml(primary)}">${escHtml(formatBadge(primary))}</span>`;
@@ -5531,18 +5608,19 @@ function renderFinalBadges(rec) {
   if (completedDC && !secArr.includes('Daily Challenger')) {
     secArr = [...secArr, 'Daily Challenger'];
   }
-  // Prioritize Top 10 and Daily Challenger badges
-  const top10Idx = secArr.indexOf('Top 10');
-  if(top10Idx > 0) secArr = ['Top 10', ...secArr.filter(b => b !== 'Top 10')];
-  const dcIdx = secArr.indexOf('Daily Challenger');
-  if(dcIdx > 1) secArr = [secArr[0], 'Daily Challenger', ...secArr.filter((b,bi) => bi!==0 && b !== 'Daily Challenger')];
+  // Prioritize rank and daily badges first
+  const priorityOrder = ['Rank #1','Top 3','Top 10','God Aim','Daily Challenger','Combo God','Score Legend'];
+  secArr = [
+    ...priorityOrder.filter(b=>secArr.includes(b)),
+    ...secArr.filter(b=>!priorityOrder.includes(b))
+  ];
 
   const tags=computeSpecialTags(rec.score||0,rec.accuracy||0,rec.bestCombo||0,rec.categoryStats||{},null,rec.attempts||0,rec.dcCompleted||0);
   
   // Primary badge (large)
   let html=`<span class="inline-flex items-center rounded-full px-3 py-1.5 text-sm font-black ${getBadgeClass(primary)}">${escHtml(formatBadge(primary))}</span>`;
-  // Secondary badges
-  secArr.forEach(b=>{ html+=`<span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-bold ${getSecondaryBadgeClass(b)}">${escHtml(b)}</span>`; });
+  // Secondary badges (show max 5 to avoid overflow)
+  secArr.slice(0,5).forEach(b=>{ html+=`<span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-bold ${getSecondaryBadgeClass(b)}">${escHtml(b)}</span>`; });
   // Tags (styled distinctly)
   if(tags.length>0) {
     html += `<div class="w-full flex flex-wrap gap-1 mt-1">` + tags.map(t=>`<span class="text-[0.6rem] font-bold text-purple-600 bg-purple-50 border border-purple-200 rounded-full px-2 py-0.5">#${t}</span>`).join('') + `</div>`;
@@ -5569,13 +5647,13 @@ function renderLbPrev() {
     const ts=r.timestamp?new Date(r.timestamp).toLocaleString('id-ID',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):'-';
     const diffLabel=r.isCurriculum?`📚 ${r.curriculumFilter||'Kurikulum'}`:getDifficultyDisplayName(r.difficulty);
     const secBadgesHtml=(() => {
-      // Prioritize Top 10 and Daily Challenger badges
       let badges = secArr || [];
-      const top10Idx = badges.indexOf('Top 10');
-      if(top10Idx > 0) badges = ['Top 10', ...badges.filter(b => b !== 'Top 10')];
-      const dcIdx = badges.indexOf('Daily Challenger');
-      if(dcIdx > 1) badges = [badges[0], 'Daily Challenger', ...badges.filter((b,bi) => bi!==0 && b !== 'Daily Challenger')];
-      return badges.map(b=>`<span class="rounded-full px-1.5 py-0.5 text-[0.55rem] font-bold ${getSecondaryBadgeClass(b)}">${escHtml(b)}</span>`).join(' ');
+      const priorityOrder = ['Rank #1','Top 3','Top 10','God Aim','Daily Challenger','Combo God','Score Legend'];
+      badges = [
+        ...priorityOrder.filter(b=>badges.includes(b)),
+        ...badges.filter(b=>!priorityOrder.includes(b))
+      ];
+      return badges.slice(0,4).map(b=>`<span class="rounded-full px-1.5 py-0.5 text-[0.55rem] font-bold ${getSecondaryBadgeClass(b)}">${escHtml(b)}</span>`).join(' ');
     })();
     const tagsHtml=tags.length>0?`<span class="text-[0.52rem] text-purple-500 font-bold">${tags.slice(0,2).map(t=>'#'+t).join(' ')}</span>`:'';
     const primaryBadgeHtml = r.isCurriculum ? '' : `<span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold ${getBadgeClass(primary)}">${escHtml(formatBadge(primary))}</span>`;
@@ -5668,7 +5746,7 @@ function saveImage() {
 //  CLEANUP & RESOURCE MANAGEMENT
 // ──────────────────────────────────────────
 function cleanupGame() {
-  // Flush any deferred progress save
+  _lastAnswerTs = 0; // reset duplicate-answer guard
   if (saveUserUniqueProgress._timer) {
     clearTimeout(saveUserUniqueProgress._timer);
     saveUserUniqueProgress._timer = null;
@@ -6074,8 +6152,8 @@ document.addEventListener('keydown', e=>{
   // Load DC setelah nama tersedia
   const nameInput = document.getElementById('player-name');
   if (nameInput) {
-    nameInput.addEventListener('change', () => { loadDC(); updateLoginStreakCard(); renderPlayMilestoneOnStart(); });
-    nameInput.addEventListener('input', debounce(() => { loadDC(); updateLoginStreakCard(); renderPlayMilestoneOnStart(); }, 500));
+    nameInput.addEventListener('change', () => { loadPuInventory(); loadDC(); updateLoginStreakCard(); renderPlayMilestoneOnStart(); });
+    nameInput.addEventListener('input', debounce(() => { loadPuInventory(); loadDC(); updateLoginStreakCard(); renderPlayMilestoneOnStart(); }, 500));
   }
   setTimeout(() => { loadDC(); }, 100);
   
@@ -6100,28 +6178,20 @@ document.addEventListener('keydown', e=>{
 
   document.body.style.overflow='auto';
   
-  // Show daily login modal after a brief delay if player name is saved
+  // Show daily login button instead of auto-popup
   setTimeout(() => {
     const savedName = localStorage.getItem('eco_player_name');
     if (!savedName) return;
-    // ensure getLoginStorageKey() can read the correct key for savedName
-    const safeId = savedName.trim().replace(/[^a-zA-Z0-9_]/g,'_').toUpperCase();
-    const key = `eco_daily_login_v2_${safeId}`;
-    try {
-      const raw = localStorage.getItem(key);
-      const loginData = raw ? JSON.parse(raw) : { claimedToday: true }; // default: no modal if no data
-      if (savedName && loginData.lastLoginDate === getTodayStr() && !loginData.claimedToday) {
-        showDailyLoginModal();
-      } else if (savedName && loginData.lastLoginDate !== getTodayStr()) {
-        // New day — check and init so streak is updated, then show modal
-        checkAndInitLoginStreak();
-        showDailyLoginModal();
-      }
-    } catch(e) {
-      checkAndInitLoginStreak();
-      showDailyLoginModal();
+    // Just init the streak, do NOT auto-show modal
+    checkAndInitLoginStreak();
+    updateLoginStreakCard();
+    // Show claim button if not yet claimed today
+    const data = getLoginData();
+    const claimBtn = document.getElementById('ls-claim-btn');
+    if (claimBtn && !data.claimedToday) {
+      claimBtn.classList.remove('hidden');
     }
-  }, 1500);
+  }, 800);
 })();
 </script>
 </body>
