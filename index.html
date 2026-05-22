@@ -2060,6 +2060,23 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
 //  DAILY LOGIN & PLAY COUNT BONUS SYSTEM
 // ──────────────────────────────────────────
 
+function getActivePlayerName() {
+  try {
+    const inputName = (document.getElementById('player-name')?.value || '').trim();
+    if (inputName) return inputName;
+    const savedName = (localStorage.getItem('eco_player_name') || '').trim();
+    if (savedName) return savedName;
+  } catch(e) {}
+  return '';
+}
+
+function getAccountScopedKey(prefix) {
+  const name = getActivePlayerName();
+  if (!name) return null;
+  const safe = name.replace(/[^a-zA-Z0-9_]/g, '_').toUpperCase();
+  return `${prefix}_${safe}`;
+}
+
 // LOGIN_STORAGE_KEY is now per-account (per player name)
 // Use getLoginStorageKey() instead of LOGIN_STORAGE_KEY directly
 const PLAY_MILESTONE_KEY = 'eco_play_milestone_v1';
@@ -2067,7 +2084,7 @@ const MAX_PU_STACK = 7; // max stackable per type
 
 function getLoginStorageKey() {
   try {
-    const name = (document.getElementById('player-name')?.value || '').trim();
+    const name = getActivePlayerName();
     if (name) {
       const safe = name.replace(/[^a-zA-Z0-9_]/g,'_').toUpperCase();
       return `eco_daily_login_v2_${safe}`;
@@ -2083,7 +2100,7 @@ let puInventory = { freeze: 0, double: 0, skip: 0 };
 
 function getPuInventoryKey() {
   try {
-    const name = (document.getElementById('player-name')?.value || '').trim();
+    const name = getActivePlayerName();
     if (name) {
       const safe = name.replace(/[^a-zA-Z0-9_]/g,'_').toUpperCase();
       return `eco_pu_inventory_${safe}`;
@@ -2358,11 +2375,20 @@ const PLAY_MILESTONES = [
 ];
 
 function getPlayMilestoneData() {
-  try { const r=localStorage.getItem(PLAY_MILESTONE_KEY); return r?JSON.parse(r):{claimed:[]}; } catch(e) { return {claimed:[]}; }
+  try {
+    const key = getAccountScopedKey(PLAY_MILESTONE_KEY);
+    if (!key) return {claimed:[]};
+    const r=localStorage.getItem(key);
+    return r?JSON.parse(r):{claimed:[]};
+  } catch(e) { return {claimed:[]}; }
 }
 
 function savePlayMilestoneData(data) {
-  try { localStorage.setItem(PLAY_MILESTONE_KEY, JSON.stringify(data)); } catch(e) {}
+  try {
+    const key = getAccountScopedKey(PLAY_MILESTONE_KEY);
+    if (!key) return;
+    localStorage.setItem(key, JSON.stringify(data));
+  } catch(e) {}
 }
 
 function checkPlayCountMilestone(attempts) {
@@ -3274,7 +3300,9 @@ async function loadDC() {
 
 function fallbackLoadDC(dk) {
   try {
-    const raw = localStorage.getItem('eco_dc_v2');
+    const key = getAccountScopedKey('eco_dc_v2');
+    if (!key) { DC = deriveDC(dk); return; }
+    const raw = localStorage.getItem(key);
     if (raw) {
       const p = JSON.parse(raw);
       if (p.dateKey === dk) DC = p;
@@ -3299,12 +3327,16 @@ async function saveDC() {
       const ref = DB.ref(`dailyChallenges/${currentUserIdForDC}/${dk}`);
       await ref.set(payload);
     } else {
-      localStorage.setItem('eco_dc_v2', JSON.stringify({...DC, dateKey: getTodayKey()}));
+      const key = getAccountScopedKey('eco_dc_v2');
+      if (!key) return;
+      localStorage.setItem(key, JSON.stringify({...DC, dateKey: getTodayKey()}));
     }
   } catch(e) {
     console.warn("Gagal simpan DC (Firebase), fallback to localStorage:", e.message);
     try {
-      localStorage.setItem('eco_dc_v2', JSON.stringify({...DC, dateKey: getTodayKey()}));
+      const key = getAccountScopedKey('eco_dc_v2');
+      if (!key) return;
+      localStorage.setItem(key, JSON.stringify({...DC, dateKey: getTodayKey()}));
     } catch(le) {
       console.error("LocalStorage save juga gagal:", le);
     }
@@ -3709,11 +3741,9 @@ function openGoogleCalendar(dateKey) {
 function getDailyPlayKey(name) {
   // Key is per-name (account-based). name should be the raw player name.
   // If no name provided, try to get from input, else use anonymous key.
-  if (!name) {
-    try { name = (document.getElementById('player-name') || {}).value || ''; } catch(e) { name = ''; }
-  }
+  if (!name) name = getActivePlayerName();
   name = (name || '').trim();
-  if (!name) return 'eco_daily_play_v1'; // anonymous fallback
+  if (!name) return null;
   const safe = name.replace(/[^a-zA-Z0-9_]/g, '_').toUpperCase();
   return `eco_daily_play_v1_${safe}`;
 }
@@ -3722,6 +3752,7 @@ function getDailyPlay(name) {
   try {
     const dk = getTodayKey();
     const key = getDailyPlayKey(name);
+    if (!key) return { date: dk, sessions: 0 };
     const raw = localStorage.getItem(key);
     if (!raw) return { date: dk, sessions: 0 };
     const d = JSON.parse(raw);
@@ -3733,7 +3764,11 @@ function getDailyPlay(name) {
 function incrementDailyPlay(name) {
   const d = getDailyPlay(name);
   d.sessions = (d.sessions || 0) + 1;
-  try { localStorage.setItem(getDailyPlayKey(name), JSON.stringify(d)); } catch(e) {}
+  try {
+    const key = getDailyPlayKey(name);
+    if (!key) return d;
+    localStorage.setItem(key, JSON.stringify(d));
+  } catch(e) {}
   return d;
 }
 
@@ -3752,7 +3787,7 @@ function renderPlayCountBadge() {
   const dailySpan = document.getElementById('daily-sessions-display');
   
   const nameInput = document.getElementById('player-name');
-  const currentName = nameInput ? nameInput.value.trim() : '';
+  const currentName = getActivePlayerName();
   const daily = getDailyPlay(currentName);
   const totalAttempts = (() => {
     // Get from lbCache if available
@@ -3834,14 +3869,26 @@ function renderStreakBadge() { renderPlayCountBadge(); }
 //  CURRICULUM
 // ──────────────────────────────────────────
 function getCurrProgress() {
-  try { const r=localStorage.getItem('eco_curr_v1'); return r?JSON.parse(r):{SISA_MAKANAN:0,LAKU_JUAL:0,RESIDU:0}; }
+  try {
+    const key = getAccountScopedKey('eco_curr_v1');
+    if (!key) return {SISA_MAKANAN:0,LAKU_JUAL:0,RESIDU:0};
+    const r=localStorage.getItem(key);
+    return r?JSON.parse(r):{SISA_MAKANAN:0,LAKU_JUAL:0,RESIDU:0};
+  }
   catch(e) { return {SISA_MAKANAN:0,LAKU_JUAL:0,RESIDU:0}; }
 }
 
 function saveCurrProgress(cat, score) {
   const p=getCurrProgress();
   const k=cat.replace(/ /g,'_');
-  if ((score||0)>(p[k]||0)) { p[k]=score; try { localStorage.setItem('eco_curr_v1',JSON.stringify(p)); } catch(e){} }
+  if ((score||0)>(p[k]||0)) {
+    p[k]=score;
+    try {
+      const key = getAccountScopedKey('eco_curr_v1');
+      if (!key) return;
+      localStorage.setItem(key,JSON.stringify(p));
+    } catch(e){}
+  }
 }
 
 function openCurriculum() {
@@ -5468,7 +5515,7 @@ function computeSecondaryBadges(score,acc,combo,prevBest,correct,wrong,total,cat
   // ── Eco-expertise ──
   if(ex.includes('Eco Guardian')) badges.push('Eco Guardian');
 
-  return badges;
+  return [...new Set(badges)];
 }
 
 function computeSpecialTags(score,acc,combo,catStats,rank,attempts,dcCompleted) {
@@ -5646,12 +5693,12 @@ function renderLbTable() {
         ...priorityOrder.filter(b=>badges.includes(b)),
         ...badges.filter(b=>!priorityOrder.includes(b))
       ];
-      return badges.slice(0,4).map(b=>`<span class="rounded-full px-1.5 py-0.5 text-[0.55rem] font-bold ${getSecondaryBadgeClass(b)}" title="${escHtml(b)}">${escHtml(b)}</span>`).join('');
+      return badges.map(b=>`<span class="rounded-full px-1.5 py-0.5 text-[0.55rem] font-bold ${getSecondaryBadgeClass(b)}" title="${escHtml(b)}">${escHtml(b)}</span>`).join('');
     })();
     // Show tags — prioritize most prestigious
     const priorityTags = ['GodAim','ComboInsane','ComboPro','ScoreLegend','DCLegend','DCMaster','Rank1','Top3','Grinder300','Grinder150'];
     const sortedTags = tags.sort((a,b) => priorityTags.indexOf(a) - priorityTags.indexOf(b));
-    const tagsHtml=sortedTags.length>0?`<span class="text-[0.52rem] text-purple-400 font-bold">${sortedTags.slice(0,2).map(t=>'#'+t).join(' ')}</span>`:'';
+    const tagsHtml=sortedTags.length>0?`<span class="text-[0.52rem] text-purple-400 font-bold">${sortedTags.map(t=>'#'+t).join(' ')}</span>`:'';
     const primaryBadgeHtml = r.isCurriculum ? '' : `<span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold ${getBadgeClass(primary)}" title="${escHtml(primary)}">${escHtml(formatBadge(primary))}</span>`;
 
     const maxScore = filtered.length > 0 ? Math.max(...filtered.map(x=>x.score||0)) : 1;
@@ -5750,8 +5797,8 @@ function renderFinalBadges(rec) {
   
   // Primary badge (large)
   let html=`<span class="inline-flex items-center rounded-full px-3 py-1.5 text-sm font-black ${getBadgeClass(primary)}">${escHtml(formatBadge(primary))}</span>`;
-  // Secondary badges (show max 5 to avoid overflow)
-  secArr.slice(0,5).forEach(b=>{ html+=`<span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-bold ${getSecondaryBadgeClass(b)}">${escHtml(b)}</span>`; });
+  // Secondary badges (show all earned badges)
+  secArr.forEach(b=>{ html+=`<span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-bold ${getSecondaryBadgeClass(b)}">${escHtml(b)}</span>`; });
   // Tags (styled distinctly)
   if(tags.length>0) {
     html += `<div class="w-full flex flex-wrap gap-1 mt-1">` + tags.map(t=>`<span class="text-[0.6rem] font-bold text-purple-600 bg-purple-50 border border-purple-200 rounded-full px-2 py-0.5">#${t}</span>`).join('') + `</div>`;
@@ -5784,9 +5831,9 @@ function renderLbPrev() {
         ...priorityOrder.filter(b=>badges.includes(b)),
         ...badges.filter(b=>!priorityOrder.includes(b))
       ];
-      return badges.slice(0,4).map(b=>`<span class="rounded-full px-1.5 py-0.5 text-[0.55rem] font-bold ${getSecondaryBadgeClass(b)}">${escHtml(b)}</span>`).join(' ');
+      return badges.map(b=>`<span class="rounded-full px-1.5 py-0.5 text-[0.55rem] font-bold ${getSecondaryBadgeClass(b)}">${escHtml(b)}</span>`).join(' ');
     })();
-    const tagsHtml=tags.length>0?`<span class="text-[0.52rem] text-purple-500 font-bold">${tags.slice(0,2).map(t=>'#'+t).join(' ')}</span>`:'';
+    const tagsHtml=tags.length>0?`<span class="text-[0.52rem] text-purple-500 font-bold">${tags.map(t=>'#'+t).join(' ')}</span>`:'';
     const primaryBadgeHtml = r.isCurriculum ? '' : `<span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold ${getBadgeClass(primary)}">${escHtml(formatBadge(primary))}</span>`;
     const rankMedalP = i===0 ? `<span class="rank-medal-1">1</span>` : i===1 ? `<span class="rank-medal-2">2</span>` : i===2 ? `<span class="rank-medal-3">3</span>` : (i+1);
     const crownPHtml = i===0 ? `<span class="crown-anim">👑</span>` : '';
