@@ -1819,7 +1819,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
               <div class="flex items-center gap-1.5 rounded-full bg-gray-100 px-2.5 py-1" data-guide-badge="Veteran" tabindex="0"><span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-epic">Veteran</span><span class="text-[0.6rem] text-gray-500">75x</span></div>
               <div class="flex items-center gap-1.5 rounded-full bg-gray-100 px-2.5 py-1" data-guide-badge="Champion" tabindex="0"><span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-immortal">Champion</span><span class="text-[0.6rem] text-gray-500">150x</span></div>
               <div class="flex items-center gap-1.5 rounded-full bg-gray-100 px-2.5 py-1" data-guide-badge="Legend Player" tabindex="0"><span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-legend">Legend Player</span><span class="text-[0.6rem] text-gray-500">300x</span></div>
-              <div class="flex items-center gap-1.5 rounded-full bg-gray-100 px-2.5 py-1" data-guide-badge="Admin" tabindex="0"><span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-admin">Admin</span><span class="text-[0.6rem] text-gray-500">1000x</span></div>
+              <div class="flex items-center gap-1.5 rounded-full bg-gray-100 px-2.5 py-1" data-guide-badge="Admin" tabindex="0"><span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-admin">Admin</span><span class="text-[0.6rem] text-gray-500">10000x</span></div>
             </div>
           </div>
 
@@ -5574,7 +5574,7 @@ function computeSecondaryBadges(score,acc,combo,prevBest,correct,wrong,total,cat
   }
 
   // ── Experience tier badges ──
-  if(totalAttempts>=1000||ex.includes('Admin')) badges.push('Admin');
+  if(totalAttempts>=10000||ex.includes('Admin')) badges.push('Admin');
   else if(totalAttempts>=300||ex.includes('Legend Player')) badges.push('Legend Player');
   else if(totalAttempts>=150||ex.includes('Champion')) badges.push('Champion');
   else if(totalAttempts>=75||ex.includes('Veteran')) badges.push('Veteran');
@@ -5703,7 +5703,7 @@ const GUIDE_BADGE_DETAILS = {
   Veteran: { title: 'Veteran', how: 'Sudah bermain minimal 75 kali.', example: 'Contoh case: attempts 75x, menandakan akun sudah dipakai latihan cukup lama.' },
   Champion: { title: 'Champion', how: 'Sudah bermain minimal 150 kali.', example: 'Contoh case: attempts 150x, misalnya 150 sesi terakumulasi pada nama akun yang sama.' },
   'Legend Player': { title: 'Legend Player', how: 'Sudah bermain minimal 300 kali.', example: 'Contoh case: attempts 300x+ di akun veteran yang dipakai jangka panjang.' },
-  Admin: { title: 'Admin', how: 'Sudah bermain minimal 1000 kali pada akun aktif.', example: 'Contoh case: attempts 1000x, misalnya 1000 sesi dalam satu akun yang sama, dan badge tampil paling terang.' },
+  Admin: { title: 'Admin', how: 'Sudah bermain minimal 10000 kali pada akun aktif.', example: 'Contoh case: attempts 10000x, misalnya 10000 sesi dalam satu akun yang sama, dan badge tampil paling terang.' },
   OrganikPro: { title: 'OrganikPro', how: 'Kategori Sisa Makanan punya minimal 3 jawaban dengan akurasi 95%+ pada akun aktif.', example: 'Contoh case: 3/3 di Sisa Makanan benar semua, atau 19/20 benar dengan fokus tinggi.' },
   DaurUlangPro: { title: 'DaurUlangPro', how: 'Kategori Laku Jual punya minimal 3 jawaban dengan akurasi 95%+ pada akun aktif.', example: 'Contoh case: 4/4 pada Laku Jual benar semua, atau 18/19 benar.' },
   ResiduPro: { title: 'ResiduPro', how: 'Kategori Residu punya minimal 3 jawaban dengan akurasi 95%+ pada akun aktif.', example: 'Contoh case: 5/5 Residu benar semua, atau 19/20 benar.' },
