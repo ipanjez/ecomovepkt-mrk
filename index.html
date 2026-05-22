@@ -2164,11 +2164,86 @@ function loadPuInventory() {
   puInventory = { freeze: 0, double: 0, skip: 0 };
 }
 
+// ─── Load all per-player data from Firebase (called on name change) ──────────
+async function loadAllPlayerDataFromFirebase(name) {
+  if (!name || !DB || !DB.ref) return;
+  try {
+    const safeId = name.replace(/[.#$[\]/\s]/g,'_').toUpperCase();
+    const snap = await Promise.race([
+      DB.ref('playerData/' + safeId).once('value'),
+      new Promise((_,rej) => setTimeout(() => rej(new Error('timeout')), 4000))
+    ]);
+    if (!snap || !snap.exists()) return;
+    const playerData = snap.val();
+
+    // --- Power-up inventory ---
+    if (playerData.puInventory) {
+      const p = playerData.puInventory;
+      puInventory = { freeze: p.freeze||0, double: p.double||0, skip: p.skip||0 };
+      try { const key = getPuInventoryKey(); if (key) localStorage.setItem(key, JSON.stringify(puInventory)); } catch(e) {}
+    }
+
+    // --- Login streak ---
+    if (playerData.loginStreak) {
+      try {
+        const key = getLoginStorageKey();
+        if (key) localStorage.setItem(key, JSON.stringify(playerData.loginStreak));
+      } catch(e) {}
+    }
+
+    // --- Daily play ---
+    if (playerData.dailyPlay) {
+      const d = playerData.dailyPlay;
+      const todayKey = getTodayKey();
+      if (d && d.date === todayKey) {
+        try {
+          const key = getDailyPlayKey(name);
+          if (key) localStorage.setItem(key, JSON.stringify(d));
+        } catch(e) {}
+      }
+    }
+
+    // Refresh UI after loading
+    updateLoginStreakCard();
+    renderPlayCountBadge();
+  } catch(e) {
+    console.warn('loadAllPlayerDataFromFirebase error:', e);
+  }
+}
+
 function savePuInventory() {
   try {
     const key = getPuInventoryKey();
     localStorage.setItem(key, JSON.stringify(puInventory));
   } catch(e) {}
+  // Also sync to Firebase so it's shared across devices
+  try {
+    const name = getActivePlayerName();
+    if (name && DB && DB.ref) {
+      const safeId = name.replace(/[.#$[\]/\s]/g,'_').toUpperCase();
+      DB.ref('playerData/' + safeId + '/puInventory').set(puInventory).catch(()=>{});
+    }
+  } catch(e) {}
+}
+
+// Load power-up inventory from Firebase for the given player name
+async function loadPuInventoryFromFirebase(name) {
+  try {
+    if (!name || !DB || !DB.ref) return false;
+    const safeId = name.replace(/[.#$[\]/\s]/g,'_').toUpperCase();
+    const snap = await Promise.race([
+      DB.ref('playerData/' + safeId + '/puInventory').once('value'),
+      new Promise((_,rej) => setTimeout(() => rej(new Error('timeout')), 3000))
+    ]);
+    if (snap && snap.exists()) {
+      const p = snap.val();
+      puInventory = { freeze: p.freeze||0, double: p.double||0, skip: p.skip||0 };
+      // Also update localStorage cache
+      try { const key = getPuInventoryKey(); localStorage.setItem(key, JSON.stringify(puInventory)); } catch(e) {}
+      return true;
+    }
+  } catch(e) {}
+  return false;
 }
 
 function addToPuInventory(key, amount) {
@@ -2202,6 +2277,33 @@ function saveLoginData(data) {
     if (!key) return;
     localStorage.setItem(key, JSON.stringify(data));
   } catch(e) {}
+  // Also sync to Firebase
+  try {
+    const name = getActivePlayerName();
+    if (name && DB && DB.ref) {
+      const safeId = name.replace(/[.#$[\]/\s]/g,'_').toUpperCase();
+      DB.ref('playerData/' + safeId + '/loginStreak').set(data).catch(()=>{});
+    }
+  } catch(e) {}
+}
+
+// Load login data from Firebase for the given player name
+async function loadLoginDataFromFirebase(name) {
+  try {
+    if (!name || !DB || !DB.ref) return false;
+    const safeId = name.replace(/[.#$[\]/\s]/g,'_').toUpperCase();
+    const snap = await Promise.race([
+      DB.ref('playerData/' + safeId + '/loginStreak').once('value'),
+      new Promise((_,rej) => setTimeout(() => rej(new Error('timeout')), 3000))
+    ]);
+    if (snap && snap.exists()) {
+      const d = snap.val();
+      // Write to localStorage cache
+      try { const key = getLoginStorageKey(); if (key) localStorage.setItem(key, JSON.stringify(d)); } catch(e) {}
+      return true;
+    }
+  } catch(e) {}
+  return false;
 }
 
 function getTodayStr() { return new Date().toISOString().split('T')[0]; }
@@ -3809,7 +3911,39 @@ function incrementDailyPlay(name) {
     if (!key) return d;
     localStorage.setItem(key, JSON.stringify(d));
   } catch(e) {}
+  // Also sync to Firebase
+  try {
+    if (name && DB && DB.ref) {
+      const safeId = name.replace(/[.#$[\]/\s]/g,'_').toUpperCase();
+      DB.ref('playerData/' + safeId + '/dailyPlay').set(d).catch(()=>{});
+    }
+  } catch(e) {}
   return d;
+}
+
+// Load daily play data from Firebase for the given player name
+async function loadDailyPlayFromFirebase(name) {
+  try {
+    if (!name || !DB || !DB.ref) return false;
+    const safeId = name.replace(/[.#$[\]/\s]/g,'_').toUpperCase();
+    const snap = await Promise.race([
+      DB.ref('playerData/' + safeId + '/dailyPlay').once('value'),
+      new Promise((_,rej) => setTimeout(() => rej(new Error('timeout')), 3000))
+    ]);
+    if (snap && snap.exists()) {
+      const d = snap.val();
+      const todayKey = getTodayKey();
+      // Only use Firebase data if it's for today
+      if (d && d.date === todayKey) {
+        try {
+          const key = getDailyPlayKey(name);
+          if (key) localStorage.setItem(key, JSON.stringify(d));
+        } catch(e) {}
+        return true;
+      }
+    }
+  } catch(e) {}
+  return false;
 }
 
 function getDailySessionBonus(sessions) {
@@ -6575,8 +6709,8 @@ document.addEventListener('keydown', e=>{
   // Load DC setelah nama tersedia
   const nameInput = document.getElementById('player-name');
   if (nameInput) {
-    nameInput.addEventListener('change', () => { loadPuInventory(); loadDC(); updateLoginStreakCard(); renderPlayMilestoneOnStart(); });
-    nameInput.addEventListener('input', debounce(() => { loadPuInventory(); loadDC(); updateLoginStreakCard(); renderPlayMilestoneOnStart(); }, 500));
+    nameInput.addEventListener('change', () => { const n = nameInput.value.trim(); loadPuInventory(); loadDC(); updateLoginStreakCard(); renderPlayMilestoneOnStart(); if(n) loadAllPlayerDataFromFirebase(n); });
+    nameInput.addEventListener('input', debounce(() => { const n = nameInput.value.trim(); loadPuInventory(); loadDC(); updateLoginStreakCard(); renderPlayMilestoneOnStart(); if(n) loadAllPlayerDataFromFirebase(n); }, 600));
   }
   setTimeout(() => { loadDC(); }, 100);
   
@@ -6584,7 +6718,7 @@ document.addEventListener('keydown', e=>{
   renderLbPrevFilterChips();
   renderPlayCountBadge();
 
-  try { const n=localStorage.getItem('eco_player_name'); if(n) { document.getElementById('player-name').value=n; updateLoginStreakCard(); renderPlayMilestoneOnStart(); } } catch(e){}
+  try { const n=localStorage.getItem('eco_player_name'); if(n) { document.getElementById('player-name').value=n; updateLoginStreakCard(); renderPlayMilestoneOnStart(); loadAllPlayerDataFromFirebase(n); } } catch(e){}
   document.getElementById('player-name').addEventListener('input',e=>{ try { localStorage.setItem('eco_player_name',e.target.value); } catch(err){} updateNameHint(); renderPlayCountBadge(); updateLoginStreakCard(); renderPlayMilestoneOnStart(); const ecoChar=document.getElementById('eco-character'); const ecoTip=document.getElementById('eco-character-tip'); if (ecoChar && ecoTip) { ecoTip.textContent = `Halo, ${(e.target.value || '').trim() || 'pemain'}!`; } });
 
   const ambKey='eco_ambient';
@@ -6602,10 +6736,11 @@ document.addEventListener('keydown', e=>{
   document.body.style.overflow='auto';
   
   // Show daily login button instead of auto-popup
-  setTimeout(() => {
+  setTimeout(async () => {
     const savedName = localStorage.getItem('eco_player_name');
     if (!savedName) return;
-    // Just init the streak, do NOT auto-show modal
+    // Load from Firebase first (cross-device sync), then init streak
+    await loadAllPlayerDataFromFirebase(savedName);
     checkAndInitLoginStreak();
     updateLoginStreakCard();
     // Show claim button if not yet claimed today
