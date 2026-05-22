@@ -735,6 +735,15 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
   border:7px solid transparent;border-top-color:#7AB800;
 }
 .eco-buddy.show-tip .eco-tip-bubble{transform:translateX(-50%) scale(1);opacity:1;}
+#eco-character-tip::after{
+  content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);
+  border:7px solid transparent;border-top-color:white;
+}
+#eco-character-tip::before{
+  content:'';position:absolute;top:calc(100% + 2px);left:50%;transform:translateX(-50%);
+  border:7px solid transparent;border-top-color:#7AB800;
+}
+#eco-character.show-tip #eco-character-tip{transform:translateX(-50%) scale(1);opacity:1;}
 @keyframes buddyFloat{0%,100%{transform:translateY(0) rotate(-3deg);}50%{transform:translateY(-10px) rotate(3deg);}}
 @keyframes buddyBounce{0%,100%{transform:scale(1);}40%{transform:scale(1.12) rotate(-5deg);}70%{transform:scale(0.95) rotate(3deg);}}
 .eco-buddy svg{transition:transform 0.2s;}
@@ -979,7 +988,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
       <div class="bg-gradient-to-br from-pktBlue via-blue-700 to-blue-900 p-6 text-center relative overflow-hidden">
         <div class="absolute inset-0 opacity-10 bg-[url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2220%22 height=%2220%22><circle cx=%2210%22 cy=%2210%22 r=%222%22 fill=%22white%22/></svg>')]"></div>
         <!-- globe character -->
-        <div id="eco-character" class="mx-auto char-bounce cursor-pointer" style="width:80px;height:80px;touch-action:none;">
+        <div id="eco-character" class="mx-auto char-bounce cursor-pointer relative" style="width:80px;height:80px;touch-action:none;">
           <svg id="eco-char-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
             <defs><filter id="sh"><feDropShadow dx="0" dy="5" stdDeviation="5" flood-opacity="0.2"/></filter></defs>
             <g filter="url(#sh)">
@@ -991,6 +1000,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
               <path d="M38 56 q12 10 24 0" stroke="#072A1A" stroke-width="2" fill="none" stroke-linecap="round"/>
             </g>
           </svg>
+          <div id="eco-character-tip" class="eco-tip-bubble" style="left:50%;bottom:calc(100% + 8px);transform:translateX(-50%) scale(0);width:180px;">Halo, pemain!</div>
         </div>
         <h1 class="text-4xl font-black text-white mt-3 tracking-wide">ECO<span class="text-pktOrange">MOVE</span></h1>
         <p class="text-blue-200 text-xs font-bold uppercase tracking-widest mt-1">Trash Sorting Challenge</p>
@@ -6329,12 +6339,28 @@ document.addEventListener('keydown', e=>{
   const c=document.getElementById('eco-character');
   if(!c) return;
   let dragging=false, sx=0,sy=0,tx=0,ty=0;
+  const tipEl=document.getElementById('eco-character-tip');
+  let greetTimer=null;
   const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+  const getPlayerGreeting=() => {
+    const name=(document.getElementById('player-name')?.value || localStorage.getItem('eco_player_name') || '').trim();
+    return name ? `Halo, ${name}!` : 'Halo, pemain!';
+  };
+  const showGreeting=(autoHide=true) => {
+    if (!tipEl) return;
+    tipEl.textContent = getPlayerGreeting();
+    c.classList.add('show-tip');
+    clearTimeout(greetTimer);
+    if (autoHide) {
+      greetTimer = setTimeout(() => c.classList.remove('show-tip'), 2400);
+    }
+  };
   c.addEventListener('pointerdown',e=>{ e.preventDefault(); c.setPointerCapture&&c.setPointerCapture(e.pointerId); dragging=true; sx=e.clientX; sy=e.clientY; tx=0; ty=0; c.classList.remove('char-bounce'); });
   c.addEventListener('pointermove',e=>{ if(!dragging) return; const nx=clamp(tx+(e.clientX-sx),-55,55), ny=clamp(ty+(e.clientY-sy),-35,35); c.style.transform=`translate(${nx}px,${ny}px)`; });
   c.addEventListener('pointerup',e=>{ dragging=false; c.style.transition='transform 400ms cubic-bezier(.2,.9,.3,1)'; c.style.transform='translate(0,0)'; setTimeout(()=>{ c.style.transition=''; c.classList.add('char-bounce'); },430); });
   c.addEventListener('pointercancel',e=>{ dragging=false; c.style.transform='translate(0,0)'; setTimeout(()=>c.classList.add('char-bounce'),400); });
-  c.addEventListener('click',()=>{ try { playSound('correct'); } catch(e){} c.classList.remove('char-bounce'); c.style.transform='translateY(-12px)'; setTimeout(()=>{ c.style.transform='translateY(0)'; setTimeout(()=>c.classList.add('char-bounce'),200); },200); });
+  c.addEventListener('click',()=>{ try { playSound('correct'); } catch(e){} c.classList.remove('char-bounce'); c.style.transform='translateY(-12px)'; showGreeting(true); setTimeout(()=>{ c.style.transform='translateY(0)'; setTimeout(()=>c.classList.add('char-bounce'),200); },200); });
+  showGreeting(true);
 })();
 
 // ──────────────────────────────────────────
