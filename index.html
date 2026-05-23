@@ -1888,33 +1888,6 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
             <p class="mt-1 text-[0.62rem] text-purple-700 leading-relaxed">Arahkan kursor atau fokus keyboard ke salah satu kartu badge di atas. Detail ini akan menampilkan cara mendapatkannya dan contoh kasus yang cocok dengan aturan game saat ini.</p>
           </div>
 
-          <!-- SECTION: POWER-UPS GUIDE -->
-          <div class="mt-3">
-            <div class="flex items-center gap-2 mb-2">
-              <span class="text-base">🔋</span>
-              <p class="text-xs font-black text-gray-800">Power-ups — cara kerja dan cara mendapatkannya</p>
-            </div>
-            <div class="grid grid-cols-2 gap-1.5">
-              <div class="flex items-center gap-2 rounded-lg px-2.5 py-2 bg-sky-50 border border-sky-100" data-guide-badge="Freeze Time" tabindex="0">
-                <span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-freeze shrink-0">❄️</span>
-                <div><p class="text-[0.65rem] font-black text-gray-700">Freeze Time</p><p class="text-[0.58rem] text-gray-400">Bekukan waktu +5s — dapat dari login/ combo/ milestone</p></div>
-              </div>
-              <div class="flex items-center gap-2 rounded-lg px-2.5 py-2 bg-amber-50 border border-amber-100" data-guide-badge="Double Poin" tabindex="0">
-                <span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-double shrink-0">2️⃣</span>
-                <div><p class="text-[0.65rem] font-black text-gray-700">Double Poin</p><p class="text-[0.58rem] text-gray-400">Pengganda poin 10s — dapat dari login/ combo/ milestone</p></div>
-              </div>
-              <div class="flex items-center gap-2 rounded-lg px-2.5 py-2 bg-green-50 border border-green-100" data-guide-badge="Skip Soal" tabindex="0">
-                <span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-skip shrink-0">⏭️</span>
-                <div><p class="text-[0.65rem] font-black text-gray-700">Skip Soal</p><p class="text-[0.58rem] text-gray-400">Lewati 1 soal tanpa penalti — dapat dari login/ combo/ milestone</p></div>
-              </div>
-              <div class="flex items-center gap-2 rounded-lg px-2.5 py-2 bg-fuchsia-50 border border-fuchsia-100" data-guide-badge="Time Extend" tabindex="0">
-                <span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-timeextend shrink-0">⏳</span>
-                <div><p class="text-[0.65rem] font-black text-gray-700">Time Extend (+15s)</p><p class="text-[0.58rem] text-gray-400">Power-up langka — dapat dari hari ke-7 login atau combo 25</p></div>
-              </div>
-            </div>
-            <p class="text-[0.6rem] text-gray-400 mt-2">Klik kartu power-up di atas untuk melihat detail di panel. Hadiah power-up juga bisa muncul dari milestone main dan combo (lihat aturan di panduan ini).</p>
-          </div>
-
         </div>
       </div>
 
@@ -6006,10 +5979,6 @@ const GUIDE_BADGE_DETAILS = {
   DCLegend: { title: 'DCLegend', how: 'Sudah menyelesaikan Daily Challenge minimal 50 kali.', example: 'Contoh case: dcCompleted 50+, menandakan pemain sangat konsisten ikut challenge harian.' },
   'Hard Mode Hero': { title: 'Hard Mode Hero', how: 'Badge ini dipertahankan untuk akun yang punya riwayat performa di Hard Mode.', example: 'Contoh case: satu riwayat Hard dengan skor 1100 dan akurasi 88% tetap menyimpan badge ini di akun.' },
   'Eco Guardian': { title: 'Eco Guardian', how: 'Badge tag pelestarian yang dipertahankan jika sudah ada di data akun.', example: 'Contoh case: akun lama yang sudah pernah menyimpan label Eco Guardian akan tetap menampilkannya meski login di perangkat lain.' }
-  , 'Freeze Time': { title: 'Freeze Time (❄️)', how: 'Power-up beku waktu yang menambah +5 detik saat digunakan. Berguna untuk meredam tekanan saat waktu hampir habis.', example: 'Contoh: gunakan Freeze saat waktu tersisa sedikit untuk mendapatkan +5s dan menenangkan ritme permainan.' }
-  , 'Double Poin': { title: 'Double Poin (2x)', how: 'Power-up pengganda poin yang menggandakan poin diterima selama 10 detik setelah aktivasi.', example: 'Contoh: aktifkan Double Poin sebelum rangkaian jawaban benar untuk meningkatkan total skor selama durasi.' }
-  , 'Skip Soal': { title: 'Skip Soal (⏭️)', how: 'Power-up yang memungkinkan melewati satu soal tanpa penalti, berguna saat ragu atau soal sulit.', example: 'Contoh: gunakan Skip saat menemui soal ambigu untuk menjaga combo dan akurasi.' }
-  , 'Time Extend': { title: 'Time Extend (+15s)', how: 'Power-up +15 detik (timeExtend) adalah item langka. Cara mendapatkannya: sebagai hadiah Daily Login pada hari ke-7 dalam siklus 7-hari, atau sebagai hadiah milestone combo saat mencapai combo 25 (25 combo memberi +15s). Kadang juga muncul sebagai hadiah event atau promo khusus.', example: 'Contoh: mencapai 25 combo dalam satu sesi akan memicu notifikasi "✨ 25 COMBO LEGENDARIS!! +15s Power-up Langka!" dan menambahkan +1 Time Extend ke inventori akun.' }
 };
 
 function renderGuideBadgeDetail(key) {
