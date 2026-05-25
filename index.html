@@ -4938,16 +4938,23 @@ function renderDCCard() {
   const dccard=document.getElementById('dc-card-container');
   const resetNote=document.getElementById('dc-reset-note');
   if(!goal) return;
-  
-  goal.textContent = DC.description || `Capai skor ${DC.targetScore}, akurasi ${DC.minAcc}%+, dan ${DC.minCorrect} benar di ${DC.focusCat}.`;
-  
-  const completedDC = DC.completed || DC.bestProgress >= 100;
+
+  const todayKey = getTodayKey();
+  const fallbackDC = deriveDC(todayKey);
+  const currentDC = (DC && typeof DC === 'object' && (DC.dateKey === todayKey || DC.description || DC.title))
+    ? { ...fallbackDC, ...DC, dateKey: DC.dateKey || todayKey }
+    : fallbackDC;
+
+  goal.textContent = currentDC.description || `Capai skor ${currentDC.targetScore}, akurasi ${currentDC.minAcc}%+, dan ${currentDC.minCorrect} benar di ${currentDC.focusCat}.`;
+
+  const completedDC = currentDC.completed || currentDC.bestProgress >= 100;
   const resetText = completedDC ? '✅ Selesai hari ini • tantangan baru besok 00:00' : '🕛 Reset tiap 00:00 waktu perangkat';
-  if (completedDC && !DC.completed) {
+  if (completedDC && !currentDC.completed) {
+    currentDC.completed = true;
     DC.completed = true;
     saveDC();
   }
-  prog.textContent=completedDC?`✅ Selesai! Progress terbaik: 100% — Reward ⏳ sudah diterima!`:`📊 Progress terbaik: ${DC.bestProgress}%`;
+  prog.textContent=completedDC?`✅ Selesai! Progress terbaik: 100% — Reward ⏳ sudah diterima!`:`📊 Progress terbaik: ${currentDC.bestProgress || 0}%`;
   badge.textContent=completedDC?'✅ Selesai':'🔥 Aktif';
   badge.style.cssText=completedDC?'font-size:0.6rem;font-weight:800;background:rgba(34,197,94,0.22);color:#bbf7d0;border:1px solid rgba(187,247,208,0.35);border-radius:999px;padding:3px 9px;white-space:nowrap;flex-shrink:0;':'font-size:0.6rem;font-weight:800;background:rgba(255,193,7,0.22);color:#fef08a;border:1px solid rgba(254,240,138,0.35);border-radius:999px;padding:3px 9px;white-space:nowrap;flex-shrink:0;';
   if (resetNote) resetNote.textContent = resetText;
