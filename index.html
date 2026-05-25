@@ -6757,7 +6757,8 @@ function renderLbStatsPanel(prefix, mode, filter, search) {
       else if (acc >= 70) level = 'Cukup';
       return { label, total: v.total, correct: v.correct, wrong, acc, share, level };
     })
-    .sort((a, b) => b.total - a.total);
+    .sort((a, b) => b.total - a.total)
+    .filter(item => item.label !== 'LAINNYA');
 
   const catIconMap = { 'LAKU JUAL': '♻️', 'RESIDU': '🗑️', 'SISA MAKANAN': '🍏', 'LAINNYA': '📦' };
   const catClassMap = { 'LAKU JUAL': 'cat-laku', 'RESIDU': 'cat-residu', 'SISA MAKANAN': 'cat-sisa', 'LAINNYA': 'cat-other' };
