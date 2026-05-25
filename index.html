@@ -1947,7 +1947,37 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
             </div>
           </div>
         </div>
-        <!-- Personal Best & Power-up Stats -->
+        <!-- Hasil sesi ini -->
+        <div id="current-session-section" class="bg-white rounded-xl border border-slate-100 shadow-sm mb-2 overflow-hidden">
+          <div style="background:linear-gradient(135deg,#0f172a,#334155);padding:8px 14px 7px;display:flex;align-items:center;justify-content:space-between;">
+            <p style="font-size:0.6rem;font-weight:900;color:white;text-transform:uppercase;letter-spacing:0.07em;margin:0;">📊 Hasil Sesi Ini</p>
+            <span style="font-size:0.55rem;font-weight:900;background:rgba(255,255,255,0.12);color:#e2e8f0;border-radius:999px;padding:2px 8px;">Satu sesi</span>
+          </div>
+          <div style="padding:10px 14px;">
+            <div id="session-mini-stats" style="padding-top:0;">
+              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;">
+                <div style="text-align:center;background:#f8fafc;border-radius:10px;padding:6px 4px;border:1px solid #f1f5f9;">
+                  <p style="font-size:0.55rem;color:#94a3b8;font-weight:800;text-transform:uppercase;">Best Combo</p>
+                  <p style="font-size:1.1rem;font-weight:900;color:#f97316;" id="session-best-combo">0x</p>
+                </div>
+                <div style="text-align:center;background:#f8fafc;border-radius:10px;padding:6px 4px;border:1px solid #f1f5f9;">
+                  <p style="font-size:0.55rem;color:#94a3b8;font-weight:800;text-transform:uppercase;">Jawaban Unik</p>
+                  <p style="font-size:1.1rem;font-weight:900;color:#2563eb;" id="session-unique">0</p>
+                </div>
+                <div style="text-align:center;background:#f8fafc;border-radius:10px;padding:6px 4px;border:1px solid #f1f5f9;">
+                  <p style="font-size:0.55rem;color:#94a3b8;font-weight:800;text-transform:uppercase;">vs PB Lama</p>
+                  <p style="font-size:1.1rem;font-weight:900;" id="session-vs-old">—</p>
+                </div>
+              </div>
+            </div>
+            <div id="session-powerup-stats-section" style="margin-top:8px;padding-top:8px;border-top:1px dashed #e2e8f0;display:none;">
+              <p style="font-size:0.55rem;font-weight:900;color:#94a3b8;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">⚡ Power-up Digunakan Sesi Ini</p>
+              <div id="session-powerup-stats-grid" style="display:flex;flex-wrap:wrap;gap:5px;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Personal Best -->
         <div id="personal-best-section" class="bg-white rounded-xl border border-indigo-100 shadow-sm mb-2 overflow-hidden">
           <div style="background:linear-gradient(135deg,#1e1b4b,#3730a3);padding:8px 14px 7px;display:flex;align-items:center;justify-content:space-between;">
             <p style="font-size:0.6rem;font-weight:900;color:white;text-transform:uppercase;letter-spacing:0.07em;margin:0;">🏆 Personal Best</p>
@@ -1955,28 +1985,10 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
           </div>
           <div style="padding:10px 14px;">
             <p class="text-xs font-bold text-gray-700" id="final-pb">–</p>
-            <!-- Power-up usage stats -->
-            <div id="powerup-stats-section" style="margin-top:8px;padding-top:8px;border-top:1px dashed #e2e8f0;display:none;">
-              <p style="font-size:0.55rem;font-weight:900;color:#94a3b8;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">⚡ Power-up Digunakan Sesi Ini</p>
-              <div id="powerup-stats-grid" style="display:flex;flex-wrap:wrap;gap:5px;"></div>
-            </div>
-            <!-- Session performance mini stats -->
-            <div id="session-mini-stats" style="margin-top:8px;padding-top:8px;border-top:1px dashed #e2e8f0;">
-              <p style="font-size:0.55rem;font-weight:900;color:#94a3b8;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">📊 Sesi Ini</p>
-              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;">
-                <div style="text-align:center;background:#f8fafc;border-radius:10px;padding:6px 4px;border:1px solid #f1f5f9;">
-                  <p style="font-size:0.55rem;color:#94a3b8;font-weight:800;text-transform:uppercase;">Best Combo</p>
-                  <p style="font-size:1.1rem;font-weight:900;color:#f97316;" id="pb-best-combo">0x</p>
-                </div>
-                <div style="text-align:center;background:#f8fafc;border-radius:10px;padding:6px 4px;border:1px solid #f1f5f9;">
-                  <p style="font-size:0.55rem;color:#94a3b8;font-weight:800;text-transform:uppercase;">Jawaban Unik</p>
-                  <p style="font-size:1.1rem;font-weight:900;color:#2563eb;" id="pb-unique">0</p>
-                </div>
-                <div style="text-align:center;background:#f8fafc;border-radius:10px;padding:6px 4px;border:1px solid #f1f5f9;">
-                  <p style="font-size:0.55rem;color:#94a3b8;font-weight:800;text-transform:uppercase;">vs PB Lama</p>
-                  <p style="font-size:1.1rem;font-weight:900;" id="pb-vs-old">—</p>
-                </div>
-              </div>
+            <!-- Power-up usage stats for the personal best record -->
+            <div id="pb-powerup-stats-section" style="margin-top:8px;padding-top:8px;border-top:1px dashed #e2e8f0;display:none;">
+              <p style="font-size:0.55rem;font-weight:900;color:#94a3b8;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">⚡ Power-up pada Rekor Ini</p>
+              <div id="pb-powerup-stats-grid" style="display:flex;flex-wrap:wrap;gap:5px;"></div>
             </div>
           </div>
         </div>
@@ -6243,22 +6255,22 @@ async function endGame() {
       }
     }
     // Populate session mini stats immediately
-    const pbBestComboElNow = document.getElementById('pb-best-combo');
-    const pbUniqueElNow = document.getElementById('pb-unique');
-    const pbVsOldElNow = document.getElementById('pb-vs-old');
-    if (pbBestComboElNow) pbBestComboElNow.textContent = (GS.bestCombo || 0) + 'x';
-    if (pbUniqueElNow) pbUniqueElNow.textContent = (sessionAsked ? sessionAsked.size : 0);
-    if (pbVsOldElNow) {
+    const sessionBestComboElNow = document.getElementById('session-best-combo');
+    const sessionUniqueElNow = document.getElementById('session-unique');
+    const sessionVsOldElNow = document.getElementById('session-vs-old');
+    if (sessionBestComboElNow) sessionBestComboElNow.textContent = (GS.bestCombo || 0) + 'x';
+    if (sessionUniqueElNow) sessionUniqueElNow.textContent = (sessionAsked ? sessionAsked.size : 0);
+    if (sessionVsOldElNow) {
       const prevBestNow2 = GS.previousBest || 0;
       const diffNow = GS.score - prevBestNow2;
-      if (diffNow > 0) { pbVsOldElNow.textContent = '+' + diffNow; pbVsOldElNow.style.color = '#22c55e'; }
-      else if (diffNow < 0) { pbVsOldElNow.textContent = '' + diffNow; pbVsOldElNow.style.color = '#ef4444'; }
-      else { pbVsOldElNow.textContent = '—'; pbVsOldElNow.style.color = '#94a3b8'; }
+      if (diffNow > 0) { sessionVsOldElNow.textContent = '+' + diffNow; sessionVsOldElNow.style.color = '#22c55e'; }
+      else if (diffNow < 0) { sessionVsOldElNow.textContent = '' + diffNow; sessionVsOldElNow.style.color = '#ef4444'; }
+      else { sessionVsOldElNow.textContent = '—'; sessionVsOldElNow.style.color = '#94a3b8'; }
     }
     // Populate power-up stats immediately
     const puUsedNow = GS.puUsed || {};
-    const puSectionNow = document.getElementById('powerup-stats-section');
-    const puGridNow = document.getElementById('powerup-stats-grid');
+    const puSectionNow = document.getElementById('session-powerup-stats-section');
+    const puGridNow = document.getElementById('session-powerup-stats-grid');
     const puDefsNow = [
       { key:'freeze', icon:'❄️', label:'Freeze', cls:'#0c4a6e', bg:'#bae6fd' },
       { key:'double', icon:'2️⃣', label:'Double Poin', cls:'#78350f', bg:'#fde68a' },
@@ -6648,6 +6660,7 @@ async function saveToDb(acc, wrong) {
     attempts, total:GS.totalAnswered, correct:GS.correctAnswers, wrong,
     accuracy:acc, bestCombo:GS.bestCombo, categoryStats:merged,
     questionStats:mergedQuestionStats,
+    powerupUsage:{...(GS.puUsed||{})},
     previousBest:ex?ex.score||0:0, secondaryBadges:secBadges,
     prevModeRank: currentModeRank,
     prevWasPresent: !!ex,
@@ -7908,6 +7921,29 @@ function renderFinalBadges(rec) {
     pbEl.innerHTML = `<span style="font-size:1.1rem;font-weight:900;color:#f37021;">${pbScore} poin</span> &nbsp;·&nbsp; Akurasi: <b>${pbAcc}%</b> &nbsp;·&nbsp; Best Combo: <b>${pbCombo}x</b> &nbsp;·&nbsp; D/B/S: ${rec.total||0}/${rec.correct||0}/${rec.wrong||0} &nbsp;·&nbsp; Dimainkan: <b>${pbAttempts}x</b>`;
   }
 
+  const pbPuUsed = rec.powerupUsage || rec.puUsed || {};
+  const pbPuSection = document.getElementById('pb-powerup-stats-section');
+  const pbPuGrid = document.getElementById('pb-powerup-stats-grid');
+  const pbPuDefs = [
+    { key:'freeze', icon:'❄️', label:'Freeze', cls:'#0c4a6e', bg:'#bae6fd' },
+    { key:'double', icon:'2️⃣', label:'Double Poin', cls:'#78350f', bg:'#fde68a' },
+    { key:'skip', icon:'⏭️', label:'Skip', cls:'#365314', bg:'#d9f99d' },
+    { key:'hint', icon:'💡', label:'Hint', cls:'#3b0764', bg:'#e9d5ff' },
+    { key:'timeExtend', icon:'⏳', label:'Time+', cls:'#4a044e', bg:'#fde8ff' },
+  ];
+  if (pbPuSection && pbPuGrid) {
+    const usedAnyPb = pbPuDefs.some(d => (pbPuUsed[d.key] || 0) > 0);
+    if (usedAnyPb) {
+      pbPuSection.style.display = '';
+      pbPuGrid.innerHTML = pbPuDefs.filter(d => (pbPuUsed[d.key] || 0) > 0).map(d =>
+        `<span style="display:inline-flex;align-items:center;gap:3px;background:${d.bg};color:${d.cls};border-radius:999px;padding:2px 8px;font-size:0.62rem;font-weight:900;">${d.icon} ${d.label} ×${pbPuUsed[d.key]}</span>`
+      ).join('');
+    } else {
+      pbPuSection.style.display = 'none';
+      pbPuGrid.innerHTML = '';
+    }
+  }
+
   // Show new record badge
   const newBadge = document.getElementById('pb-new-badge');
   if (newBadge && GS.score > (GS.previousBest || 0) && GS.score > 0) {
@@ -7915,22 +7951,22 @@ function renderFinalBadges(rec) {
   }
 
   // Session mini stats
-  const pbBestComboEl = document.getElementById('pb-best-combo');
-  const pbUniqueEl = document.getElementById('pb-unique');
-  const pbVsOldEl = document.getElementById('pb-vs-old');
-  if (pbBestComboEl) pbBestComboEl.textContent = (GS.bestCombo || 0) + 'x';
-  if (pbUniqueEl) pbUniqueEl.textContent = (sessionAsked ? sessionAsked.size : 0);
-  if (pbVsOldEl) {
+  const sessionBestComboEl = document.getElementById('session-best-combo');
+  const sessionUniqueEl = document.getElementById('session-unique');
+  const sessionVsOldEl = document.getElementById('session-vs-old');
+  if (sessionBestComboEl) sessionBestComboEl.textContent = (GS.bestCombo || 0) + 'x';
+  if (sessionUniqueEl) sessionUniqueEl.textContent = (sessionAsked ? sessionAsked.size : 0);
+  if (sessionVsOldEl) {
     const diff = GS.score - (GS.previousBest || 0);
-    if (diff > 0) { pbVsOldEl.textContent = '+' + diff; pbVsOldEl.style.color = '#22c55e'; }
-    else if (diff < 0) { pbVsOldEl.textContent = '' + diff; pbVsOldEl.style.color = '#ef4444'; }
-    else { pbVsOldEl.textContent = '—'; pbVsOldEl.style.color = '#94a3b8'; }
+    if (diff > 0) { sessionVsOldEl.textContent = '+' + diff; sessionVsOldEl.style.color = '#22c55e'; }
+    else if (diff < 0) { sessionVsOldEl.textContent = '' + diff; sessionVsOldEl.style.color = '#ef4444'; }
+    else { sessionVsOldEl.textContent = '—'; sessionVsOldEl.style.color = '#94a3b8'; }
   }
 
   // Power-up usage stats
   const puUsed = GS.puUsed || {};
-  const puSection = document.getElementById('powerup-stats-section');
-  const puGrid = document.getElementById('powerup-stats-grid');
+  const puSection = document.getElementById('session-powerup-stats-section');
+  const puGrid = document.getElementById('session-powerup-stats-grid');
   const puDefs = [
     { key:'freeze', icon:'❄️', label:'Freeze', cls:'#0c4a6e', bg:'#bae6fd' },
     { key:'double', icon:'2️⃣', label:'Double Poin', cls:'#78350f', bg:'#fde68a' },
