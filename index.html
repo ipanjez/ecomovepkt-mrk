@@ -1953,7 +1953,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
               <div class="flex items-center gap-1.5 rounded-full bg-gray-100 px-2.5 py-1" data-guide-badge="Veteran" tabindex="0"><span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-epic">Veteran</span><span class="text-[0.6rem] text-gray-500">75x</span></div>
               <div class="flex items-center gap-1.5 rounded-full bg-gray-100 px-2.5 py-1" data-guide-badge="Champion" tabindex="0"><span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-immortal">Champion</span><span class="text-[0.6rem] text-gray-500">150x</span></div>
               <div class="flex items-center gap-1.5 rounded-full bg-gray-100 px-2.5 py-1" data-guide-badge="Legend Player" tabindex="0"><span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-legend">Legend Player</span><span class="text-[0.6rem] text-gray-500">300x</span></div>
-              <div class="flex items-center gap-1.5 rounded-full bg-gray-100 px-2.5 py-1" data-guide-badge="Admin" tabindex="0"><span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-admin">Admin</span><span class="text-[0.6rem] text-gray-500">10000x</span></div>
+              <div class="flex items-center gap-1.5 rounded-full bg-gray-100 px-2.5 py-1" data-guide-badge="Admin" tabindex="0"><span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-admin">Admin</span><span class="text-[0.6rem] text-gray-500">Nama: Farhan</span></div>
             </div>
           </div>
 
@@ -5831,7 +5831,8 @@ async function saveToDb(acc, wrong) {
   let secBadges=computeSecondaryBadges(
     GS.score,acc,GS.bestCombo,GS.previousBest,GS.correctAnswers,wrong,GS.totalAnswered,
     merged,rank,attempts,ex?ex.secondaryBadges||[]:[], true, GS.isCurriculum,
-    { dcType: DC.type || null, dcDateKey: DC.dateKey || null, dcDone: !!(DC.completed || DC.bestProgress >= 100) }
+    { dcType: DC.type || null, dcDateKey: DC.dateKey || null, dcDone: !!(DC.completed || DC.bestProgress >= 100) },
+    GS.playerName
   );
   
   if (!GS.isCurriculum && (DC.completed || DC.bestProgress >= 100) && !secBadges.includes('Daily Challenger')) {
@@ -5974,7 +5975,8 @@ function setupFirebaseListener() {
           r.secondaryBadges=computeSecondaryBadges(
             r.score||0,r.accuracy||0,r.bestCombo||0,0,r.correct||0,r.wrong||0,r.total||0,
             r.categoryStats||{},rankedRank,r.attempts||0,[], false, r.isCurriculum,
-            { dcType: r.dcType || null, dcDateKey: r.dcDateKey || null, dcDone: !!(r.dcType || r.dcDateKey) }
+            { dcType: r.dcType || null, dcDateKey: r.dcDateKey || null, dcDone: !!(r.dcType || r.dcDateKey) },
+            r.playerName || r.name || ''
           )||[];
         } else {
           // Handle existing badges but ensure rank badges are correct
@@ -6057,10 +6059,11 @@ function computePrimaryBadge(score,acc,combo,attempts) {
   return 'Immortal';
 }
 
-function computeSecondaryBadges(score,acc,combo,prevBest,correct,wrong,total,catStats,rank,attempts,existing, isCurrentSession=false, rowIsCurriculum=false, dcMeta={}) {
+function computeSecondaryBadges(score,acc,combo,prevBest,correct,wrong,total,catStats,rank,attempts,existing, isCurrentSession=false, rowIsCurriculum=false, dcMeta={}, playerName='') {
   const ex=Array.isArray(existing)?existing:[];
   const badges=[];
   const totalAttempts = attempts || 0;
+  const exactAdminOwner = String(playerName || '').trim() === 'Farhan';
   const dcDone = dcMeta && typeof dcMeta.dcDone === 'boolean'
     ? dcMeta.dcDone
     : (isCurrentSession && (DC.completed || DC.bestProgress >= 100));
@@ -6116,7 +6119,7 @@ function computeSecondaryBadges(score,acc,combo,prevBest,correct,wrong,total,cat
   }
 
   // ── Experience tier badges ──
-  if(totalAttempts>=10000||ex.includes('Admin')) badges.push('Admin');
+  if(exactAdminOwner||ex.includes('Admin')) badges.push('Admin');
   else if(totalAttempts>=300||ex.includes('Legend Player')) badges.push('Legend Player');
   else if(totalAttempts>=150||ex.includes('Champion')) badges.push('Champion');
   else if(totalAttempts>=75||ex.includes('Veteran')) badges.push('Veteran');
@@ -6253,7 +6256,7 @@ const GUIDE_BADGE_DETAILS = {
   Veteran: { title: 'Veteran', how: 'Sudah bermain minimal 75 kali.', example: 'Contoh case: attempts 75x, menandakan akun sudah dipakai latihan cukup lama.' },
   Champion: { title: 'Champion', how: 'Sudah bermain minimal 150 kali.', example: 'Contoh case: attempts 150x, misalnya 150 sesi terakumulasi pada nama akun yang sama.' },
   'Legend Player': { title: 'Legend Player', how: 'Sudah bermain minimal 300 kali.', example: 'Contoh case: attempts 300x+ di akun veteran yang dipakai jangka panjang.' },
-  Admin: { title: 'Admin', how: 'Sudah bermain minimal 10000 kali pada akun aktif.', example: 'Contoh case: attempts 10000x, misalnya 10000 sesi dalam satu akun yang sama, dan badge tampil paling terang.' },
+  Admin: { title: 'Admin', how: 'Badge khusus untuk pemain dengan nama tepat "Farhan".', example: 'Contoh case: nama akun persis Farhan; badge Admin muncul tanpa bergantung pada jumlah attempt.' },
   DCDedicated: { title: 'DCDedicated', how: 'Sudah menyelesaikan Daily Challenge minimal 15 kali.', example: 'Contoh case: dcCompleted 15, artinya akun aktif mengikuti challenge harian secara rutin.' },
   DCMaster: { title: 'DCMaster', how: 'Sudah menyelesaikan Daily Challenge minimal 30 kali.', example: 'Contoh case: dcCompleted 30, artinya hampir setiap hari challenge dituntaskan.' },
   DCLegend: { title: 'DCLegend', how: 'Sudah menyelesaikan Daily Challenge minimal 50 kali.', example: 'Contoh case: dcCompleted 50+, menandakan konsistensi challenge harian yang sangat tinggi.' },
