@@ -1339,6 +1339,48 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
   </div>
 </div>
 <!-- ════════════════════════════════════════ -->
+<!--       PLAY MILESTONE DETAIL MODAL      -->
+<!-- ════════════════════════════════════════ -->
+<div id="play-milestone-modal" class="modal-backdrop hidden" onclick="if(event.target===this)closePlayMilestoneModal()">
+  <div class="modal-card w-full" style="max-width:min(92vw,420px);background:linear-gradient(160deg,#0f172a 0%,#1e1b4b 55%,#0f172a 100%);border:1px solid rgba(255,255,255,0.12);color:white;overflow:hidden;" onclick="event.stopPropagation()">
+    <div style="position:absolute;top:-44px;right:-34px;width:170px;height:170px;background:radial-gradient(circle,rgba(251,191,36,0.22),transparent 70%);pointer-events:none;z-index:0;"></div>
+    <div style="position:absolute;bottom:-40px;left:-36px;width:180px;height:180px;background:radial-gradient(circle,rgba(59,130,246,0.16),transparent 70%);pointer-events:none;z-index:0;"></div>
+    <div class="relative z-10 p-5">
+      <div class="flex items-start justify-between gap-3 mb-3">
+        <div>
+          <p class="text-[0.62rem] font-black text-indigo-200 uppercase tracking-widest mb-1">🎮 Progress Milestone Main</p>
+          <h3 class="text-lg font-black text-white leading-tight">Target berikutnya untuk akun ini</h3>
+          <p id="play-milestone-modal-subtitle" class="text-xs text-indigo-100/80 mt-1">–</p>
+        </div>
+        <button onclick="closePlayMilestoneModal()" class="shrink-0 text-white/70 hover:text-white bg-white/10 hover:bg-white/18 rounded-lg px-3 py-1.5 text-sm font-black transition">&times;</button>
+      </div>
+
+      <div class="rounded-2xl border border-white/10 bg-white/8 backdrop-blur-sm p-3 mb-3">
+        <div class="flex items-center justify-between gap-2 mb-2">
+          <div>
+            <p class="text-[0.58rem] font-black text-cyan-200 uppercase tracking-widest">Progress menuju milestone berikutnya</p>
+            <p id="play-milestone-modal-progress" class="text-xs text-white font-bold mt-1">–</p>
+          </div>
+          <span id="play-milestone-modal-badge" class="milestone-badge locked flex-shrink-0">–</span>
+        </div>
+        <div class="play-milestone-bar mb-2"><div id="play-milestone-modal-fill" class="play-milestone-fill" style="width:0%"></div></div>
+        <p id="play-milestone-modal-reward" class="text-[0.68rem] text-indigo-100 leading-relaxed">–</p>
+      </div>
+
+      <div class="mb-3">
+        <p class="text-[0.58rem] font-black text-indigo-200 uppercase tracking-widest mb-2">Daftar Milestone</p>
+        <div id="play-milestone-modal-list" class="space-y-2 max-h-56 overflow-y-auto pr-1"></div>
+      </div>
+
+      <div class="rounded-xl border border-cyan-400/20 bg-cyan-400/10 px-3 py-2 mb-3">
+        <p class="text-[0.65rem] text-cyan-100 font-semibold leading-relaxed">Nama badge milestone main di sini disamakan dengan panduan bermain: <b>Newcomer, Explorer, Regular, Veteran, Champion,</b> dan <b>Legend Player</b>.</p>
+      </div>
+
+      <button onclick="closePlayMilestoneModal()" class="w-full bg-gradient-to-r from-amber-400 to-orange-500 text-white font-black py-3 rounded-xl shadow-lg active:scale-95 transition text-sm tracking-wide border-b-4 border-orange-700">✓ Tutup</button>
+    </div>
+  </div>
+</div>
+<!-- ════════════════════════════════════════ -->
 <div id="start-screen" class="screen active">
   <!-- decorative blobs -->
   <div class="fixed top-0 right-0 w-64 h-64 bg-blue-200/30 rounded-full blur-3xl pointer-events-none -z-0"></div>
@@ -1475,9 +1517,15 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
           <div class="flex items-center gap-2">
             <span class="text-base flex-shrink-0">🏆</span>
             <div class="flex-1 min-w-0">
-              <div class="flex items-center justify-between gap-1 mb-1">
-                <p id="play-milestone-label" class="text-[0.6rem] text-purple-600 font-semibold truncate">Main lebih banyak untuk bonus!</p>
-                <span id="play-milestone-badge" class="milestone-badge locked flex-shrink-0">–</span>
+              <div class="flex items-start justify-between gap-2 mb-1">
+                <div class="min-w-0">
+                  <p id="play-milestone-label" class="text-[0.6rem] text-purple-600 font-semibold truncate">Main lebih banyak untuk bonus!</p>
+                  <p id="play-milestone-subtitle" class="text-[0.55rem] text-slate-500 mt-0.5 truncate">–</p>
+                </div>
+                <div class="flex items-center gap-1 shrink-0">
+                  <span id="play-milestone-badge" class="milestone-badge locked flex-shrink-0">–</span>
+                  <button onclick="openPlayMilestoneModal()" class="text-[0.55rem] font-black px-2.5 py-1 rounded-full bg-white/80 text-purple-700 border border-purple-200 active:scale-95 transition">Detail</button>
+                </div>
               </div>
               <div class="play-milestone-bar"><div id="play-milestone-fill" class="play-milestone-fill" style="width:0%"></div></div>
             </div>
@@ -3526,12 +3574,41 @@ function updateLoginStreakCard() {
 
 // ─── Play Count Milestones ─────────────────
 const PLAY_MILESTONES = [
-  { at: 5,   rewards: { skip:1 },            label:'🎮 5 Game! +1 Skip',          badge:'Pemula Aktif' },
-  { at: 10,  rewards: { double:1 },           label:'🎮 10 Game! +1 Double',        badge:'Penjelajah' },
-  { at: 25,  rewards: { freeze:1, double:1 }, label:'🎮 25 Game! Freeze + Double',  badge:'Veteran' },
-  { at: 50,  rewards: { freeze:2, double:2, skip:3 }, label:'🎮 50 Game! MEGA PACK!', badge:'Master Ekologi' },
-  { at: 100, rewards: { freeze:3, double:3, skip:5 }, label:'🏆 100 Game! LEGENDARY PACK!', badge:'Legenda Ekologi' },
+  { at: 3,   rewards: { skip:1 },                      label:'🎮 3 Game! +1 Skip',               badge:'Newcomer' },
+  { at: 10,  rewards: { double:1 },                    label:'🎮 10 Game! +1 Double Poin',      badge:'Explorer' },
+  { at: 30,  rewards: { freeze:1, skip:1 },            label:'🎮 30 Game! +1 Freeze +1 Skip',   badge:'Regular' },
+  { at: 75,  rewards: { freeze:1, double:2 },          label:'🎮 75 Game! +1 Freeze +2 Double', badge:'Veteran' },
+  { at: 150, rewards: { freeze:2, double:2, skip:3 },  label:'🏆 150 Game! +2 Freeze +2 Double +3 Skip', badge:'Champion' },
+  { at: 300, rewards: { freeze:3, double:3, skip:5, timeExtend:1 }, label:'👑 300 Game! LEGEND PACK!', badge:'Legend Player' },
 ];
+
+const PLAY_MILESTONE_REWARD_ICONS = {
+  freeze: '❄️',
+  double: '2️⃣',
+  skip: '⏭️',
+  timeExtend: '⏳',
+};
+
+function formatPlayMilestoneRewards(rewards) {
+  return Object.entries(rewards || {})
+    .map(([key, amount]) => `${PLAY_MILESTONE_REWARD_ICONS[key] || '🎁'} ×${amount}`)
+    .join(' ');
+}
+
+function getPlayCountAttempts(name) {
+  if (!name) return 0;
+  const cachedRecord = lbCache.find(r => r.id === name.replace(/[.#$[\]/\s]/g,'_').toUpperCase());
+  return cachedRecord ? (cachedRecord.attempts || 0) : 0;
+}
+
+function getPlayMilestoneState(name) {
+  const attempts = getPlayCountAttempts(name);
+  const mData = getPlayMilestoneData();
+  const next = PLAY_MILESTONES.find(m => m.at > attempts) || null;
+  const last = [...PLAY_MILESTONES].reverse().find(m => m.at <= attempts) || null;
+  const unclaimed = PLAY_MILESTONES.filter(m => m.at <= attempts && !mData.claimed.includes(m.at));
+  return { attempts, mData, next, last, unclaimed };
+}
 
 function getPlayMilestoneData() {
   try {
@@ -3563,13 +3640,7 @@ function checkPlayCountMilestone(attempts) {
 
 function checkPlayCountMilestoneDisplay(name) {
   if (!name) return;
-  const cachedRecord = lbCache.find(r => r.id === name.replace(/[.#$[\]/\s]/g,'_').toUpperCase());
-  const attempts = cachedRecord ? (cachedRecord.attempts || 0) : 0;
-  const mData = getPlayMilestoneData();
-  
-  const next = PLAY_MILESTONES.find(m => m.at > attempts);
-  const last = [...PLAY_MILESTONES].reverse().find(m => m.at <= attempts);
-  const unclaimed = PLAY_MILESTONES.filter(m => m.at <= attempts && !mData.claimed.includes(m.at));
+  const { attempts, next, unclaimed } = getPlayMilestoneState(name);
   
   const section = document.getElementById('login-milestone-section');
   const textEl = document.getElementById('login-milestone-text');
@@ -3582,7 +3653,7 @@ function checkPlayCountMilestoneDisplay(name) {
   } else if (next) {
     if (section) section.classList.remove('hidden');
     if (textEl) textEl.textContent = `Menuju ${next.at} game (${attempts}/${next.at})`;
-    if (rewardEl) rewardEl.textContent = `Reward: ${Object.entries(next.rewards).map(([k,v])=>({freeze:'❄️',double:'2️⃣',skip:'⏭️'}[k]+` ×${v}`)).join(' ')}`;
+    if (rewardEl) rewardEl.textContent = `Reward: ${formatPlayMilestoneRewards(next.rewards)}`;
   } else {
     if (section) section.classList.add('hidden');
   }
@@ -3591,30 +3662,95 @@ function checkPlayCountMilestoneDisplay(name) {
 function renderPlayMilestoneOnStart() {
   const name = (document.getElementById('player-name')?.value || '').trim();
   const card = document.getElementById('play-milestone-card');
+  const label = document.getElementById('play-milestone-label');
+  const subtitle = document.getElementById('play-milestone-subtitle');
+  const badge = document.getElementById('play-milestone-badge');
+  const fill = document.getElementById('play-milestone-fill');
   if (!card) return;
   if (!name) { card.classList.add('hidden'); return; }
   card.classList.remove('hidden');
   
-  const cachedRecord = lbCache.find(r => r.id === name.replace(/[.#$[\]/\s]/g,'_').toUpperCase());
-  const attempts = cachedRecord ? (cachedRecord.attempts || 0) : 0;
-  const mData = getPlayMilestoneData();
-  const next = PLAY_MILESTONES.find(m => m.at > attempts);
-  const last = [...PLAY_MILESTONES].reverse().find(m => m.at <= attempts && mData.claimed.includes(m.at));
-  
-  const fill = document.getElementById('play-milestone-fill');
-  const label = document.getElementById('play-milestone-label');
-  const badge = document.getElementById('play-milestone-badge');
+  const { attempts, next, last, unclaimed } = getPlayMilestoneState(name);
   
   if (next) {
     const prev = PLAY_MILESTONES.find(m => m.at < next.at) || {at:0};
     const pct = Math.round(((attempts - prev.at) / (next.at - prev.at)) * 100);
     if (fill) fill.style.width = Math.max(3, pct) + '%';
-    if (label) label.textContent = `${attempts}/${next.at} game → ${Object.entries(next.rewards).map(([k,v])=>({freeze:'❄️',double:'2️⃣',skip:'⏭️'}[k]+` ×${v}`)).join(' ')}`;
+    if (label) label.textContent = `${attempts}/${next.at} game → ${next.badge}`;
+    if (subtitle) subtitle.textContent = `Reward berikutnya: ${formatPlayMilestoneRewards(next.rewards)}`;
     if (badge) { badge.textContent = next.badge; badge.className = 'milestone-badge locked'; }
   } else {
     if (fill) fill.style.width = '100%';
     if (label) label.textContent = `🏆 Semua milestone tercapai! (${attempts} game total)`;
+    if (subtitle) subtitle.textContent = 'Semua milestone dari panduan sudah terbuka.';
     if (badge) { badge.textContent = 'LEGEND'; badge.className = 'milestone-badge active'; }
+  }
+
+  if (unclaimed.length > 0 && label) {
+    label.textContent = `${attempts} game → ${unclaimed[0].badge} belum diambil`;
+    if (subtitle) subtitle.textContent = `Tersisa hadiah ${formatPlayMilestoneRewards(unclaimed[0].rewards)}.`;
+  }
+}
+
+function openPlayMilestoneModal() {
+  renderPlayMilestoneModal();
+  const modal = document.getElementById('play-milestone-modal');
+  if (modal) modal.classList.remove('hidden');
+}
+
+function closePlayMilestoneModal() {
+  const modal = document.getElementById('play-milestone-modal');
+  if (modal) modal.classList.add('hidden');
+}
+
+function renderPlayMilestoneModal() {
+  const name = (document.getElementById('player-name')?.value || '').trim();
+  const { attempts, next, last, unclaimed } = getPlayMilestoneState(name);
+  const subtitleEl = document.getElementById('play-milestone-modal-subtitle');
+  const progressEl = document.getElementById('play-milestone-modal-progress');
+  const badgeEl = document.getElementById('play-milestone-modal-badge');
+  const fillEl = document.getElementById('play-milestone-modal-fill');
+  const rewardEl = document.getElementById('play-milestone-modal-reward');
+  const listEl = document.getElementById('play-milestone-modal-list');
+
+  if (subtitleEl) {
+    subtitleEl.textContent = name ? `${name} • ${attempts} total main` : 'Masukkan nama dulu untuk melihat progress akun ini.';
+  }
+
+  if (next) {
+    const prev = PLAY_MILESTONES.find(m => m.at < next.at) || {at:0};
+    const pct = Math.round(((attempts - prev.at) / (next.at - prev.at)) * 100);
+    const safePct = Math.max(3, Math.min(100, pct));
+    if (fillEl) fillEl.style.width = `${safePct}%`;
+    if (progressEl) progressEl.textContent = `${attempts}/${next.at} game menuju ${next.badge}`;
+    if (badgeEl) { badgeEl.textContent = next.badge; badgeEl.className = 'milestone-badge locked flex-shrink-0'; }
+    if (rewardEl) rewardEl.textContent = `Reward: ${formatPlayMilestoneRewards(next.rewards)}`;
+  } else {
+    if (fillEl) fillEl.style.width = '100%';
+    if (progressEl) progressEl.textContent = `${attempts} game total • semua milestone aktif sudah selesai`;
+    if (badgeEl) { badgeEl.textContent = 'LEGEND'; badgeEl.className = 'milestone-badge active flex-shrink-0'; }
+    if (rewardEl) rewardEl.textContent = 'Semua milestone sudah terbuka untuk akun ini.';
+  }
+
+  if (listEl) {
+    listEl.innerHTML = PLAY_MILESTONES.map(m => {
+      const claimed = unclaimed.some(u => u.at === m.at) ? false : attempts >= m.at;
+      const locked = attempts < m.at;
+      const stateLabel = locked ? `Tunggu ${m.at - attempts} game lagi` : (claimed ? 'Siap diklaim' : 'Sudah aktif');
+      const stateClass = locked ? 'bg-slate-700/40 text-slate-200 border-slate-500/20' : 'bg-emerald-400/12 text-emerald-100 border-emerald-400/25';
+      return `
+        <div class="rounded-xl border ${locked ? 'border-white/10 bg-white/6' : 'border-white/15 bg-white/10'} px-3 py-2.5">
+          <div class="flex items-center justify-between gap-2 mb-1">
+            <div>
+              <p class="text-xs font-black text-white">${m.badge}</p>
+              <p class="text-[0.62rem] text-indigo-100/80">${m.label}</p>
+            </div>
+            <span class="text-[0.58rem] font-black rounded-full px-2.5 py-1 border ${stateClass}">${stateLabel}</span>
+          </div>
+          <div class="text-[0.62rem] text-cyan-100/90">Hadiah: ${formatPlayMilestoneRewards(m.rewards)}</div>
+        </div>
+      `;
+    }).join('');
   }
 }
 
