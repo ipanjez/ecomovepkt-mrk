@@ -495,29 +495,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
 .lb-insight-item.insight-warn{background:linear-gradient(135deg,#fffbeb,#fef9c3);color:#854d0e;}
 .lb-insight-item.insight-info{background:linear-gradient(135deg,#eff6ff,#f0f9ff);color:#1e40af;}
 
-/* ─── HOTSPOT CARDS ─── */
-.lb-hotspot-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-.lb-hotspot-card{border-radius:14px;padding:12px;position:relative;overflow:hidden;}
-.lb-hotspot-card.best{
-  border:1.5px solid #86efac;
-  background:linear-gradient(145deg,#f0fdf4,#ffffff);
-}
-.lb-hotspot-card.risk{
-  border:1.5px solid #fecaca;
-  background:linear-gradient(145deg,#fef2f2,#ffffff);
-}
-.lb-hotspot-header{display:flex;align-items:center;gap:5px;margin-bottom:6px;}
-.lb-hotspot-icon{font-size:1rem;}
-.lb-hotspot-title{font-size:0.58rem;font-weight:900;text-transform:uppercase;letter-spacing:0.05em;}
-.lb-hotspot-card.best .lb-hotspot-title{color:#15803d;}
-.lb-hotspot-card.risk .lb-hotspot-title{color:#b91c1c;}
-.lb-hotspot-q{font-size:0.64rem;font-weight:800;color:#0f172a;line-height:1.4;margin-bottom:6px;}
-.lb-hotspot-meta{font-size:0.59rem;font-weight:700;color:#64748b;line-height:1.4;}
-.lb-hotspot-pct{
-  display:inline-block;border-radius:999px;padding:1px 7px;font-size:0.58rem;font-weight:900;margin-top:4px;
-}
-.lb-hotspot-card.best .lb-hotspot-pct{background:#dcfce7;color:#15803d;}
-.lb-hotspot-card.risk .lb-hotspot-pct{background:#fee2e2;color:#b91c1c;}
+/* Hotspot CSS removed */
 
 /* ─── BADGE OVERVIEW ─── */
 .lb-badge-overview-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;}
@@ -536,7 +514,6 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
 .lb-badge-overview-value{font-size:0.57rem;font-weight:800;color:#475569;min-width:48px;text-align:right;}
 @media(max-width:640px){
   .lb-answer-grid{grid-template-columns:1fr 1fr;}
-  .lb-hotspot-grid{grid-template-columns:1fr;}
   .lb-badge-overview-grid{grid-template-columns:1fr;}
   .lb-stats-summary-grid{grid-template-columns:repeat(2,1fr);}
 }
