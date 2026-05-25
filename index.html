@@ -3102,11 +3102,28 @@ function loadPuInventory() {
     const key = getPuInventoryKey();
     const raw = localStorage.getItem(key);
     if (raw) { const p = JSON.parse(raw); puInventory = { freeze: p.freeze||0, double: p.double||0, skip: p.skip||0, timeExtend: p.timeExtend||0 }; return; }
-    // Fallback to global key (backward compat)
-    const globalRaw = localStorage.getItem('eco_pu_inventory');
-    if (globalRaw) { const p = JSON.parse(globalRaw); puInventory = { freeze: p.freeze||0, double: p.double||0, skip: p.skip||0, timeExtend: p.timeExtend||0 }; return; }
+    const activeName = getActivePlayerName();
+    if (!activeName) {
+      // Anonymous fallback only when there is no active player name yet.
+      const globalRaw = localStorage.getItem('eco_pu_inventory');
+      if (globalRaw) { const p = JSON.parse(globalRaw); puInventory = { freeze: p.freeze||0, double: p.double||0, skip: p.skip||0, timeExtend: p.timeExtend||0 }; return; }
+    }
   } catch(e) {}
   puInventory = { freeze: 0, double: 0, skip: 0, timeExtend: 0 };
+}
+
+function resetAccountScopedRuntimeState() {
+  puInventory = { freeze: 0, double: 0, skip: 0, timeExtend: 0 };
+  try {
+    const today = getTodayKey();
+    DC = deriveDC(today);
+    DC.completed = false;
+    DC.bestProgress = 0;
+  } catch(e) {
+    DC = { completed:false, bestProgress:0 };
+  }
+  renderPowerupBar();
+  renderDCCard();
 }
 
 // ─── Load all per-player data from Firebase (called on name change) ──────────
@@ -8933,13 +8950,17 @@ document.addEventListener('keydown', e=>{
       loadPuInventory();
       updateLoginStreakCard();
       renderPlayMilestoneOnStart();
+      renderDCCard();
       if (n) {
+        resetAccountScopedRuntimeState();
         await loadAllPlayerDataFromFirebase(n);
         checkAndInitLoginStreak();
         updateLoginStreakCard();
         renderPlayCountBadge();
+        renderDCCard();
       } else {
         await loadDC();
+        renderDCCard();
       }
     }
     // Listener 'change' (nama selesai diketik / blur)
@@ -8951,6 +8972,7 @@ document.addEventListener('keydown', e=>{
       renderPlayCountBadge();
       updateLoginStreakCard();
       renderPlayMilestoneOnStart();
+      renderDCCard();
       const nm = (e.target.value || '').trim();
       const ecoTip = document.getElementById('eco-character-tip');
       if (ecoTip) ecoTip.textContent = `Halo, ${nm || 'pemain'}!`;
