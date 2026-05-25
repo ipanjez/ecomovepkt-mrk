@@ -7850,7 +7850,7 @@ function renderLbTable() {
     const tagsHtml=sortedTags.length>0?`<span class="text-[0.52rem] text-purple-400 font-bold">${sortedTags.map(t=>'#'+t).join(' ')}</span>`:'';
     const primaryBadgeHtml = r.isCurriculum ? '' : `<span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold ${getBadgeClass(primary)}" title="${escHtml(primary)}">${escHtml(formatBadge(primary))}</span>`;
     const playMilestone = r.isCurriculum ? null : getPlayMilestoneBadgeForAttempts(Number(r.attempts) || 0);
-    const playMilestoneHtml = playMilestone ? `<span class="milestone-badge active text-[0.56rem] leading-none" title="${escHtml(playMilestone.label)}">🏆 ${escHtml(playMilestone.badge)}</span>` : '';
+    const playMilestoneHtml = playMilestone ? `<span class="milestone-badge active whitespace-nowrap shrink-0 ml-1 text-[0.58rem] leading-none" style="display:inline-flex !important; align-items:center; gap:4px; border:1px solid rgba(255,255,255,0.3); box-shadow:0 1px 3px rgba(0,0,0,0.12);" title="${escHtml(playMilestone.label)}">🏆 ${escHtml(playMilestone.badge)}</span>` : '';
 
     const maxScore = filtered.length > 0 ? Math.max(...filtered.map(x=>x.score||0)) : 1;
     const scorePct = Math.round(((r.score||0) / Math.max(maxScore,1)) * 100);
@@ -7860,7 +7860,7 @@ function renderLbTable() {
     tr.innerHTML=`
       <td class="text-center"><div class="flex items-center justify-center gap-1" title="${escHtml(mv.title)}"><span>${rankMedal}</span><span class="text-[0.6rem] ${mv.cls}">${mv.sym}</span></div></td>
       <td class="pl-2">
-        <div class="flex flex-wrap items-center gap-1">${crownHtml}<span class="font-bold text-xs ${nameIsAdmin ? 'text-red-600' : 'text-gray-800'}">${escHtml(recordName)}</span>${primaryBadgeHtml}${playMilestoneHtml}</div>
+        <div class="flex flex-wrap items-center gap-1">${crownHtml}<span class="font-bold text-xs ${nameIsAdmin ? 'text-red-600' : 'text-gray-800'}">${escHtml(recordName)}</span><span class="inline-flex items-center gap-1">${primaryBadgeHtml}${playMilestoneHtml}</span></div>
         <div class="flex flex-wrap gap-1 mt-0.5">${secBadgesHtml}${tagsHtml}</div>
         <div class="text-[0.55rem] ${diffColor} font-bold mt-0.5">${escHtml(diffLabel)}</div>
       </td>
