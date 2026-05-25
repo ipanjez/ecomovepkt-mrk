@@ -432,7 +432,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
 .lb-answer-card::before{
   content:'';position:absolute;bottom:-20px;right:-20px;
   width:60px;height:60px;border-radius:50%;opacity:0.08;
-}
+  /* Hotspot cards removed */
 .lb-answer-card.good::before{background:#22c55e;}
 .lb-answer-card.bad::before{background:#ef4444;}
 .lb-answer-emoji{font-size:1.6rem;margin-bottom:4px;}
@@ -1811,16 +1811,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
             </div>
           </div>
 
-          <!-- Hotspot Soal -->
-          <div class="lb-stats-section mb-3">
-            <div class="lb-stats-section-hd">
-              <p class="lb-stats-chart-title">🎯 Hotspot Soal</p>
-              <p class="lb-stats-chart-sub">Soal paling sering benar & salah</p>
-            </div>
-            <div class="lb-stats-body">
-              <div id="lb-stats-hotspot" class="lb-hotspot-grid"></div>
-            </div>
-          </div>
+          <!-- Hotspot Soal removed -->
 
           <!-- Persentase Badge -->
           <div class="lb-stats-section mb-3">
@@ -2504,15 +2495,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
         </div>
       </div>
 
-      <div class="lb-stats-section mb-3">
-        <div class="lb-stats-section-hd">
-          <p class="lb-stats-chart-title">🎯 Hotspot Soal</p>
-          <p class="lb-stats-chart-sub">Soal paling sering benar & salah</p>
-        </div>
-        <div class="lb-stats-body">
-          <div id="lb-prev-stats-hotspot" class="lb-hotspot-grid"></div>
-        </div>
-      </div>
+      <!-- Hotspot Soal removed (preview) -->
 
       <div class="lb-stats-section mb-3">
         <div class="lb-stats-section-hd">
@@ -6683,14 +6666,13 @@ function renderLbStatsPanel(prefix, mode, filter, search) {
   const summaryEl = document.getElementById(`${prefix}-stats-summary`);
   const answerEl = document.getElementById(`${prefix}-stats-answer`);
   const knowledgeEl = document.getElementById(`${prefix}-stats-knowledge`);
-  const hotspotEl = document.getElementById(`${prefix}-stats-hotspot`);
   const badgesEl = document.getElementById(`${prefix}-stats-badges`);
   const distEl = document.getElementById(`${prefix}-stats-distribution`);
   const trendEl = document.getElementById(`${prefix}-stats-trend`);
   const tierEl = document.getElementById(`${prefix}-stats-tier`);
   const insightsEl = document.getElementById(`${prefix}-stats-insights`);
   const distSub = document.getElementById(`${prefix}-stats-dist-sub`);
-  if (!summaryEl || !answerEl || !knowledgeEl || !hotspotEl || !badgesEl || !distEl || !trendEl || !tierEl || !insightsEl) return;
+  if (!summaryEl || !answerEl || !knowledgeEl || !badgesEl || !distEl || !trendEl || !tierEl || !insightsEl) return;
 
   const filtered = filterLb(lbCache, filter, mode, search);
   const modePool = filterLb(lbCache, 'All', mode, '');
@@ -6700,7 +6682,6 @@ function renderLbStatsPanel(prefix, mode, filter, search) {
     summaryEl.innerHTML = `<div class="lb-stat-card"><p class="lb-stat-label">Statistik</p><p class="lb-stat-sub">Belum ada data untuk filter saat ini.</p></div>`;
     answerEl.innerHTML = '';
     knowledgeEl.innerHTML = '';
-    hotspotEl.innerHTML = '';
     badgesEl.innerHTML = '';
     distEl.innerHTML = '';
     trendEl.innerHTML = '';
