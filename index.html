@@ -7885,7 +7885,7 @@ function renderLbTable() {
 
     const secBadgesHtml=(() => {
       let badges = secArr || [];
-      const priorityOrder = ['Admin','Rank #1','Top 3','Top 10','ScoreTitan','ScoreLegend','PrecisionAce','AccuracyMaster','God Aim','Daily Challenger','DCCategory','DCCombo','DCScore','DCMode','DCPrecision','DCGrinder','DCStreak','Calendar Keeper','ComboLegend','ComboInsane','ComboPro','Combo God'];
+      const priorityOrder = ['Admin','Rank #1','Top 3','Top 10','ScoreTitan','ScoreLegend','High Scorer','Elite','PrecisionAce','AccuracyMaster','Sharpshooter','God Aim','Daily Challenger','DCCategory','DCCombo','DCScore','DCMode','DCPrecision','DCGrinder','DCStreak','Calendar Keeper','DCActive','DCDedicated','DCMaster','DCLegend','ComboLegend','ComboInsane','ComboPro','Combo Master','Combo God','Hot Streak','Rising Star'];
       badges = [
         ...priorityOrder.filter(b=>badges.includes(b)),
         ...badges.filter(b=>!priorityOrder.includes(b))
@@ -7907,8 +7907,10 @@ function renderLbTable() {
     tr.innerHTML=`
       <td class="text-center"><div class="flex items-center justify-center gap-1" title="${escHtml(mv.title)}"><span>${rankMedal}</span><span class="text-[0.6rem] ${mv.cls}">${mv.sym}</span></div></td>
       <td class="pl-2">
-        <div class="flex flex-wrap items-center gap-1">${crownHtml}<span class="font-bold text-xs ${nameIsAdmin ? 'text-red-600' : 'text-gray-800'}">${escHtml(recordName)}</span>${primaryBadgeHtml}<span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold ${playTierCls}" title="${escHtml(playTier)}">${playTierEmoji} ${escHtml(playTier)}</span></div>
-        <div class="flex flex-wrap gap-1 mt-0.5">${secBadgesHtml}${tagsHtml}</div>
+        <div class="flex flex-wrap items-center gap-1">${crownHtml}<span class="font-bold text-xs ${nameIsAdmin ? 'text-red-600' : 'text-gray-800'}">${escHtml(recordName)}</span>${primaryBadgeHtml}</div>
+        <div class="flex flex-wrap items-center gap-1 mt-0.5"><span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold ${playTierCls}" title="${escHtml(playTier)}">${playTierEmoji} ${escHtml(playTier)}</span></div>
+        <div class="flex flex-wrap gap-1 mt-0.5">${secBadgesHtml}</div>
+        <div class="flex flex-wrap gap-1 mt-0.5">${tagsHtml}</div>
         <div class="text-[0.55rem] ${diffColor} font-bold mt-0.5">${escHtml(diffLabel)}</div>
       </td>
       <td class="text-center score-cell font-black text-pktOrange text-xs">
@@ -8291,7 +8293,8 @@ function renderLbPrev() {
     tr.innerHTML=`
       <td class="text-center"><div class="flex items-center justify-center gap-1" title="${escHtml(mv.title)}"><span>${rankMedalP}</span><span class="text-[0.6rem] ${mv.cls}">${mv.sym}</span></div></td>
       <td class="pl-2">
-        <div class="flex flex-wrap items-center gap-1 mb-1">${crownPHtml}<span class="font-bold text-xs ${nameIsAdmin ? 'text-red-600' : 'text-gray-800'}">${escHtml(recordName)}</span>${primaryBadgeHtml}<span class="inline-flex items-center rounded-full px-2 py-0.5 text-[0.6rem] font-bold whitespace-nowrap shrink-0 ${playTierCls}" title="${escHtml(playTier)}">${playTierEmoji} ${escHtml(playTier)}</span></div>
+        <div class="flex flex-wrap items-center gap-1 mb-1">${crownPHtml}<span class="font-bold text-xs ${nameIsAdmin ? 'text-red-600' : 'text-gray-800'}">${escHtml(recordName)}</span>${primaryBadgeHtml}</div>
+        <div class="flex flex-wrap items-center gap-1 mb-1"><span class="inline-flex items-center rounded-full px-2 py-0.5 text-[0.6rem] font-bold whitespace-nowrap shrink-0 ${playTierCls}" title="${escHtml(playTier)}">${playTierEmoji} ${escHtml(playTier)}</span></div>
         <div class="flex flex-wrap items-center gap-1 mb-1">${secBadgesHtml}</div>
         <div class="flex flex-wrap items-center gap-1 mb-1">${tagsHtml}</div>
         <div class="text-[0.58rem] text-gray-400">${escHtml(diffLabel)}</div>
