@@ -337,6 +337,26 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
 .lb-tier-track{height:8px;border-radius:999px;background:#e2e8f0;overflow:hidden;}
 .lb-tier-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#7AB800,#f59e0b,#ef4444);}
 .lb-tier-value{font-size:0.6rem;font-weight:800;color:#475569;text-align:right;}
+.lb-answer-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.lb-answer-card{border:1px solid #e2e8f0;border-radius:12px;padding:10px;background:linear-gradient(180deg,#ffffff,#f8fafc);}
+.lb-answer-card.good{border-color:#86efac;background:linear-gradient(180deg,#f0fdf4,#ecfeff);}
+.lb-answer-card.bad{border-color:#fecaca;background:linear-gradient(180deg,#fef2f2,#fff7ed);}
+.lb-answer-title{font-size:0.6rem;font-weight:900;text-transform:uppercase;letter-spacing:0.04em;color:#475569;}
+.lb-answer-value{font-size:1rem;font-weight:900;color:#0f172a;line-height:1.2;margin-top:2px;}
+.lb-answer-sub{font-size:0.62rem;font-weight:700;color:#64748b;margin-top:2px;}
+.lb-knowledge-grid{display:flex;flex-direction:column;gap:8px;}
+.lb-knowledge-row{border:1px solid #e2e8f0;border-radius:12px;padding:8px 10px;background:#fff;}
+.lb-knowledge-head{display:flex;justify-content:space-between;gap:8px;align-items:center;}
+.lb-knowledge-label{font-size:0.65rem;font-weight:900;color:#0f172a;}
+.lb-knowledge-score{font-size:0.62rem;font-weight:800;color:#334155;}
+.lb-knowledge-track{height:8px;border-radius:999px;background:#e2e8f0;overflow:hidden;margin-top:6px;}
+.lb-knowledge-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#2563eb,#14b8a6);}
+.lb-knowledge-meta{margin-top:5px;font-size:0.6rem;font-weight:700;color:#64748b;display:flex;justify-content:space-between;gap:8px;}
+.lb-insight-list{display:flex;flex-direction:column;gap:6px;}
+.lb-insight-item{border:1px dashed #cbd5e1;border-radius:10px;padding:8px 10px;background:#f8fafc;font-size:0.63rem;font-weight:700;color:#334155;line-height:1.35;}
+@media(max-width:640px){
+  .lb-answer-grid{grid-template-columns:1fr;}
+}
 
 /* ─── SCROLLBAR HIDE ─── */
 .no-scrollbar::-webkit-scrollbar{display:none;}
@@ -1587,6 +1607,20 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
           <div id="lb-stats-summary" class="lb-stats-summary-grid"></div>
           <div class="mt-3 lb-stats-chart-wrap">
             <div class="lb-stats-chart-head">
+              <p class="lb-stats-chart-title">Komposisi Jawaban</p>
+              <p class="lb-stats-chart-sub">Proporsi benar dan salah</p>
+            </div>
+            <div id="lb-stats-answer" class="lb-answer-grid"></div>
+          </div>
+          <div class="mt-3 lb-stats-chart-wrap">
+            <div class="lb-stats-chart-head">
+              <p class="lb-stats-chart-title">Peta Pengetahuan Kategori</p>
+              <p class="lb-stats-chart-sub">Laku Jual, Residu, Sisa Makanan, dan lainnya</p>
+            </div>
+            <div id="lb-stats-knowledge" class="lb-knowledge-grid"></div>
+          </div>
+          <div class="mt-3 lb-stats-chart-wrap">
+            <div class="lb-stats-chart-head">
               <p class="lb-stats-chart-title">Komposisi Pemain</p>
               <p class="lb-stats-chart-sub" id="lb-stats-dist-sub">Distribusi pemain berdasarkan mode aktif</p>
             </div>
@@ -1605,6 +1639,13 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
               <p class="lb-stats-chart-sub">Perkembangan level pemain dari Newcomer sampai Legend</p>
             </div>
             <div id="lb-stats-tier" class="lb-tier-stack"></div>
+          </div>
+          <div class="mt-3 lb-stats-chart-wrap">
+            <div class="lb-stats-chart-head">
+              <p class="lb-stats-chart-title">Insight Tambahan</p>
+              <p class="lb-stats-chart-sub">Ringkasan kualitas pembelajaran leaderboard</p>
+            </div>
+            <div id="lb-stats-insights" class="lb-insight-list"></div>
           </div>
         </div>
         <div id="lb-legend-items" class="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[0.62rem] font-semibold text-gray-500"></div>
@@ -2204,8 +2245,22 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
         </tbody>
       </table>
     </div>
-    <div id="lb-prev-stats-panel" class="hidden rounded-xl border border-slate-200 bg-gradient-to-b from-slate-50 to-white p-3">
+    <div id="lb-prev-stats-panel" class="hidden rounded-xl border border-slate-200 bg-gradient-to-b from-slate-50 to-white p-3 max-h-[60vh] overflow-y-auto no-scrollbar" style="-webkit-overflow-scrolling:touch;">
       <div id="lb-prev-stats-summary" class="lb-stats-summary-grid"></div>
+      <div class="mt-3 lb-stats-chart-wrap">
+        <div class="lb-stats-chart-head">
+          <p class="lb-stats-chart-title">Komposisi Jawaban</p>
+          <p class="lb-stats-chart-sub">Proporsi benar dan salah</p>
+        </div>
+        <div id="lb-prev-stats-answer" class="lb-answer-grid"></div>
+      </div>
+      <div class="mt-3 lb-stats-chart-wrap">
+        <div class="lb-stats-chart-head">
+          <p class="lb-stats-chart-title">Peta Pengetahuan Kategori</p>
+          <p class="lb-stats-chart-sub">Laku Jual, Residu, Sisa Makanan, dan lainnya</p>
+        </div>
+        <div id="lb-prev-stats-knowledge" class="lb-knowledge-grid"></div>
+      </div>
       <div class="mt-3 lb-stats-chart-wrap">
         <div class="lb-stats-chart-head">
           <p class="lb-stats-chart-title">Komposisi Pemain</p>
@@ -2226,6 +2281,13 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
           <p class="lb-stats-chart-sub">Perkembangan level pemain dari Newcomer sampai Legend</p>
         </div>
         <div id="lb-prev-stats-tier" class="lb-tier-stack"></div>
+      </div>
+      <div class="mt-3 lb-stats-chart-wrap">
+        <div class="lb-stats-chart-head">
+          <p class="lb-stats-chart-title">Insight Tambahan</p>
+          <p class="lb-stats-chart-sub">Ringkasan kualitas pembelajaran leaderboard</p>
+        </div>
+        <div id="lb-prev-stats-insights" class="lb-insight-list"></div>
       </div>
     </div>
     <button onclick="closeLbModal()" class="w-full mt-4 bg-gradient-to-r from-pktBlue to-blue-700 text-white font-black py-3 rounded-xl active:scale-95 transition">Tutup</button>
@@ -6290,11 +6352,14 @@ function getParticipationTier(attempts) {
 
 function renderLbStatsPanel(prefix, mode, filter, search) {
   const summaryEl = document.getElementById(`${prefix}-stats-summary`);
+  const answerEl = document.getElementById(`${prefix}-stats-answer`);
+  const knowledgeEl = document.getElementById(`${prefix}-stats-knowledge`);
   const distEl = document.getElementById(`${prefix}-stats-distribution`);
   const trendEl = document.getElementById(`${prefix}-stats-trend`);
   const tierEl = document.getElementById(`${prefix}-stats-tier`);
+  const insightsEl = document.getElementById(`${prefix}-stats-insights`);
   const distSub = document.getElementById(`${prefix}-stats-dist-sub`);
-  if (!summaryEl || !distEl || !trendEl || !tierEl) return;
+  if (!summaryEl || !answerEl || !knowledgeEl || !distEl || !trendEl || !tierEl || !insightsEl) return;
 
   const filtered = filterLb(lbCache, filter, mode, search);
   const modePool = filterLb(lbCache, 'All', mode, '');
@@ -6302,9 +6367,12 @@ function renderLbStatsPanel(prefix, mode, filter, search) {
 
   if (filtered.length === 0) {
     summaryEl.innerHTML = `<div class="lb-stat-card"><p class="lb-stat-label">Statistik</p><p class="lb-stat-sub">Belum ada data untuk filter saat ini.</p></div>`;
+    answerEl.innerHTML = '';
+    knowledgeEl.innerHTML = '';
     distEl.innerHTML = '';
     trendEl.innerHTML = '';
     tierEl.innerHTML = '';
+    insightsEl.innerHTML = '';
     if (distSub) distSub.textContent = `Distribusi pemain berdasarkan ${modeLabel}`;
     return;
   }
@@ -6317,6 +6385,10 @@ function renderLbStatsPanel(prefix, mode, filter, search) {
   const maxScore = Math.max(...filtered.map(r => Number(r.score) || 0));
   const dcTotal = filtered.reduce((s, r) => s + (Number(r.dcCompleted) || 0), 0);
   const participationRate = safePct(totalPlayers, Math.max(1, modePool.length));
+  const totalCorrect = filtered.reduce((s, r) => s + (Number(r.correct) || 0), 0);
+  const totalWrong = filtered.reduce((s, r) => s + (Number(r.wrong) || 0), 0);
+  const totalAnswered = filtered.reduce((s, r) => s + (Number(r.total) || 0), 0);
+  const answerCoverage = safePct(totalAnswered, Math.max(1, totalPlayers * 10));
 
   summaryEl.innerHTML = `
     <div class="lb-stat-card">
@@ -6340,6 +6412,66 @@ function renderLbStatsPanel(prefix, mode, filter, search) {
       <p class="lb-stat-sub">Total sesi${mode === 'ranked' ? ` • DC selesai ${dcTotal}` : ''}</p>
     </div>
   `;
+
+  const correctPct = safePct(totalCorrect, Math.max(1, totalAnswered));
+  const wrongPct = safePct(totalWrong, Math.max(1, totalAnswered));
+  answerEl.innerHTML = `
+    <div class="lb-answer-card good">
+      <p class="lb-answer-title">Benar</p>
+      <p class="lb-answer-value">${totalCorrect}</p>
+      <p class="lb-answer-sub">${correctPct}% dari total jawaban</p>
+    </div>
+    <div class="lb-answer-card bad">
+      <p class="lb-answer-title">Salah</p>
+      <p class="lb-answer-value">${totalWrong}</p>
+      <p class="lb-answer-sub">${wrongPct}% dari total jawaban</p>
+    </div>
+  `;
+
+  const knownCats = ['LAKU JUAL', 'RESIDU', 'SISA MAKANAN'];
+  const catAggregate = {
+    'LAKU JUAL': { total: 0, correct: 0 },
+    'RESIDU': { total: 0, correct: 0 },
+    'SISA MAKANAN': { total: 0, correct: 0 },
+    'LAINNYA': { total: 0, correct: 0 }
+  };
+  filtered.forEach(r => {
+    const rowCats = r.categoryStats || {};
+    Object.entries(rowCats).forEach(([cat, stat]) => {
+      const target = knownCats.includes(cat) ? cat : 'LAINNYA';
+      const t = Number(stat && stat.total) || 0;
+      const c = Number(stat && stat.correct) || 0;
+      catAggregate[target].total += t;
+      catAggregate[target].correct += Math.min(c, t);
+    });
+  });
+
+  const catRows = Object.entries(catAggregate)
+    .map(([label, v]) => {
+      const acc = safePct(v.correct, Math.max(1, v.total));
+      const wrong = Math.max(0, v.total - v.correct);
+      const share = safePct(v.total, Math.max(1, totalAnswered));
+      let level = 'Perlu Latihan';
+      if (v.total === 0) level = 'Belum ada data';
+      else if (acc >= 85) level = 'Unggul';
+      else if (acc >= 70) level = 'Cukup';
+      return { label, total: v.total, correct: v.correct, wrong, acc, share, level };
+    })
+    .sort((a, b) => b.total - a.total);
+
+  knowledgeEl.innerHTML = catRows.map(item => `
+    <div class="lb-knowledge-row">
+      <div class="lb-knowledge-head">
+        <span class="lb-knowledge-label">${escHtml(item.label)}</span>
+        <span class="lb-knowledge-score">Akurasi ${item.acc}% · ${escHtml(item.level)}</span>
+      </div>
+      <div class="lb-knowledge-track"><div class="lb-knowledge-fill" style="width:${item.acc}%"></div></div>
+      <div class="lb-knowledge-meta">
+        <span>Benar ${item.correct} · Salah ${item.wrong} · Total ${item.total}</span>
+        <span>Komposisi ${item.share}%</span>
+      </div>
+    </div>
+  `).join('');
 
   const distMap = {};
   if (mode === 'curriculum') {
@@ -6427,6 +6559,27 @@ function renderLbStatsPanel(prefix, mode, filter, search) {
       </div>
     `;
   }).join('');
+
+  const activeCats = catRows.filter(c => c.total > 0);
+  const strongest = activeCats.length ? [...activeCats].sort((a, b) => b.acc - a.acc)[0] : null;
+  const weakest = activeCats.length ? [...activeCats].sort((a, b) => a.acc - b.acc)[0] : null;
+  const accuracySpread = activeCats.length > 1
+    ? Math.max(...activeCats.map(c => c.acc)) - Math.min(...activeCats.map(c => c.acc))
+    : 0;
+  const qualityLabel = correctPct >= 85 ? 'Sangat baik' : correctPct >= 70 ? 'Baik' : correctPct >= 55 ? 'Cukup' : 'Perlu peningkatan';
+  const tempoLabel = totalAttempts >= totalPlayers * 8 ? 'sangat aktif' : totalAttempts >= totalPlayers * 4 ? 'aktif' : 'bertahap';
+
+  const insightSpread = 'Sebaran tingkat pengetahuan antar kategori memiliki gap ' + accuracySpread + '%' + (accuracySpread > 20 ? ' (cukup lebar, perlu pemerataan).' : ' (cukup seimbang).');
+  const insightTempo = 'Intensitas partisipasi ' + tempoLabel + ': ' + totalAttempts + ' sesi dari ' + totalPlayers + ' pemain; cakupan jawaban ' + answerCoverage + '% terhadap baseline aktivitas.';
+  const insightItems = [
+    'Kualitas jawaban keseluruhan ' + qualityLabel + ' dengan akurasi agregat ' + correctPct + '% (' + totalCorrect + ' benar dari ' + totalAnswered + ' jawaban).',
+    strongest ? ('Kategori terkuat saat ini: ' + strongest.label + ' (' + strongest.acc + '% akurasi).') : 'Belum ada kategori dominan karena data masih minim.',
+    weakest ? ('Kategori prioritas latihan: ' + weakest.label + ' (' + weakest.acc + '% akurasi).') : 'Belum ada kategori yang dapat dievaluasi untuk prioritas latihan.',
+    insightSpread,
+    insightTempo
+  ];
+
+  insightsEl.innerHTML = insightItems.map(text => `<div class="lb-insight-item">${escHtml(text)}</div>`).join('');
 }
 
 function setLbMode(v) {
