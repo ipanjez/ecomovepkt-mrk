@@ -1373,7 +1373,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
       </div>
 
       <div class="rounded-xl border border-cyan-400/20 bg-cyan-400/10 px-3 py-2 mb-3">
-        <p class="text-[0.65rem] text-cyan-100 font-semibold leading-relaxed">Badge milestone main di sini akan masuk ke Leaderboard  di samping Badge Utama: <b>Newcomer, Explorer, Regular, Veteran, Champion,</b> dan <b>Legend Player</b>.</p>
+        <p class="text-[0.65rem] text-cyan-100 font-semibold leading-relaxed">Badge milestone main akan masuk ke Leaderboard: <b>Newcomer, Explorer, Regular, Veteran, Champion,</b> dan <b>Legend Player</b>.</p>
       </div>
 
       <button onclick="closePlayMilestoneModal()" class="w-full bg-gradient-to-r from-amber-400 to-orange-500 text-white font-black py-3 rounded-xl shadow-lg active:scale-95 transition text-sm tracking-wide border-b-4 border-orange-700">✓ Tutup</button>
@@ -3608,11 +3608,6 @@ function getPlayMilestoneState(name) {
   const last = [...PLAY_MILESTONES].reverse().find(m => m.at <= attempts) || null;
   const unclaimed = PLAY_MILESTONES.filter(m => m.at <= attempts && !mData.claimed.includes(m.at));
   return { attempts, mData, next, last, unclaimed };
-}
-
-function getPlayMilestoneBadgeForAttempts(attempts) {
-  const earned = [...PLAY_MILESTONES].filter(m => attempts >= m.at).pop();
-  return earned || null;
 }
 
 function getPlayMilestoneData() {
@@ -7849,8 +7844,6 @@ function renderLbTable() {
     const sortedTags = [...tags].sort((a,b) => (tagPriority[a] ?? 999) - (tagPriority[b] ?? 999));
     const tagsHtml=sortedTags.length>0?`<span class="text-[0.52rem] text-purple-400 font-bold">${sortedTags.map(t=>'#'+t).join(' ')}</span>`:'';
     const primaryBadgeHtml = r.isCurriculum ? '' : `<span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold ${getBadgeClass(primary)}" title="${escHtml(primary)}">${escHtml(formatBadge(primary))}</span>`;
-    const playMilestone = r.isCurriculum ? null : getPlayMilestoneBadgeForAttempts(Number(r.attempts) || 0);
-    const playMilestoneHtml = playMilestone ? `<span class="milestone-badge active whitespace-nowrap shrink-0 ml-1 text-[0.58rem] leading-none" style="display:inline-flex !important; align-items:center; gap:4px; border:1px solid rgba(255,255,255,0.3); box-shadow:0 1px 3px rgba(0,0,0,0.12);" title="${escHtml(playMilestone.label)}">🏆 ${escHtml(playMilestone.badge)}</span>` : '';
 
     const maxScore = filtered.length > 0 ? Math.max(...filtered.map(x=>x.score||0)) : 1;
     const scorePct = Math.round(((r.score||0) / Math.max(maxScore,1)) * 100);
@@ -7860,7 +7853,7 @@ function renderLbTable() {
     tr.innerHTML=`
       <td class="text-center"><div class="flex items-center justify-center gap-1" title="${escHtml(mv.title)}"><span>${rankMedal}</span><span class="text-[0.6rem] ${mv.cls}">${mv.sym}</span></div></td>
       <td class="pl-2">
-        <div class="flex flex-wrap items-center gap-1">${crownHtml}<span class="font-bold text-xs ${nameIsAdmin ? 'text-red-600' : 'text-gray-800'}">${escHtml(recordName)}</span><span class="inline-flex items-center gap-1">${primaryBadgeHtml}${playMilestoneHtml}</span></div>
+        <div class="flex flex-wrap items-center gap-1">${crownHtml}<span class="font-bold text-xs ${nameIsAdmin ? 'text-red-600' : 'text-gray-800'}">${escHtml(recordName)}</span>${primaryBadgeHtml}</div>
         <div class="flex flex-wrap gap-1 mt-0.5">${secBadgesHtml}${tagsHtml}</div>
         <div class="text-[0.55rem] ${diffColor} font-bold mt-0.5">${escHtml(diffLabel)}</div>
       </td>
