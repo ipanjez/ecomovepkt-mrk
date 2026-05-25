@@ -756,6 +756,26 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
 @keyframes swipeArrowL{0%{opacity:0.7;transform:translateX(0);}50%{opacity:0.3;transform:translateX(-6px);}100%{opacity:0.7;transform:translateX(0);}}
 @keyframes swipeArrowR{0%{opacity:0.7;transform:translateX(0);}50%{opacity:0.3;transform:translateX(6px);}100%{opacity:0.7;transform:translateX(0);}}
 
+/* ─── DC CARD PULSE ANIMATION ─── */
+@keyframes dcPulse{
+  0%,100%{box-shadow:0 4px 24px rgba(0,91,159,0.13),0 1px 4px rgba(0,0,0,0.06);}
+  50%{box-shadow:0 4px 28px rgba(37,99,235,0.22),0 1px 4px rgba(0,0,0,0.08);}
+}
+#dc-card-container:not(:hover){animation:dcPulse 3s ease-in-out infinite;}
+
+/* ─── DC STATUS BADGE ACTIVE GLOW ─── */
+@keyframes dcActiveBadgeGlow{
+  0%,100%{box-shadow:0 0 0 0 rgba(254,240,138,0);}
+  50%{box-shadow:0 0 8px 2px rgba(254,240,138,0.3);}
+}
+
+/* ─── DC MODAL REWARD BANNER ─── */
+@keyframes rewardBannerShimmer{
+  0%{background-position:0% 50%;}
+  50%{background-position:100% 50%;}
+  100%{background-position:0% 50%;}
+}
+
 /* ─── DAILY LOGIN MODAL ─── */
 #daily-login-modal .modal-card{
   width:min(92vw,380px);background:linear-gradient(160deg,#0f172a 0%,#1e3a5f 50%,#0f172a 100%);
@@ -1261,21 +1281,35 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
             </div>
           </div>
         </div>
-        <div id="dc-card-container" class="mb-3 rounded-2xl border border-blue-100 bg-gradient-to-br from-blue-50 to-sky-50 px-4 py-3.5 hover:shadow-md hover:border-blue-200 transition cursor-pointer shadow-sm" onclick="openDCHistoryModal()">
-          <div class="flex items-start justify-between gap-2 mb-2">
-            <div>
-              <p class="text-[0.65rem] font-black text-pktBlue uppercase tracking-wider">⚡ Daily Challenge</p>
-              <p class="text-[0.6rem] text-slate-500 font-semibold mt-0.5">Misi harian yang berubah setiap reset lokal</p>
+        <div id="dc-card-container" class="mb-3 cursor-pointer" onclick="openDCHistoryModal()" style="border-radius:20px;overflow:hidden;position:relative;box-shadow:0 4px 24px rgba(0,91,159,0.13),0 1px 4px rgba(0,0,0,0.06);transition:box-shadow 0.2s,transform 0.18s;" onmouseenter="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 32px rgba(0,91,159,0.18),0 2px 8px rgba(0,0,0,0.08)'" onmouseleave="this.style.transform='';this.style.boxShadow='0 4px 24px rgba(0,91,159,0.13),0 1px 4px rgba(0,0,0,0.06)'">
+          <!-- Top gradient header -->
+          <div style="background:linear-gradient(135deg,#005B9F 0%,#2563eb 50%,#0ea5e9 100%);padding:10px 14px 8px;position:relative;overflow:hidden;">
+            <!-- decorative circles -->
+            <div style="position:absolute;top:-18px;right:-18px;width:70px;height:70px;border-radius:50%;background:rgba(255,255,255,0.08);pointer-events:none;"></div>
+            <div style="position:absolute;bottom:-12px;left:40%;width:50px;height:50px;border-radius:50%;background:rgba(255,255,255,0.06);pointer-events:none;"></div>
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;position:relative;z-index:1;">
+              <div style="display:flex;align-items:center;gap:7px;">
+                <div style="background:rgba(255,255,255,0.18);border-radius:10px;padding:5px 7px;font-size:1.1rem;line-height:1;">⚡</div>
+                <div>
+                  <p style="font-size:0.7rem;font-weight:900;color:white;letter-spacing:0.08em;text-transform:uppercase;margin:0;line-height:1.2;">Daily Challenge</p>
+                  <p style="font-size:0.57rem;color:rgba(255,255,255,0.7);font-weight:600;margin:1px 0 0;line-height:1.2;">Misi baru tiap hari — selesaikan untuk reward!</p>
+                </div>
+              </div>
+              <span id="dc-status-badge" style="font-size:0.6rem;font-weight:800;background:rgba(255,193,7,0.22);color:#fef08a;border:1px solid rgba(254,240,138,0.35);border-radius:999px;padding:3px 9px;white-space:nowrap;flex-shrink:0;">Aktif</span>
             </div>
-            <span id="dc-status-badge" class="text-[0.65rem] font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full">Aktif</span>
           </div>
-          <div class="challenge-highlight">
-            <p id="dc-goal-text" class="text-xs font-semibold text-slate-700 leading-relaxed">Memuat tantangan hari ini...</p>
-            <p id="dc-progress-text" class="text-[0.68rem] text-slate-500 mt-1">–</p>
-          </div>
-          <div class="mt-2 flex items-center justify-between gap-2 flex-wrap">
-            <span id="dc-reset-note" class="dc-reset-chip">Reset tiap 00:00 waktu perangkat</span>
-            <span class="text-[0.6rem] font-bold text-sky-600 bg-sky-50 border border-sky-100 px-2 py-0.5 rounded-full">Reward lebih besar saat selesai!</span>
+          <!-- Body -->
+          <div style="background:white;padding:10px 14px;">
+            <!-- Challenge goal -->
+            <div style="background:linear-gradient(135deg,rgba(0,91,159,0.05),rgba(14,165,233,0.06));border:1px solid rgba(0,91,159,0.1);border-radius:12px;padding:8px 11px;margin-bottom:8px;">
+              <p id="dc-goal-text" style="font-size:0.72rem;font-weight:700;color:#1e3a5f;line-height:1.5;margin:0;">Memuat tantangan hari ini...</p>
+              <p id="dc-progress-text" style="font-size:0.62rem;color:#64748b;margin:4px 0 0;font-weight:600;">–</p>
+            </div>
+            <!-- Reward info + reset note -->
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;flex-wrap:wrap;">
+              <span id="dc-reset-note" style="display:inline-flex;align-items:center;gap:5px;font-size:0.58rem;font-weight:800;color:#075985;background:linear-gradient(135deg,rgba(14,165,233,0.1),rgba(37,99,235,0.06));border:1px solid rgba(59,130,246,0.15);border-radius:999px;padding:3px 9px;letter-spacing:0.03em;text-transform:uppercase;">🕛 Reset tiap 00:00</span>
+              <div style="display:inline-flex;align-items:center;gap:5px;font-size:0.6rem;font-weight:800;color:#7c3aed;background:linear-gradient(135deg,rgba(124,58,237,0.08),rgba(192,38,211,0.06));border:1px solid rgba(139,92,246,0.2);border-radius:999px;padding:3px 9px;">⏳ Reward: +1 Time Extend!</div>
+            </div>
           </div>
         </div>
 
@@ -1670,10 +1704,22 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
             <p class="text-[0.58rem] text-gray-400 font-black uppercase">Personal Best</p>
             <p class="text-xs font-bold text-gray-700" id="final-pb">–</p>
           </div>
-          <div id="daily-challenge-summary" class="bg-white rounded-xl p-2.5 border border-gray-100 shadow-sm">
-            <p class="text-[0.58rem] text-gray-400 font-black uppercase">Daily Challenge & Sesi Harian</p>
-            <p id="daily-badge-el" class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-bold bg-slate-100 text-slate-600">Belum tercapai</p>
-            <p id="daily-session-info" class="text-[0.6rem] text-purple-600 font-bold mt-1"></p>
+          <div id="daily-challenge-summary" style="border-radius:14px;overflow:hidden;box-shadow:0 2px 10px rgba(0,91,159,0.08);">
+            <!-- DC header bar -->
+            <div style="background:linear-gradient(135deg,#005B9F,#2563eb);padding:7px 11px 6px;display:flex;align-items:center;justify-content:space-between;gap:6px;">
+              <p style="font-size:0.58rem;font-weight:900;color:white;text-transform:uppercase;letter-spacing:0.07em;margin:0;">⚡ Daily Challenge</p>
+              <div style="font-size:0.55rem;font-weight:800;color:rgba(255,255,255,0.75);background:rgba(255,255,255,0.12);border-radius:999px;padding:2px 7px;">& Sesi Harian</div>
+            </div>
+            <!-- DC body -->
+            <div style="background:white;padding:8px 11px 9px;">
+              <p id="daily-badge-el" class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-bold bg-slate-100 text-slate-600">Belum tercapai</p>
+              <p id="daily-session-info" class="text-[0.6rem] text-purple-600 font-bold mt-1"></p>
+              <!-- Reward info strip -->
+              <div style="margin-top:6px;background:linear-gradient(135deg,rgba(124,58,237,0.07),rgba(192,38,211,0.05));border:1px solid rgba(139,92,246,0.18);border-radius:8px;padding:5px 8px;display:flex;align-items:center;gap:6px;">
+                <span style="font-size:0.9rem;flex-shrink:0;">⏳</span>
+                <p style="font-size:0.58rem;font-weight:700;color:#6d28d9;margin:0;line-height:1.4;">Selesaikan DC → <b>+1 Time Extend LANGKA</b> otomatis!</p>
+              </div>
+            </div>
           </div>
           <div id="eco-tip-strip" class="hidden text-[0.62rem] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-100 rounded-lg px-3 py-2 mt-3">–</div>
         </div>
@@ -2568,46 +2614,67 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
 <!-- ════════════════════════════════════════ -->
 <!--       DAILY CHALLENGE HISTORY MODAL      -->
 <!-- ════════════════════════════════════════ -->
-<div id="dc-history-modal" class="modal-backdrop hidden">
-  <div class="modal-card w-full max-w-lg" style="max-height:92vh;display:flex;flex-direction:column;">
-    <div style="position:sticky;top:0;background:linear-gradient(135deg,#005B9F,#2563eb);z-index:10;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;">
-      <div>
-        <h2 style="font-size:1rem;font-weight:900;color:white;">⚡ Daily Challenge</h2>
-        <p style="font-size:0.62rem;color:rgba(255,255,255,0.7);margin-top:1px;">Riwayat & Tantangan Mendatang</p>
+<div id="dc-history-modal" class="modal-backdrop hidden" onclick="if(event.target===this)closeDCHistoryModal()">
+  <div class="modal-card w-full max-w-lg" style="max-height:92vh;display:flex;flex-direction:column;border-radius:24px;overflow:hidden;box-shadow:0 32px 80px rgba(0,0,0,0.28);" onclick="event.stopPropagation()">
+    <!-- Header with gradient + decorative -->
+    <div style="position:sticky;top:0;background:linear-gradient(135deg,#0c1d3a 0%,#005B9F 55%,#2563eb 100%);z-index:10;padding:16px 18px 12px;flex-shrink:0;overflow:hidden;position:relative;">
+      <!-- decorative orbs -->
+      <div style="position:absolute;top:-24px;right:-24px;width:90px;height:90px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,0.12),transparent 70%);pointer-events:none;"></div>
+      <div style="position:absolute;bottom:-16px;left:20%;width:60px;height:60px;border-radius:50%;background:radial-gradient(circle,rgba(14,165,233,0.2),transparent 70%);pointer-events:none;"></div>
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;position:relative;z-index:1;">
+        <div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+            <div style="background:rgba(255,255,255,0.15);border-radius:10px;padding:6px 8px;font-size:1.2rem;line-height:1;">⚡</div>
+            <h2 style="font-size:1.05rem;font-weight:900;color:white;margin:0;letter-spacing:0.01em;">Daily Challenge</h2>
+          </div>
+          <p style="font-size:0.62rem;color:rgba(255,255,255,0.65);margin:0 0 0 46px;font-weight:600;">Riwayat & Tantangan Mendatang</p>
+        </div>
+        <button onclick="closeDCHistoryModal()" style="color:rgba(255,255,255,0.6);font-size:1.5rem;font-weight:900;background:rgba(255,255,255,0.1);border:none;cursor:pointer;line-height:1;padding:4px 8px;border-radius:8px;transition:background 0.15s;" onmouseenter="this.style.background='rgba(255,255,255,0.2)'" onmouseleave="this.style.background='rgba(255,255,255,0.1)'">&times;</button>
       </div>
-      <button onclick="closeDCHistoryModal()" style="color:rgba(255,255,255,0.7);font-size:1.4rem;font-weight:900;background:none;border:none;cursor:pointer;line-height:1;padding:4px;">&times;</button>
     </div>
-    
-    <!-- Badge Info - compact -->
-    <div style="flex-shrink:0;padding:8px 14px;background:#fffbeb;border-bottom:1px solid #fde68a;">
-      <div style="display:flex;flex-wrap:wrap;gap:6px;font-size:0.6rem;font-weight:700;color:#78350f;">
-        <span style="background:#fef3c7;border:1px solid #fcd34d;border-radius:999px;padding:2px 8px;">🏅 Daily Challenger: selesaikan tantangan hari ini</span>
-        <span style="background:#fef3c7;border:1px solid #fcd34d;border-radius:999px;padding:2px 8px;">#DCCategory / #DCCombo / #DCScore / #DCMode / #DCPrecision / #DCGrinder / #DCStreak: selesai sesuai tipe tantangan</span>
-        <span style="background:#fef3c7;border:1px solid #fcd34d;border-radius:999px;padding:2px 8px;">#DCActive: ≥5 selesai · #DCDedicated: ≥15 · #DCMaster: ≥30 · #DCLegend: ≥50</span>
+
+    <!-- Reward Info Banner (redesigned) -->
+    <div style="flex-shrink:0;background:linear-gradient(135deg,#4c1d95,#7c3aed);padding:10px 16px;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="font-size:1.5rem;flex-shrink:0;">⏳</div>
+        <div>
+          <p style="font-size:0.7rem;font-weight:900;color:white;margin:0 0 2px;letter-spacing:0.02em;">REWARD SELESAI DC</p>
+          <p style="font-size:0.62rem;color:rgba(255,255,255,0.8);margin:0;font-weight:600;">+1 Time Extend (LANGKA) otomatis tiap kali Daily Challenge berhasil diselesaikan!</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Badge Info - redesigned -->
+    <div style="flex-shrink:0;padding:10px 14px;background:#fefce8;border-bottom:1px solid #fde68a;">
+      <p style="font-size:0.58rem;font-weight:900;color:#92400e;text-transform:uppercase;letter-spacing:0.06em;margin:0 0 6px;">🏅 Badge dari Daily Challenge</p>
+      <div style="display:flex;flex-wrap:wrap;gap:5px;">
+        <span style="background:#fef3c7;border:1px solid #fcd34d;border-radius:999px;padding:2px 8px;font-size:0.58rem;font-weight:700;color:#78350f;">🏅 Daily Challenger: selesaikan hari ini</span>
+        <span style="background:#fef3c7;border:1px solid #fcd34d;border-radius:999px;padding:2px 8px;font-size:0.58rem;font-weight:700;color:#78350f;">#DCCategory · #DCCombo · #DCScore · #DCMode · #DCPrecision · #DCGrinder · #DCStreak</span>
+        <span style="background:#fef3c7;border:1px solid #fcd34d;border-radius:999px;padding:2px 8px;font-size:0.58rem;font-weight:700;color:#78350f;">📊 DCActive ≥5 · DCDedicated ≥15 · DCMaster ≥30 · DCLegend ≥50</span>
       </div>
     </div>
 
     <!-- Tab Navigation -->
     <div style="flex-shrink:0;display:flex;border-bottom:2px solid #e2e8f0;background:white;">
-      <button onclick="switchDCTab('riwayat')" id="tab-riwayat" style="flex:1;padding:10px;font-size:0.8rem;font-weight:800;border:none;background:none;cursor:pointer;border-bottom:2px solid #005B9F;color:#005B9F;margin-bottom:-2px;">📅 Riwayat</button>
-      <button onclick="switchDCTab('mendatang')" id="tab-mendatang" style="flex:1;padding:10px;font-size:0.8rem;font-weight:800;border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;color:#94a3b8;margin-bottom:-2px;">🔮 7 Hari Mendatang</button>
+      <button onclick="switchDCTab('riwayat')" id="tab-riwayat" style="flex:1;padding:11px;font-size:0.78rem;font-weight:800;border:none;background:none;cursor:pointer;border-bottom:2px solid #005B9F;color:#005B9F;margin-bottom:-2px;transition:color 0.15s;">📅 Riwayat</button>
+      <button onclick="switchDCTab('mendatang')" id="tab-mendatang" style="flex:1;padding:11px;font-size:0.78rem;font-weight:800;border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;color:#94a3b8;margin-bottom:-2px;transition:color 0.15s;">🔮 7 Hari Mendatang</button>
     </div>
     
     <!-- Content Container -->
-    <div id="dc-history-container" style="flex:1;overflow-y:auto;padding:12px 14px;-webkit-overflow-scrolling:touch;">
+    <div id="dc-history-container" style="flex:1;overflow-y:auto;padding:14px 16px;-webkit-overflow-scrolling:touch;background:#f8fafc;">
       <div class="text-center py-8 text-gray-400">
         <p class="text-sm">Memuat data daily challenge...</p>
       </div>
     </div>
 
-    <div id="dc-future-container" style="flex:1;overflow-y:auto;padding:12px 14px;-webkit-overflow-scrolling:touch;display:none;">
+    <div id="dc-future-container" style="flex:1;overflow-y:auto;padding:14px 16px;-webkit-overflow-scrolling:touch;background:#f8fafc;display:none;">
       <div class="text-center py-8 text-gray-400">
         <p class="text-sm">Memuat tantangan mendatang...</p>
       </div>
     </div>
     
-    <div style="flex-shrink:0;padding:10px 14px;border-top:1px solid #e2e8f0;">
-      <button onclick="closeDCHistoryModal()" style="width:100%;background:linear-gradient(135deg,#005B9F,#2563eb);color:white;font-weight:900;padding:11px;border-radius:12px;border:none;cursor:pointer;font-size:0.85rem;transition:opacity 0.15s;" onclick="this.style.opacity='0.8'">Tutup</button>
+    <div style="flex-shrink:0;padding:12px 16px;border-top:1px solid #e2e8f0;background:white;">
+      <button onclick="closeDCHistoryModal()" style="width:100%;background:linear-gradient(135deg,#005B9F,#2563eb);color:white;font-weight:900;padding:12px;border-radius:14px;border:none;cursor:pointer;font-size:0.85rem;transition:opacity 0.15s,transform 0.1s;letter-spacing:0.02em;" onmouseenter="this.style.opacity='0.9'" onmouseleave="this.style.opacity='1'" onmousedown="this.style.transform='scale(0.98)'" onmouseup="this.style.transform=''">✓ Tutup</button>
     </div>
   </div>
 </div>
@@ -4462,19 +4529,26 @@ function renderDCCard() {
   const resetNote=document.getElementById('dc-reset-note');
   if(!goal) return;
   
-  // Use description if available, fallback to old format
   goal.textContent = DC.description || `Capai skor ${DC.targetScore}, akurasi ${DC.minAcc}%+, dan ${DC.minCorrect} benar di ${DC.focusCat}.`;
   
   const completedDC = DC.completed || DC.bestProgress >= 100;
-  const resetText = completedDC ? 'Selesai hari ini • tantangan baru besok 00:00' : 'Reset tiap 00:00 waktu perangkat';
+  const resetText = completedDC ? '✅ Selesai hari ini • tantangan baru besok 00:00' : '🕛 Reset tiap 00:00 waktu perangkat';
   if (completedDC && !DC.completed) {
     DC.completed = true;
     saveDC();
   }
-  prog.textContent=completedDC?`✅ Selesai! Best progress: ${DC.bestProgress}%`:`Progress terbaik: ${DC.bestProgress}%`;
-  badge.textContent=completedDC?'Selesai':'Aktif';
-  badge.className=completedDC?'text-[0.65rem] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full':'text-[0.65rem] font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full';
+  prog.textContent=completedDC?`✅ Selesai! Progress terbaik: 100% — Reward ⏳ sudah diterima!`:`📊 Progress terbaik: ${DC.bestProgress}%`;
+  badge.textContent=completedDC?'✅ Selesai':'🔥 Aktif';
+  badge.style.cssText=completedDC?'font-size:0.6rem;font-weight:800;background:rgba(34,197,94,0.22);color:#bbf7d0;border:1px solid rgba(187,247,208,0.35);border-radius:999px;padding:3px 9px;white-space:nowrap;flex-shrink:0;':'font-size:0.6rem;font-weight:800;background:rgba(255,193,7,0.22);color:#fef08a;border:1px solid rgba(254,240,138,0.35);border-radius:999px;padding:3px 9px;white-space:nowrap;flex-shrink:0;';
   if (resetNote) resetNote.textContent = resetText;
+  
+  // Update card visual for completed state
+  if (dccard) {
+    if (completedDC) {
+      const header = dccard.querySelector('div[style*="linear-gradient(135deg,#005B9F"]');
+      if (header) header.style.background = 'linear-gradient(135deg,#065f46 0%,#059669 55%,#10b981 100%)';
+    }
+  }
   
   // Make card clickable
   if(dccard) dccard.style.cursor='pointer';
