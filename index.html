@@ -1328,12 +1328,6 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
           🏆 LIHAT LEADERBOARD
         </button>
 
-        <div class="flex gap-2 mb-3">
-          <button onclick="exportPdf()" class="flex-1 bg-white/90 border border-slate-200 text-slate-700 py-2 rounded-lg text-xs font-semibold">Export PDF</button>
-          <button onclick="exportExcel()" class="flex-1 bg-white/90 border border-slate-200 text-slate-700 py-2 rounded-lg text-xs font-semibold">Export XLS</button>
-          <button onclick="exportStatsPdf('lb')" class="flex-1 bg-white/90 border border-slate-200 text-slate-700 py-2 rounded-lg text-xs font-semibold">Export Statistik</button>
-        </div>
-
         <p id="start-error" class="text-red-500 text-xs font-bold text-center bg-red-50 py-2 rounded-lg border border-red-100 hidden mb-2">Isi nama & pilih tingkat kesulitan dulu!</p>
 
         <button onclick="openHowToPlay()" class="w-full text-gray-400 hover:text-pktBlue font-bold text-xs transition block text-center py-2 rounded-lg hover:bg-gray-50">
@@ -2408,18 +2402,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
         <div class="lb-section-title">🏆 Leaderboard</div>
         <div class="lb-section-subtitle">Real-time · Semua skor pemain</div>
       </div>
-      <div class="flex items-center gap-2">
-        <button onclick="exportPdf()" class="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 transition" title="Export PDF">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.8)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
-        </button>
-        <button onclick="exportExcel()" class="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 transition" title="Export Excel">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.8)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/></svg>
-        </button>
-        <button onclick="exportStatsPdf('lb-prev')" class="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 transition" title="Export Statistik PDF">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.8)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v7l3-3 3 3V2"/><rect x="3" y="9" width="18" height="13" rx="2"/></svg>
-        </button>
-        <button onclick="closeLbModal()" style="position:relative;z-index:20;background:rgba(255,255,255,0.15);border:1.5px solid rgba(255,255,255,0.3);border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;color:white;font-size:1.1rem;font-weight:900;cursor:pointer;transition:background 0.15s;flex-shrink:0;" onmouseover="this.style.background='rgba(255,255,255,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.15)'">&times;</button>
-      </div>
+      <button onclick="closeLbModal()" style="position:relative;z-index:20;background:rgba(255,255,255,0.15);border:1.5px solid rgba(255,255,255,0.3);border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;color:white;font-size:1.1rem;font-weight:900;cursor:pointer;transition:background 0.15s;flex-shrink:0;" onmouseover="this.style.background='rgba(255,255,255,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.15)'">&times;</button>
     </div>
     <div class="flex-1 min-h-0 overflow-y-auto p-5 no-scrollbar" style="-webkit-overflow-scrolling:touch;">
     <div class="chip-row mb-2" id="lb-prev-view-row">
@@ -7409,18 +7392,6 @@ function exportExcel() {
   const html=`<html><head><meta charset="utf-8"></head><body><tr><thead><tr><th>#</th><th>Nama</th><th>Badge</th><th>Skor</th><th>Combo</th><th>Akurasi</th><th>D/B/S</th><th>Waktu</th><th>Coba</th></tr></thead><tbody>${rows}</tbody></table></body></html>`;
   const blob=new Blob([html],{type:'application/vnd.ms-excel;charset=utf-8'});
   const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='leaderboard_ecomove.xls'; document.body.appendChild(a); a.click(); a.remove();
-}
-
-function exportStatsPdf(prefix='lb') {
-  const panel = document.getElementById(`${prefix}-stats-panel`);
-  if (!panel) { alert('Panel statistik tidak ditemukan.'); return; }
-  const html = `<!doctype html><html><head><meta charset="utf-8"><title>Statistik Leaderboard</title><style>body{font-family:Arial,sans-serif;color:#111;margin:16px;}h2{margin-bottom:8px;} .section{margin-bottom:12px;padding:10px;border:1px solid #e5e7eb;border-radius:8px;background:#fff;} .lb-knowledge-row{margin-bottom:8px;padding:8px;border-radius:6px;border:1px solid #f1f5f9;} .lb-knowledge-label{font-weight:800;} .meta-chip{display:inline-block;margin-right:6px;padding:4px 8px;border-radius:999px;background:#f3f4f6;font-weight:700;} @page{size:A4;margin:12mm;} </style></head><body>` +
-    `<h2>Statistik Leaderboard — ${new Date().toLocaleString('id-ID')}</h2>` +
-    `<div class="section">${panel.innerHTML}</div>` +
-    `</body></html>`;
-  const w = window.open('','_blank');
-  if (!w) { alert('Izinkan popup untuk export PDF.'); return; }
-  w.document.write(html); w.document.close(); w.focus(); setTimeout(()=>w.print(),500);
 }
 
 function copyResult() {
