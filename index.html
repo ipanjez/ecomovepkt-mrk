@@ -361,9 +361,26 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
 .lb-hotspot-title{font-size:0.6rem;font-weight:900;text-transform:uppercase;letter-spacing:0.04em;color:#475569;}
 .lb-hotspot-q{font-size:0.66rem;font-weight:800;color:#0f172a;line-height:1.35;margin-top:3px;}
 .lb-hotspot-meta{font-size:0.61rem;font-weight:700;color:#64748b;line-height:1.35;margin-top:4px;}
+.lb-badge-overview-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;}
+.lb-badge-overview-card{border:1px solid #e2e8f0;border-radius:12px;padding:10px;background:#fff;display:flex;flex-direction:column;gap:8px;}
+.lb-badge-overview-title{font-size:0.63rem;font-weight:900;text-transform:uppercase;letter-spacing:0.04em;color:#0f172a;display:flex;justify-content:space-between;gap:8px;align-items:flex-start;}
+.lb-badge-overview-sub{font-size:0.58rem;font-weight:700;color:#64748b;text-transform:none;letter-spacing:0;}
+.lb-badge-overview-list{display:flex;flex-direction:column;gap:6px;}
+.lb-badge-overview-row{display:grid;grid-template-columns:minmax(72px,110px) 1fr auto;align-items:center;gap:8px;}
+.lb-badge-overview-label{font-size:0.62rem;font-weight:800;color:#1e293b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.lb-badge-overview-track{height:8px;background:#e2e8f0;border-radius:999px;overflow:hidden;}
+.lb-badge-overview-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#0f172a,#2563eb,#14b8a6);}
+.lb-badge-overview-value{font-size:0.58rem;font-weight:800;color:#475569;min-width:52px;text-align:right;}
+.lb-active-players-grid{display:flex;flex-direction:column;gap:7px;}
+.lb-active-player-row{display:grid;grid-template-columns:minmax(100px,1fr) 1fr auto;align-items:center;gap:8px;}
+.lb-active-player-name{font-size:0.62rem;font-weight:800;color:#1e293b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.lb-active-player-track{height:8px;background:#e2e8f0;border-radius:999px;overflow:hidden;}
+.lb-active-player-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#7AB800,#f59e0b,#ef4444);}
+.lb-active-player-value{font-size:0.58rem;font-weight:800;color:#475569;min-width:58px;text-align:right;}
 @media(max-width:640px){
   .lb-answer-grid{grid-template-columns:1fr;}
   .lb-hotspot-grid{grid-template-columns:1fr;}
+  .lb-badge-overview-grid{grid-template-columns:1fr;}
 }
 
 /* ─── SCROLLBAR HIDE ─── */
@@ -1634,10 +1651,17 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
             </div>
             <div id="lb-stats-hotspot" class="lb-hotspot-grid"></div>
           </div>
+            <div class="mt-3 lb-stats-chart-wrap">
+              <div class="lb-stats-chart-head">
+                <p class="lb-stats-chart-title">Persentase Badge</p>
+                <p class="lb-stats-chart-sub">Komposisi badge utama, secondary, dan tags</p>
+              </div>
+              <div id="lb-stats-badges" class="lb-badge-overview-grid"></div>
+            </div>
           <div class="mt-3 lb-stats-chart-wrap">
             <div class="lb-stats-chart-head">
-              <p class="lb-stats-chart-title">Komposisi Pemain</p>
-              <p class="lb-stats-chart-sub" id="lb-stats-dist-sub">Distribusi pemain berdasarkan mode aktif</p>
+                <p class="lb-stats-chart-title">Top 5 Pemain Paling Aktif</p>
+                <p class="lb-stats-chart-sub" id="lb-stats-dist-sub">5 pemain dengan jumlah main terbanyak</p>
             </div>
             <div id="lb-stats-distribution" class="lb-bars-grid"></div>
           </div>
@@ -2283,10 +2307,17 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
         </div>
         <div id="lb-prev-stats-hotspot" class="lb-hotspot-grid"></div>
       </div>
+          <div class="mt-3 lb-stats-chart-wrap">
+            <div class="lb-stats-chart-head">
+              <p class="lb-stats-chart-title">Persentase Badge</p>
+              <p class="lb-stats-chart-sub">Komposisi badge utama, secondary, dan tags</p>
+            </div>
+            <div id="lb-prev-stats-badges" class="lb-badge-overview-grid"></div>
+          </div>
       <div class="mt-3 lb-stats-chart-wrap">
         <div class="lb-stats-chart-head">
-          <p class="lb-stats-chart-title">Komposisi Pemain</p>
-          <p class="lb-stats-chart-sub" id="lb-prev-stats-dist-sub">Distribusi pemain berdasarkan mode aktif</p>
+              <p class="lb-stats-chart-title">Top 5 Pemain Paling Aktif</p>
+              <p class="lb-stats-chart-sub" id="lb-prev-stats-dist-sub">5 pemain dengan jumlah main terbanyak</p>
         </div>
         <div id="lb-prev-stats-distribution" class="lb-bars-grid"></div>
       </div>
@@ -6426,12 +6457,13 @@ function renderLbStatsPanel(prefix, mode, filter, search) {
   const answerEl = document.getElementById(`${prefix}-stats-answer`);
   const knowledgeEl = document.getElementById(`${prefix}-stats-knowledge`);
   const hotspotEl = document.getElementById(`${prefix}-stats-hotspot`);
+  const badgesEl = document.getElementById(`${prefix}-stats-badges`);
   const distEl = document.getElementById(`${prefix}-stats-distribution`);
   const trendEl = document.getElementById(`${prefix}-stats-trend`);
   const tierEl = document.getElementById(`${prefix}-stats-tier`);
   const insightsEl = document.getElementById(`${prefix}-stats-insights`);
   const distSub = document.getElementById(`${prefix}-stats-dist-sub`);
-  if (!summaryEl || !answerEl || !knowledgeEl || !hotspotEl || !distEl || !trendEl || !tierEl || !insightsEl) return;
+  if (!summaryEl || !answerEl || !knowledgeEl || !hotspotEl || !badgesEl || !distEl || !trendEl || !tierEl || !insightsEl) return;
 
   const filtered = filterLb(lbCache, filter, mode, search);
   const modePool = filterLb(lbCache, 'All', mode, '');
@@ -6442,6 +6474,7 @@ function renderLbStatsPanel(prefix, mode, filter, search) {
     answerEl.innerHTML = '';
     knowledgeEl.innerHTML = '';
     hotspotEl.innerHTML = '';
+    badgesEl.innerHTML = '';
     distEl.innerHTML = '';
     trendEl.innerHTML = '';
     tierEl.innerHTML = '';
@@ -6578,7 +6611,7 @@ function renderLbStatsPanel(prefix, mode, filter, search) {
       <div class="lb-hotspot-card best">
         <p class="lb-hotspot-title">Soal Paling Banyak Benar</p>
         <p class="lb-hotspot-q">${escHtml(topCorrect.q)}</p>
-        <p class="lb-hotspot-meta">Benar ${topCorrect.correct}x dari ${topCorrect.total}x percobaan.</p>
+        <p class="lb-hotspot-meta">Benar ${topCorrect.correct} kali dari ${topCorrect.total} kemunculan soal (${safePct(topCorrect.correct, Math.max(1, topCorrect.total))}% akurat).</p>
         <p class="lb-hotspot-meta">Jawaban seharusnya: <b>${escHtml(topCorrect.expectedAnswer || '-')}</b></p>
       </div>
     `
@@ -6589,7 +6622,7 @@ function renderLbStatsPanel(prefix, mode, filter, search) {
       <div class="lb-hotspot-card risk">
         <p class="lb-hotspot-title">Soal Paling Banyak Salah</p>
         <p class="lb-hotspot-q">${escHtml(topWrong.q)}</p>
-        <p class="lb-hotspot-meta">Salah ${topWrong.wrong}x dari ${topWrong.total}x percobaan.</p>
+        <p class="lb-hotspot-meta">Salah ${topWrong.wrong} kali dari ${topWrong.total} kemunculan soal (${safePct(topWrong.wrong, Math.max(1, topWrong.total))}% salah).</p>
         <p class="lb-hotspot-meta">Jawaban seharusnya: <b>${escHtml(topWrong.expectedAnswer || '-')}</b></p>
       </div>
     `
@@ -6597,35 +6630,86 @@ function renderLbStatsPanel(prefix, mode, filter, search) {
 
   hotspotEl.innerHTML = topCorrectHtml + topWrongHtml;
 
-  const distMap = {};
-  if (mode === 'curriculum') {
-    ['SISA MAKANAN', 'LAKU JUAL', 'RESIDU'].forEach(k => distMap[k] = 0);
-    filtered.forEach(r => {
-      const key = r.curriculumFilter || 'Lainnya';
-      distMap[key] = (distMap[key] || 0) + 1;
+  const uniqueCountList = (items) => {
+    const counts = {};
+    items.forEach(item => {
+      const key = String(item || '').trim();
+      if (!key) return;
+      counts[key] = (counts[key] || 0) + 1;
     });
-  } else {
-    ['Bumi Lestari', 'Eko Aktif', 'Penjaga Bumi'].forEach(k => distMap[k] = 0);
-    filtered.forEach(r => {
-      const key = getDifficultyDisplayName(r.difficulty || 'Easy');
-      distMap[key] = (distMap[key] || 0) + 1;
-    });
-  }
+    return Object.entries(counts)
+      .sort((a, b) => (b[1] - a[1]) || a[0].localeCompare(b[0], 'id'))
+      .slice(0, 5)
+      .map(([label, count]) => ({ label, count, pct: safePct(count, Math.max(1, totalPlayers)) }));
+  };
 
-  const distEntries = Object.entries(distMap).sort((a, b) => b[1] - a[1]);
-  distEl.innerHTML = distEntries.map(([label, count]) => {
-    const pct = safePct(count, totalPlayers);
+  const primaryCounts = {};
+  const secondaryCounts = {};
+  const tagCounts = {};
+  filtered.forEach(r => {
+    const primary = computePrimaryBadge(Number(r.score) || 0, Number(r.accuracy) || 0, Number(r.bestCombo) || 0, Number(r.attempts) || 0);
+    primaryCounts[primary] = (primaryCounts[primary] || 0) + 1;
+
+    const secondarySet = new Set(Array.isArray(r.secondaryBadges) ? r.secondaryBadges : []);
+    secondarySet.forEach(b => {
+      secondaryCounts[b] = (secondaryCounts[b] || 0) + 1;
+    });
+
+    const tagsSet = new Set(computeSpecialTags(Number(r.score) || 0, Number(r.accuracy) || 0, Number(r.bestCombo) || 0, r.categoryStats || {}, null, Number(r.attempts) || 0, Number(r.dcCompleted) || 0, { dcType: r.dcType, dcFocusCat: r.dcFocusCat, dcDateKey: r.dcDateKey, dcDone: (r.dcCompleted || 0) > 0 }));
+    tagsSet.forEach(t => {
+      tagCounts[t] = (tagCounts[t] || 0) + 1;
+    });
+  });
+
+  const primaryRows = Object.entries(primaryCounts)
+    .sort((a, b) => (b[1] - a[1]) || a[0].localeCompare(b[0], 'id'))
+    .slice(0, 5)
+    .map(([label, count]) => ({ label, count, pct: safePct(count, Math.max(1, totalPlayers)) }));
+  const secondaryRows = uniqueCountList(Object.entries(secondaryCounts).flatMap(([label, count]) => Array.from({ length: count }, () => label)));
+  const tagRows = uniqueCountList(Object.entries(tagCounts).flatMap(([label, count]) => Array.from({ length: count }, () => label)));
+
+  const renderBadgeRows = (rows) => rows.map(item => `
+    <div class="lb-badge-overview-row">
+      <span class="lb-badge-overview-label">${escHtml(item.label)}</span>
+      <div class="lb-badge-overview-track"><div class="lb-badge-overview-fill" style="width:${item.pct}%"></div></div>
+      <span class="lb-badge-overview-value">${item.count} (${item.pct}%)</span>
+    </div>
+  `).join('');
+
+  badgesEl.innerHTML = `
+    <div class="lb-badge-overview-card">
+      <div class="lb-badge-overview-title"><span>Badge Utama</span><span class="lb-badge-overview-sub">Top 5 distribusi dari ${totalPlayers} pemain</span></div>
+      <div class="lb-badge-overview-list">${primaryRows.length ? renderBadgeRows(primaryRows) : '<div class="lb-insight-item">Belum ada data badge utama.</div>'}</div>
+    </div>
+    <div class="lb-badge-overview-card">
+      <div class="lb-badge-overview-title"><span>Secondary / Bonus</span><span class="lb-badge-overview-sub">Top 5 badge sekunder yang muncul</span></div>
+      <div class="lb-badge-overview-list">${secondaryRows.length ? renderBadgeRows(secondaryRows) : '<div class="lb-insight-item">Belum ada data secondary badge.</div>'}</div>
+    </div>
+    <div class="lb-badge-overview-card">
+      <div class="lb-badge-overview-title"><span>Tags</span><span class="lb-badge-overview-sub">Top 5 tag yang paling sering aktif</span></div>
+      <div class="lb-badge-overview-list">${tagRows.length ? renderBadgeRows(tagRows) : '<div class="lb-insight-item">Belum ada data tags.</div>'}</div>
+    </div>
+  `;
+
+  const topPlayers = [...filtered].sort((a, b) => (Number(b.attempts) || 0) - (Number(a.attempts) || 0) || (Number(b.score) || 0) - (Number(a.score) || 0)).slice(0, 5);
+  const maxAttempts = Math.max(1, ...topPlayers.map(r => Number(r.attempts) || 0));
+  distEl.innerHTML = topPlayers.map((r, idx) => {
+    const attempts = Number(r.attempts) || 0;
+    const pct = safePct(attempts, maxAttempts);
     return `
-      <div class="lb-bar-row">
-        <span class="lb-bar-label">${escHtml(label)}</span>
-        <div class="lb-bar-track"><div class="lb-bar-fill" style="width:${pct}%"></div></div>
-        <span class="lb-bar-val">${count} (${pct}%)</span>
+      <div class="lb-active-player-row">
+        <span class="lb-active-player-name">${idx + 1}. ${escHtml(getRecordName(r) || '–')}</span>
+        <div class="lb-active-player-track"><div class="lb-active-player-fill" style="width:${pct}%"></div></div>
+        <span class="lb-active-player-value">${attempts}x · ${Number(r.score) || 0}</span>
       </div>
     `;
   }).join('');
   if (distSub) distSub.textContent = mode === 'curriculum'
-    ? 'Distribusi pemain berdasarkan fokus materi kurikulum'
-    : 'Distribusi pemain berdasarkan level ranked';
+    ? '5 pemain paling aktif berdasarkan jumlah sesi main'
+    : '5 pemain paling aktif berdasarkan jumlah sesi main';
+
+  const distTitleEl = document.getElementById(`${prefix}-stats-dist-sub`);
+  if (distTitleEl) distTitleEl.textContent = '5 pemain paling aktif berdasarkan jumlah sesi main';
 
   const now = new Date();
   const dayKeys = [];
