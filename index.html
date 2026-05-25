@@ -1930,25 +1930,8 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
           <div id="score-breakdown-rows"></div>
         </div>
 
-        <!-- Rank + Badge Performa: satu card terpadu -->
-        <div class="bg-white rounded-xl border border-gray-100 shadow-sm mb-3 overflow-hidden">
-          <div class="flex min-h-0">
-            <!-- Peringkat (kolom kiri, lebar tetap) -->
-            <div class="flex flex-col items-center justify-center px-3 py-3 border-r border-gray-100 shrink-0" style="min-width:66px;background:linear-gradient(180deg,#f0f9ff,#e8f4ff);">
-              <p class="text-[0.5rem] text-blue-400 font-black uppercase tracking-wide leading-none mb-1">Rank</p>
-              <p class="font-black text-pktBlue leading-none" id="final-rank" style="font-size:clamp(1.5rem,5vw,2.2rem);">–</p>
-            </div>
-            <!-- Badge Performa (kolom kanan, flex-1) -->
-            <div class="flex-1 min-w-0 px-3 py-2.5">
-              <p class="text-[0.55rem] text-gray-400 font-black uppercase tracking-wide mb-1.5">Badge Performa</p>
-              <div id="final-badges-row" class="flex flex-wrap gap-1.5">
-                <span id="final-badge-main" class="inline-flex items-center rounded-full px-3 py-1.5 text-sm font-bold badge-bronze">–</span>
-              </div>
-            </div>
-          </div>
-        </div>
         <!-- Hasil sesi ini -->
-        <div id="current-session-section" class="bg-white rounded-xl border border-slate-100 shadow-sm mb-2 overflow-hidden">
+        <div id="session-summary-inline" class="bg-white rounded-xl border border-slate-100 shadow-sm mb-3 overflow-hidden">
           <div style="background:linear-gradient(135deg,#0f172a,#334155);padding:8px 14px 7px;display:flex;align-items:center;justify-content:space-between;">
             <p style="font-size:0.6rem;font-weight:900;color:white;text-transform:uppercase;letter-spacing:0.07em;margin:0;">📊 Hasil Sesi Ini</p>
             <span style="font-size:0.55rem;font-weight:900;background:rgba(255,255,255,0.12);color:#e2e8f0;border-radius:999px;padding:2px 8px;">Satu sesi</span>
@@ -1973,6 +1956,24 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
             <div id="session-powerup-stats-section" style="margin-top:8px;padding-top:8px;border-top:1px dashed #e2e8f0;display:none;">
               <p style="font-size:0.55rem;font-weight:900;color:#94a3b8;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">⚡ Power-up Digunakan Sesi Ini</p>
               <div id="session-powerup-stats-grid" style="display:flex;flex-wrap:wrap;gap:5px;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Rank + Badge Performa: satu card terpadu -->
+        <div class="bg-white rounded-xl border border-gray-100 shadow-sm mb-3 overflow-hidden">
+          <div class="flex min-h-0">
+            <!-- Peringkat (kolom kiri, lebar tetap) -->
+            <div class="flex flex-col items-center justify-center px-3 py-3 border-r border-gray-100 shrink-0" style="min-width:66px;background:linear-gradient(180deg,#f0f9ff,#e8f4ff);">
+              <p class="text-[0.5rem] text-blue-400 font-black uppercase tracking-wide leading-none mb-1">Rank</p>
+              <p class="font-black text-pktBlue leading-none" id="final-rank" style="font-size:clamp(1.5rem,5vw,2.2rem);">–</p>
+            </div>
+            <!-- Badge Performa (kolom kanan, flex-1) -->
+            <div class="flex-1 min-w-0 px-3 py-2.5">
+              <p class="text-[0.55rem] text-gray-400 font-black uppercase tracking-wide mb-1.5">Badge Performa</p>
+              <div id="final-badges-row" class="flex flex-wrap gap-1.5">
+                <span id="final-badge-main" class="inline-flex items-center rounded-full px-3 py-1.5 text-sm font-bold badge-bronze">–</span>
+              </div>
             </div>
           </div>
         </div>
