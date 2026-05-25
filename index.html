@@ -2920,17 +2920,38 @@ function showDailyLoginModal() {
   }
   document.getElementById('login-streak-display').innerHTML = `🔥 Streak: ${streak} hari`;
   
-  // Streak pips (7-day cycle)
+  // Streak pips (7-day cycle) — label nama hari nyata dari Senin minggu berjalan
   const pipsEl = document.getElementById('login-streak-pips');
   if (pipsEl) {
     let pipsHtml = '';
-    const dayNames = ['Sen','Sel','Rab','Kam','Jum','Sab','Min'];
+    // Hitung Senin minggu berjalan
+    const todayForPip = new Date();
+    const dowToday = todayForPip.getDay(); // 0=Min,1=Sen,...,6=Sab
+    const mondayOffset = (dowToday === 0) ? -6 : 1 - dowToday; // jarak ke Senin
+    const monday = new Date(todayForPip);
+    monday.setDate(todayForPip.getDate() + mondayOffset);
+    monday.setHours(0,0,0,0);
+    // Indeks hari saat ini dalam minggu (1=Sen...7=Min)
+    const todayIndexInWeek = (dowToday === 0) ? 7 : dowToday;
     for (let i = 1; i <= 7; i++) {
+      const pipDate = new Date(monday);
+      pipDate.setDate(monday.getDate() + (i - 1));
+      const pipLabel = pipDate.toLocaleDateString('id-ID', { weekday: 'short' }).replace('.','').slice(0,3);
       let cls = 'login-day-pip empty';
-      let icon = dayNames[i-1];
-      if (i < day) { cls = 'login-day-pip done'; icon = '✓'; }
-      else if (i === day) { cls = 'login-day-pip today'; icon = '⭐'; }
-      pipsHtml += `<div class="${cls}" title="Hari ${i}" style="cursor:pointer;" onclick="showDailyLoginModal()">${icon}</div>`;
+      let icon = pipLabel;
+      if (i < todayIndexInWeek) {
+        // Hari-hari sebelum hari ini di minggu ini
+        // Tandai done jika streak cukup panjang untuk mencakup hari ini
+        const daysBack = todayIndexInWeek - i;
+        cls = (streak > daysBack) ? 'login-day-pip done' : 'login-day-pip empty';
+        icon = (streak > daysBack) ? '✓' : pipLabel;
+      } else if (i === todayIndexInWeek) {
+        // Hari ini
+        cls = 'login-day-pip today';
+        icon = '⭐';
+      }
+      // Hari ke depan dalam minggu — tetap empty dengan nama hari
+      pipsHtml += `<div class="${cls}" title="${pipDate.toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'short'})}" style="cursor:pointer;" onclick="showDailyLoginModal()">${icon}</div>`;
     }
     pipsEl.innerHTML = pipsHtml;
   }
@@ -3050,18 +3071,36 @@ function updateLoginStreakCard() {
     claimBtn.classList.toggle('hidden', !canClaim);
   }
   
-  // Pips
+  // Pips — nama hari nyata dari Senin minggu berjalan, posisi aktif sesuai hari kalender
   const pips = document.getElementById('ls-pips');
   if (pips) {
     let html = '';
     const day = ((streak - 1) % 7) + 1;
+    // Hitung Senin minggu berjalan
+    const todayForCard = new Date();
+    const dowCard = todayForCard.getDay(); // 0=Min,1=Sen,...,6=Sab
+    const mondayOffsetCard = (dowCard === 0) ? -6 : 1 - dowCard;
+    const mondayCard = new Date(todayForCard);
+    mondayCard.setDate(todayForCard.getDate() + mondayOffsetCard);
+    mondayCard.setHours(0,0,0,0);
+    const todayIndexCard = (dowCard === 0) ? 7 : dowCard;
     for (let i = 1; i <= 7; i++) {
+      const pipDate = new Date(mondayCard);
+      pipDate.setDate(mondayCard.getDate() + (i - 1));
+      const pipLabel = pipDate.toLocaleDateString('id-ID', { weekday: 'short' }).replace('.','').slice(0,3);
       let cls = 'login-day-pip empty';
-      let icon = i;
-      if (streak === 0) {}
-      else if (i < day) { cls = 'login-day-pip done'; icon = '✓'; }
-      else if (i === day) { cls = 'login-day-pip today'; icon = '⭐'; }
-      html += `<div class="${cls}" style="width:24px;height:24px;border-radius:6px;cursor:pointer;" onclick="showDailyLoginModal()">${icon}</div>`;
+      let icon = pipLabel;
+      if (streak === 0) {
+        // Belum ada streak, semua kosong dengan nama hari
+      } else if (i < todayIndexCard) {
+        const daysBack = todayIndexCard - i;
+        cls = (streak > daysBack) ? 'login-day-pip done' : 'login-day-pip empty';
+        icon = (streak > daysBack) ? '✓' : pipLabel;
+      } else if (i === todayIndexCard) {
+        cls = 'login-day-pip today';
+        icon = '⭐';
+      }
+      html += `<div class="${cls}" style="width:24px;height:24px;border-radius:6px;cursor:pointer;" title="${pipDate.toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'short'})}" onclick="showDailyLoginModal()">${icon}</div>`;
     }
     pips.innerHTML = html;
   }
