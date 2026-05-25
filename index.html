@@ -1210,7 +1210,23 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
 .eco-buddy:not(.dragging) svg{animation:buddyFloat 3s ease-in-out infinite;}
 .eco-buddy.bounce svg{animation:buddyBounce 0.5s cubic-bezier(0.34,1.56,0.64,1);}
 
-/* ─── IN-GAME BUDDY ─── */
+/* ─── BADGE TAP TOOLTIP ─── */
+.badge-tap-tooltip {
+  animation: tooltipFadeIn 0.2s ease-out;
+}
+@keyframes tooltipFadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── PERSONAL BEST SECTION ─── */
+#personal-best-section {
+  transition: box-shadow 0.2s;
+}
+#pb-new-badge {
+  animation: badgeGlow 1.2s ease-in-out infinite;
+}
+
 #game-buddy{
   position:absolute;
   bottom:6px;right:6px;
@@ -1880,41 +1896,42 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
       </div>
 
       <!-- summary card -->
-      <div id="result-card" class="bg-gradient-to-br from-blue-50 via-white to-green-50 rounded-2xl p-3 mb-3 shadow-inner border border-blue-100">
+      <div id="result-card" style="background:linear-gradient(145deg,#f0f9ff,#ffffff,#f0fdf4);border-radius:20px;padding:12px;margin-bottom:12px;box-shadow:0 4px 20px rgba(0,91,159,0.08),inset 0 1px 0 rgba(255,255,255,0.9);border:1px solid rgba(99,179,237,0.2);">
         <div class="flex items-center justify-between gap-2 mb-3">
           <div>
             <p class="text-[0.68rem] font-black uppercase tracking-wider text-slate-500">Hasil Permainan Saat Ini</p>
             <p class="text-xs text-gray-500">Skor, akurasi, jawaban, dan laporan sesi yang baru selesai.</p>
           </div>
-          <div id="final-mode-label" class="text-[0.7rem] font-bold text-pktBlue"></div>
+          <div id="final-mode-label" class="text-[0.7rem] font-bold text-pktBlue bg-blue-50 border border-blue-100 rounded-full px-2.5 py-1"></div>
         </div>
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-2">
-          <div class="bg-white rounded-xl p-2.5 border border-gray-100 shadow-sm text-center">
-            <p class="text-[0.58rem] text-gray-400 font-black uppercase">Skor</p>
+        <!-- Stats grid - enhanced -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-3">
+          <div style="background:linear-gradient(135deg,#fff7ed,#fff);border-radius:14px;padding:10px;border:1.5px solid #fed7aa;text-align:center;box-shadow:0 2px 8px rgba(243,112,33,0.1);">
+            <p class="text-[0.55rem] text-orange-400 font-black uppercase tracking-wide">Skor</p>
             <p class="text-2xl font-black text-pktOrange" id="final-score">0</p>
           </div>
-          <div class="bg-white rounded-xl p-2.5 border border-gray-100 shadow-sm text-center">
-            <p class="text-[0.58rem] text-gray-400 font-black uppercase">Akurasi</p>
+          <div style="background:linear-gradient(135deg,#f0fdf4,#fff);border-radius:14px;padding:10px;border:1.5px solid #bbf7d0;text-align:center;box-shadow:0 2px 8px rgba(122,184,0,0.1);">
+            <p class="text-[0.55rem] text-green-500 font-black uppercase tracking-wide">Akurasi</p>
             <p class="text-2xl font-black text-pktGreen" id="final-accuracy">0%</p>
           </div>
-          <div class="bg-white rounded-xl p-2.5 border border-gray-100 shadow-sm text-center">
-            <p class="text-[0.58rem] text-gray-400 font-black uppercase">Dijawab</p>
+          <div style="background:linear-gradient(135deg,#eff6ff,#fff);border-radius:14px;padding:10px;border:1.5px solid #bfdbfe;text-align:center;box-shadow:0 2px 8px rgba(0,91,159,0.08);">
+            <p class="text-[0.55rem] text-blue-400 font-black uppercase tracking-wide">Dijawab</p>
             <p class="text-2xl font-black text-pktBlue" id="final-total">0</p>
           </div>
-          <div class="bg-white rounded-xl p-2.5 border border-gray-100 shadow-sm text-center">
-            <p class="text-[0.58rem] text-gray-400 font-black uppercase">Benar/Salah</p>
-            <p class="text-xl font-black text-gray-700"><span id="final-correct">0</span>/<span id="final-wrong">0</span></p>
+          <div style="background:linear-gradient(135deg,#f8fafc,#fff);border-radius:14px;padding:10px;border:1.5px solid #e2e8f0;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,0.04);">
+            <p class="text-[0.55rem] text-gray-400 font-black uppercase tracking-wide">Benar/Salah</p>
+            <p class="text-xl font-black text-gray-700"><span id="final-correct" class="text-green-600">0</span>/<span id="final-wrong" class="text-red-500">0</span></p>
           </div>
         </div>
 
         <!-- Score Breakdown (dark card) -->
-        <div id="score-breakdown-card" class="score-breakdown-card mb-2 hidden">
+        <div id="score-breakdown-card" class="score-breakdown-card mb-3 hidden">
           <p class="text-[0.6rem] font-black text-blue-300 uppercase tracking-widest mb-2">💡 Rincian Skor</p>
           <div id="score-breakdown-rows"></div>
         </div>
 
         <!-- Rank + Badge Performa: satu card terpadu -->
-        <div class="bg-white rounded-xl border border-gray-100 shadow-sm mb-2 overflow-hidden">
+        <div class="bg-white rounded-xl border border-gray-100 shadow-sm mb-3 overflow-hidden">
           <div class="flex min-h-0">
             <!-- Peringkat (kolom kiri, lebar tetap) -->
             <div class="flex flex-col items-center justify-center px-3 py-3 border-r border-gray-100 shrink-0" style="min-width:66px;background:linear-gradient(180deg,#f0f9ff,#e8f4ff);">
@@ -1930,12 +1947,44 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
             </div>
           </div>
         </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-2">
-          <div class="bg-white rounded-xl p-2.5 border border-gray-100 shadow-sm">
-            <p class="text-[0.58rem] text-gray-400 font-black uppercase">Personal Best</p>
-            <p class="text-xs font-bold text-gray-700" id="final-pb">–</p>
+        <!-- Personal Best & Power-up Stats -->
+        <div id="personal-best-section" class="bg-white rounded-xl border border-indigo-100 shadow-sm mb-2 overflow-hidden">
+          <div style="background:linear-gradient(135deg,#1e1b4b,#3730a3);padding:8px 14px 7px;display:flex;align-items:center;justify-content:space-between;">
+            <p style="font-size:0.6rem;font-weight:900;color:white;text-transform:uppercase;letter-spacing:0.07em;margin:0;">🏆 Personal Best</p>
+            <span id="pb-new-badge" style="display:none;font-size:0.55rem;font-weight:900;background:#fbbf24;color:#1c1917;border-radius:999px;padding:2px 8px;">✨ REKOR BARU!</span>
           </div>
-          <div id="daily-challenge-summary" style="border-radius:14px;overflow:hidden;box-shadow:0 2px 10px rgba(0,91,159,0.08);">
+          <div style="padding:10px 14px;">
+            <p class="text-xs font-bold text-gray-700" id="final-pb">–</p>
+            <!-- Power-up usage stats -->
+            <div id="powerup-stats-section" style="margin-top:8px;padding-top:8px;border-top:1px dashed #e2e8f0;display:none;">
+              <p style="font-size:0.55rem;font-weight:900;color:#94a3b8;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">⚡ Power-up Digunakan Sesi Ini</p>
+              <div id="powerup-stats-grid" style="display:flex;flex-wrap:wrap;gap:5px;"></div>
+            </div>
+            <!-- Session performance mini stats -->
+            <div id="session-mini-stats" style="margin-top:8px;padding-top:8px;border-top:1px dashed #e2e8f0;">
+              <p style="font-size:0.55rem;font-weight:900;color:#94a3b8;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">📊 Sesi Ini</p>
+              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;">
+                <div style="text-align:center;background:#f8fafc;border-radius:10px;padding:6px 4px;border:1px solid #f1f5f9;">
+                  <p style="font-size:0.55rem;color:#94a3b8;font-weight:800;text-transform:uppercase;">Best Combo</p>
+                  <p style="font-size:1.1rem;font-weight:900;color:#f97316;" id="pb-best-combo">0x</p>
+                </div>
+                <div style="text-align:center;background:#f8fafc;border-radius:10px;padding:6px 4px;border:1px solid #f1f5f9;">
+                  <p style="font-size:0.55rem;color:#94a3b8;font-weight:800;text-transform:uppercase;">Jawaban Unik</p>
+                  <p style="font-size:1.1rem;font-weight:900;color:#2563eb;" id="pb-unique">0</p>
+                </div>
+                <div style="text-align:center;background:#f8fafc;border-radius:10px;padding:6px 4px;border:1px solid #f1f5f9;">
+                  <p style="font-size:0.55rem;color:#94a3b8;font-weight:800;text-transform:uppercase;">vs PB Lama</p>
+                  <p style="font-size:1.1rem;font-weight:900;" id="pb-vs-old">—</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-2">
+        </div>
+
+        <div id="daily-challenge-summary" class="mb-2" style="border-radius:14px;overflow:hidden;box-shadow:0 2px 10px rgba(0,91,159,0.08);">
             <!-- DC header bar -->
             <div style="background:linear-gradient(135deg,#005B9F,#2563eb);padding:7px 11px 6px;display:flex;align-items:center;justify-content:space-between;gap:6px;">
               <p style="font-size:0.58rem;font-weight:900;color:white;text-transform:uppercase;letter-spacing:0.07em;margin:0;">⚡ Daily Challenge</p>
@@ -1952,8 +2001,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
               </div>
             </div>
           </div>
-          <div id="eco-tip-strip" class="hidden text-[0.62rem] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-100 rounded-lg px-3 py-2 mt-3">–</div>
-        </div>
+          <div id="eco-tip-strip" class="hidden text-[0.62rem] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-100 rounded-lg px-3 py-2 mb-2">–</div>
         <div id="curriculum-results-card" class="rounded-xl border border-blue-100 bg-white p-3 mb-2 hidden">
           <p class="text-[0.62rem] font-black text-pktBlue uppercase tracking-wider mb-2">📚 Hasil Mode Kurikulum</p>
           <div id="curriculum-results-list" class="space-y-1 text-[0.68rem] text-slate-700"></div>
@@ -6183,6 +6231,53 @@ async function endGame() {
     renderLearningReport();
     renderCurriculumSummary();
     renderRankedSummary();
+
+    // Populate personal best section immediately with session data (Firebase will update later)
+    const pbElImmediate = document.getElementById('final-pb');
+    if (pbElImmediate && pbElImmediate.textContent === '–') {
+      const prevBestNow = GS.previousBest || 0;
+      if (prevBestNow > 0) {
+        pbElImmediate.innerHTML = `<span style="font-size:1.1rem;font-weight:900;color:#f37021;">${prevBestNow} poin</span> &nbsp;·&nbsp; Personal best sebelumnya (Firebase sedang diperbarui...)`;
+      } else {
+        pbElImmediate.innerHTML = `<span style="font-size:1.rem;font-weight:700;color:#64748b;">Sesi pertama atau data belum tersedia.</span>`;
+      }
+    }
+    // Populate session mini stats immediately
+    const pbBestComboElNow = document.getElementById('pb-best-combo');
+    const pbUniqueElNow = document.getElementById('pb-unique');
+    const pbVsOldElNow = document.getElementById('pb-vs-old');
+    if (pbBestComboElNow) pbBestComboElNow.textContent = (GS.bestCombo || 0) + 'x';
+    if (pbUniqueElNow) pbUniqueElNow.textContent = (sessionAsked ? sessionAsked.size : 0);
+    if (pbVsOldElNow) {
+      const prevBestNow2 = GS.previousBest || 0;
+      const diffNow = GS.score - prevBestNow2;
+      if (diffNow > 0) { pbVsOldElNow.textContent = '+' + diffNow; pbVsOldElNow.style.color = '#22c55e'; }
+      else if (diffNow < 0) { pbVsOldElNow.textContent = '' + diffNow; pbVsOldElNow.style.color = '#ef4444'; }
+      else { pbVsOldElNow.textContent = '—'; pbVsOldElNow.style.color = '#94a3b8'; }
+    }
+    // Populate power-up stats immediately
+    const puUsedNow = GS.puUsed || {};
+    const puSectionNow = document.getElementById('powerup-stats-section');
+    const puGridNow = document.getElementById('powerup-stats-grid');
+    const puDefsNow = [
+      { key:'freeze', icon:'❄️', label:'Freeze', cls:'#0c4a6e', bg:'#bae6fd' },
+      { key:'double', icon:'2️⃣', label:'Double Poin', cls:'#78350f', bg:'#fde68a' },
+      { key:'skip', icon:'⏭️', label:'Skip', cls:'#365314', bg:'#d9f99d' },
+      { key:'hint', icon:'💡', label:'Hint', cls:'#3b0764', bg:'#e9d5ff' },
+      { key:'timeExtend', icon:'⏳', label:'Time+', cls:'#4a044e', bg:'#fde8ff' },
+    ];
+    if (puSectionNow && puGridNow) {
+      const usedAnyNow = puDefsNow.some(d => (puUsedNow[d.key] || 0) > 0);
+      puSectionNow.style.display = '';
+      if (usedAnyNow) {
+        puGridNow.innerHTML = puDefsNow.filter(d => (puUsedNow[d.key] || 0) > 0).map(d =>
+          `<span style="display:inline-flex;align-items:center;gap:3px;background:${d.bg};color:${d.cls};border-radius:999px;padding:2px 8px;font-size:0.62rem;font-weight:900;">${d.icon} ${d.label} ×${puUsedNow[d.key]}</span>`
+        ).join('');
+      } else {
+        puGridNow.innerHTML = `<span style="font-size:0.62rem;color:#94a3b8;font-style:italic;">Tidak ada power-up digunakan</span>`;
+      }
+    }
+
     const modeLabel=document.getElementById('final-mode-label');
     if(modeLabel) modeLabel.textContent=GS.isCurriculum? 'Kurikulum' : 'Ranked';
 
@@ -7767,9 +7862,94 @@ function renderFinalBadges(rec) {
     html += `</div>`;
   }
 
+  // Fix hover/tap on locked badges in Target Berikutnya
+  html = html.replace(/title="([^"]*)"/g, (match, tip) => {
+    return `title="${tip}" data-tip="${tip}"`;
+  });
+
   row.innerHTML = html;
+
+  // Add tap support for locked badge tooltips
+  row.querySelectorAll('[data-tip]').forEach(el => {
+    el.style.cursor = 'help';
+    el.addEventListener('click', function(e) {
+      e.stopPropagation();
+      const tip = this.getAttribute('data-tip');
+      if (!tip) return;
+      // Remove existing tooltip
+      document.querySelectorAll('.badge-tap-tooltip').forEach(t => t.remove());
+      const tooltip = document.createElement('div');
+      tooltip.className = 'badge-tap-tooltip';
+      tooltip.textContent = tip;
+      tooltip.style.cssText = 'position:fixed;z-index:9999;background:#1e293b;color:white;font-size:0.68rem;font-weight:700;padding:6px 12px;border-radius:10px;box-shadow:0 4px 16px rgba(0,0,0,0.3);max-width:220px;text-align:center;pointer-events:none;line-height:1.4;';
+      document.body.appendChild(tooltip);
+      const rect = this.getBoundingClientRect();
+      const tipW = 220;
+      let left = rect.left + rect.width/2 - tipW/2;
+      left = Math.max(8, Math.min(left, window.innerWidth - tipW - 8));
+      let top = rect.top - tooltip.offsetHeight - 8;
+      if (top < 8) top = rect.bottom + 8;
+      tooltip.style.left = left + 'px';
+      tooltip.style.top = top + 'px';
+      // Auto remove after 2.5s or on outside click
+      const remove = () => { tooltip.remove(); document.removeEventListener('click', remove); };
+      setTimeout(remove, 2500);
+      setTimeout(() => document.addEventListener('click', remove), 50);
+    });
+  });
+
+  // Update personal best section
   const pbEl = document.getElementById('final-pb');
-  if (pbEl) pbEl.textContent = `Personal best – Skor: ${rec.score} | Akurasi: ${rec.accuracy||0}% | D/B/S: ${rec.total||0}/${rec.correct||0}/${rec.wrong||0}`;
+  if (pbEl) {
+    const pbScore = rec.score || 0;
+    const pbAcc = rec.accuracy || 0;
+    const pbCombo = rec.bestCombo || 0;
+    const pbAttempts = rec.attempts || 1;
+    pbEl.innerHTML = `<span style="font-size:1.1rem;font-weight:900;color:#f37021;">${pbScore} poin</span> &nbsp;·&nbsp; Akurasi: <b>${pbAcc}%</b> &nbsp;·&nbsp; Best Combo: <b>${pbCombo}x</b> &nbsp;·&nbsp; D/B/S: ${rec.total||0}/${rec.correct||0}/${rec.wrong||0} &nbsp;·&nbsp; Dimainkan: <b>${pbAttempts}x</b>`;
+  }
+
+  // Show new record badge
+  const newBadge = document.getElementById('pb-new-badge');
+  if (newBadge && GS.score > (GS.previousBest || 0) && GS.score > 0) {
+    newBadge.style.display = 'inline-block';
+  }
+
+  // Session mini stats
+  const pbBestComboEl = document.getElementById('pb-best-combo');
+  const pbUniqueEl = document.getElementById('pb-unique');
+  const pbVsOldEl = document.getElementById('pb-vs-old');
+  if (pbBestComboEl) pbBestComboEl.textContent = (GS.bestCombo || 0) + 'x';
+  if (pbUniqueEl) pbUniqueEl.textContent = (sessionAsked ? sessionAsked.size : 0);
+  if (pbVsOldEl) {
+    const diff = GS.score - (GS.previousBest || 0);
+    if (diff > 0) { pbVsOldEl.textContent = '+' + diff; pbVsOldEl.style.color = '#22c55e'; }
+    else if (diff < 0) { pbVsOldEl.textContent = '' + diff; pbVsOldEl.style.color = '#ef4444'; }
+    else { pbVsOldEl.textContent = '—'; pbVsOldEl.style.color = '#94a3b8'; }
+  }
+
+  // Power-up usage stats
+  const puUsed = GS.puUsed || {};
+  const puSection = document.getElementById('powerup-stats-section');
+  const puGrid = document.getElementById('powerup-stats-grid');
+  const puDefs = [
+    { key:'freeze', icon:'❄️', label:'Freeze', cls:'#0c4a6e', bg:'#bae6fd' },
+    { key:'double', icon:'2️⃣', label:'Double Poin', cls:'#78350f', bg:'#fde68a' },
+    { key:'skip', icon:'⏭️', label:'Skip', cls:'#365314', bg:'#d9f99d' },
+    { key:'hint', icon:'💡', label:'Hint', cls:'#3b0764', bg:'#e9d5ff' },
+    { key:'timeExtend', icon:'⏳', label:'Time+', cls:'#4a044e', bg:'#fde8ff' },
+  ];
+  const usedAny = puDefs.some(d => (puUsed[d.key] || 0) > 0);
+  if (puSection && puGrid) {
+    if (usedAny) {
+      puSection.style.display = '';
+      puGrid.innerHTML = puDefs.filter(d => (puUsed[d.key] || 0) > 0).map(d =>
+        `<span style="display:inline-flex;align-items:center;gap:3px;background:${d.bg};color:${d.cls};border-radius:999px;padding:2px 8px;font-size:0.62rem;font-weight:900;">${d.icon} ${d.label} ×${puUsed[d.key]}</span>`
+      ).join('');
+    } else {
+      puSection.style.display = '';
+      puGrid.innerHTML = `<span style="font-size:0.62rem;color:#94a3b8;font-style:italic;">Tidak ada power-up digunakan</span>`;
+    }
+  }
 }
 
 function renderLbPrev() {
