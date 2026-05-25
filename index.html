@@ -5588,12 +5588,12 @@ function spawnTrash() {
   }
 
   // Card flip animation
-  const tc3 = document.getElementById('trash-container');
-  if (tc3) {
-    tc3.classList.remove('card-flip-in');
-    void tc3.offsetWidth;
-    tc3.classList.add('card-flip-in');
-    setTimeout(() => tc3.classList.remove('card-flip-in'), 350);
+  const tc3Flip = document.getElementById('trash-container');
+  if (tc3Flip) {
+    tc3Flip.classList.remove('card-flip-in');
+    void tc3Flip.offsetWidth;
+    tc3Flip.classList.add('card-flip-in');
+    setTimeout(() => tc3Flip.classList.remove('card-flip-in'), 350);
   }
   
   // Maybe make this a lucky trash
