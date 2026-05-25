@@ -5271,6 +5271,30 @@ function showRankNotification(playerName, isCurriculum) {
 // ──────────────────────────────────────────
 //  GAME ENGINE
 // ──────────────────────────────────────────
+// Global pool of random eco tips for `#game-eco-tip` (displayed independently of question type)
+const ECO_TIPS = [
+  '🌿 Pisahkan sampah organik dan anorganik setiap hari.',
+  '♻️ Cuci kemasan sebelum didaur ulang agar tidak mencemari.',
+  '💡 Kurangi penggunaan plastik sekali pakai untuk lingkungan lebih bersih.',
+  '🚲 Pilih berjalan kaki atau bersepeda untuk perjalanan singkat.',
+  '🍃 Tanam satu pohon — langkah kecil, dampak besar.',
+  '🔋 Matikan perangkat listrik jika tidak digunakan untuk hemat energi.',
+  '🧴 Pakai produk dengan kemasan ramah lingkungan bila memungkinkan.',
+  '📦 Belanja bijak: pilih barang dengan sedikit kemasan.',
+  '🗑️ Komposkan sisa makanan untuk mengurangi sampah organik.',
+  '🛠️ Perbaiki barang yang rusak sebelum mengganti baru.',
+  '🌱 Gunakan tas belanja kain sebagai pengganti plastik.',
+  '📅 Buat kebiasaan memilah sampah setiap minggu.',
+  '🔄 Pertimbangkan produk bekas untuk mengurangi limbah.',
+  '🧠 Edukasi teman tentang pentingnya daur ulang.',
+  '💧 Hemat air saat mencuci — setiap tetes berharga.',
+  '🧹 Jadwalkan pembersihan lingkungan kecil di sekitar rumah.',
+  '🏷️ Baca label produk untuk memilih yang lebih ramah lingkungan.',
+  '📣 Ajak keluarga ikut memilah sampah sebagai permainan seru.',
+  '🌍 Setiap tindakan kecil membantu menjaga bumi tetap sehat.',
+  '🎁 Berikan hadiah pengalaman, bukan barang, untuk kurangi konsumsi.'
+];
+
 function startGame(time, diff, name, isCurriculum) {
   // Cleanup any previous game session first
   if (GS.timerInterval) { clearInterval(GS.timerInterval); GS.timerInterval = null; }
@@ -5324,7 +5348,7 @@ function startGame(time, diff, name, isCurriculum) {
   document.getElementById('rival-strip').innerHTML='<div class="rival-strip-header">⚔️ Rival</div><div style="color:#94a3b8;font-size:0.72rem;">Mulai jawab untuk lihat rival!</div>';
   document.getElementById('combo-display').style.opacity='0';
   const tipStrip = document.getElementById('game-eco-tip');
-  if (tipStrip) tipStrip.textContent='🌿 Pilah sampah dari sumber untuk kurangi beban TPA.';
+  if (tipStrip) tipStrip.textContent = ECO_TIPS[Math.floor(Math.random() * ECO_TIPS.length)];
 
   const focusBadge = document.getElementById('curriculum-focus-badge');
   if (isCurriculum && GS.curriculumFocus) {
@@ -5535,6 +5559,7 @@ function buildQueue() {
   return q;
 }
 
+
 function spawnTrash() {
   if(!GS.isPlaying||GS.paused) return;
   
@@ -5598,15 +5623,11 @@ function spawnTrash() {
   
   // Maybe make this a lucky trash
   maybeSetLucky();
-
-  const tips={
-    'SISA MAKANAN':['Sisa makanan bisa jadi kompos, kurangi emisi metana di TPA.','Pisahkan sampah dapur basah agar tidak mencemari daur ulang.'],
-    'LAKU JUAL':['Sampah bernilai jual: bersihkan & keringkan sebelum disetor.','Pisahkan plastik, kertas, logam agar nilainya tetap tinggi.'],
-    'RESIDU':['Residu sulit didaur ulang, kurangi dari sumbernya.','Produk sekali pakai umumnya jadi residu – pilih reusable!']
-  };
-  const catTips=tips[GS.currentTrash.c]||['Mulai pilah sampah dari sekarang!'];
   const tipStrip = document.getElementById('game-eco-tip');
-  if (tipStrip) { tipStrip.textContent=catTips[Math.floor(Math.random()*catTips.length)]; tipStrip.style.opacity='1'; }
+  if (tipStrip) {
+    tipStrip.textContent = ECO_TIPS[Math.floor(Math.random() * ECO_TIPS.length)];
+    tipStrip.style.opacity = '1';
+  }
 }
 
 // Guard against duplicate answer submissions (drag+click double-fire)
