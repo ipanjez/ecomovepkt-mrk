@@ -354,8 +354,16 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
 .lb-knowledge-meta{margin-top:5px;font-size:0.6rem;font-weight:700;color:#64748b;display:flex;justify-content:space-between;gap:8px;}
 .lb-insight-list{display:flex;flex-direction:column;gap:6px;}
 .lb-insight-item{border:1px dashed #cbd5e1;border-radius:10px;padding:8px 10px;background:#f8fafc;font-size:0.63rem;font-weight:700;color:#334155;line-height:1.35;}
+.lb-hotspot-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.lb-hotspot-card{border:1px solid #e2e8f0;border-radius:12px;padding:10px;background:#fff;}
+.lb-hotspot-card.best{border-color:#86efac;background:linear-gradient(180deg,#f0fdf4,#ffffff);}
+.lb-hotspot-card.risk{border-color:#fecaca;background:linear-gradient(180deg,#fef2f2,#ffffff);}
+.lb-hotspot-title{font-size:0.6rem;font-weight:900;text-transform:uppercase;letter-spacing:0.04em;color:#475569;}
+.lb-hotspot-q{font-size:0.66rem;font-weight:800;color:#0f172a;line-height:1.35;margin-top:3px;}
+.lb-hotspot-meta{font-size:0.61rem;font-weight:700;color:#64748b;line-height:1.35;margin-top:4px;}
 @media(max-width:640px){
   .lb-answer-grid{grid-template-columns:1fr;}
+  .lb-hotspot-grid{grid-template-columns:1fr;}
 }
 
 /* ─── SCROLLBAR HIDE ─── */
@@ -1621,6 +1629,13 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
           </div>
           <div class="mt-3 lb-stats-chart-wrap">
             <div class="lb-stats-chart-head">
+              <p class="lb-stats-chart-title">Soal Teratas Benar vs Salah</p>
+              <p class="lb-stats-chart-sub">Hotspot soal yang paling sering dijawab</p>
+            </div>
+            <div id="lb-stats-hotspot" class="lb-hotspot-grid"></div>
+          </div>
+          <div class="mt-3 lb-stats-chart-wrap">
+            <div class="lb-stats-chart-head">
               <p class="lb-stats-chart-title">Komposisi Pemain</p>
               <p class="lb-stats-chart-sub" id="lb-stats-dist-sub">Distribusi pemain berdasarkan mode aktif</p>
             </div>
@@ -2260,6 +2275,13 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
           <p class="lb-stats-chart-sub">Laku Jual, Residu, Sisa Makanan, dan lainnya</p>
         </div>
         <div id="lb-prev-stats-knowledge" class="lb-knowledge-grid"></div>
+      </div>
+      <div class="mt-3 lb-stats-chart-wrap">
+        <div class="lb-stats-chart-head">
+          <p class="lb-stats-chart-title">Soal Teratas Benar vs Salah</p>
+          <p class="lb-stats-chart-sub">Hotspot soal yang paling sering dijawab</p>
+        </div>
+        <div id="lb-prev-stats-hotspot" class="lb-hotspot-grid"></div>
       </div>
       <div class="mt-3 lb-stats-chart-wrap">
         <div class="lb-stats-chart-head">
@@ -5750,6 +5772,49 @@ function mergeCatStats(a,b) {
   return r;
 }
 
+function buildSessionQuestionStats(history) {
+  const out = {};
+  if (!Array.isArray(history)) return out;
+  history.forEach(entry => {
+    const q = ((entry && entry.item) || '').trim();
+    if (!q) return;
+    const key = q;
+    if (!out[key]) {
+      out[key] = {
+        q,
+        total: 0,
+        correct: 0,
+        wrong: 0,
+        expectedAnswer: (entry.expected || entry.correctAnswer || entry.category || '')
+      };
+    }
+    out[key].total += 1;
+    if (entry.correct) out[key].correct += 1;
+    else out[key].wrong += 1;
+    if (!out[key].expectedAnswer) {
+      out[key].expectedAnswer = (entry.expected || entry.correctAnswer || entry.category || '');
+    }
+  });
+  return out;
+}
+
+function mergeQuestionStats(a, b) {
+  const out = {};
+  const keys = new Set([...Object.keys(a || {}), ...Object.keys(b || {})]);
+  keys.forEach(k => {
+    const av = (a && a[k]) || { q: k, total: 0, correct: 0, wrong: 0, expectedAnswer: '' };
+    const bv = (b && b[k]) || { q: k, total: 0, correct: 0, wrong: 0, expectedAnswer: '' };
+    out[k] = {
+      q: av.q || bv.q || k,
+      total: (Number(av.total) || 0) + (Number(bv.total) || 0),
+      correct: (Number(av.correct) || 0) + (Number(bv.correct) || 0),
+      wrong: (Number(av.wrong) || 0) + (Number(bv.wrong) || 0),
+      expectedAnswer: av.expectedAnswer || bv.expectedAnswer || ''
+    };
+  });
+  return out;
+}
+
 async function saveToDb(acc, wrong) {
   if(GS.score<=0&&GS.totalAnswered<=0) return;
   const safeId=GS.playerName.replace(/[.#$[\]/\s]/g,'_').toUpperCase();
@@ -5760,6 +5825,7 @@ async function saveToDb(acc, wrong) {
   const ex=snap.val();
   const attempts=(ex?((ex.attempts||1)+1):1);
   const merged=mergeCatStats(ex?ex.categoryStats||{}:{}, GS.categoryStats||{});
+  const mergedQuestionStats=mergeQuestionStats(ex?ex.questionStats||{}:{}, buildSessionQuestionStats(GS.history||[]));
 
   const rank=(()=>{ const i=lbCache.findIndex(r=>r.id===recordKey); return i>=0?i+1:null; })();
   let secBadges=computeSecondaryBadges(
@@ -5778,6 +5844,7 @@ async function saveToDb(acc, wrong) {
     timestamp:firebase.database.ServerValue.TIMESTAMP,
     attempts, total:GS.totalAnswered, correct:GS.correctAnswers, wrong,
     accuracy:acc, bestCombo:GS.bestCombo, categoryStats:merged,
+    questionStats:mergedQuestionStats,
     previousBest:ex?ex.score||0:0, secondaryBadges:secBadges,
     isCurriculum:GS.isCurriculum, curriculumFilter:GS.curriculumFocus||null,
     dcType: !GS.isCurriculum ? (DC.type || null) : null,
@@ -5804,6 +5871,7 @@ async function saveToDb(acc, wrong) {
     const upd={
       attempts,
       categoryStats:merged,
+      questionStats:mergedQuestionStats,
       secondaryBadges:secBadges,
       timestamp:firebase.database.ServerValue.TIMESTAMP
     };
@@ -6354,12 +6422,13 @@ function renderLbStatsPanel(prefix, mode, filter, search) {
   const summaryEl = document.getElementById(`${prefix}-stats-summary`);
   const answerEl = document.getElementById(`${prefix}-stats-answer`);
   const knowledgeEl = document.getElementById(`${prefix}-stats-knowledge`);
+  const hotspotEl = document.getElementById(`${prefix}-stats-hotspot`);
   const distEl = document.getElementById(`${prefix}-stats-distribution`);
   const trendEl = document.getElementById(`${prefix}-stats-trend`);
   const tierEl = document.getElementById(`${prefix}-stats-tier`);
   const insightsEl = document.getElementById(`${prefix}-stats-insights`);
   const distSub = document.getElementById(`${prefix}-stats-dist-sub`);
-  if (!summaryEl || !answerEl || !knowledgeEl || !distEl || !trendEl || !tierEl || !insightsEl) return;
+  if (!summaryEl || !answerEl || !knowledgeEl || !hotspotEl || !distEl || !trendEl || !tierEl || !insightsEl) return;
 
   const filtered = filterLb(lbCache, filter, mode, search);
   const modePool = filterLb(lbCache, 'All', mode, '');
@@ -6369,6 +6438,7 @@ function renderLbStatsPanel(prefix, mode, filter, search) {
     summaryEl.innerHTML = `<div class="lb-stat-card"><p class="lb-stat-label">Statistik</p><p class="lb-stat-sub">Belum ada data untuk filter saat ini.</p></div>`;
     answerEl.innerHTML = '';
     knowledgeEl.innerHTML = '';
+    hotspotEl.innerHTML = '';
     distEl.innerHTML = '';
     trendEl.innerHTML = '';
     tierEl.innerHTML = '';
@@ -6472,6 +6542,57 @@ function renderLbStatsPanel(prefix, mode, filter, search) {
       </div>
     </div>
   `).join('');
+
+  const qAgg = {};
+  filtered.forEach(r => {
+    const qs = r.questionStats || {};
+    Object.entries(qs).forEach(([k, v]) => {
+      if (!qAgg[k]) {
+        qAgg[k] = {
+          q: v.q || k,
+          total: 0,
+          correct: 0,
+          wrong: 0,
+          expectedAnswer: v.expectedAnswer || ''
+        };
+      }
+      qAgg[k].total += Number(v.total) || 0;
+      qAgg[k].correct += Number(v.correct) || 0;
+      qAgg[k].wrong += Number(v.wrong) || 0;
+      if (!qAgg[k].expectedAnswer) qAgg[k].expectedAnswer = v.expectedAnswer || '';
+    });
+  });
+  const qRows = Object.values(qAgg).filter(x => x.total > 0);
+  const topCorrect = qRows.length
+    ? [...qRows].sort((a, b) => (b.correct - a.correct) || (b.total - a.total))[0]
+    : null;
+  const topWrong = qRows.length
+    ? [...qRows].sort((a, b) => (b.wrong - a.wrong) || (b.total - a.total))[0]
+    : null;
+
+  const topCorrectHtml = topCorrect
+    ? `
+      <div class="lb-hotspot-card best">
+        <p class="lb-hotspot-title">Soal Paling Banyak Benar</p>
+        <p class="lb-hotspot-q">${escHtml(topCorrect.q)}</p>
+        <p class="lb-hotspot-meta">Benar ${topCorrect.correct}x dari ${topCorrect.total}x percobaan.</p>
+        <p class="lb-hotspot-meta">Jawaban seharusnya: <b>${escHtml(topCorrect.expectedAnswer || '-')}</b></p>
+      </div>
+    `
+    : `<div class="lb-hotspot-card best"><p class="lb-hotspot-title">Soal Paling Banyak Benar</p><p class="lb-hotspot-meta">Belum ada data soal.</p></div>`;
+
+  const topWrongHtml = topWrong
+    ? `
+      <div class="lb-hotspot-card risk">
+        <p class="lb-hotspot-title">Soal Paling Banyak Salah</p>
+        <p class="lb-hotspot-q">${escHtml(topWrong.q)}</p>
+        <p class="lb-hotspot-meta">Salah ${topWrong.wrong}x dari ${topWrong.total}x percobaan.</p>
+        <p class="lb-hotspot-meta">Jawaban seharusnya: <b>${escHtml(topWrong.expectedAnswer || '-')}</b></p>
+      </div>
+    `
+    : `<div class="lb-hotspot-card risk"><p class="lb-hotspot-title">Soal Paling Banyak Salah</p><p class="lb-hotspot-meta">Belum ada data soal.</p></div>`;
+
+  hotspotEl.innerHTML = topCorrectHtml + topWrongHtml;
 
   const distMap = {};
   if (mode === 'curriculum') {
