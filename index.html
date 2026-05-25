@@ -2985,45 +2985,90 @@ async function loadAllPlayerDataFromFirebase(name) {
   if (!name || !DB || !DB.ref) return;
   try {
     const safeId = name.replace(/[.#$[\]/\s]/g,'_').toUpperCase();
-    const snap = await Promise.race([
-      DB.ref('playerData/' + safeId).once('value'),
-      new Promise((_,rej) => setTimeout(() => rej(new Error('timeout')), 4000))
+
+    // Load playerData (puInventory, loginStreak, dailyPlay) dan DC secara paralel
+    const [playerSnap, dcSnap] = await Promise.all([
+      Promise.race([
+        DB.ref('playerData/' + safeId).once('value'),
+        new Promise((_,rej) => setTimeout(() => rej(new Error('timeout')), 4000))
+      ]).catch(e => { console.warn('playerData load error:', e); return null; }),
+      Promise.race([
+        DB.ref('dailyChallenges/' + safeId + '/' + getTodayKey()).once('value'),
+        new Promise((_,rej) => setTimeout(() => rej(new Error('timeout')), 4000))
+      ]).catch(e => { console.warn('DC load error:', e); return null; })
     ]);
-    if (!snap || !snap.exists()) return;
-    const playerData = snap.val();
 
     // --- Power-up inventory ---
     // Only load from Firebase when NOT in an active game session,
     // to avoid overwriting the session's in-use inventory.
-    if (playerData.puInventory && !(typeof GS !== 'undefined' && GS.isPlaying)) {
-      const p = playerData.puInventory;
-      puInventory = { freeze: p.freeze||0, double: p.double||0, skip: p.skip||0, timeExtend: p.timeExtend||0 };
-      try { const key = getPuInventoryKey(); if (key) localStorage.setItem(key, JSON.stringify(puInventory)); } catch(e) {}
-    }
+    if (playerSnap && playerSnap.exists()) {
+      const playerData = playerSnap.val();
 
-    // --- Login streak ---
-    if (playerData.loginStreak) {
-      try {
-        const key = getLoginStorageKey();
-        if (key) localStorage.setItem(key, JSON.stringify(playerData.loginStreak));
-      } catch(e) {}
-    }
+      if (playerData.puInventory && !(typeof GS !== 'undefined' && GS.isPlaying)) {
+        const p = playerData.puInventory;
+        puInventory = { freeze: p.freeze||0, double: p.double||0, skip: p.skip||0, timeExtend: p.timeExtend||0 };
+        try { const key = getPuInventoryKey(); if (key) localStorage.setItem(key, JSON.stringify(puInventory)); } catch(e) {}
+      }
 
-    // --- Daily play ---
-    if (playerData.dailyPlay) {
-      const d = playerData.dailyPlay;
-      const todayKey = getTodayKey();
-      if (d && d.date === todayKey) {
+      // --- Login streak ---
+      if (playerData.loginStreak) {
         try {
-          const key = getDailyPlayKey(name);
-          if (key) localStorage.setItem(key, JSON.stringify(d));
+          const key = getLoginStorageKey();
+          if (key) localStorage.setItem(key, JSON.stringify(playerData.loginStreak));
         } catch(e) {}
+        // Re-init streak in memory from fresh Firebase data
+        checkAndInitLoginStreak();
+      }
+
+      // --- Daily play (activity sessions) ---
+      if (playerData.dailyPlay) {
+        const d = playerData.dailyPlay;
+        const todayKey = getTodayKey();
+        if (d && d.date === todayKey) {
+          try {
+            const key = getDailyPlayKey(name);
+            if (key) localStorage.setItem(key, JSON.stringify(d));
+          } catch(e) {}
+        }
       }
     }
 
-    // Refresh UI after loading
+    // --- Daily Challenge (dari path terpisah dailyChallenges/) ---
+    // Selalu set currentUserIdForDC agar saveDC() bisa menyimpan ke Firebase
+    currentUserIdForDC = safeId;
+    if (!(typeof GS !== 'undefined' && GS.isPlaying)) {
+      const dk = getTodayKey();
+      if (dcSnap && dcSnap.exists()) {
+        const dcData = dcSnap.val();
+        if (dcData && dcData.dateKey === dk) {
+          // Data Firebase lebih otoritatif; update in-memory DC
+          DC = dcData;
+          // Sync ke localStorage sebagai cache
+          try {
+            const key = getAccountScopedKey('eco_dc_v2');
+            if (key) localStorage.setItem(key, JSON.stringify(dcData));
+          } catch(e) {}
+        } else {
+          // DC Firebase untuk hari lain, generate baru
+          DC = deriveDC(dk);
+          saveDC().catch(()=>{});
+        }
+      } else if (!DC || !DC.dateKey || DC.dateKey !== dk) {
+        // Tidak ada data DC di Firebase, generate dari localStorage/derive
+        fallbackLoadDC(dk);
+        saveDC().catch(()=>{});
+      }
+    }
+
+    // Refresh semua UI setelah data Firebase masuk
     updateLoginStreakCard();
     renderPlayCountBadge();
+    renderDCCard();
+
+    // Refresh rank notif jika lbCache sudah ada
+    if (typeof lbCache !== 'undefined' && lbCache && lbCache.length > 0) {
+      renderStartRankNotif(name);
+    }
   } catch(e) {
     console.warn('loadAllPlayerDataFromFirebase error:', e);
   }
@@ -8503,8 +8548,20 @@ document.addEventListener('keydown', e=>{
   // Load DC setelah nama tersedia
   const nameInput = document.getElementById('player-name');
   if (nameInput) {
-    nameInput.addEventListener('change', () => { const n = nameInput.value.trim(); loadPuInventory(); loadDC(); updateLoginStreakCard(); renderPlayMilestoneOnStart(); if(n) loadAllPlayerDataFromFirebase(n); });
-    nameInput.addEventListener('input', debounce(() => { const n = nameInput.value.trim(); loadPuInventory(); loadDC(); updateLoginStreakCard(); renderPlayMilestoneOnStart(); if(n) loadAllPlayerDataFromFirebase(n); }, 600));
+    // Fungsi sinkronisasi penuh: load Firebase dulu (termasuk DC), lalu refresh semua UI
+    async function syncAllDataForName(n) {
+      loadPuInventory();
+      updateLoginStreakCard();
+      renderPlayMilestoneOnStart();
+      if (n) {
+        // loadAllPlayerDataFromFirebase sudah memanggil loadDC() di dalamnya
+        await loadAllPlayerDataFromFirebase(n);
+      } else {
+        await loadDC();
+      }
+    }
+    nameInput.addEventListener('change', () => { const n = nameInput.value.trim(); syncAllDataForName(n); });
+    nameInput.addEventListener('input', debounce(() => { const n = nameInput.value.trim(); syncAllDataForName(n); }, 600));
   }
   setTimeout(() => { loadDC(); }, 100);
   
@@ -8552,6 +8609,8 @@ document.addEventListener('keydown', e=>{
     await loadAllPlayerDataFromFirebase(savedName);
     checkAndInitLoginStreak();
     updateLoginStreakCard();
+    // Reload DC with fresh Firebase data (cross-device sync)
+    await loadDC();
     // Show claim button if not yet claimed today
     const data = getLoginData();
     const claimBtn = document.getElementById('ls-claim-btn');
