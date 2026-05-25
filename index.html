@@ -8538,54 +8538,103 @@ document.addEventListener('keydown', e=>{
 //  INIT
 // ──────────────────────────────────────────
 (function init() {
-  // Load persistent power-up inventory
+  // Load local data dulu agar UI tidak kosong saat pertama kali render
   loadPuInventory();
   initGuideBadgeCards();
-  
-  // Initialize daily login streak
   checkAndInitLoginStreak();
 
-  // Load DC setelah nama tersedia
+  renderLbFilterChips();
+  renderLbPrevFilterChips();
+  renderPlayCountBadge();
+
+  // Restore nama pemain dari localStorage dan tampilkan UI awal dari cache lokal
+  const savedName = localStorage.getItem('eco_player_name');
   const nameInput = document.getElementById('player-name');
+  if (savedName && nameInput) {
+    nameInput.value = savedName;
+    updateLoginStreakCard();
+    renderPlayMilestoneOnStart();
+    const greetLabel = document.getElementById('eco-character-greeting');
+    if (greetLabel) {
+      greetLabel.firstChild.textContent = `Halo, ${savedName}! 👋`;
+      greetLabel.style.animation = 'none';
+      void greetLabel.offsetWidth;
+      greetLabel.style.animation = 'popIn 0.35s cubic-bezier(0.34,1.56,0.64,1) both';
+    }
+  }
+
+  // Render DC dari localStorage dulu (cepat) agar tidak kosong
+  setTimeout(() => { loadDC(); }, 50);
+
+  // ── Sinkronisasi penuh dari Firebase ──────────────────────────────────────
+  // Ini adalah satu-satunya tempat Firebase dipanggil saat init.
+  // Semua data (puInventory, loginStreak, dailyPlay, DC) diambil sekali,
+  // menghindari race condition antar setTimeout yang bertumpuk.
+  setTimeout(async () => {
+    const name = (nameInput ? nameInput.value.trim() : '') || savedName || '';
+    if (!name) return;
+    // loadAllPlayerDataFromFirebase mengambil: puInventory, loginStreak, dailyPlay, DC
+    await loadAllPlayerDataFromFirebase(name);
+    // Re-check streak setelah data Firebase masuk (mungkin klaim di device lain)
+    checkAndInitLoginStreak();
+    updateLoginStreakCard();
+    renderPlayCountBadge();
+    // Tampilkan tombol klaim jika belum diklaim hari ini
+    const loginData = getLoginData();
+    const claimBtn = document.getElementById('ls-claim-btn');
+    if (claimBtn) claimBtn.classList.toggle('hidden', !!loginData.claimedToday);
+  }, 800);
+
+  // ── Listener nama pemain ────────────────────────────────────────────────
+  // Saat nama diubah: simpan ke localStorage, lalu sinkron dari Firebase
   if (nameInput) {
-    // Fungsi sinkronisasi penuh: load Firebase dulu (termasuk DC), lalu refresh semua UI
     async function syncAllDataForName(n) {
       loadPuInventory();
       updateLoginStreakCard();
       renderPlayMilestoneOnStart();
       if (n) {
-        // loadAllPlayerDataFromFirebase sudah memanggil loadDC() di dalamnya
         await loadAllPlayerDataFromFirebase(n);
       } else {
         await loadDC();
       }
     }
+    // Listener 'change' (nama selesai diketik / blur)
     nameInput.addEventListener('change', () => { const n = nameInput.value.trim(); syncAllDataForName(n); });
-    nameInput.addEventListener('input', debounce(() => { const n = nameInput.value.trim(); syncAllDataForName(n); }, 600));
+    // Listener 'input' (real-time saat mengetik, debounced)
+    nameInput.addEventListener('input', e => {
+      try { localStorage.setItem('eco_player_name', e.target.value); } catch(err) {}
+      updateNameHint();
+      renderPlayCountBadge();
+      updateLoginStreakCard();
+      renderPlayMilestoneOnStart();
+      const nm = (e.target.value || '').trim();
+      const ecoTip = document.getElementById('eco-character-tip');
+      if (ecoTip) ecoTip.textContent = `Halo, ${nm || 'pemain'}!`;
+      const greetLabel = document.getElementById('eco-character-greeting');
+      if (greetLabel) {
+        greetLabel.firstChild.textContent = `Halo, ${nm || 'pemain'}! 👋`;
+        greetLabel.style.animation = 'none';
+        void greetLabel.offsetWidth;
+        greetLabel.style.animation = 'popIn 0.35s cubic-bezier(0.34,1.56,0.64,1) both';
+      }
+    });
+    // Debounced Firebase sync saat mengetik
+    nameInput.addEventListener('input', debounce(() => { const n = nameInput.value.trim(); if (n) syncAllDataForName(n); }, 800));
   }
-  setTimeout(() => { loadDC(); }, 100);
-  
-  renderLbFilterChips();
-  renderLbPrevFilterChips();
-  renderPlayCountBadge();
 
-  try { const n=localStorage.getItem('eco_player_name'); if(n) { document.getElementById('player-name').value=n; updateLoginStreakCard(); renderPlayMilestoneOnStart(); loadAllPlayerDataFromFirebase(n); const greetLabel=document.getElementById('eco-character-greeting'); if(greetLabel){greetLabel.firstChild.textContent=`Halo, ${n}! 👋`;greetLabel.style.animation='none';void greetLabel.offsetWidth;greetLabel.style.animation='popIn 0.35s cubic-bezier(0.34,1.56,0.64,1) both';} } } catch(e){}
-  document.getElementById('player-name').addEventListener('input',e=>{ try { localStorage.setItem('eco_player_name',e.target.value); } catch(err){} updateNameHint(); renderPlayCountBadge(); updateLoginStreakCard(); renderPlayMilestoneOnStart(); const nm=(e.target.value||'').trim(); const ecoTip=document.getElementById('eco-character-tip'); if(ecoTip) ecoTip.textContent=`Halo, ${nm||'pemain'}!`; const greetLabel=document.getElementById('eco-character-greeting'); if(greetLabel){greetLabel.firstChild.textContent=`Halo, ${nm||'pemain'}! 👋`;greetLabel.style.animation='none';void greetLabel.offsetWidth;greetLabel.style.animation='popIn 0.35s cubic-bezier(0.34,1.56,0.64,1) both';} });
-
-  const ambKey='eco_ambient';
-  const musicBtn=document.getElementById('music-btn');
-  // Default ON unless user explicitly turned it off
+  // ── Audio & misc ────────────────────────────────────────────────────────
+  const ambKey = 'eco_ambient';
+  const musicBtn = document.getElementById('music-btn');
   const musicOff = localStorage.getItem(ambKey) === '0';
-  if(musicOff) {
-    musicBtn.textContent='🎵';
+  if (musicOff) {
+    musicBtn.textContent = '🎵';
     musicBtn.className = musicBtn.className.replace('text-pktGreen','text-gray-400').replace('bg-green-50','bg-gray-50').replace('border-green-100','border-gray-100');
   } else {
-    musicBtn.textContent='🎶';
-    localStorage.setItem(ambKey,'1');
+    musicBtn.textContent = '🎶';
+    localStorage.setItem(ambKey, '1');
   }
 
-  // Unlock WebAudio on first user gesture (some browsers block AudioContext until a gesture)
-  (function unlockAudioOnGesture(){
+  (function unlockAudioOnGesture() {
     function _unlock() {
       try { if (window.audioCtx && audioCtx.state === 'suspended') audioCtx.resume(); } catch(e) {}
       document.body.removeEventListener('pointerdown', _unlock);
@@ -8593,31 +8642,12 @@ document.addEventListener('keydown', e=>{
     document.body.addEventListener('pointerdown', _unlock, { once: true });
   })();
 
-  document.body.style.overflow='auto';
+  document.body.style.overflow = 'auto';
 
-  // Show keyboard shortcuts hint on non-touch devices
   if (!('ontouchstart' in window)) {
     const kbHint = document.getElementById('pu-kb-hint');
     if (kbHint) kbHint.style.display = 'block';
   }
-  
-  // Show daily login button instead of auto-popup
-  setTimeout(async () => {
-    const savedName = localStorage.getItem('eco_player_name');
-    if (!savedName) return;
-    // Load from Firebase first (cross-device sync), then init streak
-    await loadAllPlayerDataFromFirebase(savedName);
-    checkAndInitLoginStreak();
-    updateLoginStreakCard();
-    // Reload DC with fresh Firebase data (cross-device sync)
-    await loadDC();
-    // Show claim button if not yet claimed today
-    const data = getLoginData();
-    const claimBtn = document.getElementById('ls-claim-btn');
-    if (claimBtn && !data.claimedToday) {
-      claimBtn.classList.remove('hidden');
-    }
-  }, 800);
 })();
 </script>
 </body>
