@@ -6997,21 +6997,23 @@ function setupFirebaseListener() {
         
         const rankedRank = rankedRankMap['id:'+r.id] || 9999;
         
-        if(!r.secondaryBadges) {
-          r.secondaryBadges=computeSecondaryBadges(
-            r.score||0,r.accuracy||0,r.bestCombo||0,0,r.correct||0,r.wrong||0,r.total||0,
-            r.categoryStats||{},rankedRank,r.attempts||0,[], false, r.isCurriculum,
-            { dcType: r.dcType || null, dcDateKey: r.dcDateKey || null, dcDone: !!(r.dcType || r.dcDateKey) },
-            r.playerName || r.name || ''
-          )||[];
-        } else {
-          // Handle existing badges but ensure rank badges are correct
-          r.secondaryBadges = (r.secondaryBadges||[]).filter(b => b !== 'Top 10' && b !== 'Top 3' && b !== 'Rank #1');
-          if(!r.isCurriculum && rankedRank > 0) {
-            if(rankedRank === 1) r.secondaryBadges = ['Rank #1', ...r.secondaryBadges];
-            else if(rankedRank <= 3) r.secondaryBadges = ['Top 3', ...r.secondaryBadges];
-            else if(rankedRank <= 10) r.secondaryBadges = ['Top 10', ...r.secondaryBadges];
-          }
+        // Selalu recompute badge berdasarkan statistik terkini, lalu merge dengan yang tersimpan
+        // agar badge lama tidak hilang dan badge baru otomatis muncul (termasuk data lama di Firebase)
+        const storedBadges = r.secondaryBadges || [];
+        const recomputedBadges = computeSecondaryBadges(
+          r.score||0,r.accuracy||0,r.bestCombo||0,0,r.correct||0,r.wrong||0,r.total||0,
+          r.categoryStats||{},rankedRank,r.attempts||0,storedBadges, false, r.isCurriculum,
+          { dcType: r.dcType || null, dcDateKey: r.dcDateKey || null, dcDone: !!(r.dcType || r.dcDateKey) },
+          r.playerName || r.name || ''
+        ) || [];
+        // Gabungkan recomputed + stored (union) agar semua badge terpelihara
+        const mergedBadges = [...new Set([...recomputedBadges, ...storedBadges])];
+        // Update rank badge sesuai posisi leaderboard saat ini
+        r.secondaryBadges = mergedBadges.filter(b => b !== 'Top 10' && b !== 'Top 3' && b !== 'Rank #1');
+        if(!r.isCurriculum && rankedRank > 0) {
+          if(rankedRank === 1) r.secondaryBadges = ['Rank #1', ...r.secondaryBadges];
+          else if(rankedRank <= 3) r.secondaryBadges = ['Top 3', ...r.secondaryBadges];
+          else if(rankedRank <= 10) r.secondaryBadges = ['Top 10', ...r.secondaryBadges];
         }
       });
 
