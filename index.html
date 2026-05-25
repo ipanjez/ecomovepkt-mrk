@@ -3610,6 +3610,59 @@ function getPlayMilestoneState(name) {
   return { attempts, mData, next, last, unclaimed };
 }
 
+function claimPlayMilestone(at) {
+  const name = (document.getElementById('player-name')?.value || '').trim();
+  if (!name) return;
+  const milestone = PLAY_MILESTONES.find(m => m.at === at);
+  if (!milestone) return;
+
+  const state = getPlayMilestoneState(name);
+  if (state.attempts < at) {
+    showMilestoneToast(`Main ${at} game dulu untuk membuka ${milestone.badge}`);
+    return;
+  }
+
+  const mData = state.mData || { claimed: [] };
+  if (mData.claimed.includes(at)) {
+    showMilestoneToast(`${milestone.badge} sudah diambil`);
+    return;
+  }
+
+  Object.entries(milestone.rewards || {}).forEach(([key, amount]) => addToPuInventory(key, amount));
+  mData.claimed.push(at);
+  savePlayMilestoneData(mData);
+  showMilestoneToast(`🎁 ${milestone.badge} diklaim!`);
+  renderPlayMilestoneOnStart();
+  renderPlayMilestoneModal();
+  try { updateLoginStreakCard(); } catch(e) {}
+}
+
+function claimAllPlayMilestones() {
+  const name = (document.getElementById('player-name')?.value || '').trim();
+  if (!name) return;
+  const state = getPlayMilestoneState(name);
+  const claimable = state.unclaimed || [];
+  if (claimable.length === 0) {
+    showMilestoneToast('Tidak ada milestone yang bisa diklaim');
+    return;
+  }
+
+  const mData = state.mData || { claimed: [] };
+  let claimedCount = 0;
+  claimable.forEach(milestone => {
+    if (!mData.claimed.includes(milestone.at)) {
+      Object.entries(milestone.rewards || {}).forEach(([key, amount]) => addToPuInventory(key, amount));
+      mData.claimed.push(milestone.at);
+      claimedCount += 1;
+    }
+  });
+  savePlayMilestoneData(mData);
+  showMilestoneToast(`🎁 ${claimedCount} milestone berhasil diklaim!`);
+  renderPlayMilestoneOnStart();
+  renderPlayMilestoneModal();
+  try { updateLoginStreakCard(); } catch(e) {}
+}
+
 function getPlayMilestoneData() {
   try {
     const key = getAccountScopedKey(PLAY_MILESTONE_KEY);
@@ -3649,7 +3702,7 @@ function checkPlayCountMilestoneDisplay(name) {
   if (unclaimed.length > 0) {
     if (section) section.classList.remove('hidden');
     if (textEl) textEl.textContent = `${unclaimed[0].badge} — ${unclaimed[0].label}`;
-    if (rewardEl) rewardEl.textContent = 'Hadiah bonus belum diklaim! Akan diklaim otomatis saat main.';
+    if (rewardEl) rewardEl.textContent = 'Hadiah bonus belum diklaim! Buka modal milestone untuk klaim manual, atau akan otomatis saat main berikutnya.';
   } else if (next) {
     if (section) section.classList.remove('hidden');
     if (textEl) textEl.textContent = `Menuju ${next.at} game (${attempts}/${next.at})`;
@@ -3714,11 +3767,17 @@ function renderPlayMilestoneModal() {
   const listEl = document.getElementById('play-milestone-modal-list');
 
   if (subtitleEl) {
-    subtitleEl.textContent = name ? `${name} • ${attempts} total main` : 'Masukkan nama dulu untuk melihat progress akun ini.';
-  }
+    const hasUnclaimed = unclaimed.length > 0;
+    listEl.innerHTML = `
+      ${hasUnclaimed ? `
+        <button onclick="claimAllPlayMilestones()" class="w-full mb-2 rounded-xl bg-gradient-to-r from-emerald-400 to-cyan-500 text-white font-black py-2.5 text-xs shadow-lg active:scale-95 transition">Klaim Semua yang Siap</button>
+      ` : ''}
+      ${PLAY_MILESTONES.map(m => {
+      const claimed = !unclaimed.some(u => u.at === m.at) && attempts >= m.at;
 
-  if (next) {
-    const prev = PLAY_MILESTONES.find(m => m.at < next.at) || {at:0};
+      const claimable = !locked && !claimed;
+      const stateLabel = locked ? `Tunggu ${m.at - attempts} game lagi` : (claimable ? 'Siap diklaim' : 'Sudah diambil');
+      const stateClass = locked ? 'bg-slate-700/40 text-slate-200 border-slate-500/20' : (claimable ? 'bg-amber-400/15 text-amber-100 border-amber-400/25' : 'bg-emerald-400/12 text-emerald-100 border-emerald-400/25');
     const pct = Math.round(((attempts - prev.at) / (next.at - prev.at)) * 100);
     const safePct = Math.max(3, Math.min(100, pct));
     if (fillEl) fillEl.style.width = `${safePct}%`;
@@ -3726,12 +3785,16 @@ function renderPlayMilestoneModal() {
     if (badgeEl) { badgeEl.textContent = next.badge; badgeEl.className = 'milestone-badge locked flex-shrink-0'; }
     if (rewardEl) rewardEl.textContent = `Reward: ${formatPlayMilestoneRewards(next.rewards)}`;
   } else {
-    if (fillEl) fillEl.style.width = '100%';
+            <div class="flex items-center gap-1.5 shrink-0">
+              <span class="text-[0.58rem] font-black rounded-full px-2.5 py-1 border ${stateClass}">${stateLabel}</span>
+              ${claimable ? `<button onclick="claimPlayMilestone(${m.at})" class="text-[0.58rem] font-black rounded-full px-2.5 py-1 bg-white text-purple-700 border border-purple-200 active:scale-95 transition">Klaim</button>` : ''}
+            </div>
     if (progressEl) progressEl.textContent = `${attempts} game total • semua milestone aktif sudah selesai`;
     if (badgeEl) { badgeEl.textContent = 'LEGEND'; badgeEl.className = 'milestone-badge active flex-shrink-0'; }
     if (rewardEl) rewardEl.textContent = 'Semua milestone sudah terbuka untuk akun ini.';
-  }
-
+      `;
+    }).join('')}
+    `;
   if (listEl) {
     listEl.innerHTML = PLAY_MILESTONES.map(m => {
       const claimed = unclaimed.some(u => u.at === m.at) ? false : attempts >= m.at;
