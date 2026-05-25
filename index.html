@@ -1706,11 +1706,17 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
             </div>
             <div class="flex items-center gap-2">
               <span id="db-status" class="text-[0.65rem] font-bold text-green-400"></span>
-              <button onclick="exportPdf()" class="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 transition" title="Export PDF">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.8)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
+              <button onclick="exportPdf()" class="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-red-600 hover:bg-red-500 transition text-white font-bold text-[0.62rem]" title="Export PDF Tabel">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
+                PDF
               </button>
-              <button onclick="exportExcel()" class="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 transition" title="Export Excel">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.8)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/></svg>
+              <button onclick="exportExcel()" class="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-green-600 hover:bg-green-500 transition text-white font-bold text-[0.62rem]" title="Export Excel">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/></svg>
+                XLS
+              </button>
+              <button onclick="exportStatsPdf()" class="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-violet-600 hover:bg-violet-500 transition text-white font-bold text-[0.62rem]" title="Export Statistik PDF">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                Statistik
               </button>
             </div>
           </div>
@@ -2215,6 +2221,10 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
         </div>
         <div class="bg-white p-4 space-y-2">
           <p class="text-xs text-gray-700 mb-2">Tantangan baru setiap hari! Ada 7 tipe berbeda yang berganti otomatis, dan progresnya mengikuti akun aktif. Menyelesaikan DC juga bisa membuka varian badge khusus sesuai tipe tantangannya.</p>
+          <div class="rounded-xl bg-fuchsia-50 border border-fuchsia-200 px-3 py-2.5 mb-2 flex items-start gap-2">
+            <span class="text-lg shrink-0">⏳</span>
+            <p class="text-[0.68rem] text-fuchsia-800 font-semibold leading-relaxed"><b>Reward Spesial:</b> Setiap kali kamu berhasil menyelesaikan Daily Challenge, kamu otomatis mendapatkan <b>+1 Time Extend (LANGKA)</b>! Semakin sering selesaikan DC, semakin banyak stok Time Extend-mu.</p>
+          </div>
           <div class="grid grid-cols-1 gap-1.5">
             <div class="flex items-center gap-2.5 rounded-lg bg-blue-50 border border-blue-100 px-3 py-2"><span>🎯</span><p class="text-xs text-blue-800"><b>Ahli Kategori</b> — target skor & akurasi di kategori tertentu</p></div>
             <div class="flex items-center gap-2.5 rounded-lg bg-purple-50 border border-purple-100 px-3 py-2"><span>💥</span><p class="text-xs text-purple-800"><b>Combo Master</b> — capai combo tinggi berturut-turut</p></div>
@@ -2280,8 +2290,10 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
               <div class="space-y-0.5 text-xs text-gray-600">
                 <p><b>Skor</b> — poin tertinggi</p>
                 <p><b>Combo</b> — best combo</p>
+                <p><b>Akurasi</b> — % benar</p>
                 <p><b>D/B/S</b> — Dijawab/Benar/Salah</p>
                 <p><b>DC</b> — total Daily Challenge selesai</p>
+                <p><b>Coba</b> — jumlah sesi bermain</p>
                 <p><b>Badge sekunder</b> — tampil semua bila syaratnya terpenuhi, termasuk varian Daily Challenge</p>
               </div>
             </div>
@@ -2303,7 +2315,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
           <div class="rounded-xl bg-white/70 border border-amber-100 px-2 py-2.5"><div class="text-base">❄️</div><div class="mt-1 text-[0.56rem] text-amber-700">Freeze saat kepepet</div></div>
           <div class="rounded-xl bg-white/70 border border-amber-100 px-2 py-2.5"><div class="text-base">2️⃣</div><div class="mt-1 text-[0.56rem] text-amber-700">2x Poin + combo tinggi</div></div>
           <div class="rounded-xl bg-white/70 border border-amber-100 px-2 py-2.5"><div class="text-base">⏭️</div><div class="mt-1 text-[0.56rem] text-amber-700">Skip soal ragu-ragu</div></div>
-          <div class="rounded-xl bg-white/70 border border-amber-100 px-2 py-2.5"><div class="text-base">⏳</div><div class="mt-1 text-[0.56rem] text-amber-700">Time Extend hari ke-7</div></div>
+          <div class="rounded-xl bg-white/70 border border-amber-100 px-2 py-2.5"><div class="text-base">⏳</div><div class="mt-1 text-[0.56rem] text-amber-700">Time Extend dari DC & Login Hari ke-7</div></div>
           <div class="rounded-xl bg-white/70 border border-amber-100 px-2 py-2.5"><div class="text-base">⭐</div><div class="mt-1 text-[0.56rem] text-amber-700">Lucky Trash = 3x poin</div></div>
         </div>
       </div>
@@ -2313,7 +2325,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
         <div class="bg-gradient-to-r from-purple-600 to-blue-600 px-4 py-2.5 flex items-center gap-2">
           <span class="text-lg">⚡</span>
           <p class="font-black text-white text-sm">Power-Up</p>
-          <span class="ml-auto text-xs font-bold text-white/80 bg-white/20 px-2 py-0.5 rounded-full">Maks. 7 per tipe</span>
+          <span class="ml-auto text-xs font-bold text-white/80 bg-white/20 px-2 py-0.5 rounded-full">Maks. 100 per tipe</span>
         </div>
         <div class="bg-white p-4 space-y-3">
           <div class="rounded-xl bg-purple-50 border border-purple-100 px-3 py-2 text-[0.7rem] text-purple-800 font-semibold leading-relaxed">Power-up tersimpan di inventori akun aktif dan bisa dipakai kembali di sesi berikutnya — selama kamu memakai nama yang sama.</div>
@@ -2357,7 +2369,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
                   <span class="text-[0.58rem] font-black bg-fuchsia-100 text-fuchsia-600 rounded-full px-1.5 py-0.5">Shortcut: R</span>
                   <span class="text-[0.58rem] font-black bg-fuchsia-600 text-white rounded-full px-1.5 py-0.5">✨ LANGKA</span>
                 </div>
-                <p class="text-[0.68rem] text-gray-600 mt-0.5">Tambah <b>+15 detik</b> waktu bermain sekaligus. Power-up paling langka — hanya bisa didapat dari Daily Login Hari ke-7!</p>
+                <p class="text-[0.68rem] text-gray-600 mt-0.5">Tambah <b>+15 detik</b> waktu bermain sekaligus. Power-up paling langka — bisa didapat dari <b>Daily Login Hari ke-7</b> dan juga dari <b>menyelesaikan Daily Challenge</b> (selalu +1 setiap DC selesai)!</p>
               </div>
             </div>
             <div class="flex items-start gap-3 rounded-xl bg-orange-50 border border-orange-100 px-3 py-2.5">
@@ -2373,11 +2385,12 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
             <p class="text-[0.68rem] font-black text-blue-800 mb-1.5">📦 Cara Mendapatkan Power-Up:</p>
             <div class="space-y-1 text-[0.65rem] text-blue-700 font-semibold">
               <p>🎁 <b>Daily Login</b> — reward otomatis sesuai siklus 7 hari (lihat bagian Daily Login Reward)</p>
+              <p>⚡ <b>Daily Challenge</b> — selesaikan tantangan harian untuk mendapat <span class="text-fuchsia-700 font-black">⏳ +1 Time Extend (LANGKA!)</span> setiap kali DC selesai</p>
               <p>💥 <b>Combo Milestone</b> — capai combo 5, 10, 15, atau 20 berturut-turut saat bermain</p>
               <p>🎮 <b>Milestone Main</b> — setiap 3x, 10x, 25x, 50x, 100x total sesi bermain</p>
             </div>
           </div>
-          <p class="text-[0.62rem] text-gray-400">💡 Maksimum 7 stok per tipe power-up. Stok yang sudah penuh tidak akan bertambah — gunakan secara berkala!</p>
+          <p class="text-[0.62rem] text-gray-400">💡 Maksimum 100 stok per tipe power-up. Gunakan secara berkala agar tidak terbuang sia-sia!</p>
         </div>
       </div>
 
@@ -2403,6 +2416,22 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
         <div class="lb-section-subtitle">Real-time · Semua skor pemain</div>
       </div>
       <button onclick="closeLbModal()" style="position:relative;z-index:20;background:rgba(255,255,255,0.15);border:1.5px solid rgba(255,255,255,0.3);border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;color:white;font-size:1.1rem;font-weight:900;cursor:pointer;transition:background 0.15s;flex-shrink:0;" onmouseover="this.style.background='rgba(255,255,255,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.15)'">&times;</button>
+    </div>
+    <!-- Export Buttons Row for lb-modal -->
+    <div style="display:flex;gap:6px;padding:8px 16px 4px;background:rgba(0,0,0,0.2);flex-wrap:wrap;align-items:center;">
+      <span style="font-size:0.6rem;font-weight:900;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:0.05em;margin-right:4px;">📤 Export:</span>
+      <button onclick="exportPrevPdf()" style="display:inline-flex;align-items:center;gap:5px;background:linear-gradient(135deg,#dc2626,#991b1b);color:white;border:none;border-radius:8px;padding:5px 10px;font-size:0.65rem;font-weight:800;cursor:pointer;transition:opacity 0.15s;" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'" title="Export tabel leaderboard ke PDF">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
+        PDF Tabel
+      </button>
+      <button onclick="exportPrevExcel()" style="display:inline-flex;align-items:center;gap:5px;background:linear-gradient(135deg,#16a34a,#15803d);color:white;border:none;border-radius:8px;padding:5px 10px;font-size:0.65rem;font-weight:800;cursor:pointer;transition:opacity 0.15s;" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'" title="Export tabel ke Excel">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/></svg>
+        Excel
+      </button>
+      <button onclick="exportPrevStatsPdf()" style="display:inline-flex;align-items:center;gap:5px;background:linear-gradient(135deg,#7c3aed,#5b21b6);color:white;border:none;border-radius:8px;padding:5px 10px;font-size:0.65rem;font-weight:800;cursor:pointer;transition:opacity 0.15s;" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'" title="Export statistik leaderboard ke PDF">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        PDF Statistik
+      </button>
     </div>
     <div class="flex-1 min-h-0 overflow-y-auto p-5 no-scrollbar" style="-webkit-overflow-scrolling:touch;">
     <div class="chip-row mb-2" id="lb-prev-view-row">
@@ -2611,7 +2640,7 @@ function getAccountScopedKey(prefix) {
 // LOGIN_STORAGE_KEY is now per-account (per player name)
 // Use getLoginStorageKey() instead of LOGIN_STORAGE_KEY directly
 const PLAY_MILESTONE_KEY = 'eco_play_milestone_v1';
-const MAX_PU_STACK = 7; // max stackable per type
+const MAX_PU_STACK = 100; // max stackable per type
 
 function getLoginStorageKey() {
   try {
@@ -5530,7 +5559,9 @@ function updateMissionUI() {
     DC.bestProgress = 100;
     saveDC();
     renderDCCard();
-    showFeedback('🏅 Daily Complete!','text-emerald-500');
+    // Grant Time Extend reward for completing daily challenge
+    grantPowerupReward('timeExtend', 1, '⏳ Daily Challenge selesai! +1 Time Extend (LANGKA)!');
+    showFeedback('🏅 Daily Complete! +⏳','text-emerald-500');
     launchConfetti(20);
   } else if(info.pct > DC.bestProgress) {
     DC.bestProgress = info.pct;
@@ -7365,33 +7396,228 @@ function renderLbPrev() {
 // ──────────────────────────────────────────
 //  EXPORT FUNCTIONS
 // ──────────────────────────────────────────
-function exportPdf() {
-  const data=filterLb(lbCache,lbFilter);
-  if(!data.length) { alert('Tidak ada data.'); return; }
-  let rows='';
-  data.forEach((r,i)=>{
-    const primary=computePrimaryBadge(r.score||0,r.accuracy||0,r.bestCombo||0,r.attempts||0);
-    const ts=r.timestamp?new Date(r.timestamp).toLocaleString('id-ID',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):'-';
-    rows+=`<tr><td>${i+1}</td><td>${escHtml(r.name||'')}<br><small>${escHtml(formatBadge(primary))}</small></td><td>${r.score||0}</td><td>${r.bestCombo||0}</td><td>${r.accuracy||0}%</td><td>${r.total||0}/${r.correct||0}/${r.wrong||0}</td><td>${ts}</td><td>${r.attempts||1}x</td></tr>`;
+
+// Shared helpers
+function buildLbTableRows(data, mode) {
+  let rows = '';
+  data.forEach((r, i) => {
+    const primary = computePrimaryBadge(r.score||0, r.accuracy||0, r.bestCombo||0, r.attempts||0);
+    const ts = r.timestamp ? new Date(r.timestamp).toLocaleString('id-ID',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}) : '-';
+    const dc = r.isCurriculum ? '–' : (r.dcCompleted || 0);
+    const badges = (r.secondaryBadges||[]).join(', ');
+    const diffLabel = r.isCurriculum ? (r.curriculumFilter||'Kurikulum') : getDifficultyDisplayName(r.difficulty||'');
+    rows += `<tr>
+      <td style="text-align:center;font-weight:900;">${i+1}</td>
+      <td style="font-weight:800;">${escHtml(getRecordName(r)||'–')}</td>
+      <td style="text-align:center;">${escHtml(formatBadge(primary))}</td>
+      <td style="text-align:center;">${escHtml(diffLabel)}</td>
+      <td style="text-align:center;font-weight:900;color:#F37021;">${r.score||0}</td>
+      <td style="text-align:center;">${r.bestCombo||0}x</td>
+      <td style="text-align:center;">${r.accuracy||0}%</td>
+      <td style="text-align:center;">${r.total||0}/${r.correct||0}/${r.wrong||0}</td>
+      <td style="text-align:center;">${dc}</td>
+      <td style="text-align:center;">${r.attempts||1}x</td>
+      <td style="font-size:8pt;">${escHtml(badges)}</td>
+      <td style="text-align:center;font-size:8pt;">${ts}</td>
+    </tr>`;
   });
-  const html=`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Leaderboard EcoMove</title><style>body{font-family:Arial,sans-serif;font-size:10pt;}table{border-collapse:collapse;width:100%;}th,td{border:1px solid #ccc;padding:5px;font-size:9pt;}th{background:#005B9F;color:white;}@page{size:A4 landscape;margin:10mm;}</style></head><body><h2>EcoMove Leaderboard – ${new Date().toLocaleString('id-ID')}</h2><table><thead><tr><th>#</th><th>Nama</th><th>Skor</th><th>Combo</th><th>Akurasi</th><th>D/B/S</th><th>Waktu</th><th>Coba</th></tr></thead><tbody>${rows}</tbody></table></body></html>`;
-  const w=window.open('','_blank');
-  if(!w) { alert('Izinkan popup untuk export PDF.'); return; }
-  w.document.write(html); w.document.close(); w.focus(); setTimeout(()=>w.print(),600);
+  return rows;
+}
+
+function buildLbHtmlDoc(title, rows, mode, filter, exportDate, totalCount) {
+  const modeLabel = mode === 'curriculum' ? 'Mode Kurikulum' : 'Mode Ranked';
+  const filterLabel = filter === 'All' ? 'Semua Level' : filter;
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${title}</title>
+  <style>
+    body{font-family:Arial,sans-serif;font-size:9pt;margin:0;padding:10px;}
+    h1{font-size:13pt;color:#005B9F;margin-bottom:2px;}
+    .meta{font-size:8pt;color:#64748b;margin-bottom:8px;}
+    table{border-collapse:collapse;width:100%;}
+    th,td{border:1px solid #d1d5db;padding:4px 6px;font-size:8.5pt;}
+    th{background:#005B9F;color:white;font-weight:900;text-align:center;}
+    tr:nth-child(even){background:#f8fafc;}
+    tr:nth-child(1) td{background:#fff7ed;font-weight:900;}
+    tr:nth-child(2) td{background:#f1f5f9;}
+    tr:nth-child(3) td{background:#fef3c7;}
+    .footer{margin-top:8px;font-size:7.5pt;color:#94a3b8;}
+    @page{size:A4 landscape;margin:8mm;}
+    @media print{body{padding:0;}}
+  </style></head><body>
+    <h1>🏆 EcoMove – ${title}</h1>
+    <p class="meta">${modeLabel} · Filter: ${filterLabel} · Diekspor: ${exportDate} · Total ${totalCount} pemain</p>
+    <table><thead><tr>
+      <th>#</th><th>Nama</th><th>Badge Utama</th><th>Mode/Level</th><th>Skor</th>
+      <th>Combo</th><th>Akurasi</th><th>D/B/S</th><th>DC</th><th>Coba</th>
+      <th>Badge Sekunder</th><th>Terakhir Main</th>
+    </tr></thead><tbody>${rows}</tbody></table>
+    <p class="footer">EcoMove: Trash Sorting Challenge · Dikembangkan oleh Enviro Agent Farhan Jezando Wardana · Dept. Manajemen Risiko Korporasi</p>
+  </body></html>`;
+}
+
+function buildStatsPdfHtml(filtered, mode, filter, exportDate) {
+  const modeLabel = mode === 'curriculum' ? 'Mode Kurikulum' : 'Mode Ranked';
+  const filterLabel = filter === 'All' ? 'Semua Level' : filter;
+  const totalPlayers = filtered.length;
+  const avgScore = totalPlayers ? Math.round(filtered.reduce((s,r)=>s+(r.score||0),0)/totalPlayers) : 0;
+  const avgAcc = totalPlayers ? Math.round(filtered.reduce((s,r)=>s+(r.accuracy||0),0)/totalPlayers) : 0;
+  const avgCombo = totalPlayers ? Math.round(filtered.reduce((s,r)=>s+(r.bestCombo||0),0)/totalPlayers) : 0;
+  const topScore = totalPlayers ? Math.max(...filtered.map(r=>r.score||0)) : 0;
+  const totalAttempts = filtered.reduce((s,r)=>s+(Number(r.attempts)||0),0);
+  const totalDC = filtered.reduce((s,r)=>s+(Number(r.dcCompleted)||0),0);
+
+  const cats = ['LAKU JUAL','RESIDU','SISA MAKANAN'];
+  const catAgg = {};
+  cats.forEach(c=>catAgg[c]={correct:0,total:0});
+  filtered.forEach(r=>{
+    Object.entries(r.categoryStats||{}).forEach(([c,st])=>{
+      if(catAgg[c]){ catAgg[c].total+=Number(st.total)||0; catAgg[c].correct+=Math.min(Number(st.correct)||0,Number(st.total)||0); }
+    });
+  });
+  const catRows = cats.map(c=>{
+    const v=catAgg[c]; const acc=v.total?Math.round((v.correct/v.total)*100):0;
+    const bar = `<span style="display:inline-block;width:${Math.max(2,acc)}px;height:8px;background:${acc>=80?'#16a34a':acc>=60?'#d97706':'#dc2626'};border-radius:2px;"></span>`;
+    return `<tr><td><b>${c}</b></td><td style="text-align:center;">${v.total.toLocaleString('id-ID')}</td><td style="text-align:center;color:#16a34a;font-weight:800;">${v.correct.toLocaleString('id-ID')}</td><td style="text-align:center;color:#dc2626;">${(v.total-v.correct).toLocaleString('id-ID')}</td><td style="text-align:center;">${bar}</td><td style="text-align:center;font-weight:900;color:${acc>=80?'#16a34a':acc>=60?'#d97706':'#dc2626'}">${acc}%</td></tr>`;
+  }).join('');
+
+  const primaryCounts = {};
+  filtered.forEach(r=>{
+    const p=computePrimaryBadge(r.score||0,r.accuracy||0,r.bestCombo||0,r.attempts||0);
+    primaryCounts[p]=(primaryCounts[p]||0)+1;
+  });
+  const badgeRows = Object.entries(primaryCounts).sort((a,b)=>b[1]-a[1]).map(([b,c])=>{
+    const pct=Math.round(c/Math.max(1,totalPlayers)*100);
+    const bar=`<span style="display:inline-block;width:${Math.max(2,pct)}px;height:8px;background:#005B9F;border-radius:2px;"></span>`;
+    return `<tr><td><b>${b}</b></td><td style="text-align:center;font-weight:900;">${c}</td><td style="text-align:center;">${bar}</td><td style="text-align:center;">${pct}%</td></tr>`;
+  }).join('');
+
+  const top10 = [...filtered].sort((a,b)=>(b.attempts||0)-(a.attempts||0)).slice(0,10);
+  const top10Rows = top10.map((r,i)=>`<tr>
+    <td style="text-align:center;font-weight:900;">${i+1}</td>
+    <td><b>${escHtml(getRecordName(r)||'–')}</b></td>
+    <td style="text-align:center;">${r.attempts||0}x</td>
+    <td style="text-align:center;font-weight:900;color:#F37021;">${(r.score||0).toLocaleString('id-ID')}</td>
+    <td style="text-align:center;">${r.accuracy||0}%</td>
+    <td style="text-align:center;">${r.bestCombo||0}x</td>
+    <td style="text-align:center;color:#059669;font-weight:800;">${r.isCurriculum?'–':(r.dcCompleted||0)}</td>
+    <td style="font-size:7.5pt;">${escHtml((r.secondaryBadges||[]).slice(0,3).join(', '))}</td>
+  </tr>`).join('');
+
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Statistik Leaderboard EcoMove</title>
+  <style>
+    body{font-family:Arial,sans-serif;font-size:9pt;margin:0;padding:10px;}
+    h1{font-size:14pt;color:#005B9F;margin-bottom:2px;}
+    h2{font-size:11pt;color:#1e3a5f;margin:16px 0 5px;border-bottom:2px solid #005B9F;padding-bottom:3px;}
+    .meta{font-size:8pt;color:#64748b;margin-bottom:12px;}
+    table{border-collapse:collapse;width:100%;margin-bottom:4px;}
+    th,td{border:1px solid #d1d5db;padding:4px 7px;font-size:8.5pt;vertical-align:middle;}
+    th{background:#005B9F;color:white;font-weight:900;}
+    tr:nth-child(even){background:#f8fafc;}
+    .kpi-table td{border:1px solid #93c5fd;padding:8px 10px;background:linear-gradient(135deg,#eff6ff,#dbeafe);}
+    .kpi-table .kv{font-size:15pt;font-weight:900;color:#005B9F;}
+    .kpi-table .kl{font-size:7.5pt;color:#64748b;font-weight:700;}
+    .footer{margin-top:10px;font-size:7.5pt;color:#94a3b8;border-top:1px solid #e2e8f0;padding-top:4px;}
+    @page{size:A4;margin:8mm;}
+    @media print{body{padding:0;} h2{page-break-before:auto;}}
+  </style></head><body>
+    <h1>📊 EcoMove – Statistik Leaderboard</h1>
+    <p class="meta">${modeLabel} · Filter: ${filterLabel} · Diekspor: ${exportDate}</p>
+
+    <h2>🎯 KPI Utama</h2>
+    <table class="kpi-table"><tbody>
+      <tr>
+        <td><div class="kv">${totalPlayers}</div><div class="kl">Total Pemain</div></td>
+        <td><div class="kv">${topScore.toLocaleString('id-ID')}</div><div class="kl">Skor Tertinggi</div></td>
+        <td><div class="kv">${avgScore.toLocaleString('id-ID')}</div><div class="kl">Rata-rata Skor</div></td>
+        <td><div class="kv">${avgAcc}%</div><div class="kl">Rata-rata Akurasi</div></td>
+      </tr>
+      <tr>
+        <td><div class="kv">${avgCombo}x</div><div class="kl">Rata-rata Combo</div></td>
+        <td><div class="kv">${totalAttempts.toLocaleString('id-ID')}</div><div class="kl">Total Sesi Main</div></td>
+        <td><div class="kv">${totalPlayers>0?Math.round(totalAttempts/totalPlayers):0}x</div><div class="kl">Avg Sesi/Pemain</div></td>
+        <td><div class="kv">${totalDC}</div><div class="kl">Total DC Selesai</div></td>
+      </tr>
+    </tbody></table>
+
+    <h2>🧠 Peta Pengetahuan Kategori</h2>
+    <table><thead><tr><th>Kategori</th><th>Total Jawaban</th><th>Benar</th><th>Salah</th><th>Bar</th><th>Akurasi</th></tr></thead>
+    <tbody>${catRows}</tbody></table>
+
+    <h2>🏅 Distribusi Badge Utama</h2>
+    <table><thead><tr><th>Badge</th><th>Jumlah Pemain</th><th>Bar</th><th>Persentase</th></tr></thead>
+    <tbody>${badgeRows}</tbody></table>
+
+    <h2>🔥 Top 10 Pemain Paling Aktif</h2>
+    <table><thead><tr><th>#</th><th>Nama</th><th>Total Sesi</th><th>Skor Terbaik</th><th>Akurasi</th><th>Combo</th><th>DC Selesai</th><th>Badge Sekunder</th></tr></thead>
+    <tbody>${top10Rows}</tbody></table>
+
+    <p class="footer">EcoMove: Trash Sorting Challenge · Dikembangkan oleh Enviro Agent Farhan Jezando Wardana · Dept. Manajemen Risiko Korporasi</p>
+  </body></html>`;
+}
+
+function exportPdf() {
+  const data = filterLb(lbCache, lbFilter, lbMode, lbSearch);
+  if (!data.length) { alert('Tidak ada data.'); return; }
+  const rows = buildLbTableRows(data, lbMode);
+  const html = buildLbHtmlDoc('Leaderboard', rows, lbMode, lbFilter, new Date().toLocaleString('id-ID'), data.length);
+  const w = window.open('','_blank');
+  if (!w) { alert('Izinkan popup untuk export PDF.'); return; }
+  w.document.write(html); w.document.close(); w.focus();
+  setTimeout(() => w.print(), 700);
 }
 
 function exportExcel() {
-  const data=filterLb(lbCache,lbFilter);
-  if(!data.length) { alert('Tidak ada data.'); return; }
-  let rows='';
-  data.forEach((r,i)=>{
-    const primary=computePrimaryBadge(r.score||0,r.accuracy||0,r.bestCombo||0,r.attempts||0);
-    const ts=r.timestamp?new Date(r.timestamp).toLocaleString('id-ID',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):'-';
-    rows+=`<tr><td>${i+1}</td><td>${escHtml(r.name||'')}</td><td>${escHtml(formatBadge(primary))}</td><td>${r.score||0}</td><td>${r.bestCombo||0}</td><td>${r.accuracy||0}%</td><td>${r.total||0}/${r.correct||0}/${r.wrong||0}</td><td>${ts}</td><td>${r.attempts||1}x</td></tr>`;
-  });
-  const html=`<html><head><meta charset="utf-8"></head><body><tr><thead><tr><th>#</th><th>Nama</th><th>Badge</th><th>Skor</th><th>Combo</th><th>Akurasi</th><th>D/B/S</th><th>Waktu</th><th>Coba</th></tr></thead><tbody>${rows}</tbody></table></body></html>`;
-  const blob=new Blob([html],{type:'application/vnd.ms-excel;charset=utf-8'});
-  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='leaderboard_ecomove.xls'; document.body.appendChild(a); a.click(); a.remove();
+  const data = filterLb(lbCache, lbFilter, lbMode, lbSearch);
+  if (!data.length) { alert('Tidak ada data.'); return; }
+  const rows = buildLbTableRows(data, lbMode);
+  const html = buildLbHtmlDoc('Leaderboard EcoMove', rows, lbMode, lbFilter, new Date().toLocaleString('id-ID'), data.length);
+  const blob = new Blob([html], {type:'application/vnd.ms-excel;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `leaderboard_ecomove_${lbMode}.xls`;
+  document.body.appendChild(a); a.click(); a.remove();
+}
+
+function exportStatsPdf() {
+  const filtered = filterLb(lbCache, lbFilter, lbMode, lbSearch);
+  if (!filtered.length) { alert('Tidak ada data statistik untuk diekspor.'); return; }
+  const html = buildStatsPdfHtml(filtered, lbMode, lbFilter, new Date().toLocaleString('id-ID'));
+  const w = window.open('','_blank');
+  if (!w) { alert('Izinkan popup untuk export PDF.'); return; }
+  w.document.write(html); w.document.close(); w.focus();
+  setTimeout(() => w.print(), 700);
+}
+
+function exportPrevPdf() {
+  const data = filterLb(lbCache, lbPrevFilter, lbPrevMode, lbPrevSearch);
+  if (!data.length) { alert('Tidak ada data untuk diekspor.'); return; }
+  const rows = buildLbTableRows(data, lbPrevMode);
+  const html = buildLbHtmlDoc('Leaderboard Preview', rows, lbPrevMode, lbPrevFilter, new Date().toLocaleString('id-ID'), data.length);
+  const w = window.open('','_blank');
+  if (!w) { alert('Izinkan popup untuk export PDF.'); return; }
+  w.document.write(html); w.document.close(); w.focus();
+  setTimeout(() => w.print(), 700);
+}
+
+function exportPrevExcel() {
+  const data = filterLb(lbCache, lbPrevFilter, lbPrevMode, lbPrevSearch);
+  if (!data.length) { alert('Tidak ada data untuk diekspor.'); return; }
+  const rows = buildLbTableRows(data, lbPrevMode);
+  const html = buildLbHtmlDoc('Leaderboard EcoMove', rows, lbPrevMode, lbPrevFilter, new Date().toLocaleString('id-ID'), data.length);
+  const blob = new Blob([html], {type:'application/vnd.ms-excel;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `leaderboard_ecomove_${lbPrevMode}.xls`;
+  document.body.appendChild(a); a.click(); a.remove();
+}
+
+function exportPrevStatsPdf() {
+  const filtered = filterLb(lbCache, lbPrevFilter, lbPrevMode, lbPrevSearch);
+  if (!filtered.length) { alert('Tidak ada data statistik untuk diekspor.'); return; }
+  const html = buildStatsPdfHtml(filtered, lbPrevMode, lbPrevFilter, new Date().toLocaleString('id-ID'));
+  const w = window.open('','_blank');
+  if (!w) { alert('Izinkan popup untuk export PDF.'); return; }
+  w.document.write(html); w.document.close(); w.focus();
+  setTimeout(() => w.print(), 700);
 }
 
 function copyResult() {
