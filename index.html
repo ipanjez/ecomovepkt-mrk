@@ -306,81 +306,238 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
   background:linear-gradient(135deg,#0f172a,#1e3a5f);color:#e2e8f0;border-color:#1e3a5f;
   box-shadow:0 4px 12px rgba(15,23,42,0.28);
 }
-.lb-stats-summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;}
-.lb-stat-card{
-  background:white;border:1px solid #e2e8f0;border-radius:12px;padding:10px;
-  box-shadow:0 2px 10px rgba(15,23,42,0.04);
+
+/* ─── STATS PANEL WRAPPER ─── */
+#lb-stats-panel{
+  background:linear-gradient(160deg,#f0f5ff 0%,#f8fafc 50%,#f0fdf4 100%);
 }
-.lb-stat-label{font-size:0.58rem;font-weight:900;text-transform:uppercase;letter-spacing:0.05em;color:#64748b;}
-.lb-stat-value{font-size:1.02rem;font-weight:900;color:#0f172a;line-height:1.2;margin-top:2px;}
-.lb-stat-sub{font-size:0.62rem;font-weight:700;color:#64748b;margin-top:2px;}
-.lb-stats-chart-wrap{background:white;border:1px solid #e2e8f0;border-radius:14px;padding:10px;}
-.lb-stats-chart-head{display:flex;justify-content:space-between;align-items:flex-end;gap:8px;margin-bottom:8px;}
-.lb-stats-chart-title{font-size:0.69rem;font-weight:900;color:#0f172a;letter-spacing:0.03em;text-transform:uppercase;}
-.lb-stats-chart-sub{font-size:0.62rem;font-weight:700;color:#64748b;text-align:right;}
-.lb-bars-grid{display:flex;flex-direction:column;gap:8px;}
-.lb-bar-row{display:grid;grid-template-columns:minmax(70px,120px) 1fr auto;align-items:center;gap:8px;}
-.lb-bar-label{font-size:0.66rem;font-weight:800;color:#334155;}
-.lb-bar-track{height:10px;background:#e2e8f0;border-radius:999px;overflow:hidden;}
-.lb-bar-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#2563eb,#0ea5e9,#14b8a6);}
-.lb-bar-val{font-size:0.63rem;font-weight:800;color:#334155;min-width:52px;text-align:right;}
-.lb-trend-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;align-items:end;min-height:115px;}
-.lb-trend-col{display:flex;flex-direction:column;align-items:center;gap:4px;}
-.lb-trend-bars{height:82px;display:flex;align-items:flex-end;gap:2px;}
-.lb-trend-part{width:10px;border-radius:4px 4px 2px 2px;background:linear-gradient(180deg,#1d4ed8,#2563eb);}
-.lb-trend-score{width:10px;border-radius:4px 4px 2px 2px;background:linear-gradient(180deg,#f97316,#fb923c);opacity:0.85;}
-.lb-trend-day{font-size:0.56rem;font-weight:800;color:#64748b;text-transform:uppercase;}
-.lb-trend-num{font-size:0.54rem;font-weight:800;color:#334155;line-height:1.1;text-align:center;}
-.lb-tier-stack{display:flex;flex-direction:column;gap:7px;}
-.lb-tier-row{display:grid;grid-template-columns:110px 1fr 46px;align-items:center;gap:8px;}
-.lb-tier-label{font-size:0.62rem;font-weight:800;color:#1e293b;}
-.lb-tier-track{height:8px;border-radius:999px;background:#e2e8f0;overflow:hidden;}
-.lb-tier-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#7AB800,#f59e0b,#ef4444);}
-.lb-tier-value{font-size:0.6rem;font-weight:800;color:#475569;text-align:right;}
-.lb-answer-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-.lb-answer-card{border:1px solid #e2e8f0;border-radius:12px;padding:10px;background:linear-gradient(180deg,#ffffff,#f8fafc);}
-.lb-answer-card.good{border-color:#86efac;background:linear-gradient(180deg,#f0fdf4,#ecfeff);}
-.lb-answer-card.bad{border-color:#fecaca;background:linear-gradient(180deg,#fef2f2,#fff7ed);}
-.lb-answer-title{font-size:0.6rem;font-weight:900;text-transform:uppercase;letter-spacing:0.04em;color:#475569;}
-.lb-answer-value{font-size:1rem;font-weight:900;color:#0f172a;line-height:1.2;margin-top:2px;}
-.lb-answer-sub{font-size:0.62rem;font-weight:700;color:#64748b;margin-top:2px;}
-.lb-knowledge-grid{display:flex;flex-direction:column;gap:8px;}
-.lb-knowledge-row{border:1px solid #e2e8f0;border-radius:12px;padding:8px 10px;background:#fff;}
+
+/* ─── SUMMARY KPI CARDS ─── */
+.lb-stats-summary-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;}
+@media(min-width:400px){.lb-stats-summary-grid{grid-template-columns:repeat(4,1fr);}}
+.lb-stat-card{
+  position:relative;overflow:hidden;
+  background:white;border:1px solid #e2e8f0;border-radius:14px;padding:12px 10px 10px;
+  box-shadow:0 2px 12px rgba(15,23,42,0.06);
+  transition:transform 0.15s,box-shadow 0.15s;
+}
+.lb-stat-card:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(15,23,42,0.1);}
+.lb-stat-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:14px 14px 0 0;
+  background:linear-gradient(90deg,var(--accent-a,#2563eb),var(--accent-b,#14b8a6));
+}
+.lb-stat-card.kpi-orange{--accent-a:#f97316;--accent-b:#fbbf24;}
+.lb-stat-card.kpi-green{--accent-a:#22c55e;--accent-b:#14b8a6;}
+.lb-stat-card.kpi-purple{--accent-a:#8b5cf6;--accent-b:#6366f1;}
+.lb-stat-card.kpi-blue{--accent-a:#2563eb;--accent-b:#0ea5e9;}
+.lb-stat-icon{font-size:1.15rem;margin-bottom:3px;display:block;}
+.lb-stat-label{font-size:0.56rem;font-weight:900;text-transform:uppercase;letter-spacing:0.06em;color:#94a3b8;}
+.lb-stat-value{font-size:1.15rem;font-weight:900;color:#0f172a;line-height:1.15;margin-top:2px;}
+.lb-stat-sub{font-size:0.59rem;font-weight:700;color:#64748b;margin-top:3px;line-height:1.3;}
+.lb-stat-badge{
+  display:inline-flex;align-items:center;gap:3px;margin-top:4px;
+  background:#f0f9ff;color:#0369a1;border-radius:999px;
+  padding:2px 7px;font-size:0.55rem;font-weight:800;
+}
+
+/* ─── SECTION HEADER ─── */
+.lb-stats-section{
+  background:white;border:1px solid #e2e8f0;border-radius:16px;
+  overflow:hidden;box-shadow:0 2px 10px rgba(15,23,42,0.04);
+}
+.lb-stats-section-hd{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:10px 14px;border-bottom:1px solid #f1f5f9;
+  background:linear-gradient(135deg,#f8fafc,#ffffff);
+}
+.lb-stats-chart-title{
+  font-size:0.67rem;font-weight:900;color:#0f172a;
+  letter-spacing:0.04em;text-transform:uppercase;
+  display:flex;align-items:center;gap:5px;
+}
+.lb-stats-chart-sub{font-size:0.6rem;font-weight:700;color:#94a3b8;}
+.lb-stats-body{padding:12px 14px;}
+
+/* ─── BAR ROWS (activity / badge) ─── */
+.lb-bars-grid{display:flex;flex-direction:column;gap:10px;}
+.lb-bar-row{display:grid;grid-template-columns:minmax(80px,130px) 1fr auto;align-items:center;gap:10px;}
+.lb-bar-label{font-size:0.65rem;font-weight:800;color:#1e293b;display:flex;align-items:center;gap:4px;}
+.lb-bar-rank{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:16px;height:16px;border-radius:50%;
+  font-size:0.52rem;font-weight:900;flex-shrink:0;
+  background:#e2e8f0;color:#64748b;
+}
+.lb-bar-rank.r1{background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#fff;}
+.lb-bar-rank.r2{background:linear-gradient(135deg,#cbd5e1,#94a3b8);color:#fff;}
+.lb-bar-rank.r3{background:linear-gradient(135deg,#fb923c,#ea580c);color:#fff;}
+.lb-bar-track{height:11px;background:#f1f5f9;border-radius:999px;overflow:hidden;position:relative;}
+.lb-bar-fill{
+  height:100%;border-radius:999px;
+  background:linear-gradient(90deg,#2563eb,#0ea5e9,#14b8a6);
+  position:relative;transition:width 0.6s cubic-bezier(0.34,1.56,0.64,1);
+}
+.lb-bar-fill::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,0.25),transparent);border-radius:999px;}
+.lb-bar-val{font-size:0.62rem;font-weight:900;color:#1e293b;min-width:60px;text-align:right;}
+
+/* ─── TREND CHART ─── */
+.lb-trend-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;align-items:end;}
+.lb-trend-col{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:default;}
+.lb-trend-bars{height:90px;display:flex;align-items:flex-end;gap:3px;}
+.lb-trend-part{
+  width:11px;border-radius:5px 5px 2px 2px;
+  background:linear-gradient(180deg,#3b82f6,#1d4ed8);
+  box-shadow:0 2px 6px rgba(37,99,235,0.3);
+  transition:height 0.5s cubic-bezier(0.34,1.56,0.64,1);
+}
+.lb-trend-score{
+  width:11px;border-radius:5px 5px 2px 2px;
+  background:linear-gradient(180deg,#fb923c,#ea580c);
+  box-shadow:0 2px 6px rgba(249,115,22,0.3);
+  opacity:0.9;
+  transition:height 0.5s cubic-bezier(0.34,1.56,0.64,1);
+}
+.lb-trend-col:hover .lb-trend-part{filter:brightness(1.15);}
+.lb-trend-col:hover .lb-trend-score{filter:brightness(1.15);}
+.lb-trend-day{font-size:0.56rem;font-weight:900;color:#94a3b8;text-transform:uppercase;letter-spacing:0.04em;}
+.lb-trend-num{font-size:0.53rem;font-weight:800;color:#475569;line-height:1.2;text-align:center;}
+.lb-trend-legend{display:flex;gap:10px;align-items:center;margin-top:8px;flex-wrap:wrap;}
+.lb-trend-legend-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0;}
+.lb-trend-legend-label{font-size:0.58rem;font-weight:700;color:#64748b;}
+
+/* ─── TIER PROGRESS ─── */
+.lb-tier-stack{display:flex;flex-direction:column;gap:8px;}
+.lb-tier-row{display:grid;grid-template-columns:100px 1fr 58px;align-items:center;gap:10px;}
+.lb-tier-label{font-size:0.65rem;font-weight:900;color:#1e293b;display:flex;align-items:center;gap:4px;}
+.lb-tier-label .tier-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.lb-tier-track{height:10px;border-radius:999px;background:#f1f5f9;overflow:hidden;}
+.lb-tier-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#7AB800,#f59e0b,#ef4444);transition:width 0.6s cubic-bezier(0.34,1.56,0.64,1);}
+.lb-tier-value{font-size:0.62rem;font-weight:900;color:#475569;text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:1px;}
+
+/* ─── ANSWER DOUGHNUT VISUAL ─── */
+.lb-answer-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.lb-answer-card{
+  border-radius:14px;padding:12px 10px 10px;
+  display:flex;flex-direction:column;align-items:center;text-align:center;
+  position:relative;overflow:hidden;
+}
+.lb-answer-card.good{
+  border:1.5px solid #86efac;
+  background:linear-gradient(145deg,#f0fdf4,#ecfeff);
+}
+.lb-answer-card.bad{
+  border:1.5px solid #fecaca;
+  background:linear-gradient(145deg,#fef2f2,#fff7ed);
+}
+.lb-answer-card::before{
+  content:'';position:absolute;bottom:-20px;right:-20px;
+  width:60px;height:60px;border-radius:50%;opacity:0.08;
+}
+.lb-answer-card.good::before{background:#22c55e;}
+.lb-answer-card.bad::before{background:#ef4444;}
+.lb-answer-emoji{font-size:1.6rem;margin-bottom:4px;}
+.lb-answer-title{font-size:0.58rem;font-weight:900;text-transform:uppercase;letter-spacing:0.06em;}
+.lb-answer-card.good .lb-answer-title{color:#15803d;}
+.lb-answer-card.bad .lb-answer-title{color:#b91c1c;}
+.lb-answer-value{font-size:1.6rem;font-weight:900;color:#0f172a;line-height:1.1;margin-top:2px;}
+.lb-answer-pct{
+  font-size:0.75rem;font-weight:900;border-radius:999px;padding:2px 10px;margin-top:4px;
+  display:inline-block;
+}
+.lb-answer-card.good .lb-answer-pct{background:#dcfce7;color:#15803d;}
+.lb-answer-card.bad .lb-answer-pct{background:#fee2e2;color:#b91c1c;}
+.lb-answer-sub{font-size:0.59rem;font-weight:700;color:#64748b;margin-top:3px;}
+
+/* ─── KNOWLEDGE MAP ─── */
+.lb-knowledge-grid{display:flex;flex-direction:column;gap:10px;}
+.lb-knowledge-row{
+  border:1px solid #e2e8f0;border-radius:14px;padding:10px 12px;background:#fff;
+  position:relative;overflow:hidden;
+  transition:transform 0.15s,box-shadow 0.15s;
+}
+.lb-knowledge-row:hover{transform:translateX(3px);box-shadow:0 4px 14px rgba(0,0,0,0.06);}
+.lb-knowledge-row::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:0 2px 2px 0;}
+.lb-knowledge-row.cat-laku::before{background:linear-gradient(180deg,#f97316,#fbbf24);}
+.lb-knowledge-row.cat-residu::before{background:linear-gradient(180deg,#2563eb,#0ea5e9);}
+.lb-knowledge-row.cat-sisa::before{background:linear-gradient(180deg,#22c55e,#14b8a6);}
+.lb-knowledge-row.cat-other::before{background:linear-gradient(180deg,#8b5cf6,#6366f1);}
 .lb-knowledge-head{display:flex;justify-content:space-between;gap:8px;align-items:center;}
-.lb-knowledge-label{font-size:0.65rem;font-weight:900;color:#0f172a;}
-.lb-knowledge-score{font-size:0.62rem;font-weight:800;color:#334155;}
-.lb-knowledge-track{height:8px;border-radius:999px;background:#e2e8f0;overflow:hidden;margin-top:6px;}
-.lb-knowledge-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#2563eb,#14b8a6);}
-.lb-knowledge-meta{margin-top:5px;font-size:0.6rem;font-weight:700;color:#64748b;display:flex;justify-content:space-between;gap:8px;}
-.lb-insight-list{display:flex;flex-direction:column;gap:6px;}
-.lb-insight-item{border:1px dashed #cbd5e1;border-radius:10px;padding:8px 10px;background:#f8fafc;font-size:0.63rem;font-weight:700;color:#334155;line-height:1.35;}
-.lb-hotspot-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-.lb-hotspot-card{border:1px solid #e2e8f0;border-radius:12px;padding:10px;background:#fff;}
-.lb-hotspot-card.best{border-color:#86efac;background:linear-gradient(180deg,#f0fdf4,#ffffff);}
-.lb-hotspot-card.risk{border-color:#fecaca;background:linear-gradient(180deg,#fef2f2,#ffffff);}
-.lb-hotspot-title{font-size:0.6rem;font-weight:900;text-transform:uppercase;letter-spacing:0.04em;color:#475569;}
-.lb-hotspot-q{font-size:0.66rem;font-weight:800;color:#0f172a;line-height:1.35;margin-top:3px;}
-.lb-hotspot-meta{font-size:0.61rem;font-weight:700;color:#64748b;line-height:1.35;margin-top:4px;}
-.lb-badge-overview-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;}
-.lb-badge-overview-card{border:1px solid #e2e8f0;border-radius:12px;padding:10px;background:#fff;display:flex;flex-direction:column;gap:8px;}
-.lb-badge-overview-title{font-size:0.63rem;font-weight:900;text-transform:uppercase;letter-spacing:0.04em;color:#0f172a;display:flex;justify-content:space-between;gap:8px;align-items:flex-start;}
-.lb-badge-overview-sub{font-size:0.58rem;font-weight:700;color:#64748b;text-transform:none;letter-spacing:0;}
-.lb-badge-overview-list{display:flex;flex-direction:column;gap:6px;}
-.lb-badge-overview-row{display:grid;grid-template-columns:minmax(72px,110px) 1fr auto;align-items:center;gap:8px;}
-.lb-badge-overview-label{font-size:0.62rem;font-weight:800;color:#1e293b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.lb-badge-overview-track{height:8px;background:#e2e8f0;border-radius:999px;overflow:hidden;}
-.lb-badge-overview-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#0f172a,#2563eb,#14b8a6);}
-.lb-badge-overview-value{font-size:0.58rem;font-weight:800;color:#475569;min-width:52px;text-align:right;}
-.lb-active-players-grid{display:flex;flex-direction:column;gap:7px;}
-.lb-active-player-row{display:grid;grid-template-columns:minmax(100px,1fr) 1fr auto;align-items:center;gap:8px;}
-.lb-active-player-name{font-size:0.62rem;font-weight:800;color:#1e293b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.lb-active-player-track{height:8px;background:#e2e8f0;border-radius:999px;overflow:hidden;}
-.lb-active-player-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#7AB800,#f59e0b,#ef4444);}
-.lb-active-player-value{font-size:0.58rem;font-weight:800;color:#475569;min-width:58px;text-align:right;}
+.lb-knowledge-label{font-size:0.67rem;font-weight:900;color:#0f172a;display:flex;align-items:center;gap:5px;}
+.lb-knowledge-label .cat-icon{font-size:0.9rem;}
+.lb-knowledge-score{
+  font-size:0.6rem;font-weight:900;border-radius:999px;padding:2px 8px;
+}
+.lb-knowledge-score.level-unggul{background:#dcfce7;color:#15803d;}
+.lb-knowledge-score.level-cukup{background:#fef9c3;color:#854d0e;}
+.lb-knowledge-score.level-perlu{background:#fee2e2;color:#b91c1c;}
+.lb-knowledge-score.level-none{background:#f1f5f9;color:#94a3b8;}
+.lb-knowledge-track{height:9px;border-radius:999px;background:#f1f5f9;overflow:hidden;margin-top:7px;position:relative;}
+.lb-knowledge-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#2563eb,#14b8a6);transition:width 0.7s cubic-bezier(0.34,1.56,0.64,1);}
+.lb-knowledge-fill::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,0.25),transparent);border-radius:999px;}
+.lb-knowledge-meta{margin-top:6px;font-size:0.59rem;font-weight:700;color:#64748b;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;}
+.lb-knowledge-meta .meta-chip{
+  display:inline-flex;align-items:center;gap:3px;
+  background:#f8fafc;border-radius:999px;padding:1px 7px;
+}
+.lb-knowledge-meta .meta-correct{color:#15803d;}
+.lb-knowledge-meta .meta-wrong{color:#dc2626;}
+
+/* ─── INSIGHT LIST ─── */
+.lb-insight-list{display:flex;flex-direction:column;gap:8px;}
+.lb-insight-item{
+  display:flex;align-items:flex-start;gap:8px;
+  border:none;border-radius:12px;padding:10px 12px;
+  background:#f8fafc;font-size:0.63rem;font-weight:700;color:#334155;line-height:1.45;
+}
+.lb-insight-item .insight-icon{font-size:1rem;flex-shrink:0;margin-top:0px;}
+.lb-insight-item.insight-good{background:linear-gradient(135deg,#f0fdf4,#ecfeff);color:#166534;}
+.lb-insight-item.insight-warn{background:linear-gradient(135deg,#fffbeb,#fef9c3);color:#854d0e;}
+.lb-insight-item.insight-info{background:linear-gradient(135deg,#eff6ff,#f0f9ff);color:#1e40af;}
+
+/* ─── HOTSPOT CARDS ─── */
+.lb-hotspot-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.lb-hotspot-card{border-radius:14px;padding:12px;position:relative;overflow:hidden;}
+.lb-hotspot-card.best{
+  border:1.5px solid #86efac;
+  background:linear-gradient(145deg,#f0fdf4,#ffffff);
+}
+.lb-hotspot-card.risk{
+  border:1.5px solid #fecaca;
+  background:linear-gradient(145deg,#fef2f2,#ffffff);
+}
+.lb-hotspot-header{display:flex;align-items:center;gap:5px;margin-bottom:6px;}
+.lb-hotspot-icon{font-size:1rem;}
+.lb-hotspot-title{font-size:0.58rem;font-weight:900;text-transform:uppercase;letter-spacing:0.05em;}
+.lb-hotspot-card.best .lb-hotspot-title{color:#15803d;}
+.lb-hotspot-card.risk .lb-hotspot-title{color:#b91c1c;}
+.lb-hotspot-q{font-size:0.64rem;font-weight:800;color:#0f172a;line-height:1.4;margin-bottom:6px;}
+.lb-hotspot-meta{font-size:0.59rem;font-weight:700;color:#64748b;line-height:1.4;}
+.lb-hotspot-pct{
+  display:inline-block;border-radius:999px;padding:1px 7px;font-size:0.58rem;font-weight:900;margin-top:4px;
+}
+.lb-hotspot-card.best .lb-hotspot-pct{background:#dcfce7;color:#15803d;}
+.lb-hotspot-card.risk .lb-hotspot-pct{background:#fee2e2;color:#b91c1c;}
+
+/* ─── BADGE OVERVIEW ─── */
+.lb-badge-overview-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;}
+.lb-badge-overview-card{
+  border:1px solid #e2e8f0;border-radius:14px;padding:10px;background:#fff;
+  display:flex;flex-direction:column;gap:8px;
+}
+.lb-badge-overview-header{border-bottom:1px solid #f1f5f9;padding-bottom:7px;margin-bottom:2px;}
+.lb-badge-overview-title{font-size:0.62rem;font-weight:900;text-transform:uppercase;letter-spacing:0.04em;color:#0f172a;}
+.lb-badge-overview-sub{font-size:0.57rem;font-weight:700;color:#94a3b8;margin-top:2px;}
+.lb-badge-overview-list{display:flex;flex-direction:column;gap:7px;}
+.lb-badge-overview-row{display:grid;grid-template-columns:minmax(68px,110px) 1fr auto;align-items:center;gap:7px;}
+.lb-badge-overview-label{font-size:0.6rem;font-weight:800;color:#1e293b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.lb-badge-overview-track{height:7px;background:#f1f5f9;border-radius:999px;overflow:hidden;}
+.lb-badge-overview-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#1e3a5f,#2563eb,#14b8a6);transition:width 0.6s ease-out;}
+.lb-badge-overview-value{font-size:0.57rem;font-weight:800;color:#475569;min-width:48px;text-align:right;}
 @media(max-width:640px){
-  .lb-answer-grid{grid-template-columns:1fr;}
+  .lb-answer-grid{grid-template-columns:1fr 1fr;}
   .lb-hotspot-grid{grid-template-columns:1fr;}
   .lb-badge-overview-grid{grid-template-columns:1fr;}
+  .lb-stats-summary-grid{grid-template-columns:repeat(2,1fr);}
 }
 
 /* ─── SCROLLBAR HIDE ─── */
@@ -1628,63 +1785,102 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
             </tbody>
           </table>
         </div>
-        <div id="lb-stats-panel" class="hidden rounded-xl border border-slate-200 bg-gradient-to-b from-slate-50 to-white p-3 max-h-[60vh] overflow-y-auto no-scrollbar" style="-webkit-overflow-scrolling:touch;">
-          <div id="lb-stats-summary" class="lb-stats-summary-grid"></div>
-          <div class="mt-3 lb-stats-chart-wrap">
-            <div class="lb-stats-chart-head">
-              <p class="lb-stats-chart-title">Komposisi Jawaban</p>
-              <p class="lb-stats-chart-sub">Proporsi benar dan salah</p>
+        <div id="lb-stats-panel" class="hidden rounded-xl border border-slate-200 p-3 max-h-[60vh] overflow-y-auto no-scrollbar" style="-webkit-overflow-scrolling:touch;background:linear-gradient(160deg,#f0f5ff 0%,#f8fafc 50%,#f0fdf4 100%);">
+          <!-- KPI Summary -->
+          <div id="lb-stats-summary" class="lb-stats-summary-grid mb-3"></div>
+          
+          <!-- Komposisi Jawaban -->
+          <div class="lb-stats-section mb-3">
+            <div class="lb-stats-section-hd">
+              <p class="lb-stats-chart-title">📊 Komposisi Jawaban</p>
+              <p class="lb-stats-chart-sub">Rasio benar vs salah</p>
             </div>
-            <div id="lb-stats-answer" class="lb-answer-grid"></div>
-          </div>
-          <div class="mt-3 lb-stats-chart-wrap">
-            <div class="lb-stats-chart-head">
-              <p class="lb-stats-chart-title">Peta Pengetahuan Kategori</p>
-              <p class="lb-stats-chart-sub">Laku Jual, Residu, Sisa Makanan, dan lainnya</p>
+            <div class="lb-stats-body">
+              <div id="lb-stats-answer" class="lb-answer-grid"></div>
             </div>
-            <div id="lb-stats-knowledge" class="lb-knowledge-grid"></div>
           </div>
-          <div class="mt-3 lb-stats-chart-wrap">
-            <div class="lb-stats-chart-head">
-              <p class="lb-stats-chart-title">Soal Teratas Benar vs Salah</p>
-              <p class="lb-stats-chart-sub">Hotspot soal yang paling sering dijawab</p>
+
+          <!-- Peta Pengetahuan -->
+          <div class="lb-stats-section mb-3">
+            <div class="lb-stats-section-hd">
+              <p class="lb-stats-chart-title">🧠 Peta Pengetahuan Kategori</p>
+              <p class="lb-stats-chart-sub">Akurasi per kategori sampah</p>
             </div>
-            <div id="lb-stats-hotspot" class="lb-hotspot-grid"></div>
+            <div class="lb-stats-body">
+              <div id="lb-stats-knowledge" class="lb-knowledge-grid"></div>
+            </div>
           </div>
-            <div class="mt-3 lb-stats-chart-wrap">
-              <div class="lb-stats-chart-head">
-                <p class="lb-stats-chart-title">Persentase Badge</p>
-                <p class="lb-stats-chart-sub">Komposisi badge utama, secondary, dan tags</p>
-              </div>
+
+          <!-- Hotspot Soal -->
+          <div class="lb-stats-section mb-3">
+            <div class="lb-stats-section-hd">
+              <p class="lb-stats-chart-title">🎯 Hotspot Soal</p>
+              <p class="lb-stats-chart-sub">Soal paling sering benar & salah</p>
+            </div>
+            <div class="lb-stats-body">
+              <div id="lb-stats-hotspot" class="lb-hotspot-grid"></div>
+            </div>
+          </div>
+
+          <!-- Persentase Badge -->
+          <div class="lb-stats-section mb-3">
+            <div class="lb-stats-section-hd">
+              <p class="lb-stats-chart-title">🏅 Distribusi Badge</p>
+              <p class="lb-stats-chart-sub">Badge utama, sekunder & tags</p>
+            </div>
+            <div class="lb-stats-body">
               <div id="lb-stats-badges" class="lb-badge-overview-grid"></div>
             </div>
-          <div class="mt-3 lb-stats-chart-wrap">
-            <div class="lb-stats-chart-head">
-                <p class="lb-stats-chart-title">Top 5 Pemain Paling Aktif</p>
-                <p class="lb-stats-chart-sub" id="lb-stats-dist-sub">5 pemain dengan jumlah main terbanyak</p>
-            </div>
-            <div id="lb-stats-distribution" class="lb-bars-grid"></div>
           </div>
-          <div class="mt-3 lb-stats-chart-wrap">
-            <div class="lb-stats-chart-head">
-              <p class="lb-stats-chart-title">Tren Partisipasi 7 Hari</p>
-              <p class="lb-stats-chart-sub">Jumlah pemain update per hari dan rata-rata skor</p>
+
+          <!-- Top Pemain Aktif -->
+          <div class="lb-stats-section mb-3">
+            <div class="lb-stats-section-hd">
+              <p class="lb-stats-chart-title">🔥 Top 5 Pemain Paling Aktif</p>
+              <p class="lb-stats-chart-sub" id="lb-stats-dist-sub">5 pemain dengan sesi main terbanyak</p>
             </div>
-            <div id="lb-stats-trend" class="lb-trend-grid"></div>
+            <div class="lb-stats-body">
+              <div id="lb-stats-distribution" class="lb-bars-grid"></div>
+            </div>
           </div>
-          <div class="mt-3 lb-stats-chart-wrap">
-            <div class="lb-stats-chart-head">
-              <p class="lb-stats-chart-title">Progress Partisipasi</p>
-              <p class="lb-stats-chart-sub">Perkembangan level pemain dari Newcomer sampai Legend</p>
+
+          <!-- Tren Partisipasi -->
+          <div class="lb-stats-section mb-3">
+            <div class="lb-stats-section-hd">
+              <p class="lb-stats-chart-title">📈 Tren Partisipasi 7 Hari</p>
+              <p class="lb-stats-chart-sub">Pemain & rata-rata skor per hari</p>
             </div>
-            <div id="lb-stats-tier" class="lb-tier-stack"></div>
+            <div class="lb-stats-body">
+              <div id="lb-stats-trend" class="lb-trend-grid"></div>
+              <div class="lb-trend-legend">
+                <span class="lb-trend-legend-dot" style="background:#3b82f6;"></span>
+                <span class="lb-trend-legend-label">Jumlah pemain</span>
+                <span class="lb-trend-legend-dot" style="background:#fb923c;"></span>
+                <span class="lb-trend-legend-label">Rata-rata skor</span>
+              </div>
+            </div>
           </div>
-          <div class="mt-3 lb-stats-chart-wrap">
-            <div class="lb-stats-chart-head">
-              <p class="lb-stats-chart-title">Insight Tambahan</p>
-              <p class="lb-stats-chart-sub">Ringkasan kualitas pembelajaran leaderboard</p>
+
+          <!-- Progress Partisipasi Tier -->
+          <div class="lb-stats-section mb-3">
+            <div class="lb-stats-section-hd">
+              <p class="lb-stats-chart-title">🎖️ Progress Level Pemain</p>
+              <p class="lb-stats-chart-sub">Newcomer → Legend Player</p>
             </div>
-            <div id="lb-stats-insights" class="lb-insight-list"></div>
+            <div class="lb-stats-body">
+              <div id="lb-stats-tier" class="lb-tier-stack"></div>
+            </div>
+          </div>
+
+          <!-- Insight -->
+          <div class="lb-stats-section">
+            <div class="lb-stats-section-hd">
+              <p class="lb-stats-chart-title">💡 Insight Pembelajaran</p>
+              <p class="lb-stats-chart-sub">Analisis kualitas leaderboard</p>
+            </div>
+            <div class="lb-stats-body">
+              <div id="lb-stats-insights" class="lb-insight-list"></div>
+            </div>
           </div>
         </div>
         <div id="lb-legend-items" class="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[0.62rem] font-semibold text-gray-500"></div>
@@ -2284,63 +2480,94 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
         </tbody>
       </table>
     </div>
-    <div id="lb-prev-stats-panel" class="hidden rounded-xl border border-slate-200 bg-gradient-to-b from-slate-50 to-white p-3 max-h-[60vh] overflow-y-auto no-scrollbar" style="-webkit-overflow-scrolling:touch;">
-      <div id="lb-prev-stats-summary" class="lb-stats-summary-grid"></div>
-      <div class="mt-3 lb-stats-chart-wrap">
-        <div class="lb-stats-chart-head">
-          <p class="lb-stats-chart-title">Komposisi Jawaban</p>
-          <p class="lb-stats-chart-sub">Proporsi benar dan salah</p>
+    <div id="lb-prev-stats-panel" class="hidden rounded-xl border border-slate-200 p-3 max-h-[60vh] overflow-y-auto no-scrollbar" style="-webkit-overflow-scrolling:touch;background:linear-gradient(160deg,#f0f5ff 0%,#f8fafc 50%,#f0fdf4 100%);">
+      <!-- KPI Summary -->
+      <div id="lb-prev-stats-summary" class="lb-stats-summary-grid mb-3"></div>
+
+      <div class="lb-stats-section mb-3">
+        <div class="lb-stats-section-hd">
+          <p class="lb-stats-chart-title">📊 Komposisi Jawaban</p>
+          <p class="lb-stats-chart-sub">Rasio benar vs salah</p>
         </div>
-        <div id="lb-prev-stats-answer" class="lb-answer-grid"></div>
-      </div>
-      <div class="mt-3 lb-stats-chart-wrap">
-        <div class="lb-stats-chart-head">
-          <p class="lb-stats-chart-title">Peta Pengetahuan Kategori</p>
-          <p class="lb-stats-chart-sub">Laku Jual, Residu, Sisa Makanan, dan lainnya</p>
+        <div class="lb-stats-body">
+          <div id="lb-prev-stats-answer" class="lb-answer-grid"></div>
         </div>
-        <div id="lb-prev-stats-knowledge" class="lb-knowledge-grid"></div>
       </div>
-      <div class="mt-3 lb-stats-chart-wrap">
-        <div class="lb-stats-chart-head">
-          <p class="lb-stats-chart-title">Soal Teratas Benar vs Salah</p>
-          <p class="lb-stats-chart-sub">Hotspot soal yang paling sering dijawab</p>
+
+      <div class="lb-stats-section mb-3">
+        <div class="lb-stats-section-hd">
+          <p class="lb-stats-chart-title">🧠 Peta Pengetahuan Kategori</p>
+          <p class="lb-stats-chart-sub">Akurasi per kategori sampah</p>
         </div>
-        <div id="lb-prev-stats-hotspot" class="lb-hotspot-grid"></div>
+        <div class="lb-stats-body">
+          <div id="lb-prev-stats-knowledge" class="lb-knowledge-grid"></div>
+        </div>
       </div>
-          <div class="mt-3 lb-stats-chart-wrap">
-            <div class="lb-stats-chart-head">
-              <p class="lb-stats-chart-title">Persentase Badge</p>
-              <p class="lb-stats-chart-sub">Komposisi badge utama, secondary, dan tags</p>
-            </div>
-            <div id="lb-prev-stats-badges" class="lb-badge-overview-grid"></div>
+
+      <div class="lb-stats-section mb-3">
+        <div class="lb-stats-section-hd">
+          <p class="lb-stats-chart-title">🎯 Hotspot Soal</p>
+          <p class="lb-stats-chart-sub">Soal paling sering benar & salah</p>
+        </div>
+        <div class="lb-stats-body">
+          <div id="lb-prev-stats-hotspot" class="lb-hotspot-grid"></div>
+        </div>
+      </div>
+
+      <div class="lb-stats-section mb-3">
+        <div class="lb-stats-section-hd">
+          <p class="lb-stats-chart-title">🏅 Distribusi Badge</p>
+          <p class="lb-stats-chart-sub">Badge utama, sekunder & tags</p>
+        </div>
+        <div class="lb-stats-body">
+          <div id="lb-prev-stats-badges" class="lb-badge-overview-grid"></div>
+        </div>
+      </div>
+
+      <div class="lb-stats-section mb-3">
+        <div class="lb-stats-section-hd">
+          <p class="lb-stats-chart-title">🔥 Top 5 Pemain Paling Aktif</p>
+          <p class="lb-stats-chart-sub" id="lb-prev-stats-dist-sub">5 pemain dengan sesi main terbanyak</p>
+        </div>
+        <div class="lb-stats-body">
+          <div id="lb-prev-stats-distribution" class="lb-bars-grid"></div>
+        </div>
+      </div>
+
+      <div class="lb-stats-section mb-3">
+        <div class="lb-stats-section-hd">
+          <p class="lb-stats-chart-title">📈 Tren Partisipasi 7 Hari</p>
+          <p class="lb-stats-chart-sub">Pemain & rata-rata skor per hari</p>
+        </div>
+        <div class="lb-stats-body">
+          <div id="lb-prev-stats-trend" class="lb-trend-grid"></div>
+          <div class="lb-trend-legend">
+            <span class="lb-trend-legend-dot" style="background:#3b82f6;"></span>
+            <span class="lb-trend-legend-label">Jumlah pemain</span>
+            <span class="lb-trend-legend-dot" style="background:#fb923c;"></span>
+            <span class="lb-trend-legend-label">Rata-rata skor</span>
           </div>
-      <div class="mt-3 lb-stats-chart-wrap">
-        <div class="lb-stats-chart-head">
-              <p class="lb-stats-chart-title">Top 5 Pemain Paling Aktif</p>
-              <p class="lb-stats-chart-sub" id="lb-prev-stats-dist-sub">5 pemain dengan jumlah main terbanyak</p>
         </div>
-        <div id="lb-prev-stats-distribution" class="lb-bars-grid"></div>
       </div>
-      <div class="mt-3 lb-stats-chart-wrap">
-        <div class="lb-stats-chart-head">
-          <p class="lb-stats-chart-title">Tren Partisipasi 7 Hari</p>
-          <p class="lb-stats-chart-sub">Jumlah pemain update per hari dan rata-rata skor</p>
+
+      <div class="lb-stats-section mb-3">
+        <div class="lb-stats-section-hd">
+          <p class="lb-stats-chart-title">🎖️ Progress Level Pemain</p>
+          <p class="lb-stats-chart-sub">Newcomer → Legend Player</p>
         </div>
-        <div id="lb-prev-stats-trend" class="lb-trend-grid"></div>
+        <div class="lb-stats-body">
+          <div id="lb-prev-stats-tier" class="lb-tier-stack"></div>
+        </div>
       </div>
-      <div class="mt-3 lb-stats-chart-wrap">
-        <div class="lb-stats-chart-head">
-          <p class="lb-stats-chart-title">Progress Partisipasi</p>
-          <p class="lb-stats-chart-sub">Perkembangan level pemain dari Newcomer sampai Legend</p>
+
+      <div class="lb-stats-section">
+        <div class="lb-stats-section-hd">
+          <p class="lb-stats-chart-title">💡 Insight Pembelajaran</p>
+          <p class="lb-stats-chart-sub">Analisis kualitas leaderboard</p>
         </div>
-        <div id="lb-prev-stats-tier" class="lb-tier-stack"></div>
-      </div>
-      <div class="mt-3 lb-stats-chart-wrap">
-        <div class="lb-stats-chart-head">
-          <p class="lb-stats-chart-title">Insight Tambahan</p>
-          <p class="lb-stats-chart-sub">Ringkasan kualitas pembelajaran leaderboard</p>
+        <div class="lb-stats-body">
+          <div id="lb-prev-stats-insights" class="lb-insight-list"></div>
         </div>
-        <div id="lb-prev-stats-insights" class="lb-insight-list"></div>
       </div>
     </div>
     <button onclick="closeLbModal()" class="w-full mt-4 bg-gradient-to-r from-pktBlue to-blue-700 text-white font-black py-3 rounded-xl active:scale-95 transition">Tutup</button>
@@ -6497,25 +6724,29 @@ function renderLbStatsPanel(prefix, mode, filter, search) {
   const answerCoverage = safePct(totalAnswered, Math.max(1, totalPlayers * 10));
 
   summaryEl.innerHTML = `
-    <div class="lb-stat-card">
-      <p class="lb-stat-label">Pemain Aktif (${modeLabel})</p>
+    <div class="lb-stat-card kpi-blue">
+      <span class="lb-stat-icon">👥</span>
+      <p class="lb-stat-label">Pemain Aktif</p>
       <p class="lb-stat-value">${totalPlayers}</p>
-      <p class="lb-stat-sub">${participationRate}% dari basis mode ini</p>
+      <p class="lb-stat-sub">${modeLabel} · ${participationRate}% dari basis</p>
     </div>
-    <div class="lb-stat-card">
+    <div class="lb-stat-card kpi-orange">
+      <span class="lb-stat-icon">🏆</span>
       <p class="lb-stat-label">Rata-rata Skor</p>
       <p class="lb-stat-value">${avgScore}</p>
-      <p class="lb-stat-sub">Puncak skor ${maxScore}</p>
+      <p class="lb-stat-sub">Puncak: <b style="color:#f97316">${maxScore}</b></p>
     </div>
-    <div class="lb-stat-card">
+    <div class="lb-stat-card kpi-green">
+      <span class="lb-stat-icon">🎯</span>
       <p class="lb-stat-label">Rata-rata Akurasi</p>
       <p class="lb-stat-value">${avgAcc}%</p>
-      <p class="lb-stat-sub">Mutu ketepatan jawaban</p>
+      <p class="lb-stat-sub">${avgAcc >= 80 ? '🟢 Sangat Baik' : avgAcc >= 65 ? '🟡 Cukup Baik' : '🔴 Perlu Latihan'}</p>
     </div>
-    <div class="lb-stat-card">
-      <p class="lb-stat-label">Total Partisipasi</p>
+    <div class="lb-stat-card kpi-purple">
+      <span class="lb-stat-icon">⚡</span>
+      <p class="lb-stat-label">Total Sesi</p>
       <p class="lb-stat-value">${totalAttempts}x</p>
-      <p class="lb-stat-sub">Total sesi${mode === 'ranked' ? ` • DC selesai ${dcTotal}` : ''}</p>
+      <p class="lb-stat-sub">${mode === 'ranked' ? `DC selesai: <b>${dcTotal}</b>` : `Rata: ${Math.round(totalAttempts/Math.max(1,totalPlayers))}x/pemain`}</p>
     </div>
   `;
 
@@ -6523,14 +6754,18 @@ function renderLbStatsPanel(prefix, mode, filter, search) {
   const wrongPct = safePct(totalWrong, Math.max(1, totalAnswered));
   answerEl.innerHTML = `
     <div class="lb-answer-card good">
-      <p class="lb-answer-title">Benar</p>
-      <p class="lb-answer-value">${totalCorrect}</p>
-      <p class="lb-answer-sub">${correctPct}% dari total jawaban</p>
+      <span class="lb-answer-emoji">✅</span>
+      <p class="lb-answer-title">Jawaban Benar</p>
+      <p class="lb-answer-value">${totalCorrect.toLocaleString('id-ID')}</p>
+      <span class="lb-answer-pct">${correctPct}%</span>
+      <p class="lb-answer-sub">dari ${totalAnswered.toLocaleString('id-ID')} total jawaban</p>
     </div>
     <div class="lb-answer-card bad">
-      <p class="lb-answer-title">Salah</p>
-      <p class="lb-answer-value">${totalWrong}</p>
-      <p class="lb-answer-sub">${wrongPct}% dari total jawaban</p>
+      <span class="lb-answer-emoji">❌</span>
+      <p class="lb-answer-title">Jawaban Salah</p>
+      <p class="lb-answer-value">${totalWrong.toLocaleString('id-ID')}</p>
+      <span class="lb-answer-pct">${wrongPct}%</span>
+      <p class="lb-answer-sub">dari ${totalAnswered.toLocaleString('id-ID')} total jawaban</p>
     </div>
   `;
 
@@ -6565,19 +6800,30 @@ function renderLbStatsPanel(prefix, mode, filter, search) {
     })
     .sort((a, b) => b.total - a.total);
 
-  knowledgeEl.innerHTML = catRows.map(item => `
-    <div class="lb-knowledge-row">
-      <div class="lb-knowledge-head">
-        <span class="lb-knowledge-label">${escHtml(item.label)}</span>
-        <span class="lb-knowledge-score">Akurasi ${item.acc}% · ${escHtml(item.level)}</span>
+  const catIconMap = { 'LAKU JUAL': '♻️', 'RESIDU': '🗑️', 'SISA MAKANAN': '🍏', 'LAINNYA': '📦' };
+  const catClassMap = { 'LAKU JUAL': 'cat-laku', 'RESIDU': 'cat-residu', 'SISA MAKANAN': 'cat-sisa', 'LAINNYA': 'cat-other' };
+  knowledgeEl.innerHTML = catRows.map(item => {
+    const levelClass = item.level === 'Unggul' ? 'level-unggul' : item.level === 'Cukup' ? 'level-cukup' : item.total === 0 ? 'level-none' : 'level-perlu';
+    const catCls = catClassMap[item.label] || 'cat-other';
+    const icon = catIconMap[item.label] || '📦';
+    return `
+      <div class="lb-knowledge-row ${catCls}">
+        <div class="lb-knowledge-head">
+          <span class="lb-knowledge-label"><span class="cat-icon">${icon}</span>${escHtml(item.label)}</span>
+          <span class="lb-knowledge-score ${levelClass}">${item.acc}% · ${escHtml(item.level)}</span>
+        </div>
+        <div class="lb-knowledge-track"><div class="lb-knowledge-fill" style="width:${item.acc}%"></div></div>
+        <div class="lb-knowledge-meta">
+          <div class="flex gap-1 flex-wrap">
+            <span class="meta-chip meta-correct">✅ ${item.correct}</span>
+            <span class="meta-chip meta-wrong">❌ ${item.wrong}</span>
+            <span class="meta-chip">📝 ${item.total}</span>
+          </div>
+          <span class="meta-chip">${item.share}% komposisi</span>
+        </div>
       </div>
-      <div class="lb-knowledge-track"><div class="lb-knowledge-fill" style="width:${item.acc}%"></div></div>
-      <div class="lb-knowledge-meta">
-        <span>Benar ${item.correct} · Salah ${item.wrong} · Total ${item.total}</span>
-        <span>Komposisi ${item.share}%</span>
-      </div>
-    </div>
-  `).join('');
+    `;
+  }).join('');
 
   const qAgg = {};
   filtered.forEach(r => {
@@ -6609,24 +6855,32 @@ function renderLbStatsPanel(prefix, mode, filter, search) {
   const topCorrectHtml = topCorrect
     ? `
       <div class="lb-hotspot-card best">
-        <p class="lb-hotspot-title">Soal Paling Banyak Benar</p>
+        <div class="lb-hotspot-header">
+          <span class="lb-hotspot-icon">🌟</span>
+          <p class="lb-hotspot-title">Paling Banyak Benar</p>
+        </div>
         <p class="lb-hotspot-q">${escHtml(topCorrect.q)}</p>
-        <p class="lb-hotspot-meta">Benar ${topCorrect.correct} kali dari ${topCorrect.total} kemunculan soal (${safePct(topCorrect.correct, Math.max(1, topCorrect.total))}% akurat).</p>
-        <p class="lb-hotspot-meta">Jawaban seharusnya: <b>${escHtml(topCorrect.expectedAnswer || '-')}</b></p>
+        <p class="lb-hotspot-meta">Benar <b>${topCorrect.correct}</b> dari <b>${topCorrect.total}</b> kemunculan</p>
+        <span class="lb-hotspot-pct">${safePct(topCorrect.correct, Math.max(1, topCorrect.total))}% akurat</span>
+        <p class="lb-hotspot-meta" style="margin-top:5px">Jawaban: <b>${escHtml(topCorrect.expectedAnswer || '-')}</b></p>
       </div>
     `
-    : `<div class="lb-hotspot-card best"><p class="lb-hotspot-title">Soal Paling Banyak Benar</p><p class="lb-hotspot-meta">Belum ada data soal.</p></div>`;
+    : `<div class="lb-hotspot-card best"><div class="lb-hotspot-header"><span class="lb-hotspot-icon">🌟</span><p class="lb-hotspot-title">Paling Banyak Benar</p></div><p class="lb-hotspot-meta">Belum ada data soal.</p></div>`;
 
   const topWrongHtml = topWrong
     ? `
       <div class="lb-hotspot-card risk">
-        <p class="lb-hotspot-title">Soal Paling Banyak Salah</p>
+        <div class="lb-hotspot-header">
+          <span class="lb-hotspot-icon">⚠️</span>
+          <p class="lb-hotspot-title">Paling Banyak Salah</p>
+        </div>
         <p class="lb-hotspot-q">${escHtml(topWrong.q)}</p>
-        <p class="lb-hotspot-meta">Salah ${topWrong.wrong} kali dari ${topWrong.total} kemunculan soal (${safePct(topWrong.wrong, Math.max(1, topWrong.total))}% salah).</p>
-        <p class="lb-hotspot-meta">Jawaban seharusnya: <b>${escHtml(topWrong.expectedAnswer || '-')}</b></p>
+        <p class="lb-hotspot-meta">Salah <b>${topWrong.wrong}</b> dari <b>${topWrong.total}</b> kemunculan</p>
+        <span class="lb-hotspot-pct">${safePct(topWrong.wrong, Math.max(1, topWrong.total))}% error rate</span>
+        <p class="lb-hotspot-meta" style="margin-top:5px">Jawaban: <b>${escHtml(topWrong.expectedAnswer || '-')}</b></p>
       </div>
     `
-    : `<div class="lb-hotspot-card risk"><p class="lb-hotspot-title">Soal Paling Banyak Salah</p><p class="lb-hotspot-meta">Belum ada data soal.</p></div>`;
+    : `<div class="lb-hotspot-card risk"><div class="lb-hotspot-header"><span class="lb-hotspot-icon">⚠️</span><p class="lb-hotspot-title">Paling Banyak Salah</p></div><p class="lb-hotspot-meta">Belum ada data soal.</p></div>`;
 
   hotspotEl.innerHTML = topCorrectHtml + topWrongHtml;
 
@@ -6670,24 +6924,33 @@ function renderLbStatsPanel(prefix, mode, filter, search) {
 
   const renderBadgeRows = (rows) => rows.map(item => `
     <div class="lb-badge-overview-row">
-      <span class="lb-badge-overview-label">${escHtml(item.label)}</span>
+      <span class="lb-badge-overview-label" title="${escHtml(item.label)}">${escHtml(item.label)}</span>
       <div class="lb-badge-overview-track"><div class="lb-badge-overview-fill" style="width:${item.pct}%"></div></div>
-      <span class="lb-badge-overview-value">${item.count} (${item.pct}%)</span>
+      <span class="lb-badge-overview-value">${item.count} <span style="color:#94a3b8">(${item.pct}%)</span></span>
     </div>
   `).join('');
 
   badgesEl.innerHTML = `
     <div class="lb-badge-overview-card">
-      <div class="lb-badge-overview-title"><span>Badge Utama</span><span class="lb-badge-overview-sub">Top 5 distribusi dari ${totalPlayers} pemain</span></div>
-      <div class="lb-badge-overview-list">${primaryRows.length ? renderBadgeRows(primaryRows) : '<div class="lb-insight-item">Belum ada data badge utama.</div>'}</div>
+      <div class="lb-badge-overview-header">
+        <div class="lb-badge-overview-title">⭐ Badge Utama</div>
+        <div class="lb-badge-overview-sub">Top 5 dari ${totalPlayers} pemain</div>
+      </div>
+      <div class="lb-badge-overview-list">${primaryRows.length ? renderBadgeRows(primaryRows) : '<div class="lb-insight-item">Belum ada data.</div>'}</div>
     </div>
     <div class="lb-badge-overview-card">
-      <div class="lb-badge-overview-title"><span>Secondary / Bonus</span><span class="lb-badge-overview-sub">Top 5 badge sekunder yang muncul</span></div>
-      <div class="lb-badge-overview-list">${secondaryRows.length ? renderBadgeRows(secondaryRows) : '<div class="lb-insight-item">Belum ada data secondary badge.</div>'}</div>
+      <div class="lb-badge-overview-header">
+        <div class="lb-badge-overview-title">🎖️ Secondary</div>
+        <div class="lb-badge-overview-sub">Badge bonus terbanyak</div>
+      </div>
+      <div class="lb-badge-overview-list">${secondaryRows.length ? renderBadgeRows(secondaryRows) : '<div class="lb-insight-item">Belum ada data.</div>'}</div>
     </div>
     <div class="lb-badge-overview-card">
-      <div class="lb-badge-overview-title"><span>Tags</span><span class="lb-badge-overview-sub">Top 5 tag yang paling sering aktif</span></div>
-      <div class="lb-badge-overview-list">${tagRows.length ? renderBadgeRows(tagRows) : '<div class="lb-insight-item">Belum ada data tags.</div>'}</div>
+      <div class="lb-badge-overview-header">
+        <div class="lb-badge-overview-title"># Tags</div>
+        <div class="lb-badge-overview-sub">Tag paling aktif</div>
+      </div>
+      <div class="lb-badge-overview-list">${tagRows.length ? renderBadgeRows(tagRows) : '<div class="lb-insight-item">Belum ada data.</div>'}</div>
     </div>
   `;
 
@@ -6696,11 +6959,12 @@ function renderLbStatsPanel(prefix, mode, filter, search) {
   distEl.innerHTML = topPlayers.map((r, idx) => {
     const attempts = Number(r.attempts) || 0;
     const pct = safePct(attempts, maxAttempts);
+    const rankCls = idx === 0 ? 'r1' : idx === 1 ? 'r2' : idx === 2 ? 'r3' : '';
     return `
-      <div class="lb-active-player-row">
-        <span class="lb-active-player-name">${idx + 1}. ${escHtml(getRecordName(r) || '–')}</span>
-        <div class="lb-active-player-track"><div class="lb-active-player-fill" style="width:${pct}%"></div></div>
-        <span class="lb-active-player-value">${attempts}x · ${Number(r.score) || 0}</span>
+      <div class="lb-bar-row">
+        <span class="lb-bar-label"><span class="lb-bar-rank ${rankCls}">${idx + 1}</span>${escHtml(getRecordName(r) || '–')}</span>
+        <div class="lb-bar-track"><div class="lb-bar-fill" style="width:${pct}%"></div></div>
+        <span class="lb-bar-val">${attempts}x · <span style="color:#2563eb;font-weight:900">${Number(r.score) || 0}</span></span>
       </div>
     `;
   }).join('');
@@ -6756,14 +7020,28 @@ function renderLbStatsPanel(prefix, mode, filter, search) {
     const tier = getParticipationTier(Number(r.attempts) || 0);
     tierCount[tier] = (tierCount[tier] || 0) + 1;
   });
+  const tierColors = {
+    'Newcomer': '#94a3b8',
+    'Explorer': '#22c55e',
+    'Regular': '#3b82f6',
+    'Veteran': '#f59e0b',
+    'Champion': '#8b5cf6',
+    'Legend Player': '#ef4444'
+  };
+  const tierEmoji = {
+    'Newcomer': '🌱', 'Explorer': '🔍', 'Regular': '⚽',
+    'Veteran': '🎖️', 'Champion': '🏆', 'Legend Player': '👑'
+  };
   tierEl.innerHTML = tierDefs.map(t => {
     const count = tierCount[t] || 0;
     const pct = safePct(count, totalPlayers);
+    const color = tierColors[t] || '#64748b';
+    const emoji = tierEmoji[t] || '•';
     return `
       <div class="lb-tier-row">
-        <div class="lb-tier-label">${escHtml(t)}</div>
-        <div class="lb-tier-track"><div class="lb-tier-fill" style="width:${pct}%"></div></div>
-        <div class="lb-tier-value">${count} (${pct}%)</div>
+        <div class="lb-tier-label"><span class="tier-dot" style="background:${color}"></span>${emoji} ${escHtml(t)}</div>
+        <div class="lb-tier-track"><div class="lb-tier-fill" style="width:${pct}%;background:linear-gradient(90deg,${color},${color}cc)"></div></div>
+        <div class="lb-tier-value"><span style="font-size:0.7rem;font-weight:900;color:#1e293b">${count}</span><span style="font-size:0.54rem;color:#94a3b8">${pct}%</span></div>
       </div>
     `;
   }).join('');
@@ -6787,7 +7065,19 @@ function renderLbStatsPanel(prefix, mode, filter, search) {
     insightTempo
   ];
 
-  insightsEl.innerHTML = insightItems.map(text => `<div class="lb-insight-item">${escHtml(text)}</div>`).join('');
+  const insightConfigs = [
+    { text: 'Kualitas jawaban keseluruhan ' + qualityLabel + ' dengan akurasi agregat ' + correctPct + '% (' + totalCorrect + ' benar dari ' + totalAnswered + ' jawaban).', icon: '📊', cls: correctPct >= 85 ? 'insight-good' : correctPct >= 55 ? 'insight-warn' : '' },
+    { text: strongest ? ('Kategori terkuat saat ini: ' + strongest.label + ' (' + strongest.acc + '% akurasi).') : 'Belum ada kategori dominan karena data masih minim.', icon: '💪', cls: 'insight-good' },
+    { text: weakest ? ('Kategori prioritas latihan: ' + weakest.label + ' (' + weakest.acc + '% akurasi). Tingkatkan latihan di kategori ini!') : 'Belum ada kategori yang dapat dievaluasi untuk prioritas latihan.', icon: '⚠️', cls: weakest && weakest.acc < 70 ? 'insight-warn' : 'insight-info' },
+    { text: insightSpread, icon: '📐', cls: accuracySpread > 20 ? 'insight-warn' : 'insight-good' },
+    { text: insightTempo, icon: '⚡', cls: 'insight-info' }
+  ];
+  insightsEl.innerHTML = insightConfigs.map(cfg => `
+    <div class="lb-insight-item ${cfg.cls}">
+      <span class="insight-icon">${cfg.icon}</span>
+      <span>${escHtml(cfg.text)}</span>
+    </div>
+  `).join('');
 }
 
 function setLbMode(v) {
