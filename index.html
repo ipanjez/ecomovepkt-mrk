@@ -6862,7 +6862,7 @@ async function saveToDb(acc, wrong) {
     { dcType: DC.type || null, dcDateKey: DC.dateKey || null, dcDone: !!(DC.completed || DC.bestProgress >= 100) },
     GS.playerName
   );
-  secBadges = secBadges.filter(b => ['Admin','Rank #1','Top 3','Top 10','Daily Challenger'].includes(b));
+  secBadges = secBadges; // semua secondary badges disimpan tanpa filter
   
   if (!GS.isCurriculum && (DC.completed || DC.bestProgress >= 100) && !secBadges.includes('Daily Challenger')) {
     secBadges = [...secBadges, 'Daily Challenger'];
@@ -7632,7 +7632,7 @@ function renderLbStatsPanel(prefix, mode, filter, search) {
     const primary = computePrimaryBadge(Number(r.score) || 0, Number(r.accuracy) || 0, Number(r.bestCombo) || 0, Number(r.attempts) || 0);
     primaryCounts[primary] = (primaryCounts[primary] || 0) + 1;
 
-    const secondarySet = new Set((Array.isArray(r.secondaryBadges) ? r.secondaryBadges : []).filter(b => ['Admin','Rank #1','Top 3','Top 10','Daily Challenger'].includes(b)));
+    const secondarySet = new Set(Array.isArray(r.secondaryBadges) ? r.secondaryBadges : []);
     secondarySet.forEach(b => {
       secondaryCounts[b] = (secondaryCounts[b] || 0) + 1;
     });
@@ -7909,12 +7909,22 @@ function renderLbTable() {
     else tr.className=i%2===0?'':'bg-blue-50/20';
 
     const secBadgesHtml=(() => {
-      let badges = (secArr || []).filter(b => ['Admin','Rank #1','Top 3','Top 10','Daily Challenger'].includes(b));
-      const priorityOrder = ['Admin','Rank #1','Top 3','Top 10','Daily Challenger'];
-      badges = [
-        ...priorityOrder.filter(b=>badges.includes(b)),
-        ...badges.filter(b=>!priorityOrder.includes(b))
+      const priorityOrder = [
+        'Admin','Rank #1','Top 3','Top 10',
+        'Daily Challenger',
+        'God Aim','Accuracy Ace','Sharpshooter',
+        'Combo God','Combo Master','Hot Streak',
+        'Score Legend','Elite','High Scorer',
+        'Versatile','Category Master',
+        'Rising Star',
+        'DCCategory','DCCombo','DCScore','DCMode','DCPrecision','DCGrinder','DCStreak',
+        'DCLegend','DCMaster','DCDedicated','DCActive',
+        'Calendar Keeper',
       ];
+      const allBadges = secArr || [];
+      const ordered = priorityOrder.filter(b => allBadges.includes(b));
+      const rest = allBadges.filter(b => !priorityOrder.includes(b));
+      const badges = [...ordered, ...rest];
       return badges.map(b=>`<span class="rounded-full px-1.5 py-0.5 text-[0.55rem] font-bold ${getSecondaryBadgeClass(b)}" title="${escHtml(b)}">${escHtml(b)}</span>`).join('');
     })();
     // Show tags — prioritize most prestigious
@@ -8052,7 +8062,21 @@ function renderFinalBadges(rec) {
   html += `<span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-bold whitespace-nowrap shrink-0 ${playTierCls}">${playTierEmoji} ${escHtml(playTier)}</span>`;
   html += `</div>`;
   // Secondary badges cluster
-  const visibleSecArr = secArr.filter(b => ['Admin','Rank #1','Top 3','Top 10','Daily Challenger'].includes(b));
+  const priorityOrderSec = [
+    'Admin','Rank #1','Top 3','Top 10',
+    'Daily Challenger',
+    'God Aim','Accuracy Ace','Sharpshooter',
+    'Combo God','Combo Master','Hot Streak',
+    'Score Legend','Elite','High Scorer',
+    'Versatile','Category Master',
+    'Rising Star',
+    'DCCategory','DCCombo','DCScore','DCMode','DCPrecision','DCGrinder','DCStreak',
+    'DCLegend','DCMaster','DCDedicated','DCActive',
+    'Calendar Keeper',
+  ];
+  const orderedSec = priorityOrderSec.filter(b => secArr.includes(b));
+  const restSec = secArr.filter(b => !priorityOrderSec.includes(b));
+  const visibleSecArr = [...orderedSec, ...restSec];
   if (visibleSecArr.length > 0) {
     html += `<div class="w-full flex flex-wrap gap-1.5 mt-1">`;
     visibleSecArr.forEach(b => {
@@ -8294,12 +8318,22 @@ function renderLbPrev() {
     const ts=r.timestamp?new Date(r.timestamp).toLocaleString('id-ID',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):'-';
     const diffLabel=r.isCurriculum?`📚 ${r.curriculumFilter||'Kurikulum'}`:getDifficultyDisplayName(r.difficulty);
     const secBadgesHtml=(() => {
-      let badges = (secArr || []).filter(b => ['Admin','Rank #1','Top 3','Top 10','Daily Challenger'].includes(b));
-      const priorityOrder = ['Admin','Rank #1','Top 3','Top 10','Daily Challenger'];
-      badges = [
-        ...priorityOrder.filter(b=>badges.includes(b)),
-        ...badges.filter(b=>!priorityOrder.includes(b))
+      const priorityOrder = [
+        'Admin','Rank #1','Top 3','Top 10',
+        'Daily Challenger',
+        'God Aim','Accuracy Ace','Sharpshooter',
+        'Combo God','Combo Master','Hot Streak',
+        'Score Legend','Elite','High Scorer',
+        'Versatile','Category Master',
+        'Rising Star',
+        'DCCategory','DCCombo','DCScore','DCMode','DCPrecision','DCGrinder','DCStreak',
+        'DCLegend','DCMaster','DCDedicated','DCActive',
+        'Calendar Keeper',
       ];
+      const allBadges = secArr || [];
+      const ordered = priorityOrder.filter(b => allBadges.includes(b));
+      const rest = allBadges.filter(b => !priorityOrder.includes(b));
+      const badges = [...ordered, ...rest];
       return badges.map(b=>`<span class="rounded-full px-1.5 py-0.5 text-[0.55rem] font-bold ${getSecondaryBadgeClass(b)}">${escHtml(b)}</span>`).join(' ');
     })();
     const priorityTags = ['ScoreTitan','ScoreLegend','PrecisionAce','AccuracyMaster','GodAim','High Scorer','Elite','Sharpshooter','DCCategory','DCCombo','DCScore','DCMode','DCPrecision','DCGrinder','DCStreak','Calendar Keeper','ComboLegend','ComboInsane','ComboPro','Combo Master','Combo God','Hot Streak','Rising Star','DCLegend','DCMaster','DCDedicated','DCActive','PU Freeze','PU Double','PU Skip','PU Time Extend','Grinder300','Grinder150','Grinder75','TriplePro'];
@@ -8448,7 +8482,7 @@ function buildStatsPdfHtml(filtered, mode, filter, exportDate) {
     <td style="text-align:center;">${r.accuracy||0}%</td>
     <td style="text-align:center;">${r.bestCombo||0}x</td>
     <td style="text-align:center;color:#059669;font-weight:800;">${r.isCurriculum?'–':(r.dcCompleted||0)}</td>
-    <td style="font-size:7.5pt;">${escHtml((r.secondaryBadges||[]).slice(0,3).join(', '))}</td>
+    <td style="font-size:7.5pt;">${escHtml((r.secondaryBadges||[]).join(', '))}</td>
   </tr>`).join('');
 
   return `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Statistik Leaderboard EcoMove</title>
