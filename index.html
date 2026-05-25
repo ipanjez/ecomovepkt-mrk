@@ -1930,6 +1930,24 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
           <div id="score-breakdown-rows"></div>
         </div>
 
+        <!-- Rank + Badge Performa: satu card terpadu -->
+        <div class="bg-white rounded-xl border border-gray-100 shadow-sm mb-3 overflow-hidden">
+          <div class="flex min-h-0">
+            <!-- Peringkat (kolom kiri, lebar tetap) -->
+            <div class="flex flex-col items-center justify-center px-3 py-3 border-r border-gray-100 shrink-0" style="min-width:66px;background:linear-gradient(180deg,#f0f9ff,#e8f4ff);">
+              <p class="text-[0.5rem] text-blue-400 font-black uppercase tracking-wide leading-none mb-1">Rank</p>
+              <p class="font-black text-pktBlue leading-none" id="final-rank" style="font-size:clamp(1.5rem,5vw,2.2rem);">–</p>
+            </div>
+            <!-- Badge Performa (kolom kanan, flex-1) -->
+            <div class="flex-1 min-w-0 px-3 py-2.5">
+              <p class="text-[0.55rem] text-gray-400 font-black uppercase tracking-wide mb-1.5">Badge Performa</p>
+              <div id="final-badges-row" class="flex flex-wrap gap-1.5">
+                <span id="final-badge-main" class="inline-flex items-center rounded-full px-3 py-1.5 text-sm font-bold badge-bronze">–</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Hasil sesi ini -->
         <div id="session-summary-inline" class="bg-white rounded-xl border border-slate-100 shadow-sm mb-3 overflow-hidden">
           <div style="background:linear-gradient(135deg,#0f172a,#334155);padding:8px 14px 7px;display:flex;align-items:center;justify-content:space-between;">
@@ -1956,24 +1974,6 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
             <div id="session-powerup-stats-section" style="margin-top:8px;padding-top:8px;border-top:1px dashed #e2e8f0;display:none;">
               <p style="font-size:0.55rem;font-weight:900;color:#94a3b8;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">⚡ Power-up Digunakan Sesi Ini</p>
               <div id="session-powerup-stats-grid" style="display:flex;flex-wrap:wrap;gap:5px;"></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Rank + Badge Performa: satu card terpadu -->
-        <div class="bg-white rounded-xl border border-gray-100 shadow-sm mb-3 overflow-hidden">
-          <div class="flex min-h-0">
-            <!-- Peringkat (kolom kiri, lebar tetap) -->
-            <div class="flex flex-col items-center justify-center px-3 py-3 border-r border-gray-100 shrink-0" style="min-width:66px;background:linear-gradient(180deg,#f0f9ff,#e8f4ff);">
-              <p class="text-[0.5rem] text-blue-400 font-black uppercase tracking-wide leading-none mb-1">Rank</p>
-              <p class="font-black text-pktBlue leading-none" id="final-rank" style="font-size:clamp(1.5rem,5vw,2.2rem);">–</p>
-            </div>
-            <!-- Badge Performa (kolom kanan, flex-1) -->
-            <div class="flex-1 min-w-0 px-3 py-2.5">
-              <p class="text-[0.55rem] text-gray-400 font-black uppercase tracking-wide mb-1.5">Badge Performa</p>
-              <div id="final-badges-row" class="flex flex-wrap gap-1.5">
-                <span id="final-badge-main" class="inline-flex items-center rounded-full px-3 py-1.5 text-sm font-bold badge-bronze">–</span>
-              </div>
             </div>
           </div>
         </div>
@@ -2463,7 +2463,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
               <div class="flex items-start gap-2 rounded-lg border border-teal-100 bg-teal-50 px-3 py-2" data-guide-badge="DCPrecision" tabindex="0"><span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-diamond shrink-0">DCPrecision</span><p class="text-xs text-gray-600">Daily Challenge bertipe akurasi selesai</p></div>
               <div class="flex items-start gap-2 rounded-lg border border-amber-100 bg-amber-50 px-3 py-2" data-guide-badge="DCGrinder" tabindex="0"><span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-master shrink-0">DCGrinder</span><p class="text-xs text-gray-600">Daily Challenge bertipe percobaan selesai</p></div>
               <div class="flex items-start gap-2 rounded-lg border border-rose-100 bg-rose-50 px-3 py-2" data-guide-badge="DCStreak" tabindex="0"><span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-immortal shrink-0">DCStreak</span><p class="text-xs text-gray-600">Daily Challenge bertipe streak selesai</p></div>
-              <div class="flex items-start gap-2 rounded-lg border border-slate-100 bg-slate-50 px-3 py-2" data-guide-badge="Calendar Keeper" tabindex="0"><span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-silver shrink-0">Calendar Keeper</span><p class="text-xs text-gray-600">Selesaikan DC di tanggal spesial</p></div>
+              <div class="flex items-start gap-2 rounded-lg border border-slate-100 bg-slate-50 px-3 py-2" data-guide-badge="Calendar Keeper" tabindex="0"><span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-silver shrink-0">Calendar Keeper</span><p class="text-xs text-gray-600">Selesaikan DC pada tanggal spesial tetap: 1, 7, 11, 17, 22, 27, atau 31</p></div>
               <div class="flex items-start gap-2 rounded-lg border border-blue-100 bg-blue-50 px-3 py-2" data-guide-badge="Versatile" tabindex="0"><span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-epic shrink-0">Versatile</span><p class="text-xs text-gray-600">Akurasi merata semua kategori ≥65%, selisih ≤20%</p></div>
               <div class="flex items-start gap-2 rounded-lg border border-purple-100 bg-purple-50 px-3 py-2" data-guide-badge="God Aim" tabindex="0"><span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-diamond shrink-0">God Aim</span><p class="text-xs text-gray-600">Akurasi 100% dengan ≥10 jawaban benar</p></div>
               <div class="flex items-start gap-2 rounded-lg border border-slate-100 bg-slate-50 px-3 py-2" data-guide-badge="Accuracy Ace" tabindex="0"><span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-platinum shrink-0">Accuracy Ace</span><p class="text-xs text-gray-600">Akurasi ≥95% dengan ≥15 jawaban</p></div>
@@ -2561,7 +2561,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
           <p class="text-xs text-gray-700 mb-2">Tantangan baru setiap hari! Ada 7 tipe berbeda yang berganti otomatis, dan progresnya mengikuti akun aktif. Menyelesaikan DC juga bisa membuka varian badge khusus sesuai tipe tantangannya.</p>
           <div class="rounded-xl bg-fuchsia-50 border border-fuchsia-200 px-3 py-2.5 mb-2 flex items-start gap-2">
             <span class="text-lg shrink-0">⏳</span>
-            <p class="text-[0.68rem] text-fuchsia-800 font-semibold leading-relaxed"><b>Reward Spesial:</b> Setiap kali kamu berhasil menyelesaikan Daily Challenge, kamu otomatis mendapatkan <b>+1 Time Extend (LANGKA)</b>! Semakin sering selesaikan DC, semakin banyak stok Time Extend-mu.</p>
+            <p class="text-[0.68rem] text-fuchsia-800 font-semibold leading-relaxed"><b>Reward Spesial:</b> Setiap kali kamu berhasil menyelesaikan Daily Challenge, kamu otomatis mendapatkan <b>+1 Time Extend (LANGKA)</b>! Bonus badge <b>Calendar Keeper</b> hanya aktif jika DC selesai pada tanggal spesial tetap: <b>1, 7, 11, 17, 22, 27, atau 31</b>.</p>
           </div>
           <div class="grid grid-cols-1 gap-1.5">
             <div class="flex items-center gap-2.5 rounded-lg bg-blue-50 border border-blue-100 px-3 py-2"><span>🎯</span><p class="text-xs text-blue-800"><b>Ahli Kategori</b> — target skor & akurasi di kategori tertentu</p></div>
@@ -7044,7 +7044,7 @@ const GUIDE_BADGE_DETAILS = {
   DCPrecision: { title: 'DCPrecision', how: 'Selesaikan Daily Challenge bertipe akurasi.', example: 'Contoh case: target 90% akurasi selesai pada 18 benar dari 20 jawaban, alias 90%.' },
   DCGrinder: { title: 'DCGrinder', how: 'Selesaikan Daily Challenge bertipe percobaan.', example: 'Contoh case: target 20 percobaan selesai setelah 21 kali main dan skor total 520.' },
   DCStreak: { title: 'DCStreak', how: 'Selesaikan Daily Challenge bertipe streak.', example: 'Contoh case: target 10 jawaban benar beruntun selesai saat streak 12 dan akurasi 92%.' },
-  'Calendar Keeper': { title: 'Calendar Keeper', how: 'Selesaikan Daily Challenge pada tanggal istimewa di kalender akun.', example: 'Contoh case: DC selesai pada tanggal 1, 7, 11, 17, 22, 27, atau 31 sehingga tag kalender aktif.' },
+  'Calendar Keeper': { title: 'Calendar Keeper', how: 'Selesaikan Daily Challenge pada tanggal spesial tetap di kalender akun: 1, 7, 11, 17, 22, 27, atau 31.', example: 'Contoh case: DC selesai pada tanggal 7 atau 31 sehingga tag kalender aktif.' },
   'High Scorer': { title: 'High Scorer', how: 'Skor minimal 700 pada satu sesi Ranked.', example: 'Contoh case: skor 725 dengan akurasi 82% sudah menyalakan badge High Scorer.' },
   'Score Legend': { title: 'Score Legend', how: 'Skor minimal 1500 pada satu sesi Ranked.', example: 'Contoh case: skor 1560, akurasi 90%, dan combo tinggi membuat badge ini aktif.' },
   Sharpshooter: { title: 'Sharpshooter', how: 'Akurasi minimal 88% dengan minimal 10 jawaban total.', example: 'Contoh case: 22/25 benar menghasilkan akurasi 88% dan mengaktifkan badge ini.' },
