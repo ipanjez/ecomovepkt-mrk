@@ -6833,37 +6833,7 @@ function renderLbStatsPanel(prefix, mode, filter, search) {
     ? [...qRows].sort((a, b) => (b.wrong - a.wrong) || (b.total - a.total))[0]
     : null;
 
-  const topCorrectHtml = topCorrect
-    ? `
-      <div class="lb-hotspot-card best">
-        <div class="lb-hotspot-header">
-          <span class="lb-hotspot-icon">🌟</span>
-          <p class="lb-hotspot-title">Paling Banyak Benar</p>
-        </div>
-        <p class="lb-hotspot-q">${escHtml(topCorrect.q)}</p>
-        <p class="lb-hotspot-meta">Benar <b>${topCorrect.correct}</b> dari <b>${topCorrect.total}</b> kemunculan</p>
-        <span class="lb-hotspot-pct">${safePct(topCorrect.correct, Math.max(1, topCorrect.total))}% akurat</span>
-        <p class="lb-hotspot-meta" style="margin-top:5px">Jawaban: <b>${escHtml(topCorrect.expectedAnswer || '-')}</b></p>
-      </div>
-    `
-    : `<div class="lb-hotspot-card best"><div class="lb-hotspot-header"><span class="lb-hotspot-icon">🌟</span><p class="lb-hotspot-title">Paling Banyak Benar</p></div><p class="lb-hotspot-meta">Belum ada data soal.</p></div>`;
-
-  const topWrongHtml = topWrong
-    ? `
-      <div class="lb-hotspot-card risk">
-        <div class="lb-hotspot-header">
-          <span class="lb-hotspot-icon">⚠️</span>
-          <p class="lb-hotspot-title">Paling Banyak Salah</p>
-        </div>
-        <p class="lb-hotspot-q">${escHtml(topWrong.q)}</p>
-        <p class="lb-hotspot-meta">Salah <b>${topWrong.wrong}</b> dari <b>${topWrong.total}</b> kemunculan</p>
-        <span class="lb-hotspot-pct">${safePct(topWrong.wrong, Math.max(1, topWrong.total))}% error rate</span>
-        <p class="lb-hotspot-meta" style="margin-top:5px">Jawaban: <b>${escHtml(topWrong.expectedAnswer || '-')}</b></p>
-      </div>
-    `
-    : `<div class="lb-hotspot-card risk"><div class="lb-hotspot-header"><span class="lb-hotspot-icon">⚠️</span><p class="lb-hotspot-title">Paling Banyak Salah</p></div><p class="lb-hotspot-meta">Belum ada data soal.</p></div>`;
-
-  hotspotEl.innerHTML = topCorrectHtml + topWrongHtml;
+  // Hotspot soal removed from leaderboard statistics
 
   const uniqueCountList = (items) => {
     const counts = {};
