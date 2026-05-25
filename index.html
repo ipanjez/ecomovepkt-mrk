@@ -3767,54 +3767,63 @@ function renderPlayMilestoneModal() {
   const listEl = document.getElementById('play-milestone-modal-list');
 
   if (subtitleEl) {
-    const hasUnclaimed = unclaimed.length > 0;
-    listEl.innerHTML = `
-      ${hasUnclaimed ? `
-        <button onclick="claimAllPlayMilestones()" class="w-full mb-2 rounded-xl bg-gradient-to-r from-emerald-400 to-cyan-500 text-white font-black py-2.5 text-xs shadow-lg active:scale-95 transition">Klaim Semua yang Siap</button>
-      ` : ''}
-      ${PLAY_MILESTONES.map(m => {
-      const claimed = !unclaimed.some(u => u.at === m.at) && attempts >= m.at;
+    subtitleEl.textContent = name ? `${name} • ${attempts} total main` : 'Masukkan nama dulu untuk melihat progress akun ini.';
+  }
 
-      const claimable = !locked && !claimed;
-      const stateLabel = locked ? `Tunggu ${m.at - attempts} game lagi` : (claimable ? 'Siap diklaim' : 'Sudah diambil');
-      const stateClass = locked ? 'bg-slate-700/40 text-slate-200 border-slate-500/20' : (claimable ? 'bg-amber-400/15 text-amber-100 border-amber-400/25' : 'bg-emerald-400/12 text-emerald-100 border-emerald-400/25');
+  if (next) {
+    const prev = PLAY_MILESTONES.find(m => m.at < next.at) || { at: 0 };
     const pct = Math.round(((attempts - prev.at) / (next.at - prev.at)) * 100);
     const safePct = Math.max(3, Math.min(100, pct));
     if (fillEl) fillEl.style.width = `${safePct}%`;
     if (progressEl) progressEl.textContent = `${attempts}/${next.at} game menuju ${next.badge}`;
-    if (badgeEl) { badgeEl.textContent = next.badge; badgeEl.className = 'milestone-badge locked flex-shrink-0'; }
+    if (badgeEl) {
+      badgeEl.textContent = next.badge;
+      badgeEl.className = 'milestone-badge locked flex-shrink-0';
+    }
     if (rewardEl) rewardEl.textContent = `Reward: ${formatPlayMilestoneRewards(next.rewards)}`;
   } else {
-            <div class="flex items-center gap-1.5 shrink-0">
-              <span class="text-[0.58rem] font-black rounded-full px-2.5 py-1 border ${stateClass}">${stateLabel}</span>
-              ${claimable ? `<button onclick="claimPlayMilestone(${m.at})" class="text-[0.58rem] font-black rounded-full px-2.5 py-1 bg-white text-purple-700 border border-purple-200 active:scale-95 transition">Klaim</button>` : ''}
-            </div>
+    if (fillEl) fillEl.style.width = '100%';
     if (progressEl) progressEl.textContent = `${attempts} game total • semua milestone aktif sudah selesai`;
-    if (badgeEl) { badgeEl.textContent = 'LEGEND'; badgeEl.className = 'milestone-badge active flex-shrink-0'; }
+    if (badgeEl) {
+      badgeEl.textContent = 'LEGEND';
+      badgeEl.className = 'milestone-badge active flex-shrink-0';
+    }
     if (rewardEl) rewardEl.textContent = 'Semua milestone sudah terbuka untuk akun ini.';
-      `;
-    }).join('')}
-    `;
-  if (listEl) {
-    listEl.innerHTML = PLAY_MILESTONES.map(m => {
-      const claimed = unclaimed.some(u => u.at === m.at) ? false : attempts >= m.at;
-      const locked = attempts < m.at;
-      const stateLabel = locked ? `Tunggu ${m.at - attempts} game lagi` : (claimed ? 'Siap diklaim' : 'Sudah aktif');
-      const stateClass = locked ? 'bg-slate-700/40 text-slate-200 border-slate-500/20' : 'bg-emerald-400/12 text-emerald-100 border-emerald-400/25';
-      return `
-        <div class="rounded-xl border ${locked ? 'border-white/10 bg-white/6' : 'border-white/15 bg-white/10'} px-3 py-2.5">
-          <div class="flex items-center justify-between gap-2 mb-1">
-            <div>
-              <p class="text-xs font-black text-white">${m.badge}</p>
-              <p class="text-[0.62rem] text-indigo-100/80">${m.label}</p>
-            </div>
-            <span class="text-[0.58rem] font-black rounded-full px-2.5 py-1 border ${stateClass}">${stateLabel}</span>
-          </div>
-          <div class="text-[0.62rem] text-cyan-100/90">Hadiah: ${formatPlayMilestoneRewards(m.rewards)}</div>
-        </div>
-      `;
-    }).join('');
   }
+
+  if (!listEl) return;
+
+  const canClaimAny = unclaimed.length > 0;
+  const html = [];
+  if (canClaimAny) {
+    html.push('<button onclick="claimAllPlayMilestones()" class="w-full mb-2 rounded-xl bg-gradient-to-r from-emerald-400 to-cyan-500 text-white font-black py-2.5 text-xs shadow-lg active:scale-95 transition">Klaim Semua yang Siap</button>');
+  }
+
+  PLAY_MILESTONES.forEach(m => {
+    const locked = attempts < m.at;
+    const claimable = !locked && unclaimed.some(u => u.at === m.at);
+    const alreadyClaimed = !locked && !claimable;
+    const stateLabel = locked ? `Tunggu ${m.at - attempts} game lagi` : (claimable ? 'Siap diklaim' : 'Sudah diambil');
+    const stateClass = locked ? 'bg-slate-700/40 text-slate-200 border-slate-500/20' : (claimable ? 'bg-amber-400/15 text-amber-100 border-amber-400/25' : 'bg-emerald-400/12 text-emerald-100 border-emerald-400/25');
+    const claimButton = claimable ? `<button onclick="claimPlayMilestone(${m.at})" class="text-[0.58rem] font-black rounded-full px-2.5 py-1 bg-white text-purple-700 border border-purple-200 active:scale-95 transition">Klaim</button>` : '';
+    html.push(`
+      <div class="rounded-xl border ${locked ? 'border-white/10 bg-white/6' : 'border-white/15 bg-white/10'} px-3 py-2.5">
+        <div class="flex items-center justify-between gap-2 mb-1">
+          <div>
+            <p class="text-xs font-black text-white">${m.badge}</p>
+            <p class="text-[0.62rem] text-indigo-100/80">${m.label}</p>
+          </div>
+          <div class="flex items-center gap-1.5 shrink-0">
+            <span class="text-[0.58rem] font-black rounded-full px-2.5 py-1 border ${stateClass}">${stateLabel}</span>
+            ${claimButton}
+          </div>
+        </div>
+        <div class="text-[0.62rem] text-cyan-100/90">Hadiah: ${formatPlayMilestoneRewards(m.rewards)}</div>
+      </div>
+    `);
+  });
+
+  listEl.innerHTML = html.join('');
 }
 
 // ─── Milestone Toast ───────────────────────
