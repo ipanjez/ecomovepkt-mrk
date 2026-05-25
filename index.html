@@ -32,20 +32,41 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
   grid-template-rows:auto auto auto 1fr auto;
   height:100dvh;max-height:100dvh;
   overflow:hidden;
-  background:linear-gradient(180deg,#eef7ff 0%,#f4fef6 55%,#f8fafc 100%);
+  background:linear-gradient(180deg,#eef7ff 0%,#f0fff8 50%,#f8fafc 100%);
 }
 
 /* ─── GAME HEADER ─── */
 .game-header{
-  background:white;border-bottom:1px solid #e2e8f0;
-  padding:4px 12px;display:flex;justify-content:space-between;align-items:center;gap:8px;
-  z-index:10;min-height:44px;
+  background:linear-gradient(135deg,#0c1a3a 0%,#005B9F 60%,#1a3a6e 100%);
+  border-bottom:2px solid rgba(99,179,237,0.25);
+  padding:5px 12px;display:flex;justify-content:space-between;align-items:center;gap:8px;
+  z-index:10;min-height:48px;
+  box-shadow:0 4px 20px rgba(0,0,0,0.18);
+  position:relative;overflow:hidden;
+}
+.game-header::before{
+  content:'';position:absolute;top:-30px;right:-30px;
+  width:100px;height:100px;border-radius:50%;
+  background:radial-gradient(circle,rgba(99,179,237,0.18),transparent 70%);
+  pointer-events:none;
+}
+#score-display{
+  color:#fbbf24;text-shadow:0 0 10px rgba(251,191,36,0.5);
+}
+#timer-text{
+  color:#fb923c;
+  text-shadow:0 0 8px rgba(251,146,60,0.4);
+}
+.header-label{
+  color:rgba(147,197,253,0.7)!important;
 }
 
 /* ─── PROGRESS AREA ─── */
 .game-progress{
-  padding:2px 12px 3px;display:flex;flex-direction:column;gap:2px;
-  background:rgba(255,255,255,0.75);border-bottom:1px solid #f1f5f9;
+  padding:3px 12px 4px;display:flex;flex-direction:column;gap:3px;
+  background:linear-gradient(180deg,rgba(240,249,255,0.95) 0%,rgba(255,255,255,0.95) 100%);
+  border-bottom:1px solid rgba(99,179,237,0.2);
+  box-shadow:0 2px 8px rgba(0,91,159,0.05);
 }
 
 /* ─── PLAY AREA – 1fr – always has space ─── */
@@ -56,62 +77,125 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
 
 /* ─── BINS ROW ─── */
 .game-bins{
-  display:grid;grid-template-columns:repeat(3,1fr);gap:5px;
-  padding:5px 8px max(env(safe-area-inset-bottom,6px),8px);
-  background:rgba(255,255,255,0.95);border-top:2px solid #e2e8f0;
-  min-height:100px;height:min(23vh,155px);
+  display:grid;grid-template-columns:repeat(3,1fr);gap:6px;
+  padding:6px 10px max(env(safe-area-inset-bottom,6px),10px);
+  background:linear-gradient(180deg,rgba(255,255,255,0.97) 0%,rgba(248,250,252,0.99) 100%);
+  border-top:2px solid rgba(99,179,237,0.2);
+  min-height:108px;height:min(23vh,160px);
   position:relative;z-index:20;
+  box-shadow:0 -6px 24px rgba(0,0,0,0.06);
 }
 
-/* ─── CURRICULUM BUTTONS (2 pilihan) ─── */
-.curriculum-buttons{
-  display:flex;gap:16px;justify-content:center;align-items:center;
-  padding:12px;background:rgba(255,255,255,0.95);border-top:1px solid #e2e8f0;
-  min-height:100px;
-  position:relative;z-index:20;
-}
-.curriculum-btn{
-  flex:1;max-width:180px;border-radius:32px;padding:12px 8px;
-  font-weight:900;font-size:1rem;border:none;cursor:pointer;
-  transition:transform 0.1s,box-shadow 0.1s;
-}
-.curriculum-btn:active{transform:scale(0.96);}
-.btn-match{background:linear-gradient(135deg,#7AB800,#5e9000);color:white;box-shadow:0 4px 12px rgba(122,184,0,0.3);}
-.btn-notmatch{background:linear-gradient(135deg,#F37021,#d65c0a);color:white;box-shadow:0 4px 12px rgba(243,112,33,0.3);}
+/* ─── CURRICULUM FOCUS BADGE ─── */
 .curriculum-focus-badge{
-  background:#005B9F;color:white;border-radius:40px;padding:4px 12px;
-  font-size:0.7rem;font-weight:800;display:inline-block;margin-bottom:6px;
+  background:linear-gradient(135deg,#005B9F,#2563eb);color:white;border-radius:40px;padding:5px 14px;
+  font-size:0.7rem;font-weight:800;display:inline-block;margin-bottom:4px;
+  box-shadow:0 3px 10px rgba(0,91,159,0.3);letter-spacing:0.02em;
 }
 
 /* ─── TRASH CARD ─── */
 #trash-container{
-  background:white;border-radius:22px;border:2px solid #e2e8f0;
-  box-shadow:0 8px 28px rgba(0,0,0,0.10),0 2px 8px rgba(0,91,159,0.06);
+  background:white;border-radius:24px;border:2.5px solid rgba(99,179,237,0.25);
+  box-shadow:0 12px 40px rgba(0,0,0,0.12),0 3px 12px rgba(0,91,159,0.08),inset 0 1px 0 rgba(255,255,255,0.8);
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   text-align:center;cursor:pointer;transition:transform 0.2s,box-shadow 0.2s;
   width:min(88vw,320px);
   flex:1;min-height:130px;max-height:280px;
   padding:14px 18px;
   position:relative;z-index:10;
-  background-image:radial-gradient(rgba(0,91,159,0.03) 1.5px,transparent 1.5px);
-  background-size:20px 20px;
+  background:linear-gradient(160deg,#f8fbff 0%,#ffffff 50%,#f0fdf4 100%);
 }
-#trash-container:hover{transform:scale(1.02);box-shadow:0 14px 36px rgba(0,0,0,0.13);}
+#trash-container::before{
+  content:'';position:absolute;inset:0;border-radius:22px;
+  background:radial-gradient(ellipse at 30% 20%,rgba(99,179,237,0.07),transparent 60%),radial-gradient(ellipse at 70% 80%,rgba(122,184,0,0.05),transparent 60%);
+  pointer-events:none;
+}
+#trash-container:hover{transform:scale(1.02) translateY(-2px);box-shadow:0 20px 50px rgba(0,0,0,0.15),0 6px 20px rgba(0,91,159,0.1);}
 @media(min-height:680px){#trash-container{min-height:160px;padding:16px 20px;}}
 @media(min-height:780px){#trash-container{min-height:190px;width:min(88vw,340px);}}
 
-/* ─── BIN BUTTON ─── */
+/* ─── BIN BUTTON – Tong Sampah Visual ─── */
 .bin{
-  border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:space-between;
-  cursor:pointer;transition:transform 0.15s,box-shadow 0.15s;
-  padding:8px 6px 6px;border:none;outline:none;
+  border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
+  cursor:pointer;transition:transform 0.15s,box-shadow 0.15s,filter 0.15s;
+  padding:6px 6px 8px;border:none;outline:none;
   -webkit-tap-highlight-color:transparent;position:relative;overflow:hidden;
+  gap:4px;
 }
-.bin:hover{transform:translateY(-3px);box-shadow:0 8px 18px rgba(0,0,0,0.12);}
-.bin:active{transform:scale(0.92);}
-.bin.drag-over{outline:2px dashed rgba(16,185,129,0.95);transform:scale(1.02);}
-.curriculum-btn.drag-over{outline:2px dashed rgba(59,130,246,0.95);transform:scale(1.02);}
-#trash-container.dragging{opacity:0.88;box-shadow:0 24px 48px rgba(0,0,0,0.18);}
+.bin:hover{transform:translateY(-5px) scale(1.04);box-shadow:0 12px 28px rgba(0,0,0,0.18);}
+.bin:active{transform:scale(0.90) translateY(2px);}
+.bin.drag-over{outline:3px dashed rgba(16,185,129,0.95);transform:scale(1.06) translateY(-4px);filter:brightness(1.1);}
+.bin-lid{
+  position:absolute;top:-6px;left:50%;transform:translateX(-50%);
+  width:80%;height:8px;border-radius:4px;
+  transition:transform 0.2s cubic-bezier(0.34,1.56,0.64,1);
+  transform-origin:center bottom;z-index:2;
+}
+.bin:hover .bin-lid{transform:translateX(-50%) rotate(-35deg) translateY(-4px);}
+.bin.drag-over .bin-lid{transform:translateX(-50%) rotate(-45deg) translateY(-6px);}
+.bin-body{
+  width:100%;height:72%;border-radius:6px 6px 10px 10px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  position:relative;overflow:hidden;
+  flex:1;
+}
+.bin-stripes{
+  position:absolute;inset:0;
+  background:repeating-linear-gradient(0deg,transparent,transparent 6px,rgba(0,0,0,0.04) 6px,rgba(0,0,0,0.04) 7px);
+  border-radius:inherit;
+}
+.bin-icon{font-size:1.6rem;position:relative;z-index:1;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.12));}
+.bin-label{
+  font-weight:900;font-size:0.58rem;text-align:center;leading-tight:1;
+  padding:3px 6px;border-radius:8px;
+  position:relative;z-index:1;line-height:1.2;
+}
+@keyframes binWiggle{
+  0%,100%{transform:translateY(-5px) scale(1.04) rotate(0deg);}
+  25%{transform:translateY(-5px) scale(1.04) rotate(-2deg);}
+  75%{transform:translateY(-5px) scale(1.04) rotate(2deg);}
+}
+.bin:hover{animation:binWiggle 0.5s ease-in-out;}
+.curriculum-btn.drag-over{outline:3px dashed rgba(59,130,246,0.95);transform:scale(1.04);}
+
+/* ─── CURRICULUM BUTTONS – Sesuai/Tidak Sesuai as Trash Bins ─── */
+.curriculum-buttons{
+  display:flex;gap:12px;justify-content:center;align-items:stretch;
+  padding:8px 12px max(env(safe-area-inset-bottom,6px),10px);
+  background:linear-gradient(180deg,rgba(255,255,255,0.95) 0%,rgba(248,250,252,0.98) 100%);
+  border-top:2px solid rgba(99,179,237,0.2);
+  min-height:110px;
+  position:relative;z-index:20;
+  box-shadow:0 -4px 20px rgba(0,0,0,0.06);
+}
+.curriculum-btn{
+  flex:1;max-width:190px;border-radius:20px;padding:10px 8px 12px;
+  font-weight:900;font-size:0.9rem;border:none;cursor:pointer;
+  transition:transform 0.15s cubic-bezier(0.34,1.56,0.64,1),box-shadow 0.15s;
+  position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:6px;
+}
+.curriculum-btn:active{transform:scale(0.93) translateY(2px)!important;}
+.curriculum-btn.drag-over{transform:scale(1.05) translateY(-4px)!important;filter:brightness(1.1);}
+.curriculum-btn .curr-bin-icon{font-size:2.2rem;line-height:1;filter:drop-shadow(0 3px 6px rgba(0,0,0,0.15));transition:transform 0.2s;}
+.curriculum-btn:hover .curr-bin-icon{transform:scale(1.15) rotate(-5deg);}
+.curriculum-btn .curr-bin-lid{
+  position:absolute;top:6px;left:50%;transform:translateX(-50%);
+  font-size:1rem;transition:transform 0.2s cubic-bezier(0.34,1.56,0.64,1);
+  transform-origin:center bottom;
+}
+.curriculum-btn:hover .curr-bin-lid{transform:translateX(-50%) rotate(-35deg) translateY(-3px);}
+.curriculum-btn.drag-over .curr-bin-lid{transform:translateX(-50%) rotate(-50deg) translateY(-5px);}
+.curr-bin-label{font-size:0.72rem;font-weight:900;letter-spacing:0.03em;line-height:1.2;text-align:center;}
+.btn-match{
+  background:linear-gradient(160deg,#c8f5a0,#7AB800 60%,#5e9000 100%);
+  color:white;box-shadow:0 6px 20px rgba(122,184,0,0.35),inset 0 1px 0 rgba(255,255,255,0.2);
+}
+.btn-match:hover{transform:translateY(-5px) scale(1.03);box-shadow:0 12px 28px rgba(122,184,0,0.45);}
+.btn-notmatch{
+  background:linear-gradient(160deg,#fed7a0,#F37021 60%,#d65c0a 100%);
+  color:white;box-shadow:0 6px 20px rgba(243,112,33,0.35),inset 0 1px 0 rgba(255,255,255,0.2);
+}
+.btn-notmatch:hover{transform:translateY(-5px) scale(1.03);box-shadow:0 12px 28px rgba(243,112,33,0.45);}
 
 /* ─── ANIMATIONS ─── */
 @keyframes toss{
@@ -700,7 +784,109 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
 }
 #game-screen.rage-mode{animation:rageFlash 0.5s ease-in-out infinite;}
 
-/* ─── ACHIEVEMENT TOAST ─── */
+/* ─── BIN CORRECT FLASH – upgraded ─── */
+@keyframes binFlashCorrect{
+  0%{filter:brightness(1);}
+  30%{filter:brightness(1.5) saturate(1.3);}
+  60%{filter:brightness(1.2);}
+  100%{filter:brightness(1);}
+}
+@keyframes binFlashWrong{
+  0%{filter:brightness(1);}
+  30%{filter:brightness(0.7) saturate(0.5) hue-rotate(20deg);}
+  100%{filter:brightness(1);}
+}
+.bin-flash-correct{animation:binFlashCorrect 0.4s ease-out;}
+.bin-flash-wrong{animation:binFlashWrong 0.4s ease-out;}
+
+/* ─── THROW TO BIN ANIMATION ─── */
+@keyframes throwToBin{
+  0%{transform:translate(0,0) scale(1) rotate(0deg);opacity:1;}
+  40%{transform:translate(var(--tx,0),var(--ty,-30px)) scale(1.1) rotate(var(--rot,10deg));opacity:1;}
+  100%{transform:translate(var(--tx2,0),var(--ty2,80px)) scale(0.3) rotate(var(--rot2,30deg));opacity:0;}
+}
+.anim-throw{animation:throwToBin 0.4s cubic-bezier(0.4,0,1,1) forwards;}
+
+/* ─── TRASH CARD CATEGORY PULSE ─── */
+@keyframes categoryPill{
+  0%{transform:translateX(-50%) scale(0.8);opacity:0;}
+  60%{transform:translateX(-50%) scale(1.08);}
+  100%{transform:translateX(-50%) scale(1);opacity:1;}
+}
+#trash-category-pill.show{display:block!important;animation:categoryPill 0.3s cubic-bezier(0.34,1.56,0.64,1) forwards;}
+
+/* ─── POWERUP BAR ENHANCED ─── */
+#powerup-bar{
+  display:flex;gap:5px;align-items:center;justify-content:center;
+  padding:4px 10px;
+  background:linear-gradient(180deg,rgba(248,250,252,0.98) 0%,rgba(241,245,249,0.96) 100%);
+  border-bottom:1px solid rgba(99,179,237,0.18);flex-wrap:nowrap;min-height:34px;
+  overflow-x:auto;
+  box-shadow:0 2px 8px rgba(0,0,0,0.04);
+}
+.powerup-btn{
+  border:none;border-radius:12px;padding:5px 10px;font-size:0.65rem;font-weight:900;
+  cursor:pointer;transition:all 0.15s;display:flex;align-items:center;gap:3px;
+  position:relative;overflow:hidden;white-space:nowrap;flex-shrink:0;
+  box-shadow:0 2px 8px rgba(0,0,0,0.1),inset 0 1px 0 rgba(255,255,255,0.3);
+}
+.powerup-btn:disabled{opacity:0.35;cursor:not-allowed;filter:grayscale(40%);}
+.powerup-btn:not(:disabled):active{transform:scale(0.89);}
+.powerup-btn:not(:disabled):hover{transform:translateY(-1px);filter:brightness(1.08);}
+
+/* ─── GAME PLAY BACKGROUND UPGRADE ─── */
+.game-play{
+  display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
+  position:relative;overflow:hidden;padding:6px 12px 6px;gap:5px;
+  background:linear-gradient(160deg,#eef7ff 0%,#f0fff8 45%,#f8fafc 100%);
+}
+.game-play::before{
+  content:'';position:absolute;top:0;left:0;right:0;bottom:0;
+  background:
+    radial-gradient(ellipse at 10% 20%,rgba(99,179,237,0.06) 0%,transparent 50%),
+    radial-gradient(ellipse at 90% 80%,rgba(122,184,0,0.05) 0%,transparent 50%),
+    radial-gradient(ellipse at 50% 50%,rgba(255,255,255,0) 0%,transparent 100%);
+  pointer-events:none;
+}
+
+/* ─── RIVAL STRIP UPGRADED ─── */
+#rival-strip{
+  background:linear-gradient(135deg,#0f172a 0%,#1e3a5f 60%,#0c1a3a 100%);
+  border:1.5px solid rgba(99,179,237,0.3);
+  border-radius:12px;
+  padding:5px 12px;
+  display:flex;flex-direction:row;align-items:center;justify-content:space-between;gap:8px;
+  font-size:0.72rem;font-weight:700;color:#e2e8f0;
+  width:min(88vw,320px);text-align:left;line-height:1.3;
+  min-height:30px;max-height:42px;
+  box-shadow:0 4px 16px rgba(0,0,0,0.22),inset 0 1px 0 rgba(255,255,255,0.05);
+  position:relative;overflow:hidden;flex-shrink:0;
+}
+
+/* ─── TRASH CONTAINER CATEGORY COLORS ─── */
+#trash-container.cat-sisa{border-color:rgba(34,197,94,0.4)!important;background:linear-gradient(160deg,#f0fdf4 0%,#ffffff 50%,#f0fdf4 100%)!important;}
+#trash-container.cat-laku{border-color:rgba(249,115,22,0.4)!important;background:linear-gradient(160deg,#fff7ed 0%,#ffffff 50%,#fff7ed 100%)!important;}
+#trash-container.cat-residu{border-color:rgba(59,130,246,0.4)!important;background:linear-gradient(160deg,#eff6ff 0%,#ffffff 50%,#eff6ff 100%)!important;}
+
+/* ─── SCORE POP ENHANCED ─── */
+@keyframes scorePopBig{
+  0%{transform:scale(1);}
+  30%{transform:scale(1.4);}
+  60%{transform:scale(0.95);}
+  100%{transform:scale(1);}
+}
+.score-pop-big{animation:scorePopBig 0.35s cubic-bezier(0.34,1.56,0.64,1);}
+
+/* ─── PARTICLE BURST ─── */
+@keyframes particle{
+  0%{transform:translate(0,0) scale(1);opacity:1;}
+  100%{transform:translate(var(--px),var(--py)) scale(0);opacity:0;}
+}
+.particle{
+  position:absolute;width:7px;height:7px;border-radius:50%;
+  pointer-events:none;z-index:70;
+  animation:particle 0.55s ease-out forwards;
+}
 #achievement-toast{
   position:fixed;top:60px;left:50%;transform:translateX(-50%) translateY(-80px);
   background:linear-gradient(135deg,#1e40af,#7c3aed);color:white;
@@ -1504,18 +1690,18 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
   <!-- ROW 1: Header -->
   <header class="game-header">
     <div class="flex flex-col min-w-0">
-      <p class="text-[0.6rem] text-gray-400 font-bold uppercase truncate" id="game-player-label">Player</p>
-      <p class="text-lg font-black text-pktBlue leading-tight">Skor: <span id="score-display">0</span></p>
+      <p class="text-[0.55rem] font-bold uppercase truncate header-label" id="game-player-label" style="color:rgba(147,197,253,0.7);">Player</p>
+      <p class="text-lg font-black leading-tight" style="color:white;">Skor: <span id="score-display" style="color:#fbbf24;text-shadow:0 0 10px rgba(251,191,36,0.5);">0</span></p>
     </div>
     <div class="flex flex-col items-center flex-shrink-0">
-      <p class="text-[0.6rem] text-gray-400 font-bold uppercase" id="game-mode-label">Mode</p>
-      <p id="timer-text" class="text-xl font-black text-pktOrange tabular-nums">00:00</p>
+      <p class="text-[0.55rem] font-bold uppercase header-label" id="game-mode-label" style="color:rgba(147,197,253,0.7);">Mode</p>
+      <p id="timer-text" class="text-xl font-black tabular-nums" style="color:#fb923c;text-shadow:0 0 8px rgba(251,146,60,0.4);">00:00</p>
     </div>
     <div class="flex flex-wrap items-center justify-end gap-1 flex-shrink-0">
-      <button id="pause-btn" onclick="togglePause()" class="text-[0.6rem] font-black px-2 py-1 rounded-lg bg-blue-50 text-pktBlue border border-blue-100 active:scale-90 transition">⏸</button>
-      <button onclick="restartGame()" class="text-[0.6rem] font-black px-2 py-1 rounded-lg bg-red-50 text-red-600 border border-red-100 active:scale-90 transition">↺</button>
-      <button id="mute-btn" onclick="toggleMute()" class="text-[0.6rem] font-black px-2 py-1 rounded-lg bg-orange-50 text-pktOrange border border-orange-100 active:scale-90 transition">🔊</button>
-      <button id="music-btn" onclick="toggleAmbient()" class="text-[0.6rem] font-black px-2 py-1 rounded-lg bg-green-50 text-pktGreen border border-green-100 active:scale-90 transition">🎵</button>
+      <button id="pause-btn" onclick="togglePause()" class="text-[0.6rem] font-black px-2 py-1 rounded-lg active:scale-90 transition" style="background:rgba(255,255,255,0.12);color:rgba(147,197,253,0.9);border:1px solid rgba(99,179,237,0.3);">⏸</button>
+      <button onclick="restartGame()" class="text-[0.6rem] font-black px-2 py-1 rounded-lg active:scale-90 transition" style="background:rgba(239,68,68,0.2);color:#fca5a5;border:1px solid rgba(239,68,68,0.35);">↺</button>
+      <button id="mute-btn" onclick="toggleMute()" class="text-[0.6rem] font-black px-2 py-1 rounded-lg active:scale-90 transition" style="background:rgba(251,146,60,0.2);color:#fdba74;border:1px solid rgba(251,146,60,0.35);">🔊</button>
+      <button id="music-btn" onclick="toggleAmbient()" class="text-[0.6rem] font-black px-2 py-1 rounded-lg active:scale-90 transition" style="background:rgba(122,184,0,0.2);color:#bbf7d0;border:1px solid rgba(122,184,0,0.35);">🎵</button>
     </div>
   </header>
 
@@ -1552,27 +1738,29 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
 
   <!-- ROW 3: Power-up bar (own grid row) -->
   <div id="powerup-bar">
-    <span class="text-[0.58rem] font-black text-gray-400 uppercase tracking-wide">⚡ Power-up:</span>
+    <span style="font-size:0.55rem;font-weight:900;color:#94a3b8;text-transform:uppercase;letter-spacing:0.06em;white-space:nowrap;">⚡ PU:</span>
     <button id="pu-freeze" class="powerup-btn powerup-freeze" onclick="activatePowerup('freeze')" title="Bekukan waktu 5 detik (Q)">
-      ❄️ Freeze <span id="pu-freeze-count" class="powerup-stack-count">0</span>
+      ❄️ <span style="font-size:0.62rem;">Freeze</span> <span id="pu-freeze-count" class="powerup-stack-count">0</span>
       <span class="pu-tooltip">Tambah 5 detik waktu<br>Shortcut: Q</span>
       <div class="powerup-cooldown" id="pu-freeze-cd" style="width:0%"></div>
     </button>
     <button id="pu-double" class="powerup-btn powerup-double" onclick="activatePowerup('double')" title="Double poin 10 detik (W)">
-      2️⃣ 2x Poin <span id="pu-double-count" class="powerup-stack-count">0</span>
+      💰 <span style="font-size:0.62rem;">2x Poin</span> <span id="pu-double-count" class="powerup-stack-count">0</span>
       <span class="pu-tooltip">Poin ×2 selama 10 detik<br>Shortcut: W</span>
       <div class="powerup-cooldown" id="pu-double-cd" style="width:0%"></div>
     </button>
     <button id="pu-skip" class="powerup-btn powerup-skip" onclick="activatePowerup('skip')" title="Lewati sampah ini (E)">
-      ⏭️ Skip <span id="pu-skip-count" class="powerup-stack-count">0</span>
+      ⏭️ <span style="font-size:0.62rem;">Skip</span> <span id="pu-skip-count" class="powerup-stack-count">0</span>
       <span class="pu-tooltip">Lewati 1 soal<br>Shortcut: E</span>
       <div class="powerup-cooldown" id="pu-skip-cd" style="width:0%"></div>
     </button>
     <button id="pu-timeextend" class="powerup-btn powerup-timeextend" onclick="activatePowerup('timeExtend')" title="Tambah +15 detik waktu — LANGKA! (R)">
-      ⏳ +15s <span id="pu-timeextend-count" class="powerup-stack-count">0</span>
+      ⏳ <span style="font-size:0.62rem;">+15s</span> <span id="pu-timeextend-count" class="powerup-stack-count">0</span>
       <span class="pu-tooltip">Tambah +15 detik waktu<br>✨ Power-up LANGKA!<br>Shortcut: R</span>
       <div class="powerup-cooldown" id="pu-timeextend-cd" style="width:0%"></div>
     </button>
+    <!-- Keyboard hint -->
+    <span id="pu-kb-hint" style="font-size:0.5rem;color:#cbd5e1;font-weight:600;white-space:nowrap;display:none;">Q·W·E·R</span>
   </div>
 
   <!-- ROW 4: Play area (1fr) -->
@@ -1590,10 +1778,18 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
     <div id="trash-container" style="position:relative;">
       <div id="lucky-badge">⭐ LUCKY +3x</div>
       <div id="rival-achieved-banner">🎉 Rival Terlampaui!</div>
-      <div id="trash-emoji" class="drop-shadow-lg transition-transform hover:scale-110" style="font-size:clamp(3.5rem,12vw,5.5rem);line-height:1;margin-bottom:10px;">🗑️</div>
-      <h2 id="trash-name" class="font-black text-gray-900 leading-tight break-words px-2" style="font-size:clamp(1rem,4.5vw,1.4rem)">Sampah</h2>
-      <p class="text-[0.6rem] text-gray-400 font-semibold mt-1" id="trash-category-hint"></p>
+      <!-- Category pill at top -->
+      <div id="trash-category-pill" style="position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#005B9F,#2563eb);color:white;border-radius:999px;padding:2px 12px;font-size:0.58rem;font-weight:900;white-space:nowrap;box-shadow:0 2px 8px rgba(0,91,159,0.35);letter-spacing:0.05em;display:none;"></div>
+      <!-- Trash emoji with glow -->
+      <div id="trash-emoji" class="drop-shadow-lg transition-transform" style="font-size:clamp(3.5rem,12vw,5.5rem);line-height:1;margin-bottom:8px;filter:drop-shadow(0 4px 12px rgba(0,0,0,0.12));transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1);">🗑️</div>
+      <!-- Trash name with gradient text shadow -->
+      <h2 id="trash-name" class="font-black leading-tight break-words px-2" style="font-size:clamp(1rem,4.5vw,1.4rem);color:#1e293b;text-shadow:0 1px 3px rgba(0,0,0,0.05);">Sampah</h2>
+      <!-- Hint text -->
+      <p class="font-semibold mt-1.5 px-3 py-1 rounded-full" id="trash-category-hint" style="font-size:0.6rem;color:#64748b;background:rgba(241,245,249,0.8);display:none;"></p>
+      <!-- Streak fire -->
       <div id="streak-fire" style="font-size:1.4rem;margin-top:4px;">🔥</div>
+      <!-- Tap hint -->
+      <div id="trash-tap-hint" style="position:absolute;bottom:8px;right:10px;font-size:0.5rem;color:#cbd5e1;font-weight:700;pointer-events:none;">tap atau seret ↕</div>
     </div>
 
     <!-- combo splash -->
@@ -1601,6 +1797,9 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
     
     <!-- combo milestone -->
     <div id="combo-milestone"></div>
+
+    <!-- eco tip strip -->
+    <div id="game-eco-tip" style="width:min(88vw,320px);background:linear-gradient(135deg,rgba(122,184,0,0.08),rgba(0,91,159,0.06));border:1px solid rgba(122,184,0,0.2);border-radius:10px;padding:4px 10px;font-size:0.55rem;font-weight:700;color:#3d6b00;text-align:center;transition:opacity 0.3s;opacity:0.85;min-height:20px;"></div>
 
     <!-- pause overlay -->
     <div id="pause-overlay">
@@ -1618,17 +1817,49 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
 
   <!-- ROW 4: Bins (normal mode) & curriculum buttons (akan diganti dinamis) -->
   <div class="game-bins" id="game-bins-container">
-    <button onclick="checkBin('SISA MAKANAN')" class="bin bg-gradient-to-t from-green-200 to-green-50 border-b-[5px] border-pktGreen" data-category="SISA MAKANAN">
-      <span class="text-3xl opacity-60">🍏</span>
-      <h3 class="font-black text-pktGreen text-[0.65rem] sm:text-xs bg-white/75 px-2 py-1 rounded-lg border border-green-100 text-center leading-tight">SISA<br>MAKANAN</h3>
+    <!-- SISA MAKANAN bin -->
+    <button onclick="checkBin('SISA MAKANAN')" class="bin" data-category="SISA MAKANAN" style="background:linear-gradient(180deg,#d1fae5 0%,#86efac 40%,#4ade80 100%);border:2.5px solid #22c55e;box-shadow:0 6px 18px rgba(34,197,94,0.3),inset 0 1px 0 rgba(255,255,255,0.4);">
+      <!-- Lid -->
+      <div class="bin-lid" style="background:linear-gradient(180deg,#16a34a,#15803d);width:85%;height:9px;border-radius:5px 5px 3px 3px;box-shadow:0 2px 4px rgba(0,0,0,0.2);">
+        <div style="position:absolute;top:-5px;left:50%;transform:translateX(-50%);width:26px;height:7px;background:#15803d;border-radius:3px 3px 0 0;box-shadow:0 -1px 3px rgba(0,0,0,0.15);"></div>
+      </div>
+      <!-- Body -->
+      <div class="bin-body" style="background:linear-gradient(180deg,#bbf7d0,#4ade80 50%,#22c55e 100%);border:1.5px solid #16a34a;border-top:none;border-radius:4px 4px 12px 12px;">
+        <div class="bin-stripes"></div>
+        <div class="bin-icon">🍏</div>
+      </div>
+      <!-- Label -->
+      <div class="bin-label" style="color:#14532d;background:rgba(255,255,255,0.88);border:1px solid rgba(21,128,61,0.25);">SISA<br>MAKANAN</div>
     </button>
-    <button onclick="checkBin('LAKU JUAL')" class="bin bg-gradient-to-t from-orange-200 to-orange-50 border-b-[5px] border-pktOrange" data-category="LAKU JUAL">
-      <span class="text-3xl opacity-60">♻️</span>
-      <h3 class="font-black text-pktOrange text-[0.65rem] sm:text-xs bg-white/75 px-2 py-1 rounded-lg border border-orange-100 text-center leading-tight">LAKU<br>JUAL</h3>
+    
+    <!-- LAKU JUAL bin -->
+    <button onclick="checkBin('LAKU JUAL')" class="bin" data-category="LAKU JUAL" style="background:linear-gradient(180deg,#ffedd5 0%,#fdba74 40%,#f97316 100%);border:2.5px solid #ea580c;box-shadow:0 6px 18px rgba(234,88,12,0.3),inset 0 1px 0 rgba(255,255,255,0.4);">
+      <!-- Lid -->
+      <div class="bin-lid" style="background:linear-gradient(180deg,#c2410c,#9a3412);width:85%;height:9px;border-radius:5px 5px 3px 3px;box-shadow:0 2px 4px rgba(0,0,0,0.2);">
+        <div style="position:absolute;top:-5px;left:50%;transform:translateX(-50%);width:26px;height:7px;background:#9a3412;border-radius:3px 3px 0 0;box-shadow:0 -1px 3px rgba(0,0,0,0.15);"></div>
+      </div>
+      <!-- Body -->
+      <div class="bin-body" style="background:linear-gradient(180deg,#fed7aa,#fb923c 50%,#f97316 100%);border:1.5px solid #ea580c;border-top:none;border-radius:4px 4px 12px 12px;">
+        <div class="bin-stripes"></div>
+        <div class="bin-icon">♻️</div>
+      </div>
+      <!-- Label -->
+      <div class="bin-label" style="color:#7c2d12;background:rgba(255,255,255,0.88);border:1px solid rgba(154,52,18,0.25);">LAKU<br>JUAL</div>
     </button>
-    <button onclick="checkBin('RESIDU')" class="bin bg-gradient-to-t from-blue-200 to-blue-50 border-b-[5px] border-pktBlue" data-category="RESIDU">
-      <span class="text-3xl opacity-60">🗑️</span>
-      <h3 class="font-black text-pktBlue text-[0.65rem] sm:text-xs bg-white/75 px-2 py-1 rounded-lg border border-blue-100 text-center leading-tight">RESIDU</h3>
+    
+    <!-- RESIDU bin -->
+    <button onclick="checkBin('RESIDU')" class="bin" data-category="RESIDU" style="background:linear-gradient(180deg,#dbeafe 0%,#93c5fd 40%,#3b82f6 100%);border:2.5px solid #2563eb;box-shadow:0 6px 18px rgba(37,99,235,0.3),inset 0 1px 0 rgba(255,255,255,0.4);">
+      <!-- Lid -->
+      <div class="bin-lid" style="background:linear-gradient(180deg,#1d4ed8,#1e40af);width:85%;height:9px;border-radius:5px 5px 3px 3px;box-shadow:0 2px 4px rgba(0,0,0,0.2);">
+        <div style="position:absolute;top:-5px;left:50%;transform:translateX(-50%);width:26px;height:7px;background:#1e40af;border-radius:3px 3px 0 0;box-shadow:0 -1px 3px rgba(0,0,0,0.15);"></div>
+      </div>
+      <!-- Body -->
+      <div class="bin-body" style="background:linear-gradient(180deg,#bfdbfe,#60a5fa 50%,#3b82f6 100%);border:1.5px solid #2563eb;border-top:none;border-radius:4px 4px 12px 12px;">
+        <div class="bin-stripes"></div>
+        <div class="bin-icon">🗑️</div>
+      </div>
+      <!-- Label -->
+      <div class="bin-label" style="color:#1e3a8a;background:rgba(255,255,255,0.88);border:1px solid rgba(30,64,175,0.25);">RESIDU</div>
     </button>
   </div>
 </div>
@@ -3572,13 +3803,14 @@ function updateRageMode(timeLeft) {
 // ──────────────────────────────────────────
 //  SCORE POP ANIMATION
 // ──────────────────────────────────────────
-function animateScorePop() {
+function animateScorePop(isBig=false) {
   const sc = document.getElementById('score-display');
   if (!sc) return;
-  sc.classList.remove('score-pop');
+  const cls = isBig ? 'score-pop-big' : 'score-pop';
+  sc.classList.remove('score-pop','score-pop-big');
   void sc.offsetWidth;
-  sc.classList.add('score-pop');
-  setTimeout(() => sc.classList.remove('score-pop'), 300);
+  sc.classList.add(cls);
+  setTimeout(() => sc.classList.remove(cls), 380);
 }
 
 // Mirror the account inventory into the current session without consuming it up front.
@@ -5091,8 +5323,8 @@ function startGame(time, diff, name, isCurriculum) {
   document.getElementById('mission-pct').textContent='0%';
   document.getElementById('rival-strip').innerHTML='<div class="rival-strip-header">⚔️ Rival</div><div style="color:#94a3b8;font-size:0.72rem;">Mulai jawab untuk lihat rival!</div>';
   document.getElementById('combo-display').style.opacity='0';
-  const tipStrip = document.getElementById('eco-tip-strip');
-  if (tipStrip) tipStrip.textContent='Pilah sampah dari sumber untuk kurangi beban TPA.';
+  const tipStrip = document.getElementById('game-eco-tip');
+  if (tipStrip) tipStrip.textContent='🌿 Pilah sampah dari sumber untuk kurangi beban TPA.';
 
   const focusBadge = document.getElementById('curriculum-focus-badge');
   if (isCurriculum && GS.curriculumFocus) {
@@ -5142,8 +5374,16 @@ function setupGameUI() {
     newDiv.id = 'curriculum-buttons-container';
     newDiv.className = 'curriculum-buttons';
     newDiv.innerHTML = `
-      <button id="curr-match-btn" class="curriculum-btn btn-match" data-match-action="match">✅ Sesuai</button>
-      <button id="curr-notmatch-btn" class="curriculum-btn btn-notmatch" data-match-action="notmatch">❌ Tidak Sesuai</button>
+      <button id="curr-match-btn" class="curriculum-btn btn-match" data-match-action="match">
+        <span class="curr-bin-lid">🪣</span>
+        <div class="curr-bin-icon">✅</div>
+        <div class="curr-bin-label">SESUAI<br><span style="font-size:0.6rem;opacity:0.85;">Masuk kategori ini</span></div>
+      </button>
+      <button id="curr-notmatch-btn" class="curriculum-btn btn-notmatch" data-match-action="notmatch">
+        <span class="curr-bin-lid">🪣</span>
+        <div class="curr-bin-icon">❌</div>
+        <div class="curr-bin-label">TIDAK SESUAI<br><span style="font-size:0.6rem;opacity:0.85;">Bukan kategori ini</span></div>
+      </button>
     `;
     binsContainer.parentNode.appendChild(newDiv);
     document.getElementById('curr-match-btn').onclick = () => handleCurriculumAnswer(true);
@@ -5338,6 +5578,15 @@ function spawnTrash() {
   document.getElementById('trash-name').classList.remove('anim-shake');
   document.getElementById('session-progress').textContent=`${sessionAsked.size}/${trashData.length} unik`;
 
+  // Update trash card category accent color
+  const tc3 = document.getElementById('trash-container');
+  if(tc3) {
+    tc3.classList.remove('cat-sisa','cat-laku','cat-residu');
+    if(GS.currentTrash.c==='SISA MAKANAN') tc3.classList.add('cat-sisa');
+    else if(GS.currentTrash.c==='LAKU JUAL') tc3.classList.add('cat-laku');
+    else if(GS.currentTrash.c==='RESIDU') tc3.classList.add('cat-residu');
+  }
+
   // Card flip animation
   const tc3 = document.getElementById('trash-container');
   if (tc3) {
@@ -5356,8 +5605,8 @@ function spawnTrash() {
     'RESIDU':['Residu sulit didaur ulang, kurangi dari sumbernya.','Produk sekali pakai umumnya jadi residu – pilih reusable!']
   };
   const catTips=tips[GS.currentTrash.c]||['Mulai pilah sampah dari sekarang!'];
-  const tipStrip = document.getElementById('eco-tip-strip');
-  if (tipStrip) tipStrip.textContent=catTips[Math.floor(Math.random()*catTips.length)];
+  const tipStrip = document.getElementById('game-eco-tip');
+  if (tipStrip) { tipStrip.textContent=catTips[Math.floor(Math.random()*catTips.length)]; tipStrip.style.opacity='1'; }
 }
 
 // Guard against duplicate answer submissions (drag+click double-fire)
@@ -5398,9 +5647,14 @@ function checkBin(cat) {
 
   if(tc===cat) {
     playSound('bin-'+{'SISA MAKANAN':'sisa','LAKU JUAL':'laku','RESIDU':'residu'}[cat]);
-    // Flash the correct bin
+    // Flash the correct bin with upgraded effect
     const correctBin = document.querySelector(`.bin[data-category="${cat}"]`);
-    if(correctBin) { correctBin.classList.add('bin-flash'); setTimeout(()=>correctBin.classList.remove('bin-flash'),380); }
+    if(correctBin) { 
+      correctBin.classList.add('bin-flash-correct'); 
+      setTimeout(()=>correctBin.classList.remove('bin-flash-correct'),420); 
+      // Particle burst from bin
+      launchBinParticles(correctBin, cat);
+    }
     GS.combo++;
     GS.bestCombo=Math.max(GS.bestCombo,GS.combo);
     GS.correctAnswers++;
@@ -5420,7 +5674,7 @@ function checkBin(cat) {
       if (puMult > 1) GS.breakdown.puBonus += base * comboMult * (puMult - 1);
       if (isLuckyTrash && puMult < 3) GS.breakdown.luckyBonus += base * comboMult * 2;
     }
-    animateScorePop();
+    animateScorePop(GS.combo >= 3);
 
     // Combo milestones
     showComboMilestone(GS.combo);
@@ -5450,6 +5704,9 @@ function checkBin(cat) {
     GS.timeLeft=Math.max(0,GS.timeLeft-5);
     updateComboFire(0);
     document.getElementById('trash-name').classList.add('anim-shake');
+    // Flash wrong bin
+    const wrongBin = document.querySelector(`.bin[data-category="${cat}"]`);
+    if(wrongBin) { wrongBin.classList.add('bin-flash-wrong'); setTimeout(()=>wrongBin.classList.remove('bin-flash-wrong'),420); }
     showFeedback(`❌ ${tc}`, 'text-red-500');
     setTimeout(()=>{ document.getElementById('trash-name').classList.remove('anim-shake'); updateTimerUI(); spawnTrash(); },420);
   }
@@ -5751,8 +6008,33 @@ function launchConfetti(count=24) {
   }
 }
 
-// ──────────────────────────────────────────
-//  END GAME
+// Particle burst from a bin element on correct answer
+function launchBinParticles(binEl, cat) {
+  const catColors = {
+    'SISA MAKANAN': ['#22c55e','#86efac','#bbf7d0','#fbbf24'],
+    'LAKU JUAL':    ['#f97316','#fdba74','#fef08a','#fb923c'],
+    'RESIDU':       ['#3b82f6','#93c5fd','#a5b4fc','#60a5fa'],
+  };
+  const colors = catColors[cat] || ['#fbbf24','#34d399','#60a5fa'];
+  const rect = binEl.getBoundingClientRect();
+  const root = document.querySelector('.game-play');
+  if (!root) return;
+  const rootRect = root.getBoundingClientRect();
+  const cx = rect.left + rect.width/2 - rootRect.left;
+  const cy = rect.top + rect.height/3 - rootRect.top;
+  for (let i = 0; i < 10; i++) {
+    const el = document.createElement('div');
+    el.className = 'particle';
+    const angle = (Math.PI * 2 / 10) * i + (Math.random() - 0.5) * 0.8;
+    const dist = 28 + Math.random() * 36;
+    const px = Math.cos(angle) * dist;
+    const py = Math.sin(angle) * dist - 20;
+    el.style.cssText = `left:${cx}px;top:${cy}px;background:${colors[i%colors.length]};--px:${px}px;--py:${py}px;width:${5+Math.random()*5}px;height:${5+Math.random()*5}px;`;
+    root.appendChild(el);
+    setTimeout(()=>el.remove(), 600);
+  }
+}
+
 // ──────────────────────────────────────────
 async function endGame() {
   // Track daily session & apply bonus BEFORE cleanup
@@ -8234,6 +8516,12 @@ document.addEventListener('keydown', e=>{
   })();
 
   document.body.style.overflow='auto';
+
+  // Show keyboard shortcuts hint on non-touch devices
+  if (!('ontouchstart' in window)) {
+    const kbHint = document.getElementById('pu-kb-hint');
+    if (kbHint) kbHint.style.display = 'block';
+  }
   
   // Show daily login button instead of auto-popup
   setTimeout(async () => {
