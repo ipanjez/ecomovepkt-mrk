@@ -342,9 +342,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
 .badge-rising{background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:1px solid #047857;}
 .badge-sharpshooter{background:linear-gradient(135deg,#8b5cf6,#7c3aed);color:#fff;border:1px solid #6d28d9;}
 .badge-speedrun{background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff;border:1px solid #b91c1c;}
-.badge-hardmode{background:linear-gradient(135deg,#1e3a8a,#1e40af);color:#fff;border:1px solid #1d4ed8;}
 .badge-combo-god{background:linear-gradient(135deg,#d97706,#92400e);color:#fff;border:2px solid #78350f;animation:badgeGlow 1.8s ease-in-out infinite;}
-.badge-eco-guardian{background:linear-gradient(135deg,#065f46,#047857);color:#fff;border:1px solid #059669;}
 .badge-consistent{background:linear-gradient(135deg,#4f46e5,#4338ca);color:#fff;border:1px solid #3730a3;}
 @keyframes badgeGlow{0%,100%{box-shadow:0 3px 12px rgba(245,158,11,0.55);}50%{box-shadow:0 3px 22px rgba(245,158,11,0.9);}}
 @keyframes badgeGlitter{0%,100%{box-shadow:0 3px 12px rgba(225,29,72,0.55);}50%{box-shadow:0 3px 28px rgba(225,29,72,0.9);}}
@@ -2575,8 +2573,6 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
               <span class="text-[0.62rem] font-bold bg-sky-100 text-sky-800 rounded-full px-2.5 py-1" data-guide-badge="DCDedicated" tabindex="0">🏆 DCDedicated</span>
               <span class="text-[0.62rem] font-bold bg-rose-100 text-rose-800 rounded-full px-2.5 py-1" data-guide-badge="DCMaster" tabindex="0">🏆 DCMaster</span>
               <span class="text-[0.62rem] font-bold bg-indigo-100 text-indigo-800 rounded-full px-2.5 py-1" data-guide-badge="DCLegend" tabindex="0">🏆 DCLegend</span>
-              <span class="text-[0.62rem] font-bold bg-slate-100 text-slate-800 rounded-full px-2.5 py-1" data-guide-badge="Hard Mode Hero" tabindex="0">🛡️ Hard Mode Hero</span>
-              <span class="text-[0.62rem] font-bold bg-emerald-100 text-emerald-800 rounded-full px-2.5 py-1" data-guide-badge="Eco Guardian" tabindex="0">🌿 Eco Guardian</span>
             </div>
             <p class="text-[0.6rem] text-gray-400 mt-1.5">Tag otomatis berdasarkan performa akun aktif, dan sekarang mencakup combo, akurasi, skor tinggi, grinding, daily challenge, tanggal spesial, serta multi-kategori. Semua akan muncul penuh di leaderboard.</p>
           </div>
@@ -2598,8 +2594,6 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
               <div class="flex items-start gap-2 rounded-lg border border-slate-100 bg-slate-50 px-3 py-2" data-guide-badge="DCDedicated" tabindex="0"><span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-daily shrink-0">DCDedicated</span><p class="text-xs text-gray-600">Selesaikan Daily Challenge minimal 15 kali</p></div>
               <div class="flex items-start gap-2 rounded-lg border border-slate-100 bg-slate-50 px-3 py-2" data-guide-badge="DCMaster" tabindex="0"><span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-daily shrink-0">DCMaster</span><p class="text-xs text-gray-600">Selesaikan Daily Challenge minimal 30 kali</p></div>
               <div class="flex items-start gap-2 rounded-lg border border-slate-100 bg-slate-50 px-3 py-2" data-guide-badge="DCLegend" tabindex="0"><span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-daily shrink-0">DCLegend</span><p class="text-xs text-gray-600">Selesaikan Daily Challenge minimal 50 kali</p></div>
-              <div class="flex items-start gap-2 rounded-lg border border-gray-100 bg-gray-50 px-3 py-2" data-guide-badge="Hard Mode Hero" tabindex="0"><span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-hardmode shrink-0">Hard Mode Hero</span><p class="text-xs text-gray-600">Badge riwayat performa Hard Mode</p></div>
-              <div class="flex items-start gap-2 rounded-lg border border-emerald-100 bg-emerald-50 px-3 py-2" data-guide-badge="Eco Guardian" tabindex="0"><span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold badge-eco-guardian shrink-0">Eco Guardian</span><p class="text-xs text-gray-600">Tag pelestarian yang dipertahankan di akun</p></div>
             </div>
           </div>
 
@@ -6397,17 +6391,6 @@ async function endGame() {
   updateLoginStreakCard();
   renderPlayMilestoneOnStart();
 
-  // Grant Hard Mode Hero if played on Hard
-  if (GS.difficulty === 'Hard' && !GS.isCurriculum) {
-    try {
-      const safeId = GS.playerName.replace(/[.#$[\]/\s]/g,'_').toUpperCase();
-      const cachedRec = lbCache.find(r => r.id === safeId);
-      if (cachedRec && cachedRec.secondaryBadges && !cachedRec.secondaryBadges.includes('Hard Mode Hero')) {
-        cachedRec.secondaryBadges.push('Hard Mode Hero');
-      }
-    } catch(e) {}
-  }
-
   // Always show game over popup and end screen regardless of any errors below
   setLbMode(GS.isCurriculum ? 'curriculum' : 'ranked');
   
@@ -7157,12 +7140,6 @@ function computeSecondaryBadges(score,acc,combo,prevBest,correct,wrong,total,cat
   else if(totalAttempts>=10||ex.includes('Explorer')) badges.push('Explorer');
   else if(totalAttempts>=3||ex.includes('Newcomer')) badges.push('Newcomer');
 
-  // ── Hard mode badges ──
-  if(!rowIsCurriculum && ex.includes('Hard Mode Hero')) badges.push('Hard Mode Hero');
-
-  // ── Eco-expertise ──
-  if(ex.includes('Eco Guardian')) badges.push('Eco Guardian');
-
   return [...new Set(badges)];
 }
 
@@ -7231,8 +7208,6 @@ function getSecondaryBadgeClass(badge) {
     // Experience
     'Admin':'badge-admin','Legend Player':'badge-immortal','Champion':'badge-legend','Veteran':'badge-diamond',
     'Regular':'badge-grandmaster','Explorer':'badge-epic','Newcomer':'badge-newcomer',
-    // Special
-    'Hard Mode Hero':'badge-hardmode','Eco Guardian':'badge-eco-guardian',
   };
   return m[badge]||'badge-bronze';
 }
@@ -7305,8 +7280,6 @@ const GUIDE_BADGE_DETAILS = {
   DCDedicated: { title: 'DCDedicated', how: 'Sudah menyelesaikan Daily Challenge minimal 15 kali.', example: 'Contoh case: dcCompleted 15, seperti 15 DC selesai dalam satu bulan lebih.' },
   DCMaster: { title: 'DCMaster', how: 'Sudah menyelesaikan Daily Challenge minimal 30 kali.', example: 'Contoh case: dcCompleted 30, artinya hampir setiap hari DC dituntaskan.' },
   DCLegend: { title: 'DCLegend', how: 'Sudah menyelesaikan Daily Challenge minimal 50 kali.', example: 'Contoh case: dcCompleted 50+, menandakan pemain sangat konsisten ikut challenge harian.' },
-  'Hard Mode Hero': { title: 'Hard Mode Hero', how: 'Badge ini dipertahankan untuk akun yang punya riwayat performa di Hard Mode.', example: 'Contoh case: satu riwayat Hard dengan skor 1100 dan akurasi 88% tetap menyimpan badge ini di akun.' },
-  'Eco Guardian': { title: 'Eco Guardian', how: 'Badge tag pelestarian yang dipertahankan jika sudah ada di data akun.', example: 'Contoh case: akun lama yang sudah pernah menyimpan label Eco Guardian akan tetap menampilkannya meski login di perangkat lain.' }
 };
 
 function renderGuideBadgeDetail(key) {
@@ -7887,6 +7860,25 @@ function renderLbTable() {
     const mv=r.__mv||{sym:'—',cls:'text-gray-400',title:'Tetap'};
     const primary=computePrimaryBadge(r.score||0,r.accuracy||0,r.bestCombo||0,r.attempts||0);
     const secArr=r.secondaryBadges||[];
+    const playTier = getParticipationTier(Number(r.attempts) || 0);
+    const playTierClassMap = {
+      'Newcomer': 'badge-newcomer',
+      'Explorer': 'badge-silver',
+      'Regular': 'badge-gold',
+      'Veteran': 'badge-epic',
+      'Champion': 'badge-legend',
+      'Legend Player': 'badge-immortal'
+    };
+    const playTierEmojiMap = {
+      'Newcomer': '🌱',
+      'Explorer': '🔍',
+      'Regular': '⚽',
+      'Veteran': '🎖️',
+      'Champion': '🏆',
+      'Legend Player': '👑'
+    };
+    const playTierCls = playTierClassMap[playTier] || 'badge-newcomer';
+    const playTierEmoji = playTierEmojiMap[playTier] || '🎮';
     const tags=computeSpecialTags(r.score||0,r.accuracy||0,r.bestCombo||0,r.categoryStats||{},i+1,r.attempts||0,r.dcCompleted||0,{dcType:r.dcType,dcFocusCat:r.dcFocusCat,dcDateKey:r.dcDateKey,dcDone:(r.dcCompleted||0)>0});
     const diffLabel=r.isCurriculum?`📚 ${r.curriculumFilter||'Kurikulum'}`:getDifficultyDisplayName(r.difficulty);
     const diffColor=r.isCurriculum?'text-purple-600':r.difficulty==='Hard'?'text-blue-500':r.difficulty==='Medium'?'text-orange-500':'text-green-500';
@@ -7925,7 +7917,7 @@ function renderLbTable() {
     tr.innerHTML=`
       <td class="text-center"><div class="flex items-center justify-center gap-1" title="${escHtml(mv.title)}"><span>${rankMedal}</span><span class="text-[0.6rem] ${mv.cls}">${mv.sym}</span></div></td>
       <td class="pl-2">
-        <div class="flex flex-wrap items-center gap-1">${crownHtml}<span class="font-bold text-xs ${nameIsAdmin ? 'text-red-600' : 'text-gray-800'}">${escHtml(recordName)}</span>${primaryBadgeHtml}</div>
+        <div class="flex flex-wrap items-center gap-1">${crownHtml}<span class="font-bold text-xs ${nameIsAdmin ? 'text-red-600' : 'text-gray-800'}">${escHtml(recordName)}</span>${primaryBadgeHtml}<span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold ${playTierCls}" title="${escHtml(playTier)}">${playTierEmoji} ${escHtml(playTier)}</span></div>
         <div class="flex flex-wrap gap-1 mt-0.5">${secBadgesHtml}${tagsHtml}</div>
         <div class="text-[0.55rem] ${diffColor} font-bold mt-0.5">${escHtml(diffLabel)}</div>
       </td>
@@ -7999,6 +7991,26 @@ function renderFinalBadges(rec) {
   if(!row) return;
   const primary=computePrimaryBadge(rec.score||0,rec.accuracy||0,rec.bestCombo||0,rec.attempts||0);
   let secArr=rec.secondaryBadges||[];
+  const playTier = getParticipationTier(Number(rec.attempts) || 0);
+  const playTierClassMap = {
+    'Newcomer': 'badge-newcomer',
+    'Explorer': 'badge-silver',
+    'Regular': 'badge-gold',
+    'Veteran': 'badge-epic',
+    'Champion': 'badge-legend',
+    'Legend Player': 'badge-immortal'
+  };
+  const playTierEmojiMap = {
+    'Newcomer': '🌱',
+    'Explorer': '🔍',
+    'Regular': '⚽',
+    'Veteran': '🎖️',
+    'Champion': '🏆',
+    'Legend Player': '👑'
+  };
+  const playTierCls = playTierClassMap[playTier] || 'badge-newcomer';
+  const playTierEmoji = playTierEmojiMap[playTier] || '🎮';
+  secArr = secArr.filter(b => !['Newcomer','Explorer','Regular','Veteran','Champion','Legend Player'].includes(b));
   const isCurrentSession = rec.id === GS.currentSessionId;
   const completedDC = !GS.isCurriculum && isCurrentSession && (DC.completed || DC.bestProgress >= 100);
   if (completedDC && !secArr.includes('Daily Challenger')) {
@@ -8015,12 +8027,19 @@ function renderFinalBadges(rec) {
 
   // ── SEKSI 1: Badge Utama + Sekunder yang sudah diraih ──
   let html = '';
-  // Primary badge
+  html += `<div class="w-full flex flex-wrap items-center gap-1.5">`;
+  // Primary badge cluster: badge utama + milestone main
   html += `<span class="inline-flex items-center rounded-full px-3 py-1.5 text-sm font-black ${getBadgeClass(primary)}">${escHtml(formatBadge(primary))}</span>`;
-  // Secondary badges
-  secArr.forEach(b => {
-    html += `<span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-bold ${getSecondaryBadgeClass(b)}">${escHtml(b)}</span>`;
-  });
+  html += `<span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-bold ${playTierCls}">${playTierEmoji} ${escHtml(playTier)}</span>`;
+  html += `</div>`;
+  // Secondary badges cluster
+  if (secArr.length > 0) {
+    html += `<div class="w-full flex flex-wrap gap-1.5 mt-1">`;
+    secArr.forEach(b => {
+      html += `<span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-bold ${getSecondaryBadgeClass(b)}">${escHtml(b)}</span>`;
+    });
+    html += `</div>`;
+  }
 
   // ── SEKSI 2: Tags (baris terpisah) ──
   if (tags.length > 0) {
@@ -8230,6 +8249,26 @@ function renderLbPrev() {
     const mv=r.__mv||{sym:'—',cls:'text-gray-400',title:'Tetap'};
     const primary=computePrimaryBadge(r.score||0,r.accuracy||0,r.bestCombo||0,r.attempts||0);
     const secArr=r.secondaryBadges||[];
+    const playAttempts = parseInt(r.attempts, 10) || 0;
+    const playTier = getParticipationTier(playAttempts);
+    const playTierClassMap = {
+      'Newcomer': 'badge-newcomer',
+      'Explorer': 'badge-silver',
+      'Regular': 'badge-gold',
+      'Veteran': 'badge-epic',
+      'Champion': 'badge-legend',
+      'Legend Player': 'badge-immortal'
+    };
+    const playTierEmojiMap = {
+      'Newcomer': '🌱',
+      'Explorer': '🔍',
+      'Regular': '⚽',
+      'Veteran': '🎖️',
+      'Champion': '🏆',
+      'Legend Player': '👑'
+    };
+    const playTierCls = playTierClassMap[playTier] || 'badge-newcomer';
+    const playTierEmoji = playTierEmojiMap[playTier] || '🎮';
     const tags=computeSpecialTags(r.score||0,r.accuracy||0,r.bestCombo||0,r.categoryStats||{},i+1,r.attempts||0,r.dcCompleted||0,{dcType:r.dcType,dcFocusCat:r.dcFocusCat,dcDateKey:r.dcDateKey,dcDone:(r.dcCompleted||0)>0});
     const ts=r.timestamp?new Date(r.timestamp).toLocaleString('id-ID',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):'-';
     const diffLabel=r.isCurriculum?`📚 ${r.curriculumFilter||'Kurikulum'}`:getDifficultyDisplayName(r.difficulty);
@@ -8261,7 +8300,7 @@ function renderLbPrev() {
     tr.innerHTML=`
       <td class="text-center"><div class="flex items-center justify-center gap-1" title="${escHtml(mv.title)}"><span>${rankMedalP}</span><span class="text-[0.6rem] ${mv.cls}">${mv.sym}</span></div></td>
       <td class="pl-2">
-        <div class="flex flex-wrap items-center gap-1 mb-1">${crownPHtml}<span class="font-bold text-xs ${nameIsAdmin ? 'text-red-600' : 'text-gray-800'}">${escHtml(recordName)}</span>${primaryBadgeHtml}</div>
+        <div class="flex flex-wrap items-center gap-1 mb-1">${crownPHtml}<span class="font-bold text-xs ${nameIsAdmin ? 'text-red-600' : 'text-gray-800'}">${escHtml(recordName)}</span>${primaryBadgeHtml}<span class="inline-flex items-center rounded-full px-2 py-0.5 text-[0.6rem] font-bold whitespace-nowrap shrink-0 ${playTierCls}" title="${escHtml(playTier)}">${playTierEmoji} ${escHtml(playTier)}</span></div>
         <div class="flex flex-wrap items-center gap-1 mb-1">${secBadgesHtml}</div>
         <div class="flex flex-wrap items-center gap-1 mb-1">${tagsHtml}</div>
         <div class="text-[0.58rem] text-gray-400">${escHtml(diffLabel)}</div>
