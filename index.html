@@ -6568,8 +6568,8 @@ function renderLbLegend(mode, elementId) {
 
 function renderLbMeta() {
   const modeDesc = lbMode === 'curriculum'
-    ? '📚 Mode Kurikulum: indikator ini menunjukkan pergerakan peringkat (Naik, Turun, Tetap).' 
-    : '🎯 Mode Ranked: indikator ini menunjukkan pergerakan peringkat (Naik, Turun, Tetap) dan filter memilih level Ranked.';
+    ? '📚 Mode Kurikulum' 
+    : '🎯 Mode Ranked';
   const filterLabel = lbFilter === 'All' ? 'Semua' : lbFilter;
 
   const filterEl = document.getElementById('lb-filter-badge');
