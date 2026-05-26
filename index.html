@@ -4289,6 +4289,7 @@ function prepareSessionQueue() {
 // Leaderboard cache
 let lbCache = [];
 let lbIndexMap = {};
+let lbDataReady = false;
 // ── Movement indicator system ─────────────────────────────────────────────
 // Ranks are persisted to localStorage so indicators work across page reloads.
 // Flow:
@@ -7071,6 +7072,7 @@ function setupFirebaseListener() {
       lbCache=arr;
       lbIndexMap={};
       arr.forEach((r,i)=>{ const recordName=getRecordName(r); lbIndexMap['id:'+r.id]=i; if(recordName) lbIndexMap['name:'+recordName.toLowerCase()]=i; });
+      lbDataReady = true;
 
       const dbStatus = document.getElementById('db-status');
       if(dbStatus) {
@@ -8826,6 +8828,7 @@ function renderStartRankNotif(name) {
   const el = document.getElementById('start-rank-notif');
   if (!el) return;
   if (!name) { el.classList.add('hidden'); return; }
+  if (!lbDataReady || lbCache.length === 0) { el.classList.add('hidden'); return; }
 
   // Check both ranked and curriculum
   const safeId = name.replace(/[.#$[\]/\s]/g,'_').toUpperCase();
@@ -8879,13 +8882,17 @@ function updateNameHint() {
   if(!el) return;
   const name = (document.getElementById('player-name').value || '').trim();
   if(!name) { el.textContent = ''; return; }
-  const key = 'name:' + name.toLowerCase();
+  if (!lbDataReady || lbCache.length === 0) {
+    el.innerHTML = 'Memuat data leaderboard...';
+    return;
+  }
   const filtered = filterLb(lbCache, lbFilter, lbMode);
-  const idx = filtered.findIndex(r => getRecordName(r).toLowerCase() === name.toLowerCase());
+  const normalizedName = name.toLowerCase();
+  const idx = filtered.findIndex(r => getRecordName(r).toLowerCase() === normalizedName);
   const rankedFiltered = filterLb(lbCache, 'All', 'ranked');
   const curriculumFiltered = filterLb(lbCache, 'All', 'curriculum');
-  const rankedIdx = rankedFiltered.findIndex(r => getRecordName(r).toLowerCase() === name.toLowerCase());
-  const curriculumIdx = curriculumFiltered.findIndex(r => getRecordName(r).toLowerCase() === name.toLowerCase());
+  const rankedIdx = rankedFiltered.findIndex(r => getRecordName(r).toLowerCase() === normalizedName);
+  const curriculumIdx = curriculumFiltered.findIndex(r => getRecordName(r).toLowerCase() === normalizedName);
 
   // Fetch DC completed count
   const userId = name.replace(/[.#$[\]/\s]/g, '_').toUpperCase();
