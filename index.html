@@ -6924,12 +6924,6 @@ async function saveToDb(acc, wrong) {
     dcDateKey: !GS.isCurriculum ? (DC.dateKey || null) : null
   };
 
-  // Remove empty objects/arrays to satisfy Realtime DB rules that require children
-  if (payload.categoryStats && Object.keys(payload.categoryStats).length === 0) delete payload.categoryStats;
-  if (payload.questionStats && Object.keys(payload.questionStats).length === 0) delete payload.questionStats;
-  if (payload.powerupUsage && Object.keys(payload.powerupUsage).length === 0) { delete payload.powerupUsage; delete payload.puUsed; }
-  if (Array.isArray(payload.secondaryBadges) && payload.secondaryBadges.length === 0) delete payload.secondaryBadges;
-
   // Persist the PRE-GAME leaderboard state to localStorage BEFORE writing to Firebase.
   // This ensures the snapshot captures ranks as they were BEFORE this game's score
   // potentially shifts positions. The next page load uses this as its baseline.
