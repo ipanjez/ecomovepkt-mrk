@@ -9,6 +9,7 @@
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-check-compat.js"></script>
 <script>
 tailwind.config={theme:{extend:{fontFamily:{sans:['Nunito','sans-serif']},colors:{pktBlue:'#005B9F',pktOrange:'#F37021',pktGreen:'#7AB800'}}}}
 </script>
@@ -1303,6 +1304,15 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
         <div class="mt-2 flex justify-center">
           <div class="streak-flame" id="login-streak-display">🔥 Streak: 1 hari</div>
         </div>
+      </div>
+      <!-- SECURITY UPDATE NOTE -->
+      <div class="rounded-xl bg-yellow-50 border border-yellow-100 p-3">
+        <h4 class="font-black text-yellow-800 text-sm">🔒 Pembaruan Keamanan</h4>
+        <p class="text-yellow-700 text-xs mt-1">Kami telah memperketat aturan penyimpanan (database rules) dan mengaktifkan App Check untuk mengurangi penyalahgunaan. Beberapa hal penting:</p>
+        <ul class="text-xs text-yellow-800 mt-2 list-disc pl-5 space-y-1">
+          <li>Nama akun harus menggunakan karakter yang aman (huruf, angka, underscore atau tanda hubung). Nama akan disanitasi menjadi huruf besar untuk sinkronisasi lintas perangkat.</li>
+          <li>Jika progress atau Daily Challenge tidak muncul, pastikan kamu memakai nama yang sama persis seperti sebelumnya tanpa karakter khusus.</li>
+        </ul>
       </div>
 
       <!-- 7-day streak progress - compact -->
@@ -4149,6 +4159,14 @@ const firebaseConfig = {
   appId: "1:874828756963:web:cf405e4edabd79111212d6"
 };
 firebase.initializeApp(firebaseConfig);
+
+if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+  self.FIREBASE_APPCHECK_DEBUG_TOKEN = true;
+}
+
+const appCheck = firebase.appCheck();
+appCheck.activate('6LetJf0sAAAAAIxVAUPWRO_JeSoF_lQ5qaTV1MnQ', true);
+
 const DB = firebase.database();
 
 // ──────────────────────────────────────────

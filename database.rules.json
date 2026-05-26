@@ -1,0 +1,199 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+
+    "leaderboard": {
+      ".read": true,
+      "$playerId": {
+        ".write": "$playerId.matches(/^[A-Z0-9_-]{2,60}$/) && newData.hasChildren(['name','playerName','score','difficulty','timestamp']) && newData.child('score').isNumber()",
+        "name": {
+          ".validate": "newData.isString() && newData.val().length >= 2 && newData.val().length <= 30"
+        },
+        "playerName": {
+          ".validate": "newData.isString() && newData.val().length >= 2 && newData.val().length <= 30"
+        },
+        "score": {
+          ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 50000 && (!data.exists() || newData.val() >= data.val())"
+        },
+        "difficulty": {
+          ".validate": "newData.isString() && newData.val().length <= 40"
+        },
+        "timestamp": {
+          ".validate": "newData.isNumber()"
+        },
+        "attempts": {
+          ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 100000 && (!data.exists() || newData.val() >= data.val())"
+        },
+        "total": {
+          ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100000"
+        },
+        "correct": {
+          ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100000"
+        },
+        "wrong": {
+          ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100000"
+        },
+        "accuracy": {
+          ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100"
+        },
+        "bestCombo": {
+          ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1000 && (!data.exists() || newData.val() >= data.val())"
+        },
+        "isCurriculum": {
+          ".validate": "newData.isBoolean()"
+        },
+        "curriculumFilter": {
+          ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 30)"
+        },
+        "dcType": {
+          ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 20)"
+        },
+        "dcFocusCat": {
+          ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 30)"
+        },
+        "dcDateKey": {
+          ".validate": "!newData.exists() || (newData.isString() && newData.val().matches(/^\\d{4}-\\d{2}-\\d{2}$/))"
+        },
+        "secondaryBadges": {
+          ".validate": "!newData.exists() || newData.hasChildren()",
+          "$badge": {
+            ".validate": "newData.isString() && newData.val().length <= 60"
+          }
+        },
+        "categoryStats": {
+          ".validate": "newData.hasChildren()",
+          "$cat": {
+            ".validate": "newData.hasChildren(['correct','total'])",
+            "correct": {
+              ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100000"
+            },
+            "total": {
+              ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100000"
+            }
+          }
+        },
+        "questionStats": {
+          ".validate": "newData.hasChildren()",
+          "$q": {
+            ".validate": "newData.hasChildren(['q','total','correct','wrong'])",
+            "q": {
+              ".validate": "newData.isString() && newData.val().length <= 120"
+            },
+            "total": {
+              ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100000"
+            },
+            "correct": {
+              ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100000"
+            },
+            "wrong": {
+              ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100000"
+            },
+            "expectedAnswer": {
+              ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 40)"
+            }
+          }
+        },
+        "powerupUsage": {
+          ".validate": "!newData.exists() || newData.hasChildren()",
+          "$k": {
+            ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100000"
+          }
+        },
+        "puUsed": {
+          ".validate": "!newData.exists() || newData.hasChildren()",
+          "$k": {
+            ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100000"
+          }
+        },
+        "$other": {
+          ".validate": false
+        }
+      }
+    },
+
+    "playerData": {
+      "$playerId": {
+        ".read": true,
+        ".write": "$playerId.matches(/^[A-Z0-9_-]{2,60}$/)",
+        "puInventory": {
+          ".validate": "newData.hasChildren(['freeze','double','skip','timeExtend'])",
+          "freeze": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100" },
+          "double": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100" },
+          "skip": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100" },
+          "timeExtend": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100" }
+        },
+        "loginStreak": {
+          ".validate": "newData.hasChildren(['streak','lastLoginDate','totalDaysPlayed','claimedToday'])",
+          "streak": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 5000" },
+          "lastLoginDate": { ".validate": "newData.isString() && newData.val().matches(/^\\d{4}-\\d{2}-\\d{2}$/)" },
+          "totalDaysPlayed": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 5000" },
+          "claimedToday": { ".validate": "newData.isBoolean()" }
+        },
+        "dailyPlay": {
+          ".validate": "newData.hasChildren(['date','sessions'])",
+          "date": { ".validate": "newData.isString() && newData.val().matches(/^\\d{4}-\\d{2}-\\d{2}$/)" },
+          "sessions": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1000" }
+        },
+        "$other": {
+          ".validate": false
+        }
+      }
+    },
+
+    "dailyChallenges": {
+      "$playerId": {
+        ".read": true,
+        ".write": "$playerId.matches(/^[A-Z0-9_-]{2,60}$/)",
+        "$dateKey": {
+          ".validate": "$dateKey.matches(/^\\d{4}-\\d{2}-\\d{2}$/) && newData.hasChildren(['dateKey','type','completed'])",
+          "dateKey": {
+            ".validate": "newData.isString() && newData.val().matches(/^\\d{4}-\\d{2}-\\d{2}$/)"
+          },
+          "type": {
+            ".validate": "newData.isString() && newData.val().matches(/^(category|combo|score|mode|accuracy|attempt|streak)$/)"
+          },
+          "completed": {
+            ".validate": "newData.isBoolean()"
+          },
+          "bestProgress": {
+            ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100"
+          },
+          "targetScore": {
+            ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 50000)"
+          },
+          "minAcc": {
+            ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 100)"
+          },
+          "minCorrect": {
+            ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 1000)"
+          },
+          "targetCombo": {
+            ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 1000)"
+          },
+          "targetAttempts": {
+            ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 10000)"
+          },
+          "focusCat": {
+            ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 30)"
+          },
+          "targetMode": {
+            ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 30)"
+          },
+          "title": {
+            ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 120)"
+          },
+          "description": {
+            ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 300)"
+          },
+          "lastSaved": {
+            ".validate": "!newData.exists() || newData.isNumber()"
+          },
+          "$other": {
+            ".validate": false
+          }
+        }
+      }
+    }
+  }
+}
