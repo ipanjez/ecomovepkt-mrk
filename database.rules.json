@@ -6,7 +6,12 @@
     "leaderboard": {
       ".read": true,
       "$playerId": {
-        ".write": "$playerId.matches(/^[A-Z0-9_-]{2,60}$/) && newData.hasChildren(['name','playerName','score','difficulty','timestamp']) && newData.child('score').isNumber()",
+        ".write": "$playerId.matches(/^[A-Za-z0-9_-]{2,60}$/) && (
+          (!data.exists() && newData.hasChildren(['playerName','score','difficulty','timestamp']) && newData.child('score').isNumber()) ||
+          (data.exists() && (
+            newData.child('score').isNumber() || newData.child('attempts').isNumber() || newData.child('total').isNumber() || newData.child('correct').isNumber() || newData.child('wrong').isNumber() || newData.child('bestCombo').isNumber()
+          ))
+        )",
         "name": {
           ".validate": "newData.isString() && newData.val().length >= 2 && newData.val().length <= 30"
         },

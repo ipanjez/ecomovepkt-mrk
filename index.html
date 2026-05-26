@@ -6915,7 +6915,7 @@ async function saveToDb(acc, wrong) {
     questionStats:mergedQuestionStats,
     powerupUsage:mergedPowerupUsage,
     puUsed:mergedPowerupUsage,
-    previousBest:ex?ex.score||0:0,
+    previousBest:ex?ex.score||0:0, secondaryBadges:secBadges,
     prevModeRank: currentModeRank,
     prevWasPresent: !!ex,
     isCurriculum:GS.isCurriculum, curriculumFilter:GS.curriculumFocus||null,
@@ -6938,8 +6938,6 @@ async function saveToDb(acc, wrong) {
   } catch(e) {}
 
   if(!ex||GS.score>=ex.score) {
-    // attach secondaryBadges only when non-empty to satisfy DB rules
-    if (Array.isArray(secBadges) && secBadges.length > 0) payload.secondaryBadges = secBadges;
     await ref.set(payload);
   } else {
     const upd={
@@ -6948,12 +6946,12 @@ async function saveToDb(acc, wrong) {
       questionStats:mergedQuestionStats,
       powerupUsage:mergedPowerupUsage,
       puUsed:mergedPowerupUsage,
+      secondaryBadges:secBadges,
       prevModeRank: currentModeRank,
       prevWasPresent: true,
       timestamp:firebase.database.ServerValue.TIMESTAMP
     };
     if(GS.bestCombo>(ex.bestCombo||0)) upd.bestCombo=GS.bestCombo;
-    if (Array.isArray(secBadges) && secBadges.length > 0) upd.secondaryBadges = secBadges;
     await ref.update(upd);
   }
   renderLbTable();
