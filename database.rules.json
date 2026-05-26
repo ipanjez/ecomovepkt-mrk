@@ -25,7 +25,7 @@
           ".validate": "newData.isString() && newData.val().length <= 40"
         },
         "timestamp": {
-          ".validate": "newData.isNumber()"
+          ".validate": "!newData.exists() || newData.isNumber() || newData.val() === null"
         },
         "attempts": {
           ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 100000 && (!data.exists() || newData.val() >= data.val())"
@@ -44,6 +44,15 @@
         },
         "bestCombo": {
           ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1000 && (!data.exists() || newData.val() >= data.val())"
+        },
+        "previousBest": {
+          ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 50000)"
+        },
+        "prevModeRank": {
+          ".validate": "!newData.exists() || newData.isNumber()"
+        },
+        "prevWasPresent": {
+          ".validate": "!newData.exists() || newData.isBoolean()"
         },
         "isCurriculum": {
           ".validate": "newData.isBoolean()"
