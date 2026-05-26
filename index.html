@@ -6916,13 +6916,15 @@ async function saveToDb(acc, wrong) {
     powerupUsage:mergedPowerupUsage,
     puUsed:mergedPowerupUsage,
     previousBest:ex?ex.score||0:0, secondaryBadges:secBadges,
-    prevModeRank: currentModeRank,
     prevWasPresent: !!ex,
     isCurriculum:GS.isCurriculum, curriculumFilter:GS.curriculumFocus||null,
     dcType: !GS.isCurriculum ? (DC.type || null) : null,
     dcFocusCat: !GS.isCurriculum ? (DC.focusCat || null) : null,
     dcDateKey: !GS.isCurriculum ? (DC.dateKey || null) : null
   };
+  if (typeof currentModeRank === 'number') {
+    payload.prevModeRank = currentModeRank;
+  }
 
   // Persist the PRE-GAME leaderboard state to localStorage BEFORE writing to Firebase.
   // This ensures the snapshot captures ranks as they were BEFORE this game's score
@@ -6947,10 +6949,12 @@ async function saveToDb(acc, wrong) {
       powerupUsage:mergedPowerupUsage,
       puUsed:mergedPowerupUsage,
       secondaryBadges:secBadges,
-      prevModeRank: currentModeRank,
       prevWasPresent: true,
       timestamp:firebase.database.ServerValue.TIMESTAMP
     };
+    if (typeof currentModeRank === 'number') {
+      upd.prevModeRank = currentModeRank;
+    }
     if(GS.bestCombo>(ex.bestCombo||0)) upd.bestCombo=GS.bestCombo;
     await ref.update(upd);
   }
