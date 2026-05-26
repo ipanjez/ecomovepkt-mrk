@@ -1617,15 +1617,16 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
           📖 Cara Bermain & Aturan Badge
         </button>
 
-        <div class="mt-2 rounded-xl border border-slate-200 bg-slate-50/80 p-2.5 space-y-2">
-          <p class="text-[0.65rem] font-black text-slate-700">Butuh bantuan atau ingin kenalan?</p>
-          <div class="flex flex-wrap gap-2">
-            <a href="mailto:ipanjez@365mic.onmicrosoft.com?subject=EcoMove%20-%20Laporan%20Masalah&body=Halo%20Admin%2C%0A%0ASaya%20ingin%20melaporkan%20masalah%20di%20EcoMove%3A%0A- %0A%0ATerima%20kasih." class="inline-flex items-center justify-center gap-1.5 rounded-full bg-pktBlue/10 px-3 py-1.5 text-pktBlue text-[0.62rem] font-black ring-1 ring-pktBlue/15 hover:bg-pktBlue/15 transition">
-              <span>✉️</span>
+        <div class="mt-2 rounded-xl border border-slate-200 bg-slate-50/80 p-2.5">
+          <p class="text-[0.65rem] font-black text-slate-700 mb-2">Butuh bantuan atau ingin kenalan?</p>
+          <div class="flex items-center justify-center gap-3 text-[0.72rem]">
+            <a href="mailto:ipanjez@365mic.onmicrosoft.com?subject=EcoMove%20-%20Laporan%20Masalah&body=Halo%20Admin%2C%0A%0ASaya%20ingin%20melaporkan%20masalah%20di%20EcoMove%3A%0A- %0A%0ATerima%20kasih." class="flex items-center gap-2 text-pktBlue font-semibold hover:underline">
+              <span class="opacity-90">✉️</span>
               <span>Kirim Laporan</span>
             </a>
-            <a href="https://ipanjez.bio" target="_blank" rel="noreferrer noopener" class="inline-flex items-center justify-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-slate-600 text-[0.62rem] font-black ring-1 ring-slate-200 hover:bg-slate-100 transition">
-              <span>👤</span>
+            <span class="text-slate-300" aria-hidden="true">|</span>
+            <a href="https://ipanjez.bio" target="_blank" rel="noreferrer noopener" class="flex items-center gap-2 text-slate-600 font-semibold hover:underline">
+              <span class="opacity-90">👤</span>
               <span>About Me</span>
             </a>
           </div>
@@ -6914,7 +6915,7 @@ async function saveToDb(acc, wrong) {
     questionStats:mergedQuestionStats,
     powerupUsage:mergedPowerupUsage,
     puUsed:mergedPowerupUsage,
-    previousBest:ex?ex.score||0:0, secondaryBadges:secBadges,
+    previousBest:ex?ex.score||0:0,
     prevModeRank: currentModeRank,
     prevWasPresent: !!ex,
     isCurriculum:GS.isCurriculum, curriculumFilter:GS.curriculumFocus||null,
@@ -6937,6 +6938,8 @@ async function saveToDb(acc, wrong) {
   } catch(e) {}
 
   if(!ex||GS.score>=ex.score) {
+    // attach secondaryBadges only when non-empty to satisfy DB rules
+    if (Array.isArray(secBadges) && secBadges.length > 0) payload.secondaryBadges = secBadges;
     await ref.set(payload);
   } else {
     const upd={
@@ -6945,12 +6948,12 @@ async function saveToDb(acc, wrong) {
       questionStats:mergedQuestionStats,
       powerupUsage:mergedPowerupUsage,
       puUsed:mergedPowerupUsage,
-      secondaryBadges:secBadges,
       prevModeRank: currentModeRank,
       prevWasPresent: true,
       timestamp:firebase.database.ServerValue.TIMESTAMP
     };
     if(GS.bestCombo>(ex.bestCombo||0)) upd.bestCombo=GS.bestCombo;
+    if (Array.isArray(secBadges) && secBadges.length > 0) upd.secondaryBadges = secBadges;
     await ref.update(upd);
   }
   renderLbTable();
