@@ -6999,14 +6999,17 @@ function setupFirebaseListener() {
             ids_curriculum_set: new Set(saved.ids_curriculum || [])
           };
         } else {
-          // No previous snapshot — first ever load, all show —
-          sessionBaseSnapshot = null;
-          // Save current state now so the very first game in this session
-          // will have a meaningful baseline for the next session.
-          // Use per-mode rank maps: ranked positions for ranked players, curriculum for curriculum players
+          // No previous snapshot — use the current ranks as the baseline so
+          // the first save in this session can immediately show movement.
+          sessionBaseSnapshot = {
+            ranked: rankedRankMap,
+            curriculum: curriculumRankMap,
+            ids_ranked_set: new Set(rankedOnly.map(r=>r.id)),
+            ids_curriculum_set: new Set(curriculumOnly.map(r=>r.id))
+          };
           saveLbSnapshot(rankedRankMap, curriculumRankMap,
-            new Set(rankedOnly.map(r=>r.id)),
-            new Set(curriculumOnly.map(r=>r.id)));
+            sessionBaseSnapshot.ids_ranked_set,
+            sessionBaseSnapshot.ids_curriculum_set);
         }
         // NOTE: when there IS a saved snapshot, we do NOT overwrite it here.
         // The snapshot is written by saveToDb() after each game, capturing the
@@ -7017,9 +7020,15 @@ function setupFirebaseListener() {
 
       arr.forEach((r,i)=>{
         let sym='—', cls='text-gray-400', title='Tetap';
+        const baselineRankMap = r.isCurriculum
+          ? (sessionBaseSnapshot && sessionBaseSnapshot.curriculum) || {}
+          : (sessionBaseSnapshot && sessionBaseSnapshot.ranked) || {};
+        const baselineIds = r.isCurriculum
+          ? (sessionBaseSnapshot && sessionBaseSnapshot.ids_curriculum_set) || new Set()
+          : (sessionBaseSnapshot && sessionBaseSnapshot.ids_ranked_set) || new Set();
         const curRank = r.isCurriculum ? (curriculumRankMap['id:'+r.id]||null) : (rankedRankMap['id:'+r.id]||null);
-        const oldRank = (typeof r.prevModeRank === 'number') ? r.prevModeRank : null;
-        const wasPresent = (typeof r.prevWasPresent === 'boolean') ? r.prevWasPresent : true;
+        const oldRank = baselineRankMap['id:'+r.id] || ((typeof r.prevModeRank === 'number') ? r.prevModeRank : null);
+        const wasPresent = baselineIds.has(r.id) || (typeof r.prevWasPresent === 'boolean' ? r.prevWasPresent : true);
 
         if (wasPresent === false) {
           sym='🆕'; cls='text-blue-500'; title='Baru masuk';

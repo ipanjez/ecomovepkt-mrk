@@ -6,12 +6,7 @@
     "leaderboard": {
       ".read": true,
       "$playerId": {
-        ".write": "$playerId.matches(/^[A-Za-z0-9_-]{2,60}$/) && (
-          (!data.exists() && newData.hasChildren(['playerName','score','difficulty','timestamp']) && newData.child('score').isNumber()) ||
-          (data.exists() && (
-            newData.child('score').isNumber() || newData.child('attempts').isNumber() || newData.child('total').isNumber() || newData.child('correct').isNumber() || newData.child('wrong').isNumber() || newData.child('bestCombo').isNumber()
-          ))
-        )",
+        ".write": "$playerId.matches(/^[A-Za-z0-9_-]{2,60}$/) && (!data.exists() ? newData.hasChildren(['playerName','score','difficulty','timestamp']) && newData.child('score').isNumber() : true)",
         "name": {
           ".validate": "newData.isString() && newData.val().length >= 2 && newData.val().length <= 30"
         },
@@ -21,14 +16,23 @@
         "score": {
           ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 50000 && (!data.exists() || newData.val() >= data.val())"
         },
+        "previousBest": {
+          ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 50000)"
+        },
         "difficulty": {
           ".validate": "newData.isString() && newData.val().length <= 40"
         },
         "timestamp": {
-          ".validate": "!newData.exists() || newData.isNumber() || newData.val() === null"
+          ".validate": "newData.isNumber()"
         },
         "attempts": {
           ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 100000 && (!data.exists() || newData.val() >= data.val())"
+        },
+        "prevModeRank": {
+          ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 1 && newData.val() <= 100000)"
+        },
+        "prevWasPresent": {
+          ".validate": "!newData.exists() || newData.isBoolean()"
         },
         "total": {
           ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100000"
@@ -44,15 +48,6 @@
         },
         "bestCombo": {
           ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1000 && (!data.exists() || newData.val() >= data.val())"
-        },
-        "previousBest": {
-          ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 50000)"
-        },
-        "prevModeRank": {
-          ".validate": "!newData.exists() || newData.isNumber()"
-        },
-        "prevWasPresent": {
-          ".validate": "!newData.exists() || newData.isBoolean()"
         },
         "isCurriculum": {
           ".validate": "newData.isBoolean()"
@@ -129,7 +124,7 @@
     "playerData": {
       "$playerId": {
         ".read": true,
-        ".write": "$playerId.matches(/^[A-Z0-9_-]{2,60}$/)",
+        ".write": "$playerId.matches(/^[A-Za-z0-9_-]{2,60}$/)",
         "puInventory": {
           ".validate": "newData.hasChildren(['freeze','double','skip','timeExtend'])",
           "freeze": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100" },
@@ -158,7 +153,7 @@
     "dailyChallenges": {
       "$playerId": {
         ".read": true,
-        ".write": "$playerId.matches(/^[A-Z0-9_-]{2,60}$/)",
+        ".write": "$playerId.matches(/^[A-Za-z0-9_-]{2,60}$/)",
         "$dateKey": {
           ".validate": "$dateKey.matches(/^\\d{4}-\\d{2}-\\d{2}$/) && newData.hasChildren(['dateKey','type','completed'])",
           "dateKey": {
