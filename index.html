@@ -1,5 +1,106 @@
 <!DOCTYPE html>
 <html lang="id">
+<!--
+╔════════════════════════════════════════════════════════════════════════════╗
+║                   🎁 EcoMove: Trash Sorting Challenge                      ║
+║                                VERSION 1.3                                 ║
+╚════════════════════════════════════════════════════════════════════════════╝
+
+📋 CHANGELOG v1.3 - Login System & UI Improvements
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✨ PERBAIKAN YANG DIBUAT:
+
+1️⃣  KOTAK MILESTONE → SATU BARIS PENUH
+   - Sebelumnya: 2 baris (4 kolom + 4 kolom) dengan space kosong
+   - Sekarang: 1 baris penuh (8 kolom) - [1][3][5][7][10][15][20][25]
+   - Perubahan: grid-template-columns repeat(4,1fr) → repeat(8,1fr)
+   - Gap: 4px → 3px untuk efisiensi ruang
+   - Hasil: Tampilan lebih rapi ✨
+
+2️⃣  SISTEM LOGIN DATABASE - CEGAH DOUBLE-CLAIM
+   
+   Masalah lama:
+   ❌ User bisa klaim reward berkali-kali jika refresh halaman
+   ❌ User bisa klaim di perangkat berbeda pada hari yang sama
+   
+   Solusi implementasi:
+   
+   A. FLAG INCREMENT HARIAN (_incremented_today)
+      • Setiap kali counter bertambah, flag diset dengan tanggal
+      • Jika user refresh, flag mencegah increment ulang
+      • Jam 00:00, flag otomatis dihapus → bisa login besok
+   
+   B. IMMEDIATE FIREBASE SYNC (claimedToday)
+      • Flag disimpan ke Firebase SEGERA (tidak tunggu async)
+      • Timestamp (lastClaimTime) dicatat untuk audit trail
+      • Multi-device: perangkat lain baca flag dari cloud
+      • Hasil: Tidak bisa claim 2x dalam 1 hari ✅
+   
+   C. DISABLE BUTTON IMMEDIATELY
+      • Tombol di-disable saat click untuk cegah double-click
+      • Opacity dikurangi untuk visual feedback
+   
+   D. SMART DAILY ROLLOVER
+      • Saat load Firebase data, cek apakah dari hari berbeda
+      • Jika berbeda: reset flag harian otomatis
+      • User siap untuk increment baru besok
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔒 ALUR LOGIN SEKARANG:
+
+User Buka App
+    ↓
+[getLoginData] → Cek localStorage
+    ↓
+lastLoginDate == hari ini?
+    ├─ YA → Tidak perlu increment
+    └─ TIDAK → Periksa increment flag
+         ├─ Flag EXISTS → Skip (sudah increment)
+         └─ NOT EXISTS → INCREMENT & set flag
+    ↓
+[loadLoginDataFromFirebase] → Sinkron dari cloud
+    ↓
+Update UI → Tampilkan "Klaim!" button (jika belum claim)
+    ↓
+User Klik "Klaim!"
+    ├─ Cek claimedToday
+    ├─ Set button disabled
+    ├─ Simpan claimedToday=true ke localStorage
+    └─ SYNC ke Firebase (critical!)
+    ↓
+Semua perangkat → Baca claimedToday=true dari Firebase
+    ↓
+Tidak bisa klaim lagi ✅
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🛠️ FUNGSI YANG DIUBAH:
+
+1. checkAndInitLoginCounter()     - Tambah flag prevention logic
+2. saveLoginData()                - Improve Firebase sync + error handling
+3. claimDailyLoginReward()        - Immediate Firebase sync + button disable
+4. getLoginData()                 - Cleanup flag pada daily rollover
+5. loadLoginDataFromFirebase()    - Smart daily reset logic
+6. Milestone boxes CSS            - Grid 8 kolom instead of 4
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📊 STORAGE PATHS:
+
+LocalStorage:
+  eco_login_streak_{playerName}
+  eco_login_streak_{playerName}_incremented_today
+
+Firebase:
+  playerData/{safeId}/loginStreak
+  playerData/{safeId}/loginStreak/claimedToday
+  playerData/{safeId}/lastLoginSync
+  playerData/{safeId}/lastClaimTime
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+-->
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -754,7 +855,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
 }
 #trash-container.lucky #lucky-badge{display:block;}
 
-/* ─── STREAK FIRE INDICATOR ─── */
+/* ─── TOTAL LOGIN FIRE INDICATOR ─── */
 #streak-fire{
   position:absolute;top:-2px;right:-2px;
   font-size:1rem;line-height:1;pointer-events:none;
@@ -1024,14 +1125,15 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
 .milestone-badge.active{background:linear-gradient(135deg,#fbbf24,#f97316);color:white;box-shadow:0 2px 8px rgba(251,191,36,0.4);}
 .milestone-badge.locked{background:#f1f5f9;color:#94a3b8;}
 
-/* ─── LOGIN STREAK DISPLAY ─── */
+/* ─── TOTAL LOGIN DISPLAY ─── */
 .login-streak-card{
   background:linear-gradient(135deg,#fef9c3,#fef3c7);border:1.5px solid #fde68a;
-  border-radius:14px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:8px;
+  border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:0;
 }
 .login-day-pip{
-  width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;
-  font-size:0.65rem;font-weight:900;flex-shrink:0;transition:transform 0.2s;
+  border-radius:8px;display:flex;align-items:center;justify-content:center;
+  font-size:0.6rem;font-weight:900;flex-shrink:0;transition:transform 0.2s;
+  min-height:26px;
 }
 .login-day-pip.done{background:linear-gradient(135deg,#22c55e,#16a34a);color:white;box-shadow:0 2px 6px rgba(34,197,94,0.4);}
 .login-day-pip.today{background:linear-gradient(135deg,#f59e0b,#ea580c);color:white;animation:pipPulse 1.4s ease-in-out infinite;box-shadow:0 2px 8px rgba(245,158,11,0.5);}
@@ -1078,8 +1180,8 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
 }
 .powerup-btn:hover .pu-tooltip{opacity:1;}
 
-/* ─── NEW BADGE: LOGIN STREAK ─── */
-.badge-login-streak{background:linear-gradient(135deg,#f59e0b,#b45309);color:#fff;border:1px solid #92400e;animation:badgeGlow 2s ease-in-out infinite;}
+/* ─── BADGE: TOTAL LOGIN ─── */
+.badge-login-streak{background:linear-gradient(135deg,#3b82f6,#1e40af);color:#fff;border:1px solid #1e3a8a;animation:badgeGlow 2s ease-in-out infinite;}
 
 /* ─── LOGIN REWARD ITEM ─── */
 .login-reward-item{
@@ -1297,18 +1399,18 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
       <div class="text-center mb-3">
         <div class="text-5xl mb-2" id="login-reward-emoji">🎁</div>
         <h3 class="text-lg font-black text-white leading-tight" id="login-modal-title">Selamat Datang Kembali!</h3>
-        <p class="text-xs text-blue-200 mt-1" id="login-modal-subtitle">Login hari ini untuk bonus power-up</p>
+        <p class="text-xs text-blue-200 mt-1" id="login-modal-subtitle">Login untuk mengumpulkan poin login dan bonus power-up</p>
         <div class="mt-2 flex justify-center">
-          <span id="login-reset-note" class="daily-reset-chip">Reset harian: 00:00 waktu perangkat</span>
+          <span id="login-reset-note" class="daily-reset-chip">Reward harian reset: 00:00 waktu perangkat</span>
         </div>
         <div class="mt-2 flex justify-center">
-          <div class="streak-flame" id="login-streak-display">🔥 Streak: 1 hari</div>
+          <div class="streak-flame" id="login-streak-display">� Total Login: 1 kali</div>
         </div>
       </div>
 
-      <!-- 7-day streak progress - compact -->
+      <!-- Total login progress -->
       <div class="mb-3">
-        <p class="text-[0.6rem] font-black text-blue-300 uppercase tracking-widest mb-2 text-center">Progress 7 Hari</p>
+        <p class="text-[0.6rem] font-black text-blue-300 uppercase tracking-widest mb-2 text-center">Total Hari Login</p>
         <div class="flex justify-center gap-1" id="login-streak-pips"></div>
       </div>
 
@@ -1338,7 +1440,111 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
   </div>
 </div>
 <!-- ════════════════════════════════════════ -->
-<!--       PLAY MILESTONE DETAIL MODAL      -->
+<!--          CHANGELOG MODAL               -->
+<!-- ════════════════════════════════════════ -->
+<div id="changelog-modal" class="modal-backdrop hidden" onclick="if(event.target===this)closeChangelogModal()">
+  <div class="modal-card w-full" style="max-width:min(92vw,440px);max-height:90vh;display:flex;flex-direction:column;overflow:hidden;" onclick="event.stopPropagation()">
+    <!-- Header -->
+    <div style="background:linear-gradient(135deg,#0f172a,#1e3a5f);padding:16px 18px 12px;flex-shrink:0;position:relative;">
+      <div style="position:absolute;top:-24px;right:-24px;width:90px;height:90px;background:radial-gradient(circle,rgba(99,179,237,0.18),transparent 70%);border-radius:50%;pointer-events:none;"></div>
+      <div style="position:relative;z-index:1;">
+        <p style="font-size:0.6rem;font-weight:900;color:#93c5fd;text-transform:uppercase;letter-spacing:0.08em;margin:0 0 2px;">📋 Riwayat Pembaruan</p>
+        <h3 style="font-size:1.05rem;font-weight:900;color:white;margin:0;">EcoMove — Changelog</h3>
+        <p style="font-size:0.62rem;color:rgba(148,196,245,0.75);margin:3px 0 0;">Semua versi dari awal hingga terkini</p>
+      </div>
+      <button onclick="closeChangelogModal()" style="position:absolute;top:12px;right:14px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:50%;width:30px;height:30px;color:white;font-size:1.1rem;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;">&times;</button>
+    </div>
+    <!-- Body -->
+    <div style="overflow-y:auto;padding:16px;flex:1;-webkit-overflow-scrolling:touch;" class="no-scrollbar">
+      <div style="display:flex;flex-direction:column;gap:14px;">
+
+        <!-- v1.3 -->
+        <div style="border-radius:16px;overflow:hidden;border:1.5px solid #bfdbfe;">
+          <div style="background:linear-gradient(135deg,#1e40af,#2563eb);padding:10px 14px;display:flex;align-items:center;justify-content:space-between;">
+            <div>
+              <span style="font-size:0.78rem;font-weight:900;color:white;">Versi 1.3</span>
+              <span style="font-size:0.6rem;color:rgba(255,255,255,0.7);margin-left:8px;">10 Juni 2026</span>
+            </div>
+            <span style="font-size:0.58rem;font-weight:900;background:rgba(255,255,255,0.2);color:white;border-radius:999px;padding:2px 8px;">TERKINI</span>
+          </div>
+          <div style="background:#eff6ff;padding:12px 14px;">
+            <ul style="margin:0;padding-left:16px;font-size:0.68rem;color:#1e3a5f;font-weight:600;line-height:1.8;">
+              <li>🆕 <b>Login-streak card didesain ulang</b> — layout rapi, 2 baris pip (4+4), power-up 2×2</li>
+              <li>🎁 <b>Preview hadiah pip</b> — klik angka milestone untuk lihat hadiah apa yang menunggu</li>
+              <li>📊 Pip preview menampilkan popup penuh (bukan sekadar toast) dengan info status & tombol aksi</li>
+              <li>🔒 <b>Klaim login hanya 1× sehari</b> — reset otomatis 00:00 waktu perangkat</li>
+              <li>📖 Panduan bermain diperbarui: login reward, pip preview, info klaim harian</li>
+              <li>📋 Modal changelog ini ditambahkan — bisa dibuka lewat teks versi di layar utama</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- v1.2 -->
+        <div style="border-radius:16px;overflow:hidden;border:1.5px solid #d1fae5;">
+          <div style="background:linear-gradient(135deg,#047857,#059669);padding:10px 14px;">
+            <span style="font-size:0.78rem;font-weight:900;color:white;">Versi 1.2</span>
+            <span style="font-size:0.6rem;color:rgba(255,255,255,0.7);margin-left:8px;">27 Mei 2026</span>
+          </div>
+          <div style="background:#f0fdf4;padding:12px 14px;">
+            <ul style="margin:0;padding-left:16px;font-size:0.68rem;color:#166534;font-weight:600;line-height:1.8;">
+              <li>🐛 <b>Perbaikan bug waktu perangkat</b> — reset harian kini mengikuti 00:00 jam lokal, bukan UTC</li>
+              <li>🔄 Sinkronisasi login data lintas perangkat lebih andal via Firebase</li>
+              <li>⚡ Daily Challenge: progres selesai tersimpan per akun/nama</li>
+              <li>🏆 Leaderboard: tambah kolom DC (Daily Challenge selesai)</li>
+              <li>🛡️ App Check Firebase aktif untuk keamanan data</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- v1.1 -->
+        <div style="border-radius:16px;overflow:hidden;border:1.5px solid #fde68a;">
+          <div style="background:linear-gradient(135deg,#b45309,#d97706);padding:10px 14px;">
+            <span style="font-size:0.78rem;font-weight:900;color:white;">Versi 1.1</span>
+            <span style="font-size:0.6rem;color:rgba(255,255,255,0.7);margin-left:8px;">April 2026</span>
+          </div>
+          <div style="background:#fffbeb;padding:12px 14px;">
+            <ul style="margin:0;padding-left:16px;font-size:0.68rem;color:#78350f;font-weight:600;line-height:1.8;">
+              <li>🎁 <b>Daily Login Reward</b> — sistem hadiah login harian dengan milestone power-up</li>
+              <li>⏳ <b>Time Extend</b> — power-up langka (+15 detik), bisa didapat dari DC dan login milestone</li>
+              <li>🌟 <b>Lucky Trash</b> — kartu acak bernilai 3× poin saat bermain</li>
+              <li>🏅 Badge sekunder diperluas: DCDedicated, DCMaster, DCLegend, Calendar Keeper, dll.</li>
+              <li>🤖 Eco Buddy draggable — karakter maskot interaktif di layar utama</li>
+              <li>📈 Leaderboard ditambah fitur ekspor PDF & Excel</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- v1.0 -->
+        <div style="border-radius:16px;overflow:hidden;border:1.5px solid #e2e8f0;">
+          <div style="background:linear-gradient(135deg,#334155,#475569);padding:10px 14px;">
+            <span style="font-size:0.78rem;font-weight:900;color:white;">Versi 1.0</span>
+            <span style="font-size:0.6rem;color:rgba(255,255,255,0.7);margin-left:8px;">Maret 2026 — Rilis Perdana</span>
+          </div>
+          <div style="background:#f8fafc;padding:12px 14px;">
+            <ul style="margin:0;padding-left:16px;font-size:0.68rem;color:#334155;font-weight:600;line-height:1.8;">
+              <li>🚀 <b>Rilis pertama EcoMove: Trash Sorting Challenge</b></li>
+              <li>🗑️ Tiga kategori sampah: Sisa Makanan, Laku Jual, Residu</li>
+              <li>🏆 <b>Mode Ranked</b> dengan 3 level kesulitan (Bumi Lestari, Eko Aktif, Penjaga Bumi)</li>
+              <li>📚 <b>Mode Kurikulum</b> — latihan fokus per kategori</li>
+              <li>🏅 Sistem badge utama (Bronze → Immortal) + badge sekunder & tag spesial</li>
+              <li>⚡ <b>Daily Challenge</b> — 7 tipe tantangan berbeda, reward Time Extend</li>
+              <li>🎮 Power-up: Freeze, Double Poin, Skip — tersimpan per akun</li>
+              <li>🌐 Leaderboard real-time via Firebase Realtime Database</li>
+              <li>📊 Statistik leaderboard: distribusi badge, peta pengetahuan, tren 7 hari</li>
+              <li>🎯 Combo sistem × 1/2/3 + bonus sesi harian</li>
+              <li>💾 Progress tersimpan per nama — bisa lintas perangkat</li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <!-- Footer -->
+    <div style="padding:12px 16px;border-top:1px solid #f1f5f9;flex-shrink:0;">
+      <button onclick="closeChangelogModal()" style="width:100%;background:linear-gradient(135deg,#0f172a,#1e3a5f);color:white;border:none;border-radius:12px;padding:11px;font-size:0.82rem;font-weight:900;cursor:pointer;">✓ Tutup</button>
+    </div>
+  </div>
+</div>
 <!-- ════════════════════════════════════════ -->
 <div id="play-milestone-modal" class="modal-backdrop hidden" onclick="if(event.target===this)closePlayMilestoneModal()">
   <div class="modal-card w-full" style="max-width:min(92vw,420px);background:linear-gradient(160deg,#0f172a 0%,#1e1b4b 55%,#0f172a 100%);border:1px solid rgba(255,255,255,0.12);color:white;overflow:hidden;" onclick="event.stopPropagation()">
@@ -1493,21 +1699,30 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
         <!-- rank change notification for this name -->
         <div id="start-rank-notif" class="hidden rounded-xl px-3 py-2.5 mb-3 text-xs font-semibold text-center leading-snug"></div>
 
-        <!-- LOGIN STREAK & PLAY MILESTONE (shown after name entered) -->
-        <div id="login-streak-card" class="login-streak-card mb-3 hidden flex-col sm:flex-row sm:items-center">
-          <div class="flex-1 w-full">
-            <div class="flex items-center justify-between gap-2 mb-2">
-              <span class="streak-flame text-sm" id="ls-flame">🔥 0 hari</span>
-              <div class="flex items-center gap-2 shrink-0">
-                <button id="ls-claim-btn" onclick="showDailyLoginModal()" class="text-[0.65rem] font-black px-3 py-1 rounded-full cursor-pointer bg-gradient-to-r from-orange-500 to-yellow-500 text-white hidden border-b-2 border-orange-700 active:scale-95 transition">🎁 Klaim!</button>
-                <button onclick="showDailyLoginModal()" class="text-[0.6rem] font-semibold text-amber-700 underline cursor-pointer bg-none border-none">Login</button>
-              </div>
+        <!-- TOTAL LOGIN & PLAY MILESTONE (shown after name entered) -->
+        <div id="login-streak-card" class="login-streak-card mb-3 hidden" style="display:none;">
+          <!-- Row 1: flame + action buttons -->
+          <div class="flex items-center justify-between gap-2 mb-2">
+            <span class="streak-flame" style="font-size:0.78rem;padding:4px 10px;" id="ls-flame">📊 Total: 0 kali</span>
+            <div class="flex items-center gap-1.5 shrink-0">
+              <button id="ls-claim-btn" onclick="showDailyLoginModal()" class="text-[0.62rem] font-black px-2.5 py-1 rounded-full cursor-pointer bg-gradient-to-r from-orange-500 to-yellow-500 text-white hidden border-b-2 border-orange-700 active:scale-95 transition">🎁 Klaim!</button>
+              <button onclick="showDailyLoginModal()" class="text-[0.6rem] font-semibold text-amber-700 bg-amber-100 hover:bg-amber-200 border border-amber-300 rounded-full px-2.5 py-1 cursor-pointer transition active:scale-95">Detail</button>
             </div>
-            <div class="flex gap-1 flex-wrap" id="ls-pips"></div>
           </div>
-          <div class="text-left sm:text-right sm:pl-3 sm:border-l sm:border-amber-200/80 mt-2 sm:mt-0">
-            <p class="text-[0.6rem] font-black text-amber-700 uppercase tracking-widest">Power-up Tersimpan</p>
-            <p class="text-sm sm:text-base font-black text-amber-800 leading-tight" id="ls-pu-count">❄️×<span id="ls-freeze">0</span> <span class="mx-0.5">|</span> 2️⃣×<span id="ls-double">0</span> <span class="mx-0.5">|</span> ⏭️×<span id="ls-skip">0</span> <span class="mx-0.5">|</span> ⏳×<span id="ls-timeextend">0</span></p>
+          <!-- Row 2: milestone pips (2 baris 4+4) -->
+          <div class="mb-2">
+            <p class="text-[0.55rem] font-black text-amber-600 uppercase tracking-widest mb-1">🎯 Milestone Login — klik angka untuk lihat preview hadiah:</p>
+            <div id="ls-pips" class="flex gap-1 flex-wrap"></div>
+          </div>
+          <!-- Row 3: power-ups (2 baris 2+2) -->
+          <div class="border-t border-amber-200/70 pt-2 mt-1">
+            <p class="text-[0.55rem] font-black text-amber-700 uppercase tracking-widest mb-1.5">⚡ Power-up Tersimpan:</p>
+            <div class="grid grid-cols-2 gap-1.5">
+              <div class="flex items-center gap-1.5 text-[0.62rem] font-bold text-amber-800 bg-white/70 rounded-lg px-2 py-1.5 border border-amber-100">❄️ Freeze <span class="ml-auto font-black text-amber-900">×<span id="ls-freeze">0</span></span></div>
+              <div class="flex items-center gap-1.5 text-[0.62rem] font-bold text-amber-800 bg-white/70 rounded-lg px-2 py-1.5 border border-amber-100">2️⃣ Double <span class="ml-auto font-black text-amber-900">×<span id="ls-double">0</span></span></div>
+              <div class="flex items-center gap-1.5 text-[0.62rem] font-bold text-amber-800 bg-white/70 rounded-lg px-2 py-1.5 border border-amber-100">⏭️ Skip <span class="ml-auto font-black text-amber-900">×<span id="ls-skip">0</span></span></div>
+              <div class="flex items-center gap-1.5 text-[0.62rem] font-bold text-amber-800 bg-white/70 rounded-lg px-2 py-1.5 border border-amber-100">⏳ +15s <span class="ml-auto font-black text-fuchsia-700">×<span id="ls-timeextend">0</span></span></div>
+            </div>
           </div>
         </div>
 
@@ -1618,7 +1833,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
         </button>
 
         <p class="mt-1 text-[0.62rem] text-slate-400 text-center font-semibold leading-snug">
-          Update terakhir: Versi 1.2 · 27 Mei 2026 · 00.00 · Perbaikan bug waktu perangkat
+          <span onclick="openChangelogModal()" style="cursor:pointer;text-decoration:underline dotted;color:#2563eb;font-weight:700;" title="Lihat log update lengkap">Update terakhir: Versi 1.3 · 10 Juni 2026</span> · Login card, pip preview & panduan diperbarui
         </p>
 
         <div class="mt-2 rounded-xl border border-slate-200 bg-slate-50/80 p-2.5">
@@ -2318,7 +2533,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
         <div class="text-4xl flex-shrink-0">🌍</div>
         <div>
           <p class="font-black text-emerald-800 text-sm">Jadilah Pahlawan Lingkungan!</p>
-          <p class="text-emerald-700 text-xs mt-1 leading-relaxed">Pilah sampah dengan benar, jaga combo, dan panjat leaderboard global. Semua progress, reward, login streak, power-up, badge, dan aktivitas harian mengikuti nama/akun yang sedang dipakai.</p>
+          <p class="text-emerald-700 text-xs mt-1 leading-relaxed">Pilah sampah dengan benar, jaga combo, dan panjat leaderboard global. Semua progress, reward, total login, power-up, badge, dan aktivitas harian mengikuti nama/akun yang sedang dipakai.</p>
         </div>
       </div>
 
@@ -2329,7 +2544,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
           <p class="font-black text-yellow-900 text-sm">Pembaruan Keamanan</p>
           <p class="text-yellow-800 text-xs mt-1 leading-relaxed">Kami menambahkan perlindungan ekstra untuk menjaga data pemain tetap aman dan permainan tetap adil.</p>
           <ul class="text-[0.62rem] text-yellow-800 mt-2 list-disc pl-4 space-y-1">
-            <li>Progress, login streak, dan power-up tetap tersimpan dan bisa diakses lintas perangkat jika kamu memakai nama yang sama.</li>
+            <li>Progress, total login, dan power-up tetap tersimpan dan bisa diakses lintas perangkat jika kamu memakai nama yang sama.</li>
             <li>Untuk pengujian di komputer sendiri, buka game melalui <b>localhost</b> (mis. http://localhost:3000) supaya pengujian berjalan lancar.</li>
             <li>Jika muncul pesan "permission denied", tunggu beberapa menit lalu coba lagi — jika terus terjadi, hubungi Admin.</li>
           </ul>
@@ -2371,7 +2586,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
         <div class="bg-white p-4 space-y-2.5">
           <div class="flex gap-3 items-start">
             <div class="w-6 h-6 rounded-full bg-red-100 text-red-600 font-black text-xs flex items-center justify-center flex-shrink-0">1</div>
-            <p class="text-xs text-gray-700">Masukkan <b>nama kamu</b> (nama = akun), pilih level kesulitan, lalu tekan <b>🚀 MODE RANKED</b>. Progress, login streak, power-up, milestone, badge, dan daily reward semuanya terikat ke nama aktif, bukan perangkat.</p>
+            <p class="text-xs text-gray-700">Masukkan <b>nama kamu</b> (nama = akun), pilih level kesulitan, lalu tekan <b>🚀 MODE RANKED</b>. Progress, total login, power-up, milestone, badge, dan daily reward semuanya terikat ke nama aktif, bukan perangkat.</p>
           </div>
           <div class="flex gap-3 items-start">
             <div class="w-6 h-6 rounded-full bg-red-100 text-red-600 font-black text-xs flex items-center justify-center flex-shrink-0">2</div>
@@ -2672,23 +2887,42 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
           <span class="ml-auto text-xs font-bold text-white/80 bg-white/20 px-2 py-0.5 rounded-full">Per Akun/Nama</span>
         </div>
         <div class="bg-white p-4 space-y-2.5">
-          <p class="text-xs text-gray-700">Login setiap hari untuk mendapat <b>power-up gratis</b>! Reward dihitung per akun (nama pemain) — bukan per perangkat, sehingga kamu bisa main di perangkat mana saja asalkan nama sama.</p>
-          <p class="text-[0.65rem] text-amber-700 font-semibold">Klik tombol Login atau pip streak yang kosong untuk membuka login hari ini.</p>
+          <p class="text-xs text-gray-700">Login setiap hari atau kapan saja untuk mengumpulkan <b>poin total login</b> dan dapatkan <b>power-up gratis</b>! Reward dihitung per akun (nama pemain) — bukan per perangkat. Tidak perlu login setiap hari — poin tetap terakumulasi!</p>
+
+          <!-- One-claim-per-day -->
+          <div class="rounded-xl bg-orange-50 border border-orange-200 px-3 py-2.5 flex items-start gap-2">
+            <span class="text-lg shrink-0">🔒</span>
+            <div>
+              <p class="text-[0.68rem] font-black text-orange-800">Klaim 1× Per Hari</p>
+              <p class="text-[0.63rem] text-orange-700 mt-0.5">Hadiah hanya bisa diklaim <b>sekali per hari</b>. Setelah klaim, tombol berubah menjadi <b>"Main Sekarang!"</b>. Reset otomatis tiap <b>00:00 waktu perangkat</b>.</p>
+            </div>
+          </div>
+
+          <!-- Pip preview -->
+          <div class="rounded-xl bg-blue-50 border border-blue-200 px-3 py-2.5 flex items-start gap-2">
+            <span class="text-lg shrink-0">👆</span>
+            <div>
+              <p class="text-[0.68rem] font-black text-blue-800">Preview Hadiah — Klik Angka Pip!</p>
+              <p class="text-[0.63rem] text-blue-700 mt-0.5">Di kartu login, ada 8 pip berbentuk angka milestone (1, 3, 5, 7, 10, 15, 20, 25). <b>Klik angka mana saja</b> untuk melihat preview hadiah yang akan didapatkan di milestone itu — bahkan sebelum kamu mencapainya!</p>
+              <p class="text-[0.6rem] text-blue-600 mt-1 font-semibold">✅ Pip hijau = sudah dicapai · 🔥 Oranye = next target · ⬜ Abu = belum</p>
+            </div>
+          </div>
+
+          <p class="text-[0.65rem] text-amber-700 font-semibold">Klik tombol "Detail" atau pip milestone untuk membuka modal reward hari ini.</p>
           <div class="rounded-xl bg-amber-50 border border-amber-200 px-3 py-2.5">
-            <p class="text-[0.68rem] font-black text-amber-800 mb-1.5">🔥 Siklus Hadiah 7 Hari:</p>
-            <div class="grid grid-cols-2 gap-1.5">
-              <div class="text-[0.62rem] text-amber-700 flex gap-1.5 items-center"><span class="w-5 h-5 rounded-full bg-amber-200 flex items-center justify-center font-black text-amber-800 text-[0.58rem] shrink-0">1</span> ⏭️ +1 Skip</div>
-              <div class="text-[0.62rem] text-amber-700 flex gap-1.5 items-center"><span class="w-5 h-5 rounded-full bg-amber-200 flex items-center justify-center font-black text-amber-800 text-[0.58rem] shrink-0">2</span> 2️⃣ +1 Double Poin</div>
-              <div class="text-[0.62rem] text-amber-700 flex gap-1.5 items-center"><span class="w-5 h-5 rounded-full bg-amber-200 flex items-center justify-center font-black text-amber-800 text-[0.58rem] shrink-0">3</span> ⏭️+1 ❄️+1</div>
-              <div class="text-[0.62rem] text-amber-700 flex gap-1.5 items-center"><span class="w-5 h-5 rounded-full bg-amber-200 flex items-center justify-center font-black text-amber-800 text-[0.58rem] shrink-0">4</span> 2️⃣ +1 Double Poin</div>
-              <div class="text-[0.62rem] text-amber-700 flex gap-1.5 items-center"><span class="w-5 h-5 rounded-full bg-amber-200 flex items-center justify-center font-black text-amber-800 text-[0.58rem] shrink-0">5</span> ❄️+1 ⏭️+1</div>
-              <div class="text-[0.62rem] text-amber-700 flex gap-1.5 items-center"><span class="w-5 h-5 rounded-full bg-amber-200 flex items-center justify-center font-black text-amber-800 text-[0.58rem] shrink-0">6</span> 2️⃣ +2 Double Poin</div>
-              <div class="text-[0.62rem] text-amber-700 col-span-2 flex gap-1.5 items-start"><span class="w-5 h-5 rounded-full bg-orange-400 flex items-center justify-center font-black text-white text-[0.58rem] shrink-0 mt-0.5">7</span><span>🎉 <b>BONUS BESAR:</b> ❄️×2 + 2️⃣×2 + ⏭️×3 + <span class="text-fuchsia-700 font-black">⏳×1 Time Extend (LANGKA!)</span></span></div>
+            <p class="text-[0.68rem] font-black text-amber-800 mb-1.5">📊 Milestone Login & Hadiah (makin banyak login, makin besar!):</p>
+            <div class="grid grid-cols-2 gap-1.5 text-[0.62rem] text-amber-700">
+              <div class="flex gap-1.5 items-center"><span class="w-5 h-5 rounded-full bg-amber-200 flex items-center justify-center font-black text-amber-800 text-[0.58rem] shrink-0">1</span> ⏭️ +1 Skip</div>
+              <div class="flex gap-1.5 items-center"><span class="w-5 h-5 rounded-full bg-amber-200 flex items-center justify-center font-black text-amber-800 text-[0.58rem] shrink-0">2</span> 2️⃣ +1 Double</div>
+              <div class="flex gap-1.5 items-center"><span class="w-5 h-5 rounded-full bg-amber-200 flex items-center justify-center font-black text-amber-800 text-[0.58rem] shrink-0">3</span> ⏭️+1 ❄️+1</div>
+              <div class="flex gap-1.5 items-center"><span class="w-5 h-5 rounded-full bg-amber-200 flex items-center justify-center font-black text-amber-800 text-[0.58rem] shrink-0">5</span> ❄️+1 ⏭️+1</div>
+              <div class="flex gap-1.5 items-center"><span class="w-5 h-5 rounded-full bg-amber-200 flex items-center justify-center font-black text-amber-800 text-[0.58rem] shrink-0">7</span> ❄️×2 2️⃣×2 ⏭️×3</div>
+              <div class="flex gap-1.5 items-center"><span class="w-5 h-5 rounded-full bg-orange-400 flex items-center justify-center font-black text-white text-[0.58rem] shrink-0">10+</span> ⏳✨ Langka!</div>
             </div>
           </div>
           <div class="flex items-start gap-2 rounded-xl bg-blue-50 border border-blue-100 px-3 py-2">
             <span class="text-lg shrink-0">💡</span>
-            <p class="text-[0.65rem] text-blue-700 font-semibold">Setiap nama pemain punya login streak sendiri. Masukkan nama yang sama tiap hari untuk menjaga streak-mu dan agar hadiah tersambung ke akun yang sama.</p>
+            <p class="text-[0.65rem] text-blue-700 font-semibold">Setiap nama pemain punya penghitung login sendiri. Masukkan nama yang sama untuk mengumpulkan poin login dan agar hadiah tersambung ke akun yang sama. Tidak perlu login setiap hari — poin login tetap terakumulasi!</p>
           </div>
         </div>
       </div>
@@ -2724,7 +2958,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
               </div>
             </div>
           </div>
-          <p class="text-[0.65rem] text-gray-400">💡 <b>Namamu = akunmu.</b> Gunakan nama yang sama setiap sesi agar progress, aktivitas harian, badge, login streak, power-up, dan daily reward-mu terhubung.</p>
+          <p class="text-[0.65rem] text-gray-400">💡 <b>Namamu = akunmu.</b> Gunakan nama yang sama setiap sesi agar progress, aktivitas harian, badge, total login, power-up, dan daily reward-mu terhubung.</p>
         </div>
       </div>
 
@@ -2741,7 +2975,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
           <div class="rounded-xl bg-white/70 border border-amber-100 px-2 py-2.5"><div class="text-base">❄️</div><div class="mt-1 text-[0.56rem] text-amber-700">Freeze saat kepepet</div></div>
           <div class="rounded-xl bg-white/70 border border-amber-100 px-2 py-2.5"><div class="text-base">2️⃣</div><div class="mt-1 text-[0.56rem] text-amber-700">2x Poin + combo tinggi</div></div>
           <div class="rounded-xl bg-white/70 border border-amber-100 px-2 py-2.5"><div class="text-base">⏭️</div><div class="mt-1 text-[0.56rem] text-amber-700">Skip soal ragu-ragu</div></div>
-          <div class="rounded-xl bg-white/70 border border-amber-100 px-2 py-2.5"><div class="text-base">⏳</div><div class="mt-1 text-[0.56rem] text-amber-700">Time Extend dari DC & Login Hari ke-7</div></div>
+          <div class="rounded-xl bg-white/70 border border-amber-100 px-2 py-2.5"><div class="text-base">⏳</div><div class="mt-1 text-[0.56rem] text-amber-700">Time Extend dari DC & Login Milestone (10, 15, 20+ kali)</div></div>
           <div class="rounded-xl bg-white/70 border border-amber-100 px-2 py-2.5"><div class="text-base">⭐</div><div class="mt-1 text-[0.56rem] text-amber-700">Lucky Trash = 3x poin</div></div>
         </div>
       </div>
@@ -2795,7 +3029,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
                   <span class="text-[0.58rem] font-black bg-fuchsia-100 text-fuchsia-600 rounded-full px-1.5 py-0.5">Shortcut: R</span>
                   <span class="text-[0.58rem] font-black bg-fuchsia-600 text-white rounded-full px-1.5 py-0.5">✨ LANGKA</span>
                 </div>
-                <p class="text-[0.68rem] text-gray-600 mt-0.5">Tambah <b>+15 detik</b> waktu bermain sekaligus. Power-up paling langka — bisa didapat dari <b>Daily Login Hari ke-7</b> dan juga dari <b>menyelesaikan Daily Challenge</b> (selalu +1 setiap DC selesai)!</p>
+                <p class="text-[0.68rem] text-gray-600 mt-0.5">Tambah <b>+15 detik</b> waktu bermain sekaligus. Power-up paling langka — bisa didapat dari <b>Daily Login Milestone (10, 15, 20+ kali)</b> dan juga dari <b>menyelesaikan Daily Challenge</b> (selalu +1 setiap DC selesai)!</p>
               </div>
             </div>
             <div class="flex items-start gap-3 rounded-xl bg-orange-50 border border-orange-100 px-3 py-2.5">
@@ -3059,6 +3293,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
   </div>
 </div>
 
+
 <!-- ════════════════════════════════════════ -->
 <!--               JAVASCRIPT               -->
 <!-- ════════════════════════════════════════ -->
@@ -3135,7 +3370,7 @@ async function loadAllPlayerDataFromFirebase(name) {
   try {
     const safeId = name.replace(/[.#$[\]/\s]/g,'_').toUpperCase();
 
-    // Load playerData (puInventory, loginStreak, dailyPlay) dan DC secara paralel
+    // Load playerData (puInventory, totalLogins, dailyPlay) dan DC secara paralel
     const [playerSnap, dcSnap] = await Promise.all([
       Promise.race([
         DB.ref('playerData/' + safeId).once('value'),
@@ -3159,7 +3394,7 @@ async function loadAllPlayerDataFromFirebase(name) {
         try { const key = getPuInventoryKey(); if (key) localStorage.setItem(key, JSON.stringify(puInventory)); } catch(e) {}
       }
 
-      // --- Login streak ---
+      // --- Total login ---
       if (playerData.loginStreak) {
         try {
           const key = getLoginStorageKey();
@@ -3272,59 +3507,102 @@ function grantPowerupReward(key, amount, toastMessage) {
   if (toastMessage) showAchievementToast(toastMessage);
 }
 
-// ─── Daily Login Streak ────────────────────
+// ─── Daily Login Counter ────────────────────
 function getLoginData() {
   try {
     const key = getLoginStorageKey();
-    if (!key) return { streak: 0, lastLoginDate: null, totalDaysPlayed: 0, claimedToday: false };
+    if (!key) return { totalLogins: 0, lastLoginDate: null, totalDaysPlayed: 0, claimedToday: false };
     const raw = localStorage.getItem(key);
+    const flagKey = key + '_incremented_today';
+    const today = getTodayStr();
+    
     if (raw) {
       const parsed = JSON.parse(raw);
-      const today = getTodayStr();
-      const yesterday = getYesterdayStr();
       let changed = false;
+      // Migrate old streak data to totalLogins if needed
+      let totalLogins = Number(parsed.totalLogins) || Number(parsed.streak) || 0;
       const data = {
-        streak: Number(parsed.streak) || 0,
+        totalLogins: totalLogins,
         lastLoginDate: parsed.lastLoginDate || null,
         totalDaysPlayed: Number(parsed.totalDaysPlayed) || 0,
         claimedToday: !!parsed.claimedToday
       };
 
+      // Handle daily rollover - if last login was yesterday, reset daily flags
       if (data.lastLoginDate !== today) {
         changed = true;
-        if (data.lastLoginDate === yesterday) data.streak = (data.streak || 0) + 1;
-        else if (!data.lastLoginDate) data.streak = 1;
-        else if (data.lastLoginDate > today) data.streak = data.streak || 1;
-        else data.streak = 1;
-
-        if (!data.lastLoginDate) data.totalDaysPlayed = Math.max(data.totalDaysPlayed, 1);
-        else if (data.lastLoginDate < today) data.totalDaysPlayed = (data.totalDaysPlayed || 0) + 1;
+        if (!data.lastLoginDate) {
+          data.totalLogins = 1;
+          data.totalDaysPlayed = Math.max(data.totalDaysPlayed, 1);
+        } else if (data.lastLoginDate < today) {
+          data.totalLogins = (data.totalLogins || 0) + 1;
+          data.totalDaysPlayed = (data.totalDaysPlayed || 0) + 1;
+        }
 
         data.lastLoginDate = today;
         data.claimedToday = false;
+        // Clear the increment flag for new day
+        localStorage.removeItem(flagKey);
       }
 
       if (changed) saveLoginData(data);
       return data;
     }
-  } catch(e) {}
-  return { streak: 0, lastLoginDate: null, totalDaysPlayed: 0, claimedToday: false };
+  } catch(e) {
+    console.error('Error getting login data:', e);
+  }
+  return { totalLogins: 0, lastLoginDate: null, totalDaysPlayed: 0, claimedToday: false };
 }
 
 function saveLoginData(data) {
+  // SAVE SYNCHRONOUSLY to localStorage first (critical!)
   try {
     const key = getLoginStorageKey();
-    if (!key) return;
-    localStorage.setItem(key, JSON.stringify(data));
-  } catch(e) {}
-  // Also sync to Firebase
-  try {
-    const name = getActivePlayerName();
-    if (name && DB && DB.ref) {
-      const safeId = name.replace(/[.#$[\]/\s]/g,'_').toUpperCase();
-      DB.ref('playerData/' + safeId + '/loginStreak').set(data).catch(()=>{});
+    if (!key) {
+      console.error('No login storage key available');
+      return;
     }
-  } catch(e) {}
+    
+    const jsonStr = JSON.stringify(data);
+    localStorage.setItem(key, jsonStr);
+    
+    // Verify it was saved
+    const verify = localStorage.getItem(key);
+    if (!verify) {
+      console.error('Failed to verify localStorage save');
+      return;
+    }
+    
+    console.log('✅ Login data saved to localStorage:', data);
+  } catch(e) {
+    console.error('❌ Error saving to localStorage:', e);
+    return;
+  }
+  
+  // Then async sync to Firebase (non-blocking)
+  const syncToFirebase = async () => {
+    try {
+      const name = getActivePlayerName();
+      if (!name || !DB || !DB.ref) {
+        console.log('Firebase not available for sync');
+        return;
+      }
+      
+      const safeId = name.replace(/[.#$[\]/\s]/g,'_').toUpperCase();
+      const dbRef = DB.ref('playerData/' + safeId + '/loginStreak');
+      await dbRef.set(data);
+      
+      // Add timestamp untuk tracking
+      const timestampRef = DB.ref('playerData/' + safeId + '/lastLoginSync');
+      await timestampRef.set(new Date().toISOString());
+      
+      console.log('✅ Login data synced to Firebase');
+    } catch(e) {
+      console.error('⚠️ Firebase sync failed (but localStorage is safe):', e);
+    }
+  };
+  
+  syncToFirebase();
 }
 
 // Load login data from Firebase for the given player name
@@ -3338,11 +3616,29 @@ async function loadLoginDataFromFirebase(name) {
     ]);
     if (snap && snap.exists()) {
       const d = snap.val();
+      // Check if the cloud data is from today or a different day
+      const today = getTodayStr();
+      if (d.lastLoginDate !== today) {
+        // Cloud data is from different day, reset daily flags
+        d.claimedToday = false;
+      }
       // Write to localStorage cache
-      try { const key = getLoginStorageKey(); if (key) localStorage.setItem(key, JSON.stringify(d)); } catch(e) {}
+      try { 
+        const key = getLoginStorageKey(); 
+        if (key) {
+          localStorage.setItem(key, JSON.stringify(d));
+          // Clear the increment flag if it's a new day
+          const flagKey = key + '_incremented_today';
+          if (d.lastLoginDate !== today) {
+            localStorage.removeItem(flagKey);
+          }
+        }
+      } catch(e) {}
       return true;
     }
-  } catch(e) {}
+  } catch(e) {
+    console.error('Error loading login data from Firebase:', e);
+  }
   return false;
 }
 
@@ -3366,43 +3662,54 @@ function getYesterdayStr() {
   return getLocalDateKey(d);
 }
 
-function getDailyLoginRewards(streak) {
+function getDailyLoginRewards(totalLogins) {
   const rewards = [];
-  const day = ((streak - 1) % 7) + 1; // cycles every 7 days
-  if (day === 1) rewards.push({ key:'skip', amount:1, label:'⏭️ +1 Skip' });
-  else if (day === 2) rewards.push({ key:'double', amount:1, label:'2️⃣ +1 Double Poin' });
-  else if (day === 3) { rewards.push({ key:'skip', amount:1, label:'⏭️ +1 Skip' }); rewards.push({ key:'freeze', amount:1, label:'❄️ +1 Freeze' }); }
-  else if (day === 4) rewards.push({ key:'double', amount:1, label:'2️⃣ +1 Double Poin' });
-  else if (day === 5) { rewards.push({ key:'freeze', amount:1, label:'❄️ +1 Freeze' }); rewards.push({ key:'skip', amount:1, label:'⏭️ +1 Skip' }); }
-  else if (day === 6) { rewards.push({ key:'double', amount:2, label:'2️⃣ +2 Double Poin' }); }
-  else if (day === 7) { rewards.push({ key:'freeze', amount:2, label:'❄️ +2 Freeze' }); rewards.push({ key:'double', amount:2, label:'2️⃣ +2 Double Poin' }); rewards.push({ key:'skip', amount:3, label:'⏭️ +3 Skip' }); rewards.push({ key:'timeExtend', amount:1, label:'⏳ +1 Time Extend (LANGKA!)' }); }
+  // Milestone-based rewards: rewards increase as total logins increase
+  if (totalLogins === 1) rewards.push({ key:'skip', amount:1, label:'⏭️ +1 Skip' });
+  else if (totalLogins === 2) rewards.push({ key:'double', amount:1, label:'2️⃣ +1 Double Poin' });
+  else if (totalLogins === 3) { rewards.push({ key:'skip', amount:1, label:'⏭️ +1 Skip' }); rewards.push({ key:'freeze', amount:1, label:'❄️ +1 Freeze' }); }
+  else if (totalLogins === 4) rewards.push({ key:'double', amount:1, label:'2️⃣ +1 Double Poin' });
+  else if (totalLogins === 5) { rewards.push({ key:'freeze', amount:1, label:'❄️ +1 Freeze' }); rewards.push({ key:'skip', amount:1, label:'⏭️ +1 Skip' }); }
+  else if (totalLogins === 6) { rewards.push({ key:'double', amount:2, label:'2️⃣ +2 Double Poin' }); }
+  else if (totalLogins === 7) { rewards.push({ key:'freeze', amount:2, label:'❄️ +2 Freeze' }); rewards.push({ key:'double', amount:2, label:'2️⃣ +2 Double Poin' }); rewards.push({ key:'skip', amount:3, label:'⏭️ +3 Skip' }); }
+  else if (totalLogins === 10) { rewards.push({ key:'timeExtend', amount:1, label:'⏳ +1 Time Extend (LANGKA!)' }); rewards.push({ key:'freeze', amount:1, label:'❄️ +1 Freeze' }); rewards.push({ key:'double', amount:2, label:'2️⃣ +2 Double Poin' }); }
+  else if (totalLogins === 15) { rewards.push({ key:'timeExtend', amount:1, label:'⏳ +1 Time Extend (LANGKA!)' }); rewards.push({ key:'freeze', amount:2, label:'❄️ +2 Freeze' }); rewards.push({ key:'double', amount:3, label:'2️⃣ +3 Double Poin' }); rewards.push({ key:'skip', amount:2, label:'⏭️ +2 Skip' }); }
+  else if (totalLogins >= 20) { rewards.push({ key:'timeExtend', amount:2, label:'⏳ +2 Time Extend (LANGKA!)' }); rewards.push({ key:'freeze', amount:2, label:'❄️ +2 Freeze' }); rewards.push({ key:'double', amount:3, label:'2️⃣ +3 Double Poin' }); rewards.push({ key:'skip', amount:3, label:'⏭️ +3 Skip' }); }
+  // Default reward for other days: smaller reward
+  else { rewards.push({ key:'double', amount:1, label:'2️⃣ +1 Double Poin' }); }
   return rewards;
 }
 
-function checkAndInitLoginStreak() {
+function checkAndInitLoginCounter() {
   const today = getTodayStr();
   const data = getLoginData();
   
-  if (data.lastLoginDate === today) {
-    // Already visited today, update claimedToday flag if not set
+  // Flag to track if we've already incremented today (prevents multiple increments)
+  const flagKey = getLoginStorageKey() + '_incremented_today';
+  const alreadyIncremented = localStorage.getItem(flagKey) === today;
+  
+  if (data.lastLoginDate === today && alreadyIncremented) {
+    // Already visited today AND already incremented, just return
     return data;
   }
   
-  // New day
-  const yesterday = getYesterdayStr();
-  if (data.lastLoginDate === yesterday) {
-    data.streak = (data.streak || 0) + 1;
-  } else if (!data.lastLoginDate) {
-    data.streak = 1;
-  } else {
-    data.streak = 1; // Streak broken
+  // New day - increment total logins ONLY ONCE
+  if (data.lastLoginDate !== today && !alreadyIncremented) {
+    data.totalLogins = (data.totalLogins || 0) + 1;
+    data.lastLoginDate = today;
+    data.totalDaysPlayed = (data.totalDaysPlayed || 0) + 1;
+    data.claimedToday = false;
+    // Mark that we've incremented today
+    localStorage.setItem(flagKey, today);
+    saveLoginData(data);
   }
   
-  data.lastLoginDate = today;
-  data.totalDaysPlayed = (data.totalDaysPlayed || 0) + 1;
-  data.claimedToday = false;
-  saveLoginData(data);
   return data;
+}
+
+// Backward compatibility alias
+function checkAndInitLoginStreak() {
+  return checkAndInitLoginCounter();
 }
 
 function showDailyLoginModal() {
@@ -3413,58 +3720,45 @@ function showDailyLoginModal() {
   const today = getTodayStr();
   
   if (data.lastLoginDate !== today) {
-    checkAndInitLoginStreak();
+    checkAndInitLoginCounter();
   }
   const fresh = getLoginData();
   
   // Build modal content
-  const streak = fresh.streak || 1;
-  const day = ((streak - 1) % 7) + 1;
-  const rewards = getDailyLoginRewards(streak);
+  const totalLogins = fresh.totalLogins || 1;
+  const rewards = getDailyLoginRewards(totalLogins);
   const resetText = getLocalMidnightResetText();
   
-  const emojis = ['🌱','🌿','🌲','🌳','🦋','🦅','🌟'];
-  document.getElementById('login-reward-emoji').textContent = emojis[day-1] || '🎁';
+  // Emoji based on total login milestones
+  const emojis = {1:'🌱',2:'🌿',3:'🌲',5:'🌳',7:'🦋',10:'🦅',15:'⭐',20:'👑',25:'🏆'};
+  let selectedEmoji = '🎁';
+  for (const [threshold, emoji] of Object.entries(emojis).sort((a,b) => b[0]-a[0])) {
+    if (totalLogins >= parseInt(threshold)) {
+      selectedEmoji = emoji;
+      break;
+    }
+  }
+  document.getElementById('login-reward-emoji').textContent = selectedEmoji;
   document.getElementById('login-modal-title').textContent = fresh.claimedToday ? 'Sudah Login Hari Ini!' : `Selamat Datang Kembali, ${playerName}!`;
-  document.getElementById('login-modal-subtitle').textContent = fresh.claimedToday ? 'Kamu sudah mengambil hadiah hari ini.' : `Hari ke-${streak} — Ambil hadiahmu sekarang.`;
+  document.getElementById('login-modal-subtitle').textContent = fresh.claimedToday ? 'Kamu sudah mengambil hadiah hari ini.' : `Total ${totalLogins} kali login — Ambil hadiahmu sekarang.`;
   const resetNote = document.getElementById('login-reset-note');
   if (resetNote) {
-    resetNote.textContent = `Reset berikutnya: ${resetText}`;
+    resetNote.textContent = `Reward berikutnya: ${resetText}`;
   }
-  document.getElementById('login-streak-display').innerHTML = `🔥 Streak: ${streak} hari`;
+  document.getElementById('login-streak-display').innerHTML = `📊 Total Login: ${totalLogins} kali`;
   
-  // Streak pips (7-day cycle) — label nama hari nyata dari Senin minggu berjalan
+  // Total logins progress pips - show cumulative progress
   const pipsEl = document.getElementById('login-streak-pips');
   if (pipsEl) {
     let pipsHtml = '';
-    // Hitung Senin minggu berjalan
-    const todayForPip = new Date();
-    const dowToday = todayForPip.getDay(); // 0=Min,1=Sen,...,6=Sab
-    const mondayOffset = (dowToday === 0) ? -6 : 1 - dowToday; // jarak ke Senin
-    const monday = new Date(todayForPip);
-    monday.setDate(todayForPip.getDate() + mondayOffset);
-    monday.setHours(0,0,0,0);
-    // Indeks hari saat ini dalam minggu (1=Sen...7=Min)
-    const todayIndexInWeek = (dowToday === 0) ? 7 : dowToday;
-    for (let i = 1; i <= 7; i++) {
-      const pipDate = new Date(monday);
-      pipDate.setDate(monday.getDate() + (i - 1));
-      const pipLabel = pipDate.toLocaleDateString('id-ID', { weekday: 'short' }).replace('.','').slice(0,3);
-      let cls = 'login-day-pip empty';
-      let icon = pipLabel;
-      if (i < todayIndexInWeek) {
-        // Hari-hari sebelum hari ini di minggu ini
-        // Tandai done jika streak cukup panjang untuk mencakup hari ini
-        const daysBack = todayIndexInWeek - i;
-        cls = (streak > daysBack) ? 'login-day-pip done' : 'login-day-pip empty';
-        icon = (streak > daysBack) ? '✓' : pipLabel;
-      } else if (i === todayIndexInWeek) {
-        // Hari ini
-        cls = 'login-day-pip today';
-        icon = '⭐';
-      }
-      // Hari ke depan dalam minggu — tetap empty dengan nama hari
-      pipsHtml += `<div class="${cls}" title="${pipDate.toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'short'})}" style="cursor:pointer;" onclick="showDailyLoginModal()">${icon}</div>`;
+    const milestones = [1, 3, 5, 7, 10, 15, 20, 25];
+    for (let i = 0; i < milestones.length; i++) {
+      const milestone = milestones[i];
+      const isReached = totalLogins >= milestone;
+      const isCurrent = totalLogins < milestone && (i === 0 || totalLogins >= milestones[i-1]);
+      const cls = isReached ? 'login-day-pip done' : (isCurrent ? 'login-day-pip today' : 'login-day-pip empty');
+      const icon = isReached ? '✓' : milestone;
+      pipsHtml += `<div class="${cls}" title="Milestone ${milestone} login" style="cursor:pointer;min-width:24px;" onclick="showDailyLoginModal()">${icon}</div>`;
     }
     pipsEl.innerHTML = pipsHtml;
   }
@@ -3514,17 +3808,47 @@ function closeDailyLoginModal() {
   updateLoginStreakCard();
 }
 
+function openChangelogModal() {
+  document.getElementById('changelog-modal').classList.remove('hidden');
+}
+function closeChangelogModal() {
+  document.getElementById('changelog-modal').classList.add('hidden');
+}
+
 function claimDailyLoginReward() {
   const data = getLoginData();
   if (data.claimedToday) { closeDailyLoginModal(); return; }
   
-  const streak = data.streak || 1;
-  const rewards = getDailyLoginRewards(streak);
+  // Disable button immediately to prevent double-click
+  const btn = document.getElementById('claim-login-reward-btn');
+  if (btn) {
+    btn.disabled = true;
+    btn.style.opacity = '0.5';
+  }
+  
+  const totalLogins = data.totalLogins || 1;
+  const rewards = getDailyLoginRewards(totalLogins);
   
   rewards.forEach(r => addToPuInventory(r.key, r.amount));
   
+  // Mark as claimed and save IMMEDIATELY to Firebase to prevent multi-device claim
   data.claimedToday = true;
   saveLoginData(data);
+  
+  // Also ensure Firebase is updated immediately (don't wait for async)
+  const syncClaimToFirebase = () => {
+    try {
+      const name = getActivePlayerName();
+      if (name && DB && DB.ref) {
+        const safeId = name.replace(/[.#$[\]/\s]/g,'_').toUpperCase();
+        DB.ref('playerData/' + safeId + '/loginStreak/claimedToday').set(true);
+        DB.ref('playerData/' + safeId + '/lastClaimTime').set(new Date().toISOString());
+      }
+    } catch(e) {
+      console.error('Error syncing claim to Firebase:', e);
+    }
+  };
+  syncClaimToFirebase();
   
   // Build reward summary
   const puIcons = {freeze:'❄️', double:'2️⃣', skip:'⏭️', timeExtend:'⏳'};
@@ -3551,16 +3875,9 @@ function claimDailyLoginReward() {
     `;
   }
   
-  const btn = document.getElementById('claim-login-reward-btn');
-  if (btn) {
-    btn.textContent = '✅ Diklaim! Loading...';
-    btn.disabled = true;
-    btn.style.opacity = '0.7';
-  }
-  
   setTimeout(() => {
     closeDailyLoginModal();
-    showMilestoneToast(`🎁 Login Streak ${streak} hari! Power-up diklaim!`);
+    showMilestoneToast(`🎁 Total Login ${totalLogins} kali! Power-up diklaim!`);
     updateLoginStreakCard();
   }, 1600);
 }
@@ -3572,49 +3889,42 @@ function updateLoginStreakCard() {
   const card = document.getElementById('login-streak-card');
   if (!card) return;
   
-  if (!name) { card.classList.add('hidden'); return; }
+  if (!name) { card.style.display = 'none'; return; }
+  card.style.display = '';
   card.classList.remove('hidden');
   
-  const streak = data.streak || 0;
+  const totalLogins = data.totalLogins || 0;
   const flameEl = document.getElementById('ls-flame');
   const claimBtn = document.getElementById('ls-claim-btn');
-  if (flameEl) flameEl.innerHTML = `🔥 ${streak} hari`;
+  if (flameEl) flameEl.innerHTML = `🔥 Total Login: ${totalLogins}×`;
   if (claimBtn) {
     const canClaim = data.lastLoginDate === getTodayStr() && !data.claimedToday;
     claimBtn.classList.toggle('hidden', !canClaim);
   }
   
-  // Pips — nama hari nyata dari Senin minggu berjalan, posisi aktif sesuai hari kalender
+  // Pips — show milestone progress: grid 4 kolom x 2 baris, ukuran sama rata
   const pips = document.getElementById('ls-pips');
   if (pips) {
-    let html = '';
-    const day = ((streak - 1) % 7) + 1;
-    // Hitung Senin minggu berjalan
-    const todayForCard = new Date();
-    const dowCard = todayForCard.getDay(); // 0=Min,1=Sen,...,6=Sab
-    const mondayOffsetCard = (dowCard === 0) ? -6 : 1 - dowCard;
-    const mondayCard = new Date(todayForCard);
-    mondayCard.setDate(todayForCard.getDate() + mondayOffsetCard);
-    mondayCard.setHours(0,0,0,0);
-    const todayIndexCard = (dowCard === 0) ? 7 : dowCard;
-    for (let i = 1; i <= 7; i++) {
-      const pipDate = new Date(mondayCard);
-      pipDate.setDate(mondayCard.getDate() + (i - 1));
-      const pipLabel = pipDate.toLocaleDateString('id-ID', { weekday: 'short' }).replace('.','').slice(0,3);
-      let cls = 'login-day-pip empty';
-      let icon = pipLabel;
-      if (streak === 0) {
-        // Belum ada streak, semua kosong dengan nama hari
-      } else if (i < todayIndexCard) {
-        const daysBack = todayIndexCard - i;
-        cls = (streak > daysBack) ? 'login-day-pip done' : 'login-day-pip empty';
-        icon = (streak > daysBack) ? '✓' : pipLabel;
-      } else if (i === todayIndexCard) {
-        cls = 'login-day-pip today';
-        icon = '⭐';
-      }
-      html += `<div class="${cls}" style="width:24px;height:24px;border-radius:6px;cursor:pointer;" title="${pipDate.toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'short'})}" onclick="showDailyLoginModal()">${icon}</div>`;
+    const milestones = [1, 3, 5, 7, 10, 15, 20, 25];
+    const milestoneRewardSummary = {
+      1: '⏭️×1', 3: '⏭️+❄️', 5: '❄️+⏭️',
+      7: '❄️×2 2️⃣×2 ⏭️×3', 10: '⏳✨+❄️+2️⃣', 15: '⏳✨+paket', 20: '⏳×2✨ paket besar', 25: '⏳×2✨ MEGA',
+    };
+    // Gunakan CSS grid 8 kolom — semua milestones dalam 1 baris, tidak ada wrapping
+    let html = '<div style="display:grid;grid-template-columns:repeat(8,1fr);gap:3px;">';
+    for (let i = 0; i < milestones.length; i++) {
+      const milestone = milestones[i];
+      const isReached = totalLogins >= milestone;
+      const isCurrent = !isReached && (i === 0 || totalLogins >= milestones[i-1]);
+      const cls = isReached ? 'login-day-pip done' : (isCurrent ? 'login-day-pip today' : 'login-day-pip empty');
+      const icon = isReached ? '✓' : milestone;
+      const titleText = isReached
+        ? `✅ Login ke-${milestone} sudah dicapai!`
+        : `🎁 Login ke-${milestone}: ${milestoneRewardSummary[milestone] || 'Hadiah bonus!'}`;
+      // Pakai aspect-ratio + width:100% biar selalu kotak sempurna di dalam grid cell
+      html += `<div class="${cls}" style="width:100%;aspect-ratio:1/1;border-radius:6px;cursor:pointer;font-size:0.55rem;box-sizing:border-box;" title="${titleText}" onclick="showLoginRewardPreview(${milestone})">${icon}</div>`;
     }
+    html += '</div>';
     pips.innerHTML = html;
   }
   
@@ -3627,6 +3937,60 @@ function updateLoginStreakCard() {
   if (d) d.textContent = puInventory.double;
   if (s) s.textContent = puInventory.skip;
   if (te) te.textContent = puInventory.timeExtend || 0;
+}
+
+function showLoginRewardPreview(milestoneLogin) {
+  const rewards = getDailyLoginRewards(milestoneLogin);
+  const puIcons = {freeze:'❄️', double:'2️⃣', skip:'⏭️', timeExtend:'⏳'};
+  const puNames = {freeze:'Freeze Time', double:'Double Poin', skip:'Skip Soal', timeExtend:'Time Extend ✨LANGKA!'};
+  const puDesc = {freeze:'Tambah 5 detik waktu', double:'Poin ×2 selama 10 detik', skip:'Lewati 1 soal tanpa penalti', timeExtend:'Tambah +15 detik waktu — power-up paling langka!'};
+  
+  const data = getLoginData();
+  const totalLogins = data.totalLogins || 0;
+  const isReached = totalLogins >= milestoneLogin;
+  const isCurrent = totalLogins < milestoneLogin;
+
+  // Remove any existing preview popup
+  const existing = document.getElementById('pip-preview-popup');
+  if (existing) existing.remove();
+
+  const popup = document.createElement('div');
+  popup.id = 'pip-preview-popup';
+  popup.style.cssText = `position:fixed;inset:0;z-index:300;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(0,0,0,0.5);backdrop-filter:blur(4px);`;
+  popup.onclick = (e) => { if (e.target === popup) popup.remove(); };
+
+  const rewardRows = rewards.map(r => `
+    <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:rgba(59,130,246,0.12);border:1px solid rgba(59,130,246,0.25);border-radius:10px;margin-bottom:6px;">
+      <span style="font-size:1.4rem;">${puIcons[r.key]||'🎁'}</span>
+      <div style="flex:1;">
+        <p style="font-size:0.78rem;font-weight:900;color:#1e293b;">${puNames[r.key]||r.key} <span style="color:#2563eb;">×${r.amount}</span></p>
+        <p style="font-size:0.6rem;color:#64748b;">${puDesc[r.key]||'Power-up bonus'}</p>
+      </div>
+    </div>`).join('');
+
+  const statusBadge = isReached
+    ? `<span style="background:#dcfce7;color:#166534;border-radius:999px;padding:2px 10px;font-size:0.62rem;font-weight:900;">✅ Sudah dicapai!</span>`
+    : `<span style="background:#fef9c3;color:#854d0e;border-radius:999px;padding:2px 10px;font-size:0.62rem;font-weight:900;">🎯 Butuh ${milestoneLogin - totalLogins} login lagi</span>`;
+
+  popup.innerHTML = `
+    <div style="background:white;border-radius:22px;box-shadow:0 24px 60px rgba(0,0,0,0.2);width:min(92vw,340px);overflow:hidden;" onclick="event.stopPropagation()">
+      <div style="background:linear-gradient(135deg,#0f172a,#1e3a5f);padding:14px 16px 12px;position:relative;">
+        <div style="font-size:2.2rem;text-align:center;margin-bottom:4px;">${isReached ? '✅' : '🎁'}</div>
+        <h3 style="font-size:0.95rem;font-weight:900;color:white;text-align:center;margin:0;">Hadiah Login ke-${milestoneLogin}</h3>
+        <p style="font-size:0.6rem;color:rgba(148,196,245,0.8);text-align:center;margin:4px 0 0;">${isCurrent ? 'Preview hadiah yang akan kamu dapatkan' : 'Hadiah yang sudah/bisa diklaim'}</p>
+        <button onclick="document.getElementById('pip-preview-popup').remove()" style="position:absolute;top:10px;right:12px;background:rgba(255,255,255,0.15);border:none;border-radius:50%;width:28px;height:28px;color:white;font-size:1rem;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;">&times;</button>
+      </div>
+      <div style="padding:14px 16px;">
+        <div style="margin-bottom:10px;">${statusBadge}</div>
+        <p style="font-size:0.62rem;font-weight:900;color:#475569;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px;">🎁 Hadiah:</p>
+        ${rewardRows}
+        <p style="font-size:0.58rem;color:#94a3b8;margin-top:8px;text-align:center;">Makin banyak login, makin besar hadiahnya!</p>
+        <button onclick="document.getElementById('pip-preview-popup').remove();showDailyLoginModal();" style="width:100%;margin-top:10px;background:linear-gradient(135deg,#f59e0b,#ea580c);color:white;border:none;border-radius:12px;padding:10px;font-size:0.8rem;font-weight:900;cursor:pointer;active:scale-0.95;">
+          ${isReached ? '🎁 Lihat Modal Login' : '🔥 Klaim Login Hari Ini!'}
+        </button>
+      </div>
+    </div>`;
+  document.body.appendChild(popup);
 }
 
 // ─── Play Count Milestones ─────────────────
@@ -4385,7 +4749,7 @@ async function refreshDailyStateForNewDay(force = false) {
 
   const name = getActivePlayerName();
   if (!name) {
-    try { checkAndInitLoginStreak(); } catch(e) {}
+    try { checkAndInitLoginCounter(); } catch(e) {}
     try { updateLoginStreakCard(); } catch(e) {}
     try { renderPlayCountBadge(); } catch(e) {}
     try { renderDailyActivityCard(getDailyPlay('')); } catch(e) {}
@@ -4397,7 +4761,7 @@ async function refreshDailyStateForNewDay(force = false) {
     await loadAllPlayerDataFromFirebase(name);
     await loadDC();
   } catch(e) {}
-  try { checkAndInitLoginStreak(); } catch(e) {}
+  try { checkAndInitLoginCounter(); } catch(e) {}
   try { updateLoginStreakCard(); } catch(e) {}
   try { renderPlayCountBadge(); } catch(e) {}
   try { renderDailyActivityCard(getDailyPlay(name)); } catch(e) {}
@@ -4405,6 +4769,55 @@ async function refreshDailyStateForNewDay(force = false) {
   try { renderStartRankNotif(name); } catch(e) {}
   try { updateNameHint(); } catch(e) {}
   return true;
+}
+
+// DEBUG FUNCTION - untuk troubleshooting login claim issue
+// Gunakan di Console: debugLoginStatus()
+function debugLoginStatus() {
+  const name = (document.getElementById('player-name')?.value || '').trim();
+  if (!name) {
+    console.log('❌ Belum ada nama pemain');
+    return;
+  }
+  
+  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  console.log('🔍 DEBUG LOGIN STATUS');
+  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  
+  const data = getLoginData();
+  const today = getTodayStr();
+  const key = getLoginStorageKey();
+  const flagKey = key + '_incremented_today';
+  const rawStorage = localStorage.getItem(key);
+  const rawFlag = localStorage.getItem(flagKey);
+  
+  console.log('📊 LOGIN DATA:');
+  console.log('  Player Name:', name);
+  console.log('  Total Logins:', data.totalLogins);
+  console.log('  Last Login Date:', data.lastLoginDate);
+  console.log('  Claimed Today:', data.claimedToday);
+  console.log('  Today\'s Date:', today);
+  
+  console.log('\n💾 STORAGE:');
+  console.log('  localStorage Key:', key);
+  console.log('  localStorage Content:', rawStorage ? JSON.parse(rawStorage) : 'NOT FOUND');
+  console.log('  Increment Flag:', flagKey);
+  console.log('  Flag Value:', rawFlag || 'NOT SET');
+  
+  console.log('\n✅/❌ STATUS:');
+  console.log('  Same day?', data.lastLoginDate === today ? '✅ YA' : '❌ TIDAK');
+  console.log('  Claimed?', data.claimedToday ? '✅ YA' : '❌ TIDAK');
+  console.log('  Can Claim?', (data.lastLoginDate === today && !data.claimedToday) ? '✅ YA' : '❌ TIDAK');
+  
+  console.log('\n🎯 BUTTON STATE:');
+  const claimBtn = document.getElementById('ls-claim-btn');
+  if (claimBtn) {
+    console.log('  Button Hidden?', claimBtn.classList.contains('hidden') ? '✅ YA (BENAR)' : '❌ TIDAK (SALAH)');
+  } else {
+    console.log('  ❌ Button tidak ditemukan');
+  }
+  
+  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 }
 
 function startDailyRolloverWatcher() {
@@ -6519,7 +6932,7 @@ async function endGame() {
   const prevAttempts = cachedRecord ? (cachedRecord.attempts || 0) : 0;
   checkPlayCountMilestone(prevAttempts + 1);
   
-  // Update login streak display
+  // Update login counter display
   updateLoginStreakCard();
   renderPlayMilestoneOnStart();
 
@@ -9218,7 +9631,7 @@ document.addEventListener('keydown', e=>{
   loadPuInventory();
   initGuideBadgeCards();
   // Avoid writing login-streak to cloud before Firebase sync for saved accounts.
-  if (!localStorage.getItem('eco_player_name')) checkAndInitLoginStreak();
+  if (!localStorage.getItem('eco_player_name')) checkAndInitLoginCounter();
 
   renderLbFilterChips();
   renderLbPrevFilterChips();
@@ -9245,15 +9658,15 @@ document.addEventListener('keydown', e=>{
 
   // ── Sinkronisasi penuh dari Firebase ──────────────────────────────────────
   // Ini adalah satu-satunya tempat Firebase dipanggil saat init.
-  // Semua data (puInventory, loginStreak, dailyPlay, DC) diambil sekali,
+  // Semua data (puInventory, totalLogins, dailyPlay, DC) diambil sekali,
   // menghindari race condition antar setTimeout yang bertumpuk.
   setTimeout(async () => {
     const name = (nameInput ? nameInput.value.trim() : '') || savedName || '';
     if (!name) return;
-    // loadAllPlayerDataFromFirebase mengambil: puInventory, loginStreak, dailyPlay, DC
+    // loadAllPlayerDataFromFirebase mengambil: puInventory, totalLogins, dailyPlay, DC
     await loadAllPlayerDataFromFirebase(name);
-    // Re-check streak setelah data Firebase masuk (mungkin klaim di device lain)
-    checkAndInitLoginStreak();
+    // Re-check login counter setelah data Firebase masuk (mungkin klaim di device lain)
+    checkAndInitLoginCounter();
     updateLoginStreakCard();
     renderPlayCountBadge();
     // Tampilkan tombol klaim jika belum diklaim hari ini
@@ -9271,7 +9684,7 @@ document.addEventListener('keydown', e=>{
       renderPlayMilestoneOnStart();
       if (n) {
         await loadAllPlayerDataFromFirebase(n);
-        checkAndInitLoginStreak();
+        checkAndInitLoginCounter();
         updateLoginStreakCard();
         renderPlayCountBadge();
       } else {
