@@ -1,13 +1,13 @@
-# EcoMove: Trash Sorting Challenge (Cloud Leaderboard)
+# EcoMove: Tantangan Memilah Sampah
 
-A web-based interactive trash sorting challenge where users learn how to separate different types of waste. Includes a cloud leaderboard using Firebase Realtime Database.
+Sebuah permainan interaktif berbasis web di mana pengguna dapat belajar bagaimana memilah berbagai jenis sampah dengan benar. Proyek ini juga dilengkapi dengan papan peringkat (leaderboard) berbasis cloud yang menggunakan Firebase Realtime Database.
 
-## Features
-- Interactive trash sorting game.
-- Cloud leaderboard via Firebase.
-- Responsive design with Tailwind CSS.
+## Fitur
+- Permainan memilah sampah yang interaktif dan edukatif.
+- Papan peringkat (leaderboard) cloud secara real-time via Firebase.
+- Desain responsif menggunakan Tailwind CSS.
 
-## Setup
-1. Clone the repository.
-2. Provide your Firebase config by editing the `firebaseConfig` section in `index.html`.
-3. Open `index.html` in a web browser.
+## Cara Penggunaan
+1. Clone repositori ini ke komputer Anda.
+2. Masukkan konfigurasi Firebase Anda dengan mengedit bagian `firebaseConfig` di dalam file `index.html`.
+3. Buka file `index.html` menggunakan web browser Anda untuk mulai bermain.
