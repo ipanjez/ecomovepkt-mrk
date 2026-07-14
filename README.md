@@ -11,3 +11,10 @@ Sebuah permainan interaktif berbasis web di mana pengguna dapat belajar bagaiman
 1. Clone repositori ini ke komputer Anda.
 2. Masukkan konfigurasi Firebase Anda dengan mengedit bagian `firebaseConfig` di dalam file `index.html`.
 3. Buka file `index.html` menggunakan web browser Anda untuk mulai bermain.
+
+## Kredit
+Dibuat oleh **ipanjez**. Terhubung dengan saya melalui:
+- [Gravatar](https://gravatar.com/ipanjez)
+- [GitHub](https://github.com/ipanjez)
+- [Instagram](https://instagram.com/ipanjez)
+- [Facebook](https://facebook.com/ipanjez)
