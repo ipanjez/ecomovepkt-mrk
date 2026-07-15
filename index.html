@@ -4238,8 +4238,16 @@ function formatPlayMilestoneRewards(rewards) {
 
 function getPlayCountAttempts(name) {
   if (!name) return 0;
-  const cachedRecord = lbCache.find(r => r.id === name.replace(/[.#$[\]/\s]/g,'_').toUpperCase());
-  return cachedRecord ? (cachedRecord.attempts || 0) : 0;
+  const safeId = name.replace(/[.#$[\]/\s]/g,'_').toUpperCase();
+  let sum = 0;
+  if (typeof lbCache !== 'undefined' && lbCache && lbCache.length > 0) {
+    lbCache.forEach(r => {
+      if (r.id === safeId || r.id === safeId + '_CURRIC' || r.id === safeId + '_PLASTIK') {
+        sum += (r.attempts || 0);
+      }
+    });
+  }
+  return sum;
 }
 
 function getPlayMilestoneState(name) {
