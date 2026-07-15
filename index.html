@@ -3,16 +3,16 @@
 <!--
 ╔════════════════════════════════════════════════════════════════════════════╗
 ║                   🎁 EcoMove: Trash Sorting Challenge                      ║
-║                                VERSION 1.3                                 ║
+║                                VERSION 1.4                                 ║
 ╚════════════════════════════════════════════════════════════════════════════╝
 
-📋 CHANGELOG v1.3 - Login System & UI Improvements
+📋 CHANGELOG v1.4 - Mode Plastik Quiz
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 ✨ PERBAIKAN YANG DIBUAT:
 
-1️⃣  KOTAK MILESTONE → SATU BARIS PENUH
-   - Sebelumnya: 2 baris (4 kolom + 4 kolom) dengan space kosong
+1️⃣  MODE PLASTIK QUIZ
+   - Mode baru untuk menebak jenis plastik.
    - Sekarang: 1 baris penuh (8 kolom) - [1][3][5][7][10][15][20][25]
    - Perubahan: grid-template-columns repeat(4,1fr) → repeat(8,1fr)
    - Gap: 4px → 3px untuk efisiensi ruang
@@ -1479,20 +1479,37 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
         <h3 style="font-size:1.05rem;font-weight:900;color:white;margin:0;">EcoMove — Changelog</h3>
         <p style="font-size:0.62rem;color:rgba(148,196,245,0.75);margin:3px 0 0;">Semua versi dari awal hingga terkini</p>
       </div>
-      <button onclick="closeChangelogModal()" style="position:absolute;top:12px;right:14px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:50%;width:30px;height:30px;color:white;font-size:1.1rem;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;">&times;</button>
+      <button onclick="closeChangelogModal()" style="position:absolute;top:12px;right:14px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:50%;width:30px;height:30px;color:white;font-size:1.1rem;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:10;">&times;</button>
     </div>
     <!-- Body -->
     <div style="overflow-y:auto;padding:16px;flex:1;-webkit-overflow-scrolling:touch;" class="no-scrollbar">
       <div style="display:flex;flex-direction:column;gap:14px;">
 
-        <!-- v1.3 -->
+        <!-- v1.4 -->
         <div style="border-radius:16px;overflow:hidden;border:1.5px solid #bfdbfe;">
           <div style="background:linear-gradient(135deg,#1e40af,#2563eb);padding:10px 14px;display:flex;align-items:center;justify-content:space-between;">
             <div>
-              <span style="font-size:0.78rem;font-weight:900;color:white;">Versi 1.3</span>
-              <span style="font-size:0.6rem;color:rgba(255,255,255,0.7);margin-left:8px;">10 Juni 2026</span>
+              <span style="font-size:0.78rem;font-weight:900;color:white;">Versi 1.4</span>
+              <span style="font-size:0.6rem;color:rgba(255,255,255,0.7);margin-left:8px;">15 Juli 2026</span>
             </div>
             <span style="font-size:0.58rem;font-weight:900;background:rgba(255,255,255,0.2);color:white;border-radius:999px;padding:2px 8px;">TERKINI</span>
+          </div>
+          <div style="background:white;padding:12px 14px;font-size:0.65rem;color:#334155;line-height:1.6;">
+            <ul style="margin:0;padding-left:16px;list-style-type:circle;">
+              <li>♻️ <b>Mode Plastik Quiz:</b> Mode baru untuk menebak dan belajar jenis plastik.</li>
+              <li>🏆 <b>Leaderboard Diperbarui:</b> Papan peringkat kini mendukung Mode Ranked, Kurikulum, dan Plastik secara terpisah.</li>
+              <li>🐛 <b>Perbaikan Bug:</b> Tombol <code>X</code> (Tutup) pada log riwayat ini telah diperbaiki.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- v1.3 -->
+        <div style="border-radius:16px;overflow:hidden;border:1px solid #e2e8f0;">
+          <div style="background:#f8fafc;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e2e8f0;">
+            <div>
+              <span style="font-size:0.78rem;font-weight:900;color:#334155;">Versi 1.3</span>
+              <span style="font-size:0.6rem;color:#94a3b8;margin-left:8px;">10 Juni 2026</span>
+            </div>
           </div>
           <div style="background:#eff6ff;padding:12px 14px;">
             <ul style="margin:0;padding-left:16px;font-size:0.68rem;color:#1e3a5f;font-weight:600;line-height:1.8;">
@@ -1863,7 +1880,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
         </button>
 
         <p class="mt-1 text-[0.62rem] text-slate-400 text-center font-semibold leading-snug">
-          <span onclick="openChangelogModal()" style="cursor:pointer;text-decoration:underline dotted;color:#2563eb;font-weight:700;" title="Lihat log update lengkap">Update terakhir: Versi 1.3 · 10 Juni 2026</span> · Login card, pip preview & panduan diperbarui
+          <span onclick="openChangelogModal()" style="cursor:pointer;text-decoration:underline dotted;color:#2563eb;font-weight:700;" title="Lihat log update lengkap">Update terakhir: Versi 1.4 · 15 Juli 2026</span> · Mode Plastik Quiz & perbaikan minor
         </p>
 
         <div class="mt-2 rounded-xl border border-slate-200 bg-slate-50/80 p-2.5">
@@ -2622,16 +2639,16 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
         </div>
       </div>
 
-      <!-- SECURITY UPDATE NOTE (player-friendly) -->
-      <div class="rounded-xl bg-yellow-50 border border-yellow-200 p-4 flex items-start gap-3">
-        <div class="text-3xl flex-shrink-0">🔒</div>
+      <!-- MODE PLASTIK QUIZ NOTE -->
+      <div class="rounded-xl bg-teal-50 border border-teal-200 p-4 flex items-start gap-3">
+        <div class="text-3xl flex-shrink-0">♻️</div>
         <div>
-          <p class="font-black text-yellow-900 text-sm">Pembaruan Keamanan</p>
-          <p class="text-yellow-800 text-xs mt-1 leading-relaxed">Kami menambahkan perlindungan ekstra untuk menjaga data pemain tetap aman dan permainan tetap adil.</p>
-          <ul class="text-[0.62rem] text-yellow-800 mt-2 list-disc pl-4 space-y-1">
-            <li>Progress, total login, dan power-up tetap tersimpan dan bisa diakses lintas perangkat jika kamu memakai nama yang sama.</li>
-            <li>Untuk pengujian di komputer sendiri, buka game melalui <b>localhost</b> (mis. http://localhost:3000) supaya pengujian berjalan lancar.</li>
-            <li>Jika muncul pesan "permission denied", tunggu beberapa menit lalu coba lagi — jika terus terjadi, hubungi Admin.</li>
+          <p class="font-black text-teal-900 text-sm">Baru! Mode Plastik Quiz</p>
+          <p class="text-teal-800 text-xs mt-1 leading-relaxed">Selain Mode Ranked dan Kurikulum, kini tersedia <b>Mode Plastik Quiz</b> untuk belajar dan menebak berbagai jenis plastik sehari-hari.</p>
+          <ul class="text-[0.62rem] text-teal-800 mt-2 list-disc pl-4 space-y-1">
+            <li>Tebak jenis plastik (PET, HDPE, PVC, LDPE, PP, PS, OTHER).</li>
+            <li>Setiap jawaban benar akan memberikan poin dan tips edukatif.</li>
+            <li>Terdapat leaderboard tersendiri untuk menguji pengetahuan plastikmu.</li>
           </ul>
         </div>
       </div>
