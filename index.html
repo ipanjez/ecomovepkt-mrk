@@ -3173,7 +3173,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
               <p>🎁 <b>Daily Login</b> — reward otomatis sesuai siklus 7 hari (lihat bagian Daily Login Reward)</p>
               <p>⚡ <b>Daily Challenge</b> — selesaikan tantangan harian untuk mendapat <span class="text-fuchsia-700 font-black">⏳ +1 Time Extend (LANGKA!)</span> setiap kali DC selesai</p>
               <p>💥 <b>Combo Milestone</b> — capai combo 5, 10, 15, atau 20 berturut-turut saat bermain</p>
-              <p>🎮 <b>Milestone Main</b> — setiap 3x, 10x, 25x, 50x, 100x total sesi bermain</p>
+              <p>🎮 <b>Milestone Main</b> — setiap 3x, 10x, 25x, 50x, 100x sesi bermain (Dihitung terpisah per mode)</p>
             </div>
           </div>
           <p class="text-[0.62rem] text-gray-400">💡 Maksimum 100 stok per tipe power-up. Gunakan secara berkala agar tidak terbuang sia-sia!</p>
@@ -6124,11 +6124,16 @@ function renderPlayCountBadge() {
   const currentName = getActivePlayerName();
   const daily = getDailyPlay(currentName);
   const totalAttempts = (() => {
-    // Get from lbCache if available
+    // Get total attempts across all modes
     if (currentName && lbCache && lbCache.length > 0) {
       const safeId = currentName.replace(/[.#$[\]/\s]/g,'_').toUpperCase();
-      const rec = lbCache.find(r => r.id === safeId || r.id === safeId + '_CURRIC');
-      if (rec) return rec.attempts || 0;
+      let sum = 0;
+      lbCache.forEach(r => {
+        if (r.id === safeId || r.id === safeId + '_CURRIC' || r.id === safeId + '_PLASTIK') {
+          sum += (r.attempts || 0);
+        }
+      });
+      return sum;
     }
     return 0;
   })();
