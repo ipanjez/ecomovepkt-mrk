@@ -6344,6 +6344,7 @@ function startCurriculumGame() {
   
   if(errEl) errEl.classList.add('hidden');
   GS.isCurriculum = true;
+  GS.isPlasticQuiz = false;
   GS.curriculumFocus = currSelectedCategory;
   GS.curriculumFilter = null;
   try { localStorage.setItem('eco_player_name', name); } catch(e){}
@@ -6508,6 +6509,7 @@ function attemptStart() {
   
   if(err) err.classList.add('hidden');
   GS.isCurriculum = false;
+  GS.isPlasticQuiz = false;
   GS.curriculumFilter = null;
   GS.curriculumFocus = null;
   try { localStorage.setItem('eco_player_name', name); } catch(e){}
