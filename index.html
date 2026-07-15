@@ -1389,7 +1389,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
 .plastic-btn { flex:1; min-width:52px; max-width:80px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; padding:8px 4px; border-radius:14px; border:2.5px solid; font-weight:800; font-size:0.7rem; cursor:pointer; transition:all 0.18s ease; user-select:none; text-align:center; min-height:60px; }
 .plastic-btn:hover { transform:scale(1.06); filter:brightness(1.08); }
 .plastic-btn:active { transform:scale(0.95); }
-.plastic-btn .pq-code { font-size:1.1rem; font-weight:900; line-height:1; }
+.plastic-btn .pq-code { font-size:1.3rem; font-weight:900; line-height:1; font-family:serif; }
 .plastic-btn .pq-label { font-size:0.55rem; opacity:0.85; line-height:1.1; }
 .pq-pet { background:linear-gradient(135deg,#dbeafe,#eff6ff); border-color:#3b82f6; color:#1d4ed8; }
 .pq-hdpe { background:linear-gradient(135deg,#dcfce7,#f0fdf4); border-color:#22c55e; color:#15803d; }
@@ -2500,7 +2500,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
                 <th>Akurasi</th>
                 <th>D/B/S</th>
                 <th>Waktu</th>
-                <th title="Daily Challenge" id="lb-th-dc">DC</th>
+                <th id="lb-th-dc" title="Daily Challenge">DC</th>
                 <th>Coba</th>
               </tr>
             </thead>
@@ -3238,7 +3238,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
             <th>Akurasi</th>
             <th>D/B/S</th>
             <th>Waktu</th>
-            <th title="Daily Challenge" id="lb-prev-th-dc">DC</th>
+            <th title="Daily Challenge">DC</th>
             <th>Coba</th>
           </tr>
         </thead>
@@ -6689,25 +6689,25 @@ function setupGameUI() {
     pqDiv.innerHTML = `
       <div class="plastic-buttons">
         <button class="plastic-btn pq-pet" onclick="handlePlasticAnswer('PET')">
-          <span class="pq-code">①</span><span class="pq-label">PET</span>
+          <span class="pq-code">♳</span><span class="pq-label">PET</span>
         </button>
         <button class="plastic-btn pq-hdpe" onclick="handlePlasticAnswer('HDPE')">
-          <span class="pq-code">②</span><span class="pq-label">HDPE</span>
+          <span class="pq-code">♴</span><span class="pq-label">HDPE</span>
         </button>
         <button class="plastic-btn pq-pvc" onclick="handlePlasticAnswer('PVC')">
-          <span class="pq-code">③</span><span class="pq-label">PVC</span>
+          <span class="pq-code">♵</span><span class="pq-label">PVC</span>
         </button>
         <button class="plastic-btn pq-ldpe" onclick="handlePlasticAnswer('LDPE')">
-          <span class="pq-code">④</span><span class="pq-label">LDPE</span>
+          <span class="pq-code">♶</span><span class="pq-label">LDPE</span>
         </button>
         <button class="plastic-btn pq-pp" onclick="handlePlasticAnswer('PP')">
-          <span class="pq-code">⑤</span><span class="pq-label">PP</span>
+          <span class="pq-code">♷</span><span class="pq-label">PP</span>
         </button>
         <button class="plastic-btn pq-ps" onclick="handlePlasticAnswer('PS')">
-          <span class="pq-code">⑥</span><span class="pq-label">PS</span>
+          <span class="pq-code">♸</span><span class="pq-label">PS</span>
         </button>
         <button class="plastic-btn pq-other pq-other-wide" onclick="handlePlasticAnswer('OTHER')">
-          <span class="pq-code">⑦</span><span class="pq-label">OTHER</span>
+          <span class="pq-code">♹</span><span class="pq-label">OTHER</span>
         </button>
       </div>
     `;
@@ -6823,6 +6823,12 @@ function handleCurriculumAnswer(userSaysMatch) {
 }
 
 function getDifficultyDisplayName(d) {
+  if(d.startsWith('plasticquiz-')) {
+    const pq = d.replace('plasticquiz-','');
+    if(pq==='Hard') return 'Sulit';
+    if(pq==='Medium') return 'Sedang';
+    return 'Mudah';
+  }
   if(d==='Hard') return 'Penjaga Bumi';
   if(d==='Medium') return 'Eko Aktif';
   return 'Bumi Lestari';
@@ -7906,7 +7912,8 @@ async function saveToDb(acc, wrong) {
   const snap = await ref.once('value');
   const ex=snap.val();
   const attempts=(ex?((ex.attempts||1)+1):1);
-  const merged=mergeCatStats(ex?ex.categoryStats||{}:{}, GS.categoryStats||{});
+  const statsToMerge = GS.isPlasticQuiz ? GS.plasticStats : GS.categoryStats;
+  const merged=mergeCatStats(ex?ex.categoryStats||{}:{}, statsToMerge||{});
   const mergedQuestionStats=mergeQuestionStats(ex?ex.questionStats||{}:{}, buildSessionQuestionStats(GS.history||[]));
 
   const rank=(()=>{ const i=lbCache.findIndex(r=>r.id===recordKey); return i>=0?i+1:null; })();
@@ -8554,7 +8561,7 @@ function renderLbStatsPanel(prefix, mode, filter, search) {
 
   const filtered = filterLb(lbCache, filter, mode, search);
   const modePool = filterLb(lbCache, 'All', mode, '');
-  const modeLabel = mode === 'curriculum' ? 'Kurikulum' : 'Ranked';
+  const modeLabel = mode === 'curriculum' ? 'Kurikulum' : (mode === 'plasticquiz' ? 'Mode Plastik' : 'Ranked');
 
   if (filtered.length === 0) {
     summaryEl.innerHTML = `<div class="lb-stat-card"><p class="lb-stat-label">Statistik</p><p class="lb-stat-sub">Belum ada data untuk filter saat ini.</p></div>`;
@@ -8628,13 +8635,10 @@ function renderLbStatsPanel(prefix, mode, filter, search) {
     </div>
   `;
 
-  const knownCats = ['LAKU JUAL', 'RESIDU', 'SISA MAKANAN'];
-  const catAggregate = {
-    'LAKU JUAL': { total: 0, correct: 0 },
-    'RESIDU': { total: 0, correct: 0 },
-    'SISA MAKANAN': { total: 0, correct: 0 },
-    'LAINNYA': { total: 0, correct: 0 }
-  };
+  const knownCats = mode === 'plasticquiz' ? ['PET','HDPE','PVC','LDPE','PP','PS','OTHER'] : ['LAKU JUAL', 'RESIDU', 'SISA MAKANAN'];
+  const catAggregate = {};
+  knownCats.forEach(c => catAggregate[c] = {total: 0, correct: 0});
+  catAggregate['LAINNYA'] = {total: 0, correct: 0};
   filtered.forEach(r => {
     const rowCats = r.categoryStats || {};
     Object.entries(rowCats).forEach(([cat, stat]) => {
@@ -8660,8 +8664,8 @@ function renderLbStatsPanel(prefix, mode, filter, search) {
     .sort((a, b) => b.total - a.total)
     .filter(item => item.label !== 'LAINNYA');
 
-  const catIconMap = { 'LAKU JUAL': '♻️', 'RESIDU': '🗑️', 'SISA MAKANAN': '🍏', 'LAINNYA': '📦' };
-  const catClassMap = { 'LAKU JUAL': 'cat-laku', 'RESIDU': 'cat-residu', 'SISA MAKANAN': 'cat-sisa', 'LAINNYA': 'cat-other' };
+  const catIconMap = { 'LAKU JUAL': '♻️', 'RESIDU': '🗑️', 'SISA MAKANAN': '🍏', 'PET':'♳', 'HDPE':'♴', 'PVC':'♵', 'LDPE':'♶', 'PP':'♷', 'PS':'♸', 'OTHER':'♹', 'LAINNYA': '📦' };
+  const catClassMap = { 'LAKU JUAL': 'cat-laku', 'RESIDU': 'cat-residu', 'SISA MAKANAN': 'cat-sisa', 'PET':'cat-pet', 'HDPE':'cat-hdpe', 'PVC':'cat-pvc', 'LDPE':'cat-ldpe', 'PP':'cat-pp', 'PS':'cat-ps', 'OTHER':'cat-other', 'LAINNYA': 'cat-other' };
   knowledgeEl.innerHTML = catRows.map(item => {
     const levelClass = item.level === 'Unggul' ? 'level-unggul' : item.level === 'Cukup' ? 'level-cukup' : item.total === 0 ? 'level-none' : 'level-perlu';
     const catCls = catClassMap[item.label] || 'cat-other';
@@ -8783,9 +8787,6 @@ function renderLbStatsPanel(prefix, mode, filter, search) {
       <div class="lb-badge-overview-list">${tagRows.length ? renderBadgeRows(tagRows) : '<div class="lb-insight-item">Belum ada data.</div>'}</div>
     </div>
   `;
-
-  const thDc = document.getElementById('lb-th-dc');
-  if (thDc) thDc.style.display = mode === 'ranked' ? '' : 'none';
 
   const topPlayers = [...filtered].sort((a, b) => (Number(b.attempts) || 0) - (Number(a.attempts) || 0) || (Number(b.score) || 0) - (Number(a.score) || 0)).slice(0, 5);
   const maxAttempts = Math.max(1, ...topPlayers.map(r => Number(r.attempts) || 0));
@@ -8953,6 +8954,9 @@ function renderLbTable() {
   syncLbViewUI('lb', lbView);
   const tbody=document.getElementById('lb-body');
   if(!tbody) return;
+  const thDc = document.getElementById('lb-th-dc');
+  if(thDc) thDc.style.display = (lbMode==='ranked') ? '' : 'none';
+
   const filtered=filterLb(lbCache, lbFilter, lbMode, lbSearch);
   const countEl=document.getElementById('lb-search-count');
   if(countEl) countEl.textContent=`${filtered.length} hasil`;
@@ -9061,7 +9065,7 @@ function renderLbTable() {
       <td class="text-center text-xs font-bold">${r.accuracy||0}%</td>
       <td class="text-center text-xs">${r.total||0}/${r.correct||0}/${r.wrong||0}</td>
       <td class="text-center text-[0.6rem] text-gray-400">${ts}</td>
-      <td class="text-center text-xs font-bold text-pktGreen" style="display:${mode==='ranked'?'':'none'}">${dcDisplay}</td>
+      ${lbMode === 'ranked' ? `<td class="text-center text-xs font-bold text-pktGreen">${dcDisplay}</td>` : ''}
       <td class="text-center text-xs font-bold">${r.attempts||1}x</td>
     `;
     tbody.appendChild(tr);
@@ -9474,7 +9478,7 @@ function renderLbPrev() {
       <td class="text-center text-xs">${r.accuracy||0}%</td>
       <td class="text-center text-xs">${r.total||0}/${r.correct||0}/${r.wrong||0}</td>
       <td class="text-center text-[0.6rem] text-gray-400">${ts}</td>
-      <td class="text-center text-xs font-bold text-pktGreen" style="display:${lbPrevMode==='ranked'?'':'none'}">${r.dcCompleted || 0}</td>
+      <td class="text-center text-xs font-bold text-pktGreen">${r.isCurriculum ? '–' : (r.dcCompleted || 0)}</td>
       <td class="text-center text-xs">${r.attempts||1}x</td>
     `;
     tbody.appendChild(tr);
@@ -9987,10 +9991,22 @@ function updateNameHint() {
 // ──────────────────────────────────────────
 document.addEventListener('keydown', e=>{
   const k=e.key.toLowerCase();
-  if(k==='1') { if (!GS.isCurriculum || !GS.curriculumFocus) checkBin('SISA MAKANAN'); else document.getElementById('curr-match-btn')?.click(); }
-  else if(k==='2') { if (!GS.isCurriculum || !GS.curriculumFocus) checkBin('LAKU JUAL'); else document.getElementById('curr-notmatch-btn')?.click(); }
-  else if(k==='3') { if (!GS.isCurriculum || !GS.curriculumFocus) checkBin('RESIDU'); }
-  else if(k==='p') togglePause();
+  
+  if (GS.isPlasticQuiz) {
+    if(k==='1') handlePlasticAnswer('PET');
+    else if(k==='2') handlePlasticAnswer('HDPE');
+    else if(k==='3') handlePlasticAnswer('PVC');
+    else if(k==='4') handlePlasticAnswer('LDPE');
+    else if(k==='5') handlePlasticAnswer('PP');
+    else if(k==='6') handlePlasticAnswer('PS');
+    else if(k==='7') handlePlasticAnswer('OTHER');
+  } else {
+    if(k==='1') { if (!GS.isCurriculum || !GS.curriculumFocus) checkBin('SISA MAKANAN'); else document.getElementById('curr-match-btn')?.click(); }
+    else if(k==='2') { if (!GS.isCurriculum || !GS.curriculumFocus) checkBin('LAKU JUAL'); else document.getElementById('curr-notmatch-btn')?.click(); }
+    else if(k==='3') { if (!GS.isCurriculum || !GS.curriculumFocus) checkBin('RESIDU'); }
+  }
+
+  if(k==='p') togglePause();
   else if(k==='m') toggleMute();
   // Power-up shortcuts
   else if(k==='q') activatePowerup('freeze');
