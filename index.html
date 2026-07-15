@@ -3434,74 +3434,142 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
       <button onclick="closePlasticInfoModal()" class="text-white/70 hover:text-white text-2xl font-bold leading-none transition">&times;</button>
     </div>
     <div class="p-5 space-y-4">
-      <div class="rounded-xl overflow-hidden shadow-sm border border-slate-200 mb-2">
-        <img src="panduan-plastik.jpg" alt="Infografis Panduan Jenis Plastik" class="w-full object-cover" loading="lazy">
+      <div class="rounded-2xl overflow-hidden shadow-lg shadow-teal-500/10 border-2 border-teal-100/50 mb-3 hover:shadow-xl transition duration-300">
+        <img src="panduan-plastik.jpg" alt="Infografis Panduan Jenis Plastik" class="w-full object-cover transform hover:scale-105 transition duration-500" loading="lazy">
       </div>
+      
       <!-- 1 PET -->
-      <div class="rounded-xl border border-blue-200 bg-blue-50 p-3">
-        <div class="flex items-center gap-2 mb-1">
-          <span class="bg-blue-600 text-white font-black text-xs px-2 py-0.5 rounded">1 - PET</span>
-          <span class="text-[0.68rem] font-bold text-blue-800">Polyethylene Terephthalate</span>
+      <div class="group rounded-xl border border-sky-200/60 bg-gradient-to-br from-sky-50 to-blue-50/50 p-3.5 shadow-sm hover:shadow-md hover:border-sky-300 transition duration-300">
+        <div class="flex items-center gap-2 mb-2">
+          <div class="flex flex-col items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-b from-sky-500 to-blue-600 text-white shadow-sm shadow-blue-500/30 group-hover:scale-110 transition duration-300">
+            <span class="text-[0.55rem] font-black leading-none mt-1">♻️</span>
+            <span class="text-xs font-black leading-none mb-1">1</span>
+          </div>
+          <div>
+            <div class="text-xs font-black text-sky-900 leading-tight">PET / PETE</div>
+            <div class="text-[0.6rem] font-bold text-sky-700/80 leading-tight">Polyethylene Terephthalate</div>
+          </div>
         </div>
-        <p class="text-[0.65rem] text-blue-900 mb-1"><b>Ciri & Contoh:</b> Bening, transparan, ringan. Botol air mineral, botol minuman soda, botol jus, toples selai bening.</p>
-        <p class="text-[0.62rem] text-blue-700"><b>Keamanan:</b> <u>Aman untuk SEKALI PAKAI.</u> Jangan diisi air panas atau digunakan berulang karena bisa melepas zat karsinogenik (penyebab kanker). Sangat mudah didaur ulang.</p>
+        <p class="text-[0.65rem] text-slate-700 mb-1.5 leading-relaxed"><b>Ciri & Contoh:</b> Bening, transparan, ringan. <span class="text-sky-800 font-semibold">Botol air mineral, jus, toples bening.</span></p>
+        <div class="bg-white/60 rounded-lg p-2 border border-sky-100">
+          <p class="text-[0.62rem] text-sky-800 leading-relaxed">⚠️ <b>Keamanan:</b> <span class="font-bold underline decoration-sky-300 decoration-2">Aman untuk SEKALI PAKAI.</span> Jangan diisi air panas/berulang (risiko karsinogenik). Sangat mudah didaur ulang.</p>
+        </div>
       </div>
+
       <!-- 2 HDPE -->
-      <div class="rounded-xl border border-green-200 bg-green-50 p-3">
-        <div class="flex items-center gap-2 mb-1">
-          <span class="bg-green-600 text-white font-black text-xs px-2 py-0.5 rounded">2 - HDPE</span>
-          <span class="text-[0.68rem] font-bold text-green-800">High-Density Polyethylene</span>
+      <div class="group rounded-xl border border-emerald-200/60 bg-gradient-to-br from-emerald-50 to-green-50/50 p-3.5 shadow-sm hover:shadow-md hover:border-emerald-300 transition duration-300">
+        <div class="flex items-center gap-2 mb-2">
+          <div class="flex flex-col items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-b from-emerald-500 to-green-600 text-white shadow-sm shadow-green-500/30 group-hover:scale-110 transition duration-300">
+            <span class="text-[0.55rem] font-black leading-none mt-1">♻️</span>
+            <span class="text-xs font-black leading-none mb-1">2</span>
+          </div>
+          <div>
+            <div class="text-xs font-black text-emerald-900 leading-tight">HDPE</div>
+            <div class="text-[0.6rem] font-bold text-emerald-700/80 leading-tight">High-Density Polyethylene</div>
+          </div>
         </div>
-        <p class="text-[0.65rem] text-green-900 mb-1"><b>Ciri & Contoh:</b> Warna solid (tidak tembus pandang), kaku, agak tebal. Botol susu putih, botol sampo, jerigen, botol sabun cuci, ember.</p>
-        <p class="text-[0.62rem] text-green-700"><b>Keamanan:</b> <u>Paling aman dan sangat direkomendasikan.</u> Tahan panas dan bahan kimia. Bisa dipakai ulang dan laku didaur ulang.</p>
+        <p class="text-[0.65rem] text-slate-700 mb-1.5 leading-relaxed"><b>Ciri & Contoh:</b> Warna solid, kaku, tebal. <span class="text-emerald-800 font-semibold">Botol susu, sampo, jerigen, ember.</span></p>
+        <div class="bg-white/60 rounded-lg p-2 border border-emerald-100">
+          <p class="text-[0.62rem] text-emerald-800 leading-relaxed">✅ <b>Keamanan:</b> <span class="font-bold underline decoration-emerald-300 decoration-2">Paling aman & direkomendasikan.</span> Tahan panas/kimia, bisa dipakai ulang & tinggi nilai daur ulangnya.</p>
+        </div>
       </div>
+
       <!-- 3 PVC -->
-      <div class="rounded-xl border border-orange-200 bg-orange-50 p-3">
-        <div class="flex items-center gap-2 mb-1">
-          <span class="bg-orange-600 text-white font-black text-xs px-2 py-0.5 rounded">3 - PVC</span>
-          <span class="text-[0.68rem] font-bold text-orange-800">Polyvinyl Chloride</span>
+      <div class="group rounded-xl border border-orange-200/60 bg-gradient-to-br from-orange-50 to-amber-50/50 p-3.5 shadow-sm hover:shadow-md hover:border-orange-300 transition duration-300">
+        <div class="flex items-center gap-2 mb-2">
+          <div class="flex flex-col items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-b from-orange-500 to-red-500 text-white shadow-sm shadow-orange-500/30 group-hover:scale-110 transition duration-300">
+            <span class="text-[0.55rem] font-black leading-none mt-1">♻️</span>
+            <span class="text-xs font-black leading-none mb-1">3</span>
+          </div>
+          <div>
+            <div class="text-xs font-black text-orange-900 leading-tight">PVC / V</div>
+            <div class="text-[0.6rem] font-bold text-orange-700/80 leading-tight">Polyvinyl Chloride</div>
+          </div>
         </div>
-        <p class="text-[0.65rem] text-orange-900 mb-1"><b>Ciri & Contoh:</b> Keras tapi bisa fleksibel (menggunakan plasticizer). Pipa paralon, kabel listrik, jas hujan tipis, lantai vinyl, map plastik.</p>
-        <p class="text-[0.62rem] text-orange-700"><b>Keamanan:</b> <u>BERBAHAYA untuk makanan/minuman.</u> Disebut "plastik beracun" karena melepaskan dioksin berbahaya saat dipanaskan/dibakar. Sangat dihindari!</p>
+        <p class="text-[0.65rem] text-slate-700 mb-1.5 leading-relaxed"><b>Ciri & Contoh:</b> Keras tapi bisa fleksibel. <span class="text-orange-800 font-semibold">Pipa paralon, kabel, jas hujan, lantai vinyl.</span></p>
+        <div class="bg-white/60 rounded-lg p-2 border border-orange-100">
+          <p class="text-[0.62rem] text-red-700 leading-relaxed">🚫 <b>Keamanan:</b> <span class="font-bold underline decoration-red-300 decoration-2">BERBAHAYA untuk makanan!</span> Disebut "plastik beracun" (melepas dioksin jika panas/dibakar).</p>
+        </div>
       </div>
+
       <!-- 4 LDPE -->
-      <div class="rounded-xl border border-yellow-300 bg-yellow-50 p-3">
-        <div class="flex items-center gap-2 mb-1">
-          <span class="bg-yellow-500 text-white font-black text-xs px-2 py-0.5 rounded">4 - LDPE</span>
-          <span class="text-[0.68rem] font-bold text-yellow-800">Low-Density Polyethylene</span>
+      <div class="group rounded-xl border border-amber-200/60 bg-gradient-to-br from-yellow-50 to-amber-50/50 p-3.5 shadow-sm hover:shadow-md hover:border-amber-300 transition duration-300">
+        <div class="flex items-center gap-2 mb-2">
+          <div class="flex flex-col items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-b from-amber-400 to-yellow-500 text-white shadow-sm shadow-amber-500/30 group-hover:scale-110 transition duration-300">
+            <span class="text-[0.55rem] font-black leading-none mt-1">♻️</span>
+            <span class="text-xs font-black leading-none mb-1">4</span>
+          </div>
+          <div>
+            <div class="text-xs font-black text-amber-900 leading-tight">LDPE</div>
+            <div class="text-[0.6rem] font-bold text-amber-700/80 leading-tight">Low-Density Polyethylene</div>
+          </div>
         </div>
-        <p class="text-[0.65rem] text-yellow-900 mb-1"><b>Ciri & Contoh:</b> Tipis, fleksibel, mudah direntangkan. Kantong kresek, plastik wrapping (cling wrap), bubble wrap, kantong ziplock.</p>
-        <p class="text-[0.62rem] text-yellow-700"><b>Keamanan:</b> <u>Aman untuk makanan, tapi sulit didaur ulang.</u> Kurangi pemakaian kantong kresek demi kelestarian lingkungan!</p>
+        <p class="text-[0.65rem] text-slate-700 mb-1.5 leading-relaxed"><b>Ciri & Contoh:</b> Tipis, lentur, bisa direntangkan. <span class="text-amber-800 font-semibold">Kantong kresek, bubble wrap, cling wrap.</span></p>
+        <div class="bg-white/60 rounded-lg p-2 border border-amber-100">
+          <p class="text-[0.62rem] text-amber-800 leading-relaxed">⚠️ <b>Keamanan:</b> <span class="font-bold underline decoration-amber-300 decoration-2">Aman untuk makanan, sulit didaur ulang.</span> Tolong kurangi pemakaian kantong kresek!</p>
+        </div>
       </div>
+
       <!-- 5 PP -->
-      <div class="rounded-xl border border-red-200 bg-red-50 p-3">
-        <div class="flex items-center gap-2 mb-1">
-          <span class="bg-red-500 text-white font-black text-xs px-2 py-0.5 rounded">5 - PP</span>
-          <span class="text-[0.68rem] font-bold text-red-800">Polypropylene</span>
+      <div class="group rounded-xl border border-rose-200/60 bg-gradient-to-br from-rose-50 to-pink-50/50 p-3.5 shadow-sm hover:shadow-md hover:border-rose-300 transition duration-300">
+        <div class="flex items-center gap-2 mb-2">
+          <div class="flex flex-col items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-b from-rose-500 to-pink-600 text-white shadow-sm shadow-rose-500/30 group-hover:scale-110 transition duration-300">
+            <span class="text-[0.55rem] font-black leading-none mt-1">♻️</span>
+            <span class="text-xs font-black leading-none mb-1">5</span>
+          </div>
+          <div>
+            <div class="text-xs font-black text-rose-900 leading-tight">PP</div>
+            <div class="text-[0.6rem] font-bold text-rose-700/80 leading-tight">Polypropylene</div>
+          </div>
         </div>
-        <p class="text-[0.65rem] text-red-900 mb-1"><b>Ciri & Contoh:</b> Ringan, tahan panas tinggi, kaku. Kotak makan Tupperware, thinwall (wadah takeaway), gelas kopi, pot bunga.</p>
-        <p class="text-[0.62rem] text-red-700"><b>Keamanan:</b> <u>Terbaik & Teraman untuk tempat makanan/minuman, terutama panas.</u> Sering dilabeli microwave-safe.</p>
+        <p class="text-[0.65rem] text-slate-700 mb-1.5 leading-relaxed"><b>Ciri & Contoh:</b> Ringan, kaku, tahan panas tinggi. <span class="text-rose-800 font-semibold">Tupperware, gelas kopi, thinwall takeaway.</span></p>
+        <div class="bg-white/60 rounded-lg p-2 border border-rose-100">
+          <p class="text-[0.62rem] text-rose-800 leading-relaxed">✅ <b>Keamanan:</b> <span class="font-bold underline decoration-rose-300 decoration-2">Terbaik & Teraman.</span> Sangat aman untuk tempat makanan/minuman panas (microwave-safe).</p>
+        </div>
       </div>
+
       <!-- 6 PS -->
-      <div class="rounded-xl border border-purple-200 bg-purple-50 p-3">
-        <div class="flex items-center gap-2 mb-1">
-          <span class="bg-purple-500 text-white font-black text-xs px-2 py-0.5 rounded">6 - PS</span>
-          <span class="text-[0.68rem] font-bold text-purple-800">Polystyrene</span>
+      <div class="group rounded-xl border border-purple-200/60 bg-gradient-to-br from-purple-50 to-fuchsia-50/50 p-3.5 shadow-sm hover:shadow-md hover:border-purple-300 transition duration-300">
+        <div class="flex items-center gap-2 mb-2">
+          <div class="flex flex-col items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-b from-purple-500 to-fuchsia-600 text-white shadow-sm shadow-purple-500/30 group-hover:scale-110 transition duration-300">
+            <span class="text-[0.55rem] font-black leading-none mt-1">♻️</span>
+            <span class="text-xs font-black leading-none mb-1">6</span>
+          </div>
+          <div>
+            <div class="text-xs font-black text-purple-900 leading-tight">PS</div>
+            <div class="text-[0.6rem] font-bold text-purple-700/80 leading-tight">Polystyrene</div>
+          </div>
         </div>
-        <p class="text-[0.65rem] text-purple-900 mb-1"><b>Ciri & Contoh:</b> Ringan, kaku, mudah retak (crystal), atau berbentuk busa (EPS). Styrofoam makanan, sendok/garpu plastik murah, cup tipis.</p>
-        <p class="text-[0.62rem] text-purple-700"><b>Keamanan:</b> <u>BERBAHAYA untuk makanan panas.</u> Dapat melepaskan zat styrene yang mengganggu saraf dan hormon. Hindari pemakaian styrofoam!</p>
+        <p class="text-[0.65rem] text-slate-700 mb-1.5 leading-relaxed"><b>Ciri & Contoh:</b> Ringan, kaku (mudah retak) atau busa. <span class="text-purple-800 font-semibold">Styrofoam, sendok plastik murah, cup tipis.</span></p>
+        <div class="bg-white/60 rounded-lg p-2 border border-purple-100">
+          <p class="text-[0.62rem] text-fuchsia-800 leading-relaxed">🚫 <b>Keamanan:</b> <span class="font-bold underline decoration-fuchsia-300 decoration-2">SANGAT BERBAHAYA untuk panas!</span> Melepas zat styrene (mengganggu saraf & hormon).</p>
+        </div>
       </div>
+
       <!-- 7 OTHER -->
-      <div class="rounded-xl border border-slate-200 bg-slate-50 p-3">
-        <div class="flex items-center gap-2 mb-1">
-          <span class="bg-slate-500 text-white font-black text-xs px-2 py-0.5 rounded">7 - OTHER</span>
-          <span class="text-[0.68rem] font-bold text-slate-700">Campuran / Polycarbonate / ABS</span>
+      <div class="group rounded-xl border border-slate-300/60 bg-gradient-to-br from-slate-100 to-gray-50 p-3.5 shadow-sm hover:shadow-md hover:border-slate-400 transition duration-300">
+        <div class="flex items-center gap-2 mb-2">
+          <div class="flex flex-col items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-b from-slate-500 to-gray-600 text-white shadow-sm shadow-slate-500/30 group-hover:scale-110 transition duration-300">
+            <span class="text-[0.55rem] font-black leading-none mt-1">♻️</span>
+            <span class="text-xs font-black leading-none mb-1">7</span>
+          </div>
+          <div>
+            <div class="text-xs font-black text-slate-800 leading-tight">OTHER</div>
+            <div class="text-[0.6rem] font-bold text-slate-600 leading-tight">Campuran / PC / ABS / Tritan</div>
+          </div>
         </div>
-        <p class="text-[0.65rem] text-slate-900 mb-1"><b>Ciri & Contoh:</b> Campuran material yang sangat keras atau multilayer. Galon PC lama, casing HP, kacamata, helm, sachet kopi berlapis.</p>
-        <p class="text-[0.62rem] text-slate-700"><b>Keamanan:</b> Hati-hati dengan plastik berbahan dasar PC yang <u>mengandung BPA</u>. Pilih bahan Tritan atau yang berlabel "BPA-Free".</p>
+        <p class="text-[0.65rem] text-slate-700 mb-1.5 leading-relaxed"><b>Ciri & Contoh:</b> Campuran material / multilayer. <span class="text-slate-800 font-semibold">Galon air keras (PC), casing HP, helm, sachet kopi.</span></p>
+        <div class="bg-white/60 rounded-lg p-2 border border-slate-200">
+          <p class="text-[0.62rem] text-slate-800 leading-relaxed">⚠️ <b>Keamanan:</b> Awas plastik PC lama <span class="font-bold underline decoration-slate-400 decoration-2">mengandung BPA</span>. Selalu pilih yang berlabel "BPA-Free" atau bahan Tritan.</p>
+        </div>
       </div>
-      <button onclick="closePlasticInfoModal()" class="w-full bg-teal-600 text-white font-black py-3 rounded-xl shadow-sm hover:bg-teal-700 transition">
-        Siap Bermain!
+
+      <button onclick="closePlasticInfoModal()" class="w-full relative overflow-hidden group bg-gradient-to-r from-teal-500 to-cyan-600 text-white font-black py-3.5 rounded-xl shadow-lg shadow-teal-500/30 hover:shadow-cyan-500/40 transition-all duration-300 transform hover:-translate-y-0.5 mt-2">
+        <span class="relative z-10 flex items-center justify-center gap-2">
+          <span>Siap Bermain Mode Plastik!</span>
+          <span class="group-hover:translate-x-1 transition-transform duration-300">🚀</span>
+        </span>
+        <div class="absolute inset-0 bg-gradient-to-r from-cyan-600 to-teal-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
       </button>
     </div>
   </div>
