@@ -3256,7 +3256,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
             <th>Akurasi</th>
             <th>D/B/S</th>
             <th>Waktu</th>
-            <th title="Daily Challenge">DC</th>
+            <th id="lb-prev-th-dc" title="Daily Challenge">DC</th>
             <th>Coba</th>
           </tr>
         </thead>
@@ -9396,6 +9396,8 @@ function renderLbPrev() {
   syncLbViewUI('lb-prev', lbPrevView);
   const tbody=document.getElementById('lb-prev-body');
   if(!tbody) return;
+  const thDc = document.getElementById('lb-prev-th-dc');
+  if(thDc) thDc.style.display = (lbPrevMode==='ranked') ? '' : 'none';
   const filtered=filterLb(lbCache, lbPrevFilter, lbPrevMode, lbPrevSearch);
   const countEl=document.getElementById('lb-prev-search-count');
   if(countEl) countEl.textContent=`${filtered.length} hasil`;
@@ -9488,7 +9490,7 @@ function renderLbPrev() {
       <td class="text-center text-xs">${r.accuracy||0}%</td>
       <td class="text-center text-xs">${r.total||0}/${r.correct||0}/${r.wrong||0}</td>
       <td class="text-center text-[0.6rem] text-gray-400">${ts}</td>
-      <td class="text-center text-xs font-bold text-pktGreen">${r.isCurriculum ? '–' : (r.dcCompleted || 0)}</td>
+      ${lbPrevMode === 'ranked' ? `<td class="text-center text-xs font-bold text-pktGreen">${r.isCurriculum ? '–' : (r.dcCompleted || 0)}</td>` : ''}
       <td class="text-center text-xs">${r.attempts||1}x</td>
     `;
     tbody.appendChild(tr);
@@ -9517,7 +9519,7 @@ function buildLbTableRows(data, mode) {
       <td style="text-align:center;">${r.bestCombo||0}x</td>
       <td style="text-align:center;">${r.accuracy||0}%</td>
       <td style="text-align:center;">${r.total||0}/${r.correct||0}/${r.wrong||0}</td>
-      <td style="text-align:center;">${dc}</td>
+      ${mode === 'ranked' ? `<td style="text-align:center;">${dc}</td>` : ''}
       <td style="text-align:center;">${r.attempts||1}x</td>
       <td style="font-size:8pt;">${escHtml(badges)}</td>
       <td style="text-align:center;font-size:8pt;">${ts}</td>
@@ -9549,7 +9551,7 @@ function buildLbHtmlDoc(title, rows, mode, filter, exportDate, totalCount) {
     <p class="meta">${modeLabel} · Filter: ${filterLabel} · Diekspor: ${exportDate} · Total ${totalCount} pemain</p>
     <table><thead><tr>
       <th>#</th><th>Nama</th><th>Badge Utama</th><th>Mode/Level</th><th>Skor</th>
-      <th>Combo</th><th>Akurasi</th><th>D/B/S</th><th>DC</th><th>Coba</th>
+      <th>Combo</th><th>Akurasi</th><th>D/B/S</th>${mode === 'ranked' ? '<th>DC</th>' : ''}<th>Coba</th>
       <th>Badge Sekunder</th><th>Terakhir Main</th>
     </tr></thead><tbody>${rows}</tbody></table>
     <p class="footer">EcoMove: Trash Sorting Challenge · Dikembangkan oleh Enviro Agent Farhan Jezando Wardana · Dept. Manajemen Risiko Korporasi</p>
