@@ -7797,7 +7797,7 @@ function renderRankedSummary() {
   const card=document.getElementById('ranked-results-card');
   const list=document.getElementById('ranked-results-list');
   if(!card||!list) return;
-  if(GS.isCurriculum||!Array.isArray(GS.history)||GS.history.length===0) {
+  if(GS.isCurriculum||GS.isPlasticQuiz||!Array.isArray(GS.history)||GS.history.length===0) {
     card.classList.add('hidden');
     return;
   }
