@@ -473,6 +473,11 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
   border-color:#047857;
   box-shadow:0 3px 12px rgba(22,163,74,0.25);
 }
+.filter-chip.mode-plasticquiz input:checked+span{
+  background:linear-gradient(135deg,#0d9488,#0f766e);
+  border-color:#0f766e;
+  box-shadow:0 3px 12px rgba(13,148,136,0.25);
+}
 .chip-row{display:flex;flex-wrap:wrap;gap:6px;}
 @media(max-width:600px){
   .chip-row{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:3px;}
@@ -1378,6 +1383,28 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
   animation:gameBuddyWave 0.6s ease-in-out 3;
 }
 
+/* ─── Plastic Quiz Mode ─── */
+.plastic-buttons { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; padding:8px 4px; max-width:400px; margin:0 auto; }
+.plastic-btn { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; padding:10px 6px; border-radius:14px; border:2.5px solid; font-weight:800; font-size:0.7rem; cursor:pointer; transition:all 0.18s ease; user-select:none; text-align:center; min-height:68px; }
+.plastic-btn:hover { transform:scale(1.06); filter:brightness(1.08); }
+.plastic-btn:active { transform:scale(0.95); }
+.plastic-btn .pq-code { font-size:1.1rem; font-weight:900; line-height:1; }
+.plastic-btn .pq-label { font-size:0.55rem; opacity:0.85; line-height:1.1; }
+.pq-pet { background:linear-gradient(135deg,#dbeafe,#eff6ff); border-color:#3b82f6; color:#1d4ed8; }
+.pq-hdpe { background:linear-gradient(135deg,#dcfce7,#f0fdf4); border-color:#22c55e; color:#15803d; }
+.pq-pvc { background:linear-gradient(135deg,#ffedd5,#fff7ed); border-color:#f97316; color:#c2410c; }
+.pq-ldpe { background:linear-gradient(135deg,#fef9c3,#fefce8); border-color:#eab308; color:#a16207; }
+.pq-pp { background:linear-gradient(135deg,#fee2e2,#fef2f2); border-color:#ef4444; color:#b91c1c; }
+.pq-ps { background:linear-gradient(135deg,#f3e8ff,#faf5ff); border-color:#a855f7; color:#7e22ce; }
+.pq-other { background:linear-gradient(135deg,#f1f5f9,#f8fafc); border-color:#64748b; color:#334155; }
+.pq-other-wide { grid-column: span 3; max-width:160px; justify-self:center; }
+.pq-tip-banner { margin:6px auto; padding:8px 12px; border-radius:12px; font-size:0.68rem; font-weight:600; max-width:380px; text-align:center; animation:pqTipIn 0.3s ease; }
+.pq-tip-correct { background:#dcfce7; color:#166534; border:1.5px solid #86efac; }
+.pq-tip-wrong { background:#fee2e2; color:#991b1b; border:1.5px solid #fca5a5; }
+@keyframes pqTipIn { from{opacity:0;transform:translateY(-8px)} to{opacity:1;transform:translateY(0)} }
+.pq-result-bar { height:6px; border-radius:3px; background:#e2e8f0; overflow:hidden; }
+.pq-result-fill { height:100%; border-radius:3px; transition:width 0.5s ease; }
+
 </style>
 </head>
 <body class="bg-dots">
@@ -1822,6 +1849,9 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
         <button onclick="openCurriculum()" class="w-full bg-gradient-to-b from-pktGreen to-[#5e9000] text-white font-black py-3.5 rounded-xl shadow-lg transition transform hover:-translate-y-0.5 active:scale-95 text-base tracking-wide border-b-4 border-[#4a7000] mb-2">
           📚 MODE KURIKULUM
         </button>
+        <button onclick="openPlasticQuiz()" class="w-full bg-gradient-to-b from-cyan-500 to-teal-600 text-white font-black py-3.5 rounded-xl shadow-lg transition transform hover:-translate-y-0.5 active:scale-95 text-base tracking-wide border-b-4 border-teal-700 mb-2">
+          ♻️ MODE PLASTIK
+        </button>
         <button onclick="openLeaderboardModal()" class="w-full bg-white border-2 border-blue-200 text-pktBlue font-bold py-3 rounded-xl hover:bg-blue-50 transition active:scale-95 text-sm mb-3">
           🏆 LIHAT LEADERBOARD
         </button>
@@ -1980,6 +2010,51 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
           </button>
         </div>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── PLASTIC QUIZ SCREEN ─── -->
+<div id="plasticquiz-screen" class="screen bg-dots">
+  <div class="max-w-md mx-auto px-4 py-6">
+    <button onclick="showScreen('start')" class="flex items-center gap-1 text-xs font-bold text-gray-500 hover:text-gray-700 mb-3">
+      ← Kembali
+    </button>
+    <div class="rounded-2xl bg-gradient-to-br from-teal-600 to-cyan-700 p-5 text-center text-white shadow-lg mb-4">
+      <div class="text-4xl mb-1">♻️</div>
+      <h2 class="text-xl font-black tracking-tight">Mode Plastik</h2>
+      <p class="text-[0.72rem] font-semibold opacity-90 mt-1">Yuk, Kenali Jenis Plastik!</p>
+    </div>
+    <div class="space-y-4">
+      <div class="rounded-xl border border-teal-100 bg-white p-4 shadow-sm">
+        <p class="text-xs font-bold text-slate-700 mb-2">🎯 Tentang Mode Ini</p>
+        <p class="text-[0.68rem] text-slate-600 leading-relaxed">Kamu akan ditunjukkan berbagai produk plastik sehari-hari. Tugasmu adalah menebak <b>jenis plastik</b> yang benar dari 7 kategori: <b>PET, HDPE, PVC, LDPE, PP, PS,</b> dan <b>OTHER</b>. Setiap jawaban benar akan memberikan poin dan tips edukatif tentang keamanan plastik!</p>
+      </div>
+      <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+        <p class="text-xs font-bold text-slate-700 mb-3">⚡ Pilih Tingkat Kesulitan</p>
+        <div class="grid grid-cols-3 gap-2">
+          <button class="pq-diff-btn border-2 border-gray-200 rounded-xl p-2.5 text-center transition hover:shadow-md" onclick="selectPqDiff('Easy',60,this)">
+            <div class="text-lg">🌱</div>
+            <div class="text-[0.65rem] font-black text-gray-700">Mudah</div>
+            <div class="text-[0.55rem] font-bold text-gray-400">60 detik</div>
+          </button>
+          <button class="pq-diff-btn border-2 border-gray-200 rounded-xl p-2.5 text-center transition hover:shadow-md" onclick="selectPqDiff('Medium',45,this)">
+            <div class="text-lg">🔥</div>
+            <div class="text-[0.65rem] font-black text-gray-700">Sedang</div>
+            <div class="text-[0.55rem] font-bold text-gray-400">45 detik</div>
+          </button>
+          <button class="pq-diff-btn border-2 border-gray-200 rounded-xl p-2.5 text-center transition hover:shadow-md" onclick="selectPqDiff('Hard',30,this)">
+            <div class="text-lg">💀</div>
+            <div class="text-[0.65rem] font-black text-gray-700">Sulit</div>
+            <div class="text-[0.55rem] font-bold text-gray-400">30 detik</div>
+          </button>
+        </div>
+      </div>
+      <div id="pq-name-hint" class="text-center text-[0.62rem] text-gray-500 font-semibold hidden"></div>
+      <p id="pq-error" class="text-red-500 text-xs font-bold text-center hidden"></p>
+      <button onclick="startPlasticQuizGame()" class="w-full bg-gradient-to-r from-teal-500 to-cyan-600 text-white font-black py-3.5 rounded-xl shadow-lg hover:shadow-xl transition transform hover:-translate-y-0.5 active:scale-95 text-base border-b-4 border-teal-700">
+        🚀 Mulai Tantangan Plastik!
+      </button>
     </div>
   </div>
 </div>
@@ -2318,6 +2393,10 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
           <p class="text-[0.62rem] font-black text-pktBlue uppercase tracking-wider mb-2">📚 Hasil Mode Kurikulum</p>
           <div id="curriculum-results-list" class="space-y-1 text-[0.68rem] text-slate-700"></div>
         </div>
+        <div id="plastic-results-card" class="rounded-xl border border-teal-100 bg-white p-3 mb-2 hidden">
+          <p class="text-[0.62rem] font-black text-teal-700 uppercase tracking-wider mb-2">♻️ Hasil Mode Plastik</p>
+          <div id="plastic-results-list" class="space-y-1.5 text-[0.68rem] text-slate-700"></div>
+        </div>
         <div id="ranked-results-card" class="rounded-xl border border-blue-100 bg-white p-3 mb-2 hidden">
           <div class="flex items-center justify-between mb-2">
             <p class="text-[0.62rem] font-black text-pktBlue uppercase tracking-wider">🎯 Hasil Mode Ranked</p>
@@ -2370,6 +2449,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
         <div class="chip-row mb-2">
           <label class="filter-chip mode-ranked"><input type="radio" name="lb-mode" value="ranked" checked onchange="setLbMode('ranked')"><span>Mode Ranked</span></label>
           <label class="filter-chip mode-curriculum"><input type="radio" name="lb-mode" value="curriculum" onchange="setLbMode('curriculum')"><span>Mode Kurikulum</span></label>
+          <label class="filter-chip mode-plasticquiz"><input type="radio" name="lb-mode" value="plasticquiz" onchange="setLbMode('plasticquiz')"><span>Mode Plastik</span></label>
         </div>
         <div class="mb-3">
           <input id="lb-search-input" type="search" placeholder="Cari nama, mode, atau badge..." value="" oninput="setLbSearch(this.value)"
@@ -3106,6 +3186,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
     <div class="chip-row mb-2">
       <label class="filter-chip mode-ranked"><input type="radio" name="lb-prev-mode" value="ranked" checked onchange="setLbPrevMode('ranked')"><span>Mode Ranked</span></label>
       <label class="filter-chip mode-curriculum"><input type="radio" name="lb-prev-mode" value="curriculum" onchange="setLbPrevMode('curriculum')"><span>Mode Kurikulum</span></label>
+      <label class="filter-chip mode-plasticquiz"><input type="radio" name="lb-prev-mode" value="plasticquiz" onchange="setLbPrevMode('plasticquiz')"><span>Mode Plastik</span></label>
     </div>
     <div class="mb-3">
       <input id="lb-prev-search-input" type="search" placeholder="Cari nama, mode, atau badge..." value="" oninput="setPrevSearch(this.value)"
@@ -4604,6 +4685,128 @@ const trashData = [
   {n:"Kemasan Susu Ultra Milk",c:"RESIDU",e:"🧃"},{n:"Kemasan Teh Kotak Sosro",c:"RESIDU",e:"🧃"},{n:"Kemasan Buavita Tetrapack",c:"RESIDU",e:"🧃"},{n:"Kemasan Milo Tetrapack",c:"RESIDU",e:"🧃"},{n:"Kertas Nasi Laminasi",c:"RESIDU",e:"🍱"},{n:"Kertas Alas Gorengan Berminyak",c:"RESIDU",e:"🥟"},{n:"Kertas Pembungkus Burger",c:"RESIDU",e:"🍔"},{n:"Kardus Pizza Berminyak",c:"RESIDU",e:"🍕"},{n:"Kardus Ayam Geprek Berminyak",c:"RESIDU",e:"🍗"},{n:"Kardus Basah Kena Kuah",c:"RESIDU",e:"📦"},{n:"Plastik Label Botol Aqua",c:"RESIDU",e:"🏷️"},{n:"Plastik Label Botol Le Minerale",c:"RESIDU",e:"🏷️"},{n:"Mika Bento Hitam Bekas",c:"RESIDU",e:"🍱"},{n:"Mika Bening Bekas Kue",c:"RESIDU",e:"🥡"},{n:"Wadah Styrofoam Pop Mie",c:"RESIDU",e:"🍜"},{n:"Wadah Styrofoam Bekas Bubur",c:"RESIDU",e:"🥣"},{n:"Bungkus Snack Chitato",c:"RESIDU",e:"🍬"},{n:"Bungkus Snack Lay's",c:"RESIDU",e:"🍬"},{n:"Bungkus Snack Taro",c:"RESIDU",e:"🍬"},{n:"Bungkus Oreo Foil",c:"RESIDU",e:"🍪"},{n:"Bungkus Permen Kopiko",c:"RESIDU",e:"🍬"},{n:"Bungkus Permen Nano-Nano",c:"RESIDU",e:"🍬"},{n:"Sachet Kopi Torabika",c:"RESIDU",e:"☕"},{n:"Sachet Kopi Kapal Api",c:"RESIDU",e:"☕"},{n:"Sachet Kopi Luwak White",c:"RESIDU",e:"☕"},{n:"Sachet Saus Sambal ABC",c:"RESIDU",e:"🌶️"},{n:"Sachet Kecap Plastik",c:"RESIDU",e:"🍶"},{n:"Sachet Deterjen Rinso",c:"RESIDU",e:"🧼"},{n:"Sachet Shampoo Sunsilk",c:"RESIDU",e:"🧴"},{n:"Sachet Shampoo Pantene",c:"RESIDU",e:"🧴"},{n:"Sachet Royco Ayam",c:"RESIDU",e:"🍲"},{n:"Plastik Keresek Hitam",c:"RESIDU",e:"🛍️"},{n:"Plastik Keresek Alfamart",c:"RESIDU",e:"🛍️"},{n:"Plastik Bungkus Sayur",c:"RESIDU",e:"🛍️"},{n:"Plastik Bening Bungkus Bakso",c:"RESIDU",e:"🥣"},{n:"Plastik Bubble Wrap",c:"RESIDU",e:"🫧"},{n:"Sedotan Plastik Hitam",c:"RESIDU",e:"🥤"},{n:"Sedotan Plastik Tekuk",c:"RESIDU",e:"🥤"},{n:"Tisu Bekas Lap Tangan",c:"RESIDU",e:"🧻"},{n:"Tisu Basah Bekas Pakai",c:"RESIDU",e:"🧻"},{n:"Pembalut Wanita Bekas",c:"RESIDU",e:"🩹"},{n:"Popok Bayi MamyPoko",c:"RESIDU",e:"👶"},{n:"Masker Medis Bekas",c:"RESIDU",e:"😷"},{n:"Kapas Bekas Makeup",c:"RESIDU",e:"☁️"},{n:"Cotton Bud Bekas",c:"RESIDU",e:"👂"},{n:"Puntung Rokok",c:"RESIDU",e:"🚬"},{n:"Abu Rokok",c:"RESIDU",e:"💨"},{n:"Bolpoin Standard Mati",c:"RESIDU",e:"🖊️"},{n:"Spidol Whiteboard Kering",c:"RESIDU",e:"🖍️"},{n:"Baterai Jam Dinding",c:"RESIDU",e:"🔋"},{n:"Baterai Remote TV",c:"RESIDU",e:"🔋"},{n:"Pecahan Gelas Kaca",c:"RESIDU",e:"🍷"},{n:"Pecahan Piring Keramik",c:"RESIDU",e:"🧱"},{n:"Pecahan Cermin",c:"RESIDU",e:"🪞"},{n:"Botol Sirup Kaca Marjan",c:"RESIDU",e:"🍾"},{n:"Toples Selai Kaca",c:"RESIDU",e:"🏺"},{n:"Sandal Jepit Putus",c:"RESIDU",e:"🩴"},{n:"Korek Api Gas Bekas",c:"RESIDU",e:"🔥"},{n:"Karet Gelang Putus",c:"RESIDU",e:"🧷"},{n:"CD/DVD Rusak",c:"RESIDU",e:"💿"},{n:"Lampu Bohlam Pecah",c:"RESIDU",e:"💡"},{n:"Lampu LED Mati",c:"RESIDU",e:"💡"},{n:"Sikat Gigi Bekas",c:"RESIDU",e:"🪥"},{n:"Sarung Tangan Karet Robek",c:"RESIDU",e:"🧤"},{n:"Spons Cuci Piring Rusak",c:"RESIDU",e:"🧽"},{n:"Isolasi Bekas Pakai",c:"RESIDU",e:"🧻"},{n:"Potongan Kuku",c:"RESIDU",e:"💅"},{n:"Debu Hasil Sapu",c:"RESIDU",e:"🧹"},{n:"Wadah Pasta Gigi Bekas",c:"RESIDU",e:"🦷"},{n:"Lipstik Bekas",c:"RESIDU",e:"💄"},{n:"Silet Cukur Bekas",c:"RESIDU",e:"🪒"},{n:"Sumpit Kayu Bekas",c:"RESIDU",e:"🥢"},{n:"Tusuk Sate Bekas",c:"RESIDU",e:"🍢"},{n:"Kabel Data Putus",c:"RESIDU",e:"🔌"},{n:"Earphone Rusak",c:"RESIDU",e:"🎧"},{n:"Casing HP Retak",c:"RESIDU",e:"📱"},{n:"Tali Rafia Putus",c:"RESIDU",e:"🧶"},{n:"Cup Es Krim Plastik Kotor",c:"RESIDU",e:"🍦"},{n:"Wadah Semprot Nyamuk Baygon",c:"RESIDU",e:"🚫"},{n:"Wadah Tinta Printer",c:"RESIDU",e:"🖨️"},{n:"Wadah Pestisida Cair",c:"RESIDU",e:"🚫"},{n:"Wadah Obat Tetes Mata",c:"RESIDU",e:"💧"},{n:"Kertas Thermal Struk",c:"RESIDU",e:"🧾"},{n:"Kertas Kado Bekas",c:"RESIDU",e:"🎁"},{n:"Foto Polaroid Gagal",c:"RESIDU",e:"🖼️"},{n:"Stiker Bekas Tempelan",c:"RESIDU",e:"🏷️"},{n:"Wadah Lensa Kontak",c:"RESIDU",e:"👁️"},{n:"Softlens Bekas",c:"RESIDU",e:"👁️"},{n:"Ikat Rambut Putus",c:"RESIDU",e:"🧶"},{n:"Balon Pecah",c:"RESIDU",e:"🎈"},{n:"Plastik Kemasan Beras",c:"RESIDU",e:"🍚"},{n:"Plastik Kemasan Gula",c:"RESIDU",e:"🧂"},{n:"Wadah Obat Nyamuk Bakar",c:"RESIDU",e:"🚬"},{n:"Wadah Salep Kulit",c:"RESIDU",e:"🩹"},{n:"Wadah Kapsul Obat",c:"RESIDU",e:"💊"},{n:"Wadah Swab Antigen",c:"RESIDU",e:"👃"},{n:"Mika Hitam Catering",c:"RESIDU",e:"🍱"},{n:"Plastik Wrap Makanan",c:"RESIDU",e:"🍱"},{n:"Tatakan Gelas Kertas",c:"RESIDU",e:"☕"},{n:"Penghapus Karet Kecil",c:"RESIDU",e:"🧼"},{n:"Penggaris Plastik Patah",c:"RESIDU",e:"📏"},{n:"Kain Perca Sisa Jahit",c:"RESIDU",e:"🧵"},{n:"Benang Jahit Kusut",c:"RESIDU",e:"🧶"},{n:"Isi Staples Karatan",c:"RESIDU",e:"📎"},{n:"Pita Bekas Kado",c:"RESIDU",e:"🎀"},{n:"Wadah Cat Semprot Pilox",c:"RESIDU",e:"🎨"},{n:"Wadah Thinner",c:"RESIDU",e:"🧪"},{n:"Wadah Lem Korea",c:"RESIDU",e:"🧪"},{n:"Mika Telur Plastik",c:"RESIDU",e:"🥚"},{n:"Pensil Patah",c:"RESIDU",e:"✏️"},{n:"Kuas Cat Mengeras",c:"RESIDU",e:"🖌️"},{n:"Gelas Plastik Kopi Kotor",c:"RESIDU",e:"☕"},{n:"Piring Kertas Kotor",c:"RESIDU",e:"🍽️"},{n:"Plastik Bungkus Rokok",c:"RESIDU",e:"🚬"},{n:"Pembungkus Snack Basah",c:"RESIDU",e:"🍬"},{n:"Kardus Makanan Basah",c:"RESIDU",e:"📦"},{n:"Gelas Plastik Sisa Yogurt",c:"RESIDU",e:"🥤"},{n:"Kemasan Saus Basah",c:"RESIDU",e:"🌶️"},{n:"Plastik Sayur Basah",c:"RESIDU",e:"🛍️"},{n:"Kain Lap Dapur Kotor",c:"RESIDU",e:"🧽"},{n:"Plastik Es Krim Cemar",c:"RESIDU",e:"🍦"}
 ];
 
+// ─── PLASTIC DATA (Mode Plastik) ───
+const plasticData = [
+  // PET (1)
+  {n:"Botol Aqua 600ml",c:"PET",e:"🧴",t:"PET mudah didaur ulang tapi jangan dipakai berulang karena bisa melepas zat karsinogenik."},
+  {n:"Botol Coca-Cola 1.5L",c:"PET",e:"🥤",t:"Botol minuman bersoda umumnya PET. Kumpulkan untuk didaur ulang!"},
+  {n:"Kemasan Selai Strawberry",c:"PET",e:"🍓",t:"Jar selai transparan biasanya PET. Bersihkan sebelum didaur ulang."},
+  {n:"Botol Minyak Goreng Bimoli",c:"PET",e:"🫗",t:"Botol minyak goreng transparan adalah PET. Jangan dibakar!"},
+  {n:"Botol Teh Pucuk Harum",c:"PET",e:"🍵",t:"Botol teh kemasan menggunakan PET yang ringan dan mudah didaur ulang."},
+  {n:"Wadah Bumbu Dapur Transparan",c:"PET",e:"🧂",t:"Wadah bumbu bening umumnya PET, bisa didaur ulang menjadi serat polyester."},
+  {n:"Botol Sprite 500ml",c:"PET",e:"🥤",t:"Botol minuman bening ini PET, salah satu plastik yang paling banyak didaur ulang."},
+  {n:"Botol Le Minerale 330ml",c:"PET",e:"💧",t:"Semua botol air mineral bening umumnya PET — kode segitiga nomor 1."},
+  {n:"Botol Jus Buavita",c:"PET",e:"🧃",t:"Botol jus transparan PET aman untuk sekali pakai, hindari penggunaan berulang."},
+  {n:"Wadah Salad Transparan",c:"PET",e:"🥗",t:"Wadah salad bening take-away biasanya PET, bisa didaur ulang."},
+  {n:"Botol Mizone 500ml",c:"PET",e:"💧",t:"Botol isotonik transparan ini PET, ringan dan mudah ditekan."},
+  {n:"Kemasan Madu Transparan",c:"PET",e:"🍯",t:"Botol madu bening menggunakan PET yang aman untuk menyimpan makanan."},
+  {n:"Botol Fanta 1L",c:"PET",e:"🥤",t:"Botol minuman bersoda PET, kumpulkan dan serahkan ke bank sampah!"},
+  {n:"Wadah Kue Kering Transparan",c:"PET",e:"🍪",t:"Toples plastik bening untuk kue biasanya PET — cek kode segitiga #1."},
+  {n:"Botol Pocari Sweat 500ml",c:"PET",e:"🥤",t:"PET adalah plastik paling umum untuk botol minuman kemasan."},
+  {n:"Botol Yakult (Kemasan Luar)",c:"PET",e:"🧴",t:"Pembungkus luar multi-pack Yakult biasanya PET shrink wrap."},
+  // HDPE (2)
+  {n:"Botol Susu Ultra Milk 1L",c:"HDPE",e:"🥛",t:"HDPE adalah plastik yang paling aman dan paling banyak didaur ulang."},
+  {n:"Jerigen Bensin 5L",c:"HDPE",e:"⛽",t:"Jerigen kuat dan tahan kimia karena terbuat dari HDPE."},
+  {n:"Botol Shampo Pantene",c:"HDPE",e:"🧴",t:"Botol shampo berwarna umumnya HDPE, aman dan tahan lama."},
+  {n:"Botol Sabun Cuci Piring Sunlight",c:"HDPE",e:"🧼",t:"HDPE tahan terhadap bahan kimia deterjen."},
+  {n:"Botol Pemutih Bayclin",c:"HDPE",e:"🫧",t:"HDPE tahan korosi, cocok untuk menyimpan cairan kimia rumah tangga."},
+  {n:"Ember Plastik Besar",c:"HDPE",e:"🪣",t:"Ember dan baskom plastik tebal biasanya HDPE, sangat tahan lama."},
+  {n:"Galon Isi Ulang (Tutup)",c:"HDPE",e:"💧",t:"Tutup galon terbuat dari HDPE yang aman untuk kontak dengan air minum."},
+  {n:"Botol Oli Mesin",c:"HDPE",e:"🛢️",t:"Botol oli menggunakan HDPE karena tahan terhadap minyak."},
+  {n:"Talenan Plastik Tebal",c:"HDPE",e:"🔪",t:"Talenan plastik food-grade umumnya HDPE, aman untuk memotong makanan."},
+  {n:"Pipa Air HDPE",c:"HDPE",e:"🔧",t:"Pipa air besar berwarna hitam biasanya HDPE, tahan tekanan tinggi."},
+  {n:"Botol Sabun Mandi Dettol",c:"HDPE",e:"🧴",t:"Botol sabun mandi yang tidak transparan biasanya HDPE."},
+  {n:"Tutup Botol AMDK",c:"HDPE",e:"🔵",t:"Tutup botol air mineral biasanya HDPE, berbeda dari botolnya yang PET."},
+  {n:"Wadah Cat Tembok 5kg",c:"HDPE",e:"🎨",t:"Ember cat tembok menggunakan HDPE yang tahan bahan kimia cat."},
+  {n:"Mainan Anak Plastik Tebal",c:"HDPE",e:"🧸",t:"Mainan anak yang tebal dan kokoh sering terbuat dari HDPE yang aman."},
+  {n:"Krat Botol Plastik",c:"HDPE",e:"📦",t:"Krat untuk membawa botol terbuat dari HDPE yang sangat kuat."},
+  // PVC (3)
+  {n:"Pipa Air PVC Putih",c:"PVC",e:"🔧",t:"PVC mengandung klorin. Jangan pernah dibakar karena melepaskan dioksin!"},
+  {n:"Kabel Listrik (Selubung)",c:"PVC",e:"🔌",t:"Selubung kabel listrik umumnya PVC, fleksibel tapi mengandung ftalat."},
+  {n:"Kartu Kredit/ATM",c:"PVC",e:"💳",t:"Kartu plastik keras seperti KTP dan ATM terbuat dari PVC."},
+  {n:"Jas Hujan Plastik Tipis",c:"PVC",e:"🌧️",t:"Jas hujan murah biasanya PVC. Hindari membakarnya!"},
+  {n:"Tirai Kamar Mandi Plastik",c:"PVC",e:"🚿",t:"Tirai plastik anti air umumnya PVC, tahan kelembapan."},
+  {n:"Lantai Vinyl",c:"PVC",e:"🏠",t:"Lantai vinyl adalah PVC yang diberi pola, umum di rumah dan kantor."},
+  {n:"Selang Air Taman",c:"PVC",e:"🌱",t:"Selang air fleksibel biasanya PVC, mengandung plasticizer."},
+  {n:"Blister Pack Obat",c:"PVC",e:"💊",t:"Kemasan obat blister transparan sering menggunakan PVC."},
+  {n:"Pipa Paralon Abu-abu",c:"PVC",e:"🏗️",t:"Pipa paralon untuk saluran air adalah salah satu produk PVC paling umum."},
+  {n:"Map Plastik Dokumen",c:"PVC",e:"📁",t:"Map plastik tebal transparan biasanya PVC, sulit didaur ulang."},
+  {n:"Taplak Meja Plastik",c:"PVC",e:"🍽️",t:"Taplak meja plastik bening yang tebal biasanya PVC."},
+  {n:"ID Card Holder",c:"PVC",e:"🪪",t:"Tempat kartu identitas plastik keras umumnya PVC."},
+  {n:"Stiker Vinyl Dekorasi",c:"PVC",e:"🎨",t:"Stiker vinyl untuk dekorasi dan cutting sticker adalah PVC."},
+  {n:"Sandal Plastik Murah",c:"PVC",e:"🩴",t:"Sandal jepit plastik murah sering menggunakan PVC."},
+  // LDPE (4)
+  {n:"Kantong Plastik Kresek",c:"LDPE",e:"🛍️",t:"Kantong kresek LDPE fleksibel tapi sulit didaur ulang. Kurangi penggunaannya!"},
+  {n:"Cling Wrap / Plastik Wrapping",c:"LDPE",e:"🎞️",t:"Cling wrap untuk membungkus makanan adalah LDPE, tipis dan elastis."},
+  {n:"Bubble Wrap",c:"LDPE",e:"📦",t:"Bubble wrap pelindung barang adalah LDPE, bisa dipakai ulang."},
+  {n:"Kantong Roti Tawar",c:"LDPE",e:"🍞",t:"Kantong roti yang fleksibel biasanya LDPE."},
+  {n:"Plastik Laundry",c:"LDPE",e:"👔",t:"Plastik pembungkus laundry tipis adalah LDPE."},
+  {n:"Plastik Mulsa Pertanian",c:"LDPE",e:"🌾",t:"Plastik mulsa hitam untuk pertanian terbuat dari LDPE."},
+  {n:"Kantong Ziplock",c:"LDPE",e:"🤏",t:"Kantong ziplock untuk menyimpan makanan adalah LDPE yang relatif aman."},
+  {n:"Plastik Sampah Hitam",c:"LDPE",e:"🗑️",t:"Kantong sampah hitam besar terbuat dari LDPE."},
+  {n:"Squeeze Bottle (Botol Pencet)",c:"LDPE",e:"🫙",t:"Botol saus yang bisa dipencet biasanya LDPE, fleksibel dan lembut."},
+  {n:"Plastik Pembungkus Majalah",c:"LDPE",e:"📰",t:"Plastik tipis pembungkus majalah dan koran adalah LDPE."},
+  {n:"Kantong Belanja Supermarket",c:"LDPE",e:"🛒",t:"Kantong plastik supermarket itu LDPE. Bawa tas belanja sendiri!"},
+  {n:"Plastik Pembungkus Sayuran",c:"LDPE",e:"🥬",t:"Plastik tipis pembungkus sayuran di supermarket biasanya LDPE."},
+  {n:"Kantong Es Batu",c:"LDPE",e:"🧊",t:"Kantong plastik untuk es batu adalah LDPE yang tahan suhu rendah."},
+  {n:"Plastik Pelindung Furnitur Baru",c:"LDPE",e:"🛋️",t:"Plastik pembungkus sofa dan furnitur baru adalah LDPE."},
+  // PP (5)
+  {n:"Thinwall / Wadah Makan Plastik",c:"PP",e:"🍱",t:"PP adalah plastik paling aman untuk wadah makanan, tahan panas hingga 130°C."},
+  {n:"Sedotan Plastik",c:"PP",e:"🥤",t:"Sedotan plastik umumnya PP. Lebih baik gunakan sedotan stainless!"},
+  {n:"Tutup Botol Flip",c:"PP",e:"🔵",t:"Tutup botol yang bisa di-flip biasanya PP, tahan benturan."},
+  {n:"Wadah Yogurt Cimory",c:"PP",e:"🥛",t:"Cup yogurt yang bisa ditekuk tanpa pecah adalah PP."},
+  {n:"Gelas Plastik Kopi Kekinian",c:"PP",e:"☕",t:"Gelas plastik es kopi biasanya PP yang aman untuk minuman."},
+  {n:"Kotak Makan Tupperware",c:"PP",e:"🍱",t:"Tupperware dan wadah microwave-safe umumnya PP."},
+  {n:"Botol Kecap ABC 600ml",c:"PP",e:"🫙",t:"Botol kecap yang bisa dipencet sering menggunakan PP."},
+  {n:"Kemasan Mie Instan (Cup PP)",c:"PP",e:"🍜",t:"Cup mie instan tahan panas terbuat dari PP, bukan styrofoam."},
+  {n:"Pot Bunga Plastik",c:"PP",e:"🪴",t:"Pot plastik taman yang ringan tapi kuat biasanya PP."},
+  {n:"Bak Plastik Besar",c:"PP",e:"🫧",t:"Bak cucian plastik besar yang ringan tapi kuat biasanya PP."},
+  {n:"Casing Aki Mobil",c:"PP",e:"🔋",t:"Casing aki kendaraan terbuat dari PP yang tahan asam dan panas."},
+  {n:"Wadah Takeaway Makanan",c:"PP",e:"🥡",t:"Wadah makanan delivery yang bisa di-microwave umumnya PP."},
+  {n:"Mangkok Plastik Bakso",c:"PP",e:"🍲",t:"Mangkok plastik untuk bakso biasanya PP tahan panas."},
+  {n:"Sikat Gigi (Gagang)",c:"PP",e:"🪥",t:"Gagang sikat gigi plastik umumnya PP yang kuat dan ringan."},
+  {n:"Wadah Es Krim 1 Liter",c:"PP",e:"🍦",t:"Wadah es krim besar yang bisa dicuci ulang umumnya PP."},
+  // PS (6)
+  {n:"Styrofoam Box Makanan",c:"PS",e:"📦",t:"Styrofoam melepas styrene saat terkena panas. Hindari untuk makanan panas!"},
+  {n:"Sendok Plastik Sekali Pakai",c:"PS",e:"🥄",t:"Sendok plastik yang mudah patah biasanya PS (Polystyrene)."},
+  {n:"Garpu Plastik Sekali Pakai",c:"PS",e:"🍴",t:"Garpu plastik sekali pakai umumnya PS, rapuh dan sulit didaur ulang."},
+  {n:"Cup Mie Instan Styrofoam",c:"PS",e:"🍜",t:"Cup mie styrofoam melepas zat berbahaya saat disiram air panas!"},
+  {n:"Baki Buah Styrofoam",c:"PS",e:"🍎",t:"Baki putih untuk buah di supermarket adalah PS foam."},
+  {n:"Kotak CD/DVD",c:"PS",e:"💿",t:"Casing CD transparan yang rapuh terbuat dari PS (crystal)."},
+  {n:"Gelas Plastik Tipis Hajatan",c:"PS",e:"🥤",t:"Gelas plastik tipis yang mudah retak biasanya PS."},
+  {n:"Piring Plastik Sekali Pakai",c:"PS",e:"🍽️",t:"Piring plastik tipis untuk pesta biasanya PS, hindari makanan panas."},
+  {n:"Styrofoam Pelindung Elektronik",c:"PS",e:"📱",t:"Gabus pelindung dalam kemasan elektronik adalah expanded PS (EPS)."},
+  {n:"Wadah Telur Styrofoam",c:"PS",e:"🥚",t:"Wadah telur styrofoam adalah PS yang sangat ringan tapi sulit terurai."},
+  {n:"Cup Es Teh Pinggir Jalan",c:"PS",e:"🧋",t:"Cup plastik es teh yang tipis dan mudah remuk biasanya PS."},
+  {n:"Nampan Styrofoam Daging",c:"PS",e:"🥩",t:"Nampan putih untuk daging di supermarket adalah PS foam."},
+  {n:"Kotak Makan Styrofoam Nasi",c:"PS",e:"🍚",t:"Kotak nasi styrofoam sangat tidak ramah lingkungan."},
+  {n:"Gantungan Baju Plastik Tipis",c:"PS",e:"👔",t:"Gantungan baju plastik tipis dari laundry sering menggunakan PS."},
+  // OTHER (7)
+  {n:"Galon Air Minum PC",c:"OTHER",e:"💧",t:"Galon isi ulang terbuat dari Polycarbonate (PC), bisa mengandung BPA."},
+  {n:"Botol Susu Bayi (Lama)",c:"OTHER",e:"🍼",t:"Botol susu bayi lama mungkin mengandung BPA. Pilih yang berlabel BPA Free!"},
+  {n:"Compact Disc (CD)",c:"OTHER",e:"💿",t:"CD/DVD terbuat dari policarbonat berlapis aluminium, kategori Other."},
+  {n:"Kacamata Hitam (Frame)",c:"OTHER",e:"🕶️",t:"Frame kacamata plastik sering dari campuran nylon/PC."},
+  {n:"Casing HP Plastik",c:"OTHER",e:"📱",t:"Casing HP terbuat dari campuran plastik (PC+ABS)."},
+  {n:"Helm Plastik (Shell)",c:"OTHER",e:"⛑️",t:"Cangkang helm terbuat dari ABS atau PC, plastik campuran."},
+  {n:"Botol Minum Anak Tritan",c:"OTHER",e:"🥤",t:"Botol Tritan tergolong Other tapi umumnya BPA Free dan aman."},
+  {n:"Kemasan Multilayer (Sachet Kopi)",c:"OTHER",e:"☕",t:"Sachet kopi instan terbuat dari lapisan aluminium+plastik, sulit didaur ulang."},
+  {n:"Nylon (Tali Pancing)",c:"OTHER",e:"🎣",t:"Nylon tergolong Other (Polyamide), sangat kuat tapi sulit terurai."},
+  {n:"Peralatan Makan Melamine",c:"OTHER",e:"🍽️",t:"Piring melamin yang keras dan bercorak tergolong Other, jangan dipanaskan!"},
+  {n:"Bungkus Snack Kemasan (Chitato)",c:"OTHER",e:"🍿",t:"Bungkus snack berlapis aluminium+plastik, sulit didaur ulang."},
+  {n:"Lego / Balok Plastik ABS",c:"OTHER",e:"🧱",t:"Lego terbuat dari ABS, tergolong Other."},
+  {n:"Selotip / Lakban Plastik",c:"OTHER",e:"📎",t:"Lakban plastik terbuat dari campuran BOPP+adhesive, sulit didaur ulang."},
+  {n:"Spons Cuci Piring (Bagian Hijau)",c:"OTHER",e:"🧽",t:"Bagian kasar spons terbuat dari nylon, tergolong Other."}
+];
+const PLASTIC_TYPES = {
+  'PET':{code:'1',name:'PET',full:'Polyethylene Terephthalate',safe:true,color:'#3b82f6'},
+  'HDPE':{code:'2',name:'HDPE',full:'High Density Polyethylene',safe:true,color:'#22c55e'},
+  'PVC':{code:'3',name:'PVC',full:'Polyvinyl Chloride',safe:false,color:'#f97316'},
+  'LDPE':{code:'4',name:'LDPE',full:'Low Density Polyethylene',safe:false,color:'#eab308'},
+  'PP':{code:'5',name:'PP',full:'Polypropylene',safe:true,color:'#ef4444'},
+  'PS':{code:'6',name:'PS',full:'Polystyrene',safe:false,color:'#a855f7'},
+  'OTHER':{code:'7',name:'OTHER',full:'Other / Campuran',safe:false,color:'#64748b'}
+};
+
 // ──────────────────────────────────────────
 //  GAME STATE
 // ──────────────────────────────────────────
@@ -4615,7 +4818,9 @@ let GS = {
   categoryStats:{ 'LAKU JUAL':{correct:0,total:0}, 'SISA MAKANAN':{correct:0,total:0}, 'RESIDU':{correct:0,total:0} },
   curriculumFilter:null,
   isCurriculum:false,
-  curriculumFocus:null
+  curriculumFocus:null,
+  isPlasticQuiz:false,
+  plasticStats:{'PET':{correct:0,total:0},'HDPE':{correct:0,total:0},'PVC':{correct:0,total:0},'LDPE':{correct:0,total:0},'PP':{correct:0,total:0},'PS':{correct:0,total:0},'OTHER':{correct:0,total:0}}
 };
 
 let selectedDiff = null;
@@ -4629,7 +4834,8 @@ let lbSearch = '';
 let lbPrevSearch = '';
 const LB_FILTERS = {
   ranked:['All','Bumi Lestari','Eko Aktif','Penjaga Bumi'],
-  curriculum:['All','SISA MAKANAN','LAKU JUAL','RESIDU']
+  curriculum:['All','SISA MAKANAN','LAKU JUAL','RESIDU'],
+  plasticquiz:['All','PET','HDPE','PVC','LDPE','PP','PS','OTHER']
 };
 let lbFilter = 'All';
 let lbPrevFilter = 'All';
@@ -4681,8 +4887,9 @@ function shuffleArray(arr) {
 }
 
 function prepareSessionQueue() {
+  const activeData = GS.isPlasticQuiz ? plasticData : trashData;
   const remaining = [];
-  for (let i = 0; i < trashData.length; i++) {
+  for (let i = 0; i < activeData.length; i++) {
     if (!sessionAsked.has(i)) remaining.push(i);
   }
   if (remaining.length === 0) return;
@@ -4717,17 +4924,22 @@ function loadLbSnapshot() {
     if (!Array.isArray(parsed.ids_curriculum)) {
       parsed.ids_curriculum = Object.keys(parsed.curriculum || {}).filter(k => k.startsWith('id:')).map(k => k.slice(3));
     }
+    if (!Array.isArray(parsed.ids_plasticquiz)) {
+      parsed.ids_plasticquiz = Object.keys(parsed.plasticquiz || {}).filter(k => k.startsWith('id:')).map(k => k.slice(3));
+    }
     return parsed;
   } catch(e) { return null; }
 }
 
-function saveLbSnapshot(rankedMap, curriculumMap, rankedIds, curriculumIds) {
+function saveLbSnapshot(rankedMap, curriculumMap, plasticMap, rankedIds, curriculumIds, plasticIds) {
   try {
     localStorage.setItem(LB_SNAPSHOT_KEY, JSON.stringify({
       ranked: rankedMap,
       curriculum: curriculumMap,
+      plasticquiz: plasticMap,
       ids_ranked: [...rankedIds],
       ids_curriculum: [...curriculumIds],
+      ids_plasticquiz: [...plasticIds],
       savedAt: Date.now()
     }));
   } catch(e) {}
@@ -6006,6 +6218,103 @@ function startCurriculumGame() {
   startGame(currDiff.time, currDiff.name, name, true);
 }
 
+// ─── PLASTIC QUIZ MODE ───
+function openPlasticQuiz() {
+  pqDiff = null;
+  document.querySelectorAll('.pq-diff-btn').forEach(b=>{
+    b.classList.remove('border-teal-500','bg-teal-50');
+    b.classList.add('border-gray-200');
+  });
+  const name = document.getElementById('player-name').value.trim();
+  const hint = document.getElementById('pq-name-hint');
+  if(hint) { hint.textContent = name ? `Bermain sebagai: ${name}` : 'Isi nama di layar utama terlebih dahulu.'; hint.classList.remove('hidden'); }
+  showScreen('plasticquiz');
+}
+
+function selectPqDiff(name, time, btn) {
+  pqDiff = {name, time};
+  document.querySelectorAll('.pq-diff-btn').forEach(b=>{
+    b.classList.remove('border-teal-500','bg-teal-50');
+    b.classList.add('border-gray-200');
+  });
+  btn.classList.add('border-teal-500','bg-teal-50');
+  btn.classList.remove('border-gray-200');
+}
+
+function startPlasticQuizGame() {
+  const nameInput = document.getElementById('player-name');
+  const name = nameInput ? nameInput.value.trim() : '';
+  const errEl = document.getElementById('pq-error');
+  if (!pqDiff) { if(errEl){errEl.textContent='Pilih tingkat kesulitan!';errEl.classList.remove('hidden');} return; }
+  if (!name || name.length < 2) { if(errEl){errEl.textContent='Nama minimal 2 karakter!';errEl.classList.remove('hidden');} return; }
+  if (name.length > 30) { if(errEl){errEl.textContent='Nama maksimal 30 karakter!';errEl.classList.remove('hidden');} if(nameInput) nameInput.value=name.substring(0,30); return; }
+  if(errEl) errEl.classList.add('hidden');
+  GS.isPlasticQuiz = true;
+  GS.isCurriculum = false;
+  GS.curriculumFocus = null;
+  GS.curriculumFilter = null;
+  try { localStorage.setItem('eco_player_name', name); } catch(e){}
+  playSound('start');
+  startGame(pqDiff.time, pqDiff.name, name, false);
+}
+
+function handlePlasticAnswer(selectedType) {
+  if(!GS.isPlaying||GS.paused||!GS.currentTrash) return;
+  if(!_answerGuard()) return;
+  try { if(audioCtx.state==='suspended') audioCtx.resume(); } catch(e){}
+  const correctType = GS.currentTrash.c;
+  const isCorrect = (selectedType === correctType);
+  GS.totalAnswered++;
+  if(GS.plasticStats[correctType]) GS.plasticStats[correctType].total++;
+  const tip = GS.currentTrash.t || '';
+  GS.history.push({
+    type:'plasticquiz', item:GS.currentTrash.n, correctType, selectedType,
+    correct:isCorrect, tip, trashId:GS.currentTrashInstanceId
+  });
+  // Remove old tip banner
+  const oldTip = document.getElementById('pq-tip-banner');
+  if(oldTip) oldTip.remove();
+  if (isCorrect) {
+    playSound('correct');
+    GS.combo++; GS.bestCombo=Math.max(GS.bestCombo,GS.combo);
+    GS.correctAnswers++;
+    if(GS.plasticStats[correctType]) GS.plasticStats[correctType].correct++;
+    document.getElementById('streak-display').textContent=`Combo x${GS.bestCombo}`;
+    updateComboFire(GS.combo);
+    showComboMilestone(GS.combo);
+    checkPowerupReward(GS.combo);
+    let base={'Easy':10,'Medium':15,'Hard':20}[GS.difficulty]||10;
+    const mult=Math.min(GS.combo,3);
+    const puMult=getPowerupMultiplier();
+    const pts=base*mult*puMult;
+    GS.score+=pts;
+    animateScorePop();
+    const cd=document.getElementById('combo-display');
+    if(GS.combo>1){cd.textContent=`${GS.combo}x COMBO!`;cd.style.opacity='1';cd.style.transform='translate(-50%,-50%) scale(1)';setTimeout(()=>{cd.style.opacity='0';cd.style.transform='translate(-50%,-50%) scale(0.5)';},700);}
+    const tc2=document.getElementById('trash-container');
+    tc2.classList.add('anim-toss');
+    let feedbackText=`+${pts}`;
+    if(mult>1) feedbackText+=` (${mult}x)`;
+    if(POWERUPS.double.active) feedbackText+=' 💰';
+    showFeedback(feedbackText,'text-green-500');
+    // Show tip
+    if(tip) { const tipEl=document.createElement('div'); tipEl.id='pq-tip-banner'; tipEl.className='pq-tip-banner pq-tip-correct'; tipEl.innerHTML=`✅ <b>${correctType}</b> — ${tip}`; const playArea=document.getElementById('game-play-area'); if(playArea) playArea.appendChild(tipEl); setTimeout(()=>{if(tipEl.parentNode) tipEl.remove();},2500); }
+    setTimeout(()=>{tc2.classList.remove('anim-toss');spawnTrash();},380);
+    checkRival();
+  } else {
+    playSound('wrong');
+    GS.combo=0; GS.timeLeft=Math.max(0,GS.timeLeft-5);
+    updateComboFire(0);
+    document.getElementById('trash-name').classList.add('anim-shake');
+    showFeedback(`-5s · Jawaban: ${correctType}`,'text-red-500');
+    // Show tip
+    if(tip) { const tipEl=document.createElement('div'); tipEl.id='pq-tip-banner'; tipEl.className='pq-tip-banner pq-tip-wrong'; tipEl.innerHTML=`❌ Jawaban benar: <b>${correctType}</b> — ${tip}`; const playArea=document.getElementById('game-play-area'); if(playArea) playArea.appendChild(tipEl); setTimeout(()=>{if(tipEl.parentNode) tipEl.remove();},2800); }
+    setTimeout(()=>{document.getElementById('trash-name').classList.remove('anim-shake');updateTimerUI();spawnTrash();},420);
+  }
+  setTimeout(()=>{const ecoChar=document.getElementById('eco-character');if(ecoChar)ecoChar.click();},650);
+  updateScoreUI(); updateTimerUI(); updateMissionUI();
+}
+
 // ──────────────────────────────────────────
 //  SCREEN MANAGEMENT
 // ──────────────────────────────────────────
@@ -6169,6 +6478,8 @@ function startGame(time, diff, name, isCurriculum) {
     categoryStats:{'LAKU JUAL':{correct:0,total:0},'SISA MAKANAN':{correct:0,total:0},'RESIDU':{correct:0,total:0}},
     history:[],
     isCurriculum, curriculumFilter: GS.curriculumFilter, curriculumFocus: GS.curriculumFocus,
+    isPlasticQuiz: GS.isPlasticQuiz,
+    plasticStats:{'PET':{correct:0,total:0},'HDPE':{correct:0,total:0},'PVC':{correct:0,total:0},'LDPE':{correct:0,total:0},'PP':{correct:0,total:0},'PS':{correct:0,total:0},'OTHER':{correct:0,total:0}},
     // Score breakdown tracking
     breakdown:{ base:0, comboBonus:0, puBonus:0, luckyBonus:0, sessionBonus:0, loginBonus:0 },
     puUsed:{ freeze:0, double:0, skip:0 }
@@ -6192,19 +6503,21 @@ function startGame(time, diff, name, isCurriculum) {
   }
   sessionQueue = [];
 
-  document.getElementById('game-player-label').textContent=name+(isCurriculum?' [Kurikulum]':'');
+  document.getElementById('game-player-label').textContent=name+(GS.isPlasticQuiz?' [Plastik]':isCurriculum?' [Kurikulum]':'');
   const modeMap={'Easy':'Bumi Lestari','Medium':'Eko Aktif','Hard':'Penjaga Bumi'};
   let modeText = (modeMap[diff]||diff);
-  if (isCurriculum && GS.curriculumFocus) {
+  if (GS.isPlasticQuiz) {
+    modeText = 'Mode Plastik';
+  } else if (isCurriculum && GS.curriculumFocus) {
     modeText = `Kurikulum: ${GS.curriculumFocus}`;
   } else if (isCurriculum) {
     modeText = 'Kurikulum';
   }
   document.getElementById('game-mode-label').textContent=modeText;
-  document.getElementById('curr-mode-label').classList.toggle('hidden',!isCurriculum);
+  document.getElementById('curr-mode-label').classList.toggle('hidden',!isCurriculum && !GS.isPlasticQuiz);
   document.getElementById('score-display').textContent='0';
   document.getElementById('streak-display').textContent='Combo x0';
-  document.getElementById('session-progress').textContent=`${sessionAsked.size}/${trashData.length} unik`;
+  document.getElementById('session-progress').textContent=GS.isPlasticQuiz?`${sessionAsked.size}/${plasticData.length} unik`:`${sessionAsked.size}/${trashData.length} unik`;
   document.getElementById('mission-bar').style.width='0%';
   document.getElementById('mission-pct').textContent='0%';
   document.getElementById('rival-strip').innerHTML='<div class="rival-strip-header">⚔️ Rival</div><div style="color:#94a3b8;font-size:0.72rem;">Mulai jawab untuk lihat rival!</div>';
@@ -6253,8 +6566,40 @@ function setupGameUI() {
   const binsContainer = document.getElementById('game-bins-container');
   const existingCurriculumDiv = document.getElementById('curriculum-buttons-container');
   if (existingCurriculumDiv) existingCurriculumDiv.remove();
-  
-  if (GS.isCurriculum && GS.curriculumFocus) {
+  const existingPlasticDiv = document.getElementById('plastic-buttons-container');
+  if (existingPlasticDiv) existingPlasticDiv.remove();
+
+  if (GS.isPlasticQuiz) {
+    binsContainer.style.display = 'none';
+    const pqDiv = document.createElement('div');
+    pqDiv.id = 'plastic-buttons-container';
+    pqDiv.innerHTML = `
+      <div class="plastic-buttons">
+        <button class="plastic-btn pq-pet" onclick="handlePlasticAnswer('PET')">
+          <span class="pq-code">①</span><span class="pq-label">PET</span>
+        </button>
+        <button class="plastic-btn pq-hdpe" onclick="handlePlasticAnswer('HDPE')">
+          <span class="pq-code">②</span><span class="pq-label">HDPE</span>
+        </button>
+        <button class="plastic-btn pq-pvc" onclick="handlePlasticAnswer('PVC')">
+          <span class="pq-code">③</span><span class="pq-label">PVC</span>
+        </button>
+        <button class="plastic-btn pq-ldpe" onclick="handlePlasticAnswer('LDPE')">
+          <span class="pq-code">④</span><span class="pq-label">LDPE</span>
+        </button>
+        <button class="plastic-btn pq-pp" onclick="handlePlasticAnswer('PP')">
+          <span class="pq-code">⑤</span><span class="pq-label">PP</span>
+        </button>
+        <button class="plastic-btn pq-ps" onclick="handlePlasticAnswer('PS')">
+          <span class="pq-code">⑥</span><span class="pq-label">PS</span>
+        </button>
+        <button class="plastic-btn pq-other pq-other-wide" onclick="handlePlasticAnswer('OTHER')">
+          <span class="pq-code">⑦</span><span class="pq-label">OTHER</span>
+        </button>
+      </div>
+    `;
+    binsContainer.parentNode.appendChild(pqDiv);
+  } else if (GS.isCurriculum && GS.curriculumFocus) {
     binsContainer.style.display = 'none';
     const newDiv = document.createElement('div');
     newDiv.id = 'curriculum-buttons-container';
@@ -6280,7 +6625,7 @@ function setupGameUI() {
     if (existing) existing.remove();
   }
   const dailyRow = document.getElementById('daily-challenge-row');
-  if (dailyRow) dailyRow.style.display = GS.isCurriculum ? 'none' : 'flex';
+  if (dailyRow) dailyRow.style.display = (GS.isCurriculum || GS.isPlasticQuiz) ? 'none' : 'flex';
   setupDragTargets();
 }
 
@@ -6426,8 +6771,9 @@ function spawnTrash() {
   if(!GS.isPlaying||GS.paused) return;
   
   // Validate trash data
-  if(!trashData || !Array.isArray(trashData) || trashData.length === 0) {
-    console.error("Invalid trash data:", trashData);
+  const activeData = GS.isPlasticQuiz ? plasticData : trashData;
+  if(!activeData || !Array.isArray(activeData) || activeData.length === 0) {
+    console.error("Invalid trash data:", activeData);
     endGame();
     return;
   }
@@ -6450,7 +6796,7 @@ function spawnTrash() {
   const idx=sessionQueue.pop();
   sessionAsked.add(idx);
   saveUserUniqueProgress(GS.currentSessionId, sessionAsked);
-  GS.currentTrash=trashData[idx];
+  GS.currentTrash=activeData[idx];
   GS.currentTrashInstanceId = ++_trashInstanceSeq;
   GS.answerLocked = false;
 
@@ -6463,7 +6809,7 @@ function spawnTrash() {
   document.getElementById('trash-emoji').textContent=GS.currentTrash.e||'❓';
   document.getElementById('trash-name').textContent=GS.currentTrash.n||'Sampah';
   document.getElementById('trash-name').classList.remove('anim-shake');
-  document.getElementById('session-progress').textContent=`${sessionAsked.size}/${trashData.length} unik`;
+  document.getElementById('session-progress').textContent=`${sessionAsked.size}/${activeData.length} unik`;
 
   // Update trash card category accent color
   const tc3 = document.getElementById('trash-container');
@@ -6942,7 +7288,7 @@ async function endGame() {
   renderPlayMilestoneOnStart();
 
   // Always show game over popup and end screen regardless of any errors below
-  setLbMode(GS.isCurriculum ? 'curriculum' : 'ranked');
+  setLbMode(GS.isPlasticQuiz ? 'plasticquiz' : GS.isCurriculum ? 'curriculum' : 'ranked');
   
   // Check for new personal best
   const prevBest = GS.previousBest || 0;
@@ -6997,6 +7343,7 @@ async function endGame() {
 
     renderLearningReport();
     renderCurriculumSummary();
+    renderPlasticSummary();
     renderRankedSummary();
 
     // Populate personal best section immediately with session data (Firebase will update later)
@@ -7046,7 +7393,7 @@ async function endGame() {
     }
 
     const modeLabel=document.getElementById('final-mode-label');
-    if(modeLabel) modeLabel.textContent=GS.isCurriculum? 'Kurikulum' : 'Ranked';
+    if(modeLabel) modeLabel.textContent=GS.isPlasticQuiz? 'Plastik' : GS.isCurriculum? 'Kurikulum' : 'Ranked';
 
     // Show session info in end screen
     const sessionInfoEl = document.getElementById('daily-session-info');
@@ -7257,6 +7604,55 @@ function renderCurriculumSummary() {
   list.innerHTML=html;
 }
 
+function renderPlasticSummary() {
+  const card=document.getElementById('plastic-results-card');
+  const list=document.getElementById('plastic-results-list');
+  if(!card||!list) return;
+  if(!GS.isPlasticQuiz||!Array.isArray(GS.history)||GS.history.length===0) {
+    card.classList.add('hidden');
+    return;
+  }
+
+  card.classList.remove('hidden');
+  const total=GS.history.length;
+  const correctCount = GS.history.filter(e => e.correct).length;
+  
+  let html = `<div class="grid grid-cols-3 gap-1.5 mb-3">
+    <div class="bg-teal-50 rounded-xl p-2 text-center border border-teal-100">
+      <p class="text-[0.58rem] text-teal-500 font-black uppercase">Total</p>
+      <p class="text-xl font-black text-teal-700">${total}</p>
+    </div>
+    <div class="bg-green-50 rounded-xl p-2 text-center border border-green-100">
+      <p class="text-[0.58rem] text-green-500 font-black uppercase">Benar</p>
+      <p class="text-xl font-black text-green-600">${correctCount}</p>
+    </div>
+    <div class="bg-red-50 rounded-xl p-2 text-center border border-red-100">
+      <p class="text-[0.58rem] text-red-500 font-black uppercase">Salah</p>
+      <p class="text-xl font-black text-red-600">${total - correctCount}</p>
+    </div>
+  </div>`;
+
+  html += `<div class="space-y-2 mt-3">`;
+  GS.history.forEach(item => {
+    html += `
+      <div class="flex items-center justify-between p-2 rounded-lg bg-gray-50 border border-gray-100">
+        <div class="flex-1 min-w-0 mr-2">
+          <p class="text-[0.65rem] font-bold text-gray-800 truncate">${item.item}</p>
+          <p class="text-[0.55rem] text-gray-500 mt-0.5 truncate">${item.tip || ''}</p>
+        </div>
+        <div class="flex-shrink-0 text-right">
+          <div class="text-[0.6rem] font-black ${item.correct ? 'text-green-600' : 'text-red-500'} bg-white px-2 py-1 rounded-md shadow-sm border border-gray-100">
+            ${item.correct ? '✅ '+item.selectedType : '❌ '+item.selectedType+' <span class="text-gray-400">('+item.correctType+')</span>'}
+          </div>
+        </div>
+      </div>
+    `;
+  });
+  html += `</div>`;
+
+  list.innerHTML = html;
+}
+
 function renderRankedSummary() {
   const card=document.getElementById('ranked-results-card');
   const list=document.getElementById('ranked-results-list');
@@ -7391,7 +7787,7 @@ function mergePowerupUsage(a, b) {
 async function saveToDb(acc, wrong) {
   if(GS.score<=0&&GS.totalAnswered<=0) return;
   const safeId=GS.playerName.replace(/[.#$[\]/\s]/g,'_').toUpperCase();
-  const recordKey=GS.isCurriculum?`${safeId}_CURRIC` : safeId;
+  const recordKey=GS.isPlasticQuiz?`${safeId}_PLASTIK`:GS.isCurriculum?`${safeId}_CURRIC`:safeId;
   GS.currentSessionId=recordKey;
   const ref=DB.ref('leaderboard/'+recordKey);
   const snap = await ref.once('value');
@@ -7421,7 +7817,7 @@ async function saveToDb(acc, wrong) {
 
   const payload={
     name:GS.playerName, playerName:GS.playerName, score:GS.score,
-    difficulty:GS.isCurriculum?('curriculum-'+(GS.curriculumFocus||'unknown')):GS.difficulty,
+    difficulty:GS.isPlasticQuiz?('plasticquiz-'+GS.difficulty):GS.isCurriculum?('curriculum-'+(GS.curriculumFocus||'unknown')):GS.difficulty,
     timestamp:firebase.database.ServerValue.TIMESTAMP,
     attempts, total:GS.totalAnswered, correct:GS.correctAnswers, wrong,
     accuracy:acc, bestCombo:GS.bestCombo, categoryStats:merged,
@@ -7430,10 +7826,10 @@ async function saveToDb(acc, wrong) {
     puUsed:mergedPowerupUsage,
     previousBest:ex?ex.score||0:0, secondaryBadges:secBadges,
     prevWasPresent: !!ex,
-    isCurriculum:GS.isCurriculum, curriculumFilter:GS.curriculumFocus||null,
-    dcType: !GS.isCurriculum ? (DC.type || null) : null,
-    dcFocusCat: !GS.isCurriculum ? (DC.focusCat || null) : null,
-    dcDateKey: !GS.isCurriculum ? (DC.dateKey || null) : null
+    isCurriculum:GS.isCurriculum, isPlasticQuiz:GS.isPlasticQuiz||false, curriculumFilter:GS.curriculumFocus||null, plasticStats:GS.isPlasticQuiz?GS.plasticStats:null,
+    dcType: (!GS.isCurriculum && !GS.isPlasticQuiz) ? (DC.type || null) : null,
+    dcFocusCat: (!GS.isCurriculum && !GS.isPlasticQuiz) ? (DC.focusCat || null) : null,
+    dcDateKey: (!GS.isCurriculum && !GS.isPlasticQuiz) ? (DC.dateKey || null) : null
   };
   if (typeof currentModeRank === 'number') {
     payload.prevModeRank = currentModeRank;
@@ -7493,12 +7889,15 @@ function setupFirebaseListener() {
       arr.sort((a,b)=>{ const sd=b.score-a.score; if(sd!==0) return sd; const cd=(b.bestCombo||0)-(a.bestCombo||0); if(cd!==0) return cd; return (b.timestamp||0)-(a.timestamp||0); });
 
       // Calculate ranked-only rank for Top 10 badge eligibility
-      const rankedOnly = arr.filter(r=>!r.isCurriculum);
+      const rankedOnly = arr.filter(r=>!r.isCurriculum && !r.isPlasticQuiz);
       const curriculumOnly = arr.filter(r=>r.isCurriculum);
+      const plasticOnly = arr.filter(r=>r.isPlasticQuiz);
       const rankedRankMap = {};
       rankedOnly.forEach((r,i)=>{ rankedRankMap['id:'+r.id] = i+1; });
       const curriculumRankMap = {};
       curriculumOnly.forEach((r,i)=>{ curriculumRankMap['id:'+r.id] = i+1; });
+      const plasticRankMap = {};
+      plasticOnly.forEach((r,i)=>{ plasticRankMap['id:'+r.id] = i+1; });
 
       // ── Movement indicators ──────────────────────────────────────────────
       lbFirebaseUpdateCount++;
@@ -7512,8 +7911,10 @@ function setupFirebaseListener() {
           sessionBaseSnapshot = {
             ranked: saved.ranked || {},
             curriculum: saved.curriculum || {},
+            plasticquiz: saved.plasticquiz || {},
             ids_ranked_set: new Set(saved.ids_ranked || []),
-            ids_curriculum_set: new Set(saved.ids_curriculum || [])
+            ids_curriculum_set: new Set(saved.ids_curriculum || []),
+            ids_plasticquiz_set: new Set(saved.ids_plasticquiz || [])
           };
         } else {
           // No previous snapshot — use the current ranks as the baseline so
@@ -7521,12 +7922,15 @@ function setupFirebaseListener() {
           sessionBaseSnapshot = {
             ranked: rankedRankMap,
             curriculum: curriculumRankMap,
+            plasticquiz: plasticRankMap,
             ids_ranked_set: new Set(rankedOnly.map(r=>r.id)),
-            ids_curriculum_set: new Set(curriculumOnly.map(r=>r.id))
+            ids_curriculum_set: new Set(curriculumOnly.map(r=>r.id)),
+            ids_plasticquiz_set: new Set(plasticOnly.map(r=>r.id))
           };
-          saveLbSnapshot(rankedRankMap, curriculumRankMap,
+          saveLbSnapshot(rankedRankMap, curriculumRankMap, plasticRankMap,
             sessionBaseSnapshot.ids_ranked_set,
-            sessionBaseSnapshot.ids_curriculum_set);
+            sessionBaseSnapshot.ids_curriculum_set,
+            sessionBaseSnapshot.ids_plasticquiz_set);
         }
         // NOTE: when there IS a saved snapshot, we do NOT overwrite it here.
         // The snapshot is written by saveToDb() after each game, capturing the
@@ -7537,13 +7941,17 @@ function setupFirebaseListener() {
 
       arr.forEach((r,i)=>{
         let sym='—', cls='text-gray-400', title='Tetap';
-        const baselineRankMap = r.isCurriculum
-          ? (sessionBaseSnapshot && sessionBaseSnapshot.curriculum) || {}
-          : (sessionBaseSnapshot && sessionBaseSnapshot.ranked) || {};
-        const baselineIds = r.isCurriculum
-          ? (sessionBaseSnapshot && sessionBaseSnapshot.ids_curriculum_set) || new Set()
-          : (sessionBaseSnapshot && sessionBaseSnapshot.ids_ranked_set) || new Set();
-        const curRank = r.isCurriculum ? (curriculumRankMap['id:'+r.id]||null) : (rankedRankMap['id:'+r.id]||null);
+        const baselineRankMap = r.isPlasticQuiz
+          ? (sessionBaseSnapshot && sessionBaseSnapshot.plasticquiz) || {}
+          : r.isCurriculum
+            ? (sessionBaseSnapshot && sessionBaseSnapshot.curriculum) || {}
+            : (sessionBaseSnapshot && sessionBaseSnapshot.ranked) || {};
+        const baselineIds = r.isPlasticQuiz
+          ? (sessionBaseSnapshot && sessionBaseSnapshot.ids_plasticquiz_set) || new Set()
+          : r.isCurriculum
+            ? (sessionBaseSnapshot && sessionBaseSnapshot.ids_curriculum_set) || new Set()
+            : (sessionBaseSnapshot && sessionBaseSnapshot.ids_ranked_set) || new Set();
+        const curRank = r.isPlasticQuiz ? (plasticRankMap['id:'+r.id]||null) : r.isCurriculum ? (curriculumRankMap['id:'+r.id]||null) : (rankedRankMap['id:'+r.id]||null);
         const oldRank = baselineRankMap['id:'+r.id] || ((typeof r.prevModeRank === 'number') ? r.prevModeRank : null);
         const wasPresent = baselineIds.has(r.id) || (typeof r.prevWasPresent === 'boolean' ? r.prevWasPresent : true);
 
@@ -7574,7 +7982,7 @@ function setupFirebaseListener() {
         const mergedBadges = [...new Set([...recomputedBadges, ...storedBadges])];
         // Update rank badge sesuai posisi leaderboard saat ini
         r.secondaryBadges = mergedBadges.filter(b => b !== 'Top 10' && b !== 'Top 3' && b !== 'Rank #1');
-        if(!r.isCurriculum && rankedRank > 0) {
+        if(!r.isCurriculum && !r.isPlasticQuiz && rankedRank > 0) {
           if(rankedRank === 1) r.secondaryBadges = ['Rank #1', ...r.secondaryBadges];
           else if(rankedRank <= 3) r.secondaryBadges = ['Top 3', ...r.secondaryBadges];
           else if(rankedRank <= 10) r.secondaryBadges = ['Top 10', ...r.secondaryBadges];
@@ -7940,15 +8348,24 @@ function getRecordName(record) {
 // ──────────────────────────────────────────
 function filterLb(data, filter, mode='ranked', search='') {
   let filtered;
-  if(mode==='curriculum') {
-    filtered = data.filter(r=>r.isCurriculum===true);
-    if(filter&&filter!=='All') filtered = filtered.filter(r=>r.curriculumFilter===filter);
-  } else {
-    filtered = data.filter(r=>!r.isCurriculum);
+  if(mode==='plasticquiz') {
+    filtered = data.filter(r=>r.isPlasticQuiz===true);
     if(filter&&filter!=='All') {
       filtered = filtered.filter(r=>{
         const d=r&&r.difficulty?r.difficulty:'';
-        if(d.startsWith('curriculum-')) return false;
+        if(!d.startsWith('plasticquiz-')) return false;
+        return getDifficultyDisplayName(d.replace('plasticquiz-',''))===filter;
+      });
+    }
+  } else if(mode==='curriculum') {
+    filtered = data.filter(r=>r.isCurriculum===true);
+    if(filter&&filter!=='All') filtered = filtered.filter(r=>r.curriculumFilter===filter);
+  } else {
+    filtered = data.filter(r=>!r.isCurriculum && !r.isPlasticQuiz);
+    if(filter&&filter!=='All') {
+      filtered = filtered.filter(r=>{
+        const d=r&&r.difficulty?r.difficulty:'';
+        if(d.startsWith('curriculum-') || d.startsWith('plasticquiz-')) return false;
         return getDifficultyDisplayName(d)===filter;
       });
     }
@@ -8376,7 +8793,7 @@ function renderLbStatsPanel(prefix, mode, filter, search) {
 }
 
 function setLbMode(v) {
-  lbMode = v==='curriculum' ? 'curriculum' : 'ranked';
+  lbMode = v==='plasticquiz' ? 'plasticquiz' : v==='curriculum' ? 'curriculum' : 'ranked';
   lbFilter = 'All';
   document.querySelectorAll('input[name="lb-mode"]').forEach(input => input.checked = input.value === lbMode);
   renderLbFilterChips();
@@ -8384,7 +8801,7 @@ function setLbMode(v) {
 }
 
 function setLbPrevMode(v) {
-  lbPrevMode = v==='curriculum' ? 'curriculum' : 'ranked';
+  lbPrevMode = v==='plasticquiz' ? 'plasticquiz' : v==='curriculum' ? 'curriculum' : 'ranked';
   lbPrevFilter = 'All';
   document.querySelectorAll('input[name="lb-prev-mode"]').forEach(input => input.checked = input.value === lbPrevMode);
   renderLbPrevFilterChips();
