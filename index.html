@@ -1384,8 +1384,9 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
 }
 
 /* ─── Plastic Quiz Mode ─── */
-.plastic-buttons { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; padding:8px 4px; max-width:400px; margin:0 auto; }
-.plastic-btn { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; padding:10px 6px; border-radius:14px; border:2.5px solid; font-weight:800; font-size:0.7rem; cursor:pointer; transition:all 0.18s ease; user-select:none; text-align:center; min-height:68px; }
+.plastic-buttons { display:flex; gap:6px; padding:8px 4px; max-width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch; justify-content:flex-start; margin:0 auto; scrollbar-width:none; }
+.plastic-buttons::-webkit-scrollbar { display:none; }
+.plastic-btn { min-width:64px; flex-shrink:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; padding:10px 4px; border-radius:14px; border:2.5px solid; font-weight:800; font-size:0.7rem; cursor:pointer; transition:all 0.18s ease; user-select:none; text-align:center; min-height:68px; }
 .plastic-btn:hover { transform:scale(1.06); filter:brightness(1.08); }
 .plastic-btn:active { transform:scale(0.95); }
 .plastic-btn .pq-code { font-size:1.1rem; font-weight:900; line-height:1; }
@@ -1397,7 +1398,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
 .pq-pp { background:linear-gradient(135deg,#fee2e2,#fef2f2); border-color:#ef4444; color:#b91c1c; }
 .pq-ps { background:linear-gradient(135deg,#f3e8ff,#faf5ff); border-color:#a855f7; color:#7e22ce; }
 .pq-other { background:linear-gradient(135deg,#f1f5f9,#f8fafc); border-color:#64748b; color:#334155; }
-.pq-other-wide { grid-column: span 3; max-width:160px; justify-self:center; }
+.pq-other-wide { max-width:none; justify-self:auto; }
 .pq-tip-banner { margin:6px auto; padding:8px 12px; border-radius:12px; font-size:0.68rem; font-weight:600; max-width:380px; text-align:center; animation:pqTipIn 0.3s ease; }
 .pq-tip-correct { background:#dcfce7; color:#166534; border:1.5px solid #86efac; }
 .pq-tip-wrong { background:#fee2e2; color:#991b1b; border:1.5px solid #fca5a5; }
@@ -2047,6 +2048,11 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
         <p class="text-xs font-bold text-slate-700 mb-2">🎯 Tentang Mode Ini</p>
         <p class="text-[0.68rem] text-slate-600 leading-relaxed">Kamu akan ditunjukkan berbagai produk plastik sehari-hari. Tugasmu adalah menebak <b>jenis plastik</b> yang benar dari 7 kategori: <b>PET, HDPE, PVC, LDPE, PP, PS,</b> dan <b>OTHER</b>. Setiap jawaban benar akan memberikan poin dan tips edukatif tentang keamanan plastik!</p>
       </div>
+      
+      <button onclick="openPlasticInfoModal()" class="w-full bg-white border border-slate-200 text-teal-700 font-black py-2.5 rounded-xl shadow-sm hover:bg-slate-50 transition text-xs flex items-center justify-center gap-2">
+        <span>📖</span> Pelajari Jenis Plastik (Contoh & Ciri-cirinya)
+      </button>
+
       <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
         <p class="text-xs font-bold text-slate-700 mb-3">⚡ Pilih Tingkat Kesulitan</p>
         <div class="grid grid-cols-3 gap-2">
@@ -3398,6 +3404,89 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
 
 
 <!-- ════════════════════════════════════════ -->
+<!--          PLASTIC INFO MODAL              -->
+<!-- ════════════════════════════════════════ -->
+<div id="plastic-info-modal" class="modal-backdrop hidden" onclick="if(event.target===this)closePlasticInfoModal()">
+  <div class="modal-card w-full max-w-md" style="max-height:92vh;overflow-y:auto;" onclick="event.stopPropagation()">
+    <div class="sticky top-0 z-10 bg-gradient-to-r from-teal-500 to-cyan-600 px-5 py-4 flex justify-between items-center">
+      <div>
+        <h2 class="text-xl font-black text-white tracking-wide">📖 Kenali 7 Jenis Plastik</h2>
+        <p class="text-teal-100 text-[0.65rem] font-semibold mt-0.5">Panduan Mode Plastik</p>
+      </div>
+      <button onclick="closePlasticInfoModal()" class="text-white/70 hover:text-white text-2xl font-bold leading-none transition">&times;</button>
+    </div>
+    <div class="p-5 space-y-4">
+      <!-- 1 PET -->
+      <div class="rounded-xl border border-blue-200 bg-blue-50 p-3">
+        <div class="flex items-center gap-2 mb-1">
+          <span class="bg-blue-600 text-white font-black text-xs px-2 py-0.5 rounded">1 - PET</span>
+          <span class="text-[0.68rem] font-bold text-blue-800">Polyethylene Terephthalate</span>
+        </div>
+        <p class="text-[0.65rem] text-blue-900 mb-1"><b>Ciri & Contoh:</b> Bening, transparan, ringan. Botol air mineral, botol minuman soda, botol jus, toples selai bening.</p>
+        <p class="text-[0.62rem] text-blue-700"><b>Keamanan:</b> <u>Aman untuk SEKALI PAKAI.</u> Jangan diisi air panas atau digunakan berulang karena bisa melepas zat karsinogenik (penyebab kanker). Sangat mudah didaur ulang.</p>
+      </div>
+      <!-- 2 HDPE -->
+      <div class="rounded-xl border border-green-200 bg-green-50 p-3">
+        <div class="flex items-center gap-2 mb-1">
+          <span class="bg-green-600 text-white font-black text-xs px-2 py-0.5 rounded">2 - HDPE</span>
+          <span class="text-[0.68rem] font-bold text-green-800">High-Density Polyethylene</span>
+        </div>
+        <p class="text-[0.65rem] text-green-900 mb-1"><b>Ciri & Contoh:</b> Warna solid (tidak tembus pandang), kaku, agak tebal. Botol susu putih, botol sampo, jerigen, botol sabun cuci, ember.</p>
+        <p class="text-[0.62rem] text-green-700"><b>Keamanan:</b> <u>Paling aman dan sangat direkomendasikan.</u> Tahan panas dan bahan kimia. Bisa dipakai ulang dan laku didaur ulang.</p>
+      </div>
+      <!-- 3 PVC -->
+      <div class="rounded-xl border border-orange-200 bg-orange-50 p-3">
+        <div class="flex items-center gap-2 mb-1">
+          <span class="bg-orange-600 text-white font-black text-xs px-2 py-0.5 rounded">3 - PVC</span>
+          <span class="text-[0.68rem] font-bold text-orange-800">Polyvinyl Chloride</span>
+        </div>
+        <p class="text-[0.65rem] text-orange-900 mb-1"><b>Ciri & Contoh:</b> Keras tapi bisa fleksibel (menggunakan plasticizer). Pipa paralon, kabel listrik, jas hujan tipis, lantai vinyl, map plastik.</p>
+        <p class="text-[0.62rem] text-orange-700"><b>Keamanan:</b> <u>BERBAHAYA untuk makanan/minuman.</u> Disebut "plastik beracun" karena melepaskan dioksin berbahaya saat dipanaskan/dibakar. Sangat dihindari!</p>
+      </div>
+      <!-- 4 LDPE -->
+      <div class="rounded-xl border border-yellow-300 bg-yellow-50 p-3">
+        <div class="flex items-center gap-2 mb-1">
+          <span class="bg-yellow-500 text-white font-black text-xs px-2 py-0.5 rounded">4 - LDPE</span>
+          <span class="text-[0.68rem] font-bold text-yellow-800">Low-Density Polyethylene</span>
+        </div>
+        <p class="text-[0.65rem] text-yellow-900 mb-1"><b>Ciri & Contoh:</b> Tipis, fleksibel, mudah direntangkan. Kantong kresek, plastik wrapping (cling wrap), bubble wrap, kantong ziplock.</p>
+        <p class="text-[0.62rem] text-yellow-700"><b>Keamanan:</b> <u>Aman untuk makanan, tapi sulit didaur ulang.</u> Kurangi pemakaian kantong kresek demi kelestarian lingkungan!</p>
+      </div>
+      <!-- 5 PP -->
+      <div class="rounded-xl border border-red-200 bg-red-50 p-3">
+        <div class="flex items-center gap-2 mb-1">
+          <span class="bg-red-500 text-white font-black text-xs px-2 py-0.5 rounded">5 - PP</span>
+          <span class="text-[0.68rem] font-bold text-red-800">Polypropylene</span>
+        </div>
+        <p class="text-[0.65rem] text-red-900 mb-1"><b>Ciri & Contoh:</b> Ringan, tahan panas tinggi, kaku. Kotak makan Tupperware, thinwall (wadah takeaway), gelas kopi, pot bunga.</p>
+        <p class="text-[0.62rem] text-red-700"><b>Keamanan:</b> <u>Terbaik & Teraman untuk tempat makanan/minuman, terutama panas.</u> Sering dilabeli microwave-safe.</p>
+      </div>
+      <!-- 6 PS -->
+      <div class="rounded-xl border border-purple-200 bg-purple-50 p-3">
+        <div class="flex items-center gap-2 mb-1">
+          <span class="bg-purple-500 text-white font-black text-xs px-2 py-0.5 rounded">6 - PS</span>
+          <span class="text-[0.68rem] font-bold text-purple-800">Polystyrene</span>
+        </div>
+        <p class="text-[0.65rem] text-purple-900 mb-1"><b>Ciri & Contoh:</b> Ringan, kaku, mudah retak (crystal), atau berbentuk busa (EPS). Styrofoam makanan, sendok/garpu plastik murah, cup tipis.</p>
+        <p class="text-[0.62rem] text-purple-700"><b>Keamanan:</b> <u>BERBAHAYA untuk makanan panas.</u> Dapat melepaskan zat styrene yang mengganggu saraf dan hormon. Hindari pemakaian styrofoam!</p>
+      </div>
+      <!-- 7 OTHER -->
+      <div class="rounded-xl border border-slate-200 bg-slate-50 p-3">
+        <div class="flex items-center gap-2 mb-1">
+          <span class="bg-slate-500 text-white font-black text-xs px-2 py-0.5 rounded">7 - OTHER</span>
+          <span class="text-[0.68rem] font-bold text-slate-700">Campuran / Polycarbonate / ABS</span>
+        </div>
+        <p class="text-[0.65rem] text-slate-900 mb-1"><b>Ciri & Contoh:</b> Campuran material yang sangat keras atau multilayer. Galon PC lama, casing HP, kacamata, helm, sachet kopi berlapis.</p>
+        <p class="text-[0.62rem] text-slate-700"><b>Keamanan:</b> Hati-hati dengan plastik berbahan dasar PC yang <u>mengandung BPA</u>. Pilih bahan Tritan atau yang berlabel "BPA-Free".</p>
+      </div>
+      <button onclick="closePlasticInfoModal()" class="w-full bg-teal-600 text-white font-black py-3 rounded-xl shadow-sm hover:bg-teal-700 transition">
+        Siap Bermain!
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════ -->
 <!--               JAVASCRIPT               -->
 <!-- ════════════════════════════════════════ -->
 <script>
@@ -3916,6 +4005,13 @@ function openChangelogModal() {
 }
 function closeChangelogModal() {
   document.getElementById('changelog-modal').classList.add('hidden');
+}
+
+function openPlasticInfoModal() {
+  document.getElementById('plastic-info-modal').classList.remove('hidden');
+}
+function closePlasticInfoModal() {
+  document.getElementById('plastic-info-modal').classList.add('hidden');
 }
 
 function claimDailyLoginReward() {
@@ -4852,7 +4948,7 @@ let lbPrevSearch = '';
 const LB_FILTERS = {
   ranked:['All','Bumi Lestari','Eko Aktif','Penjaga Bumi'],
   curriculum:['All','SISA MAKANAN','LAKU JUAL','RESIDU'],
-  plasticquiz:['All','PET','HDPE','PVC','LDPE','PP','PS','OTHER']
+  plasticquiz:['All','Mudah','Sedang','Sulit']
 };
 let lbFilter = 'All';
 let lbPrevFilter = 'All';
@@ -8371,7 +8467,12 @@ function filterLb(data, filter, mode='ranked', search='') {
       filtered = filtered.filter(r=>{
         const d=r&&r.difficulty?r.difficulty:'';
         if(!d.startsWith('plasticquiz-')) return false;
-        return getDifficultyDisplayName(d.replace('plasticquiz-',''))===filter;
+        const diffRaw = d.replace('plasticquiz-','');
+        let diffName = diffRaw;
+        if(diffRaw==='Easy') diffName='Mudah';
+        else if(diffRaw==='Medium') diffName='Sedang';
+        else if(diffRaw==='Hard') diffName='Sulit';
+        return diffName===filter;
       });
     }
   } else if(mode==='curriculum') {
