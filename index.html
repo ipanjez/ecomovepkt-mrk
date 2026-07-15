@@ -9948,26 +9948,29 @@ function updateNameHint() {
   const idx = filtered.findIndex(r => getRecordName(r).toLowerCase() === normalizedName);
   const rankedFiltered = filterLb(lbCache, 'All', 'ranked');
   const curriculumFiltered = filterLb(lbCache, 'All', 'curriculum');
+  const plasticFiltered = filterLb(lbCache, 'All', 'plasticquiz');
   const rankedIdx = rankedFiltered.findIndex(r => getRecordName(r).toLowerCase() === normalizedName);
   const curriculumIdx = curriculumFiltered.findIndex(r => getRecordName(r).toLowerCase() === normalizedName);
+  const plasticIdx = plasticFiltered.findIndex(r => getRecordName(r).toLowerCase() === normalizedName);
 
   // Fetch DC completed count
   const userId = name.replace(/[.#$[\]/\s]/g, '_').toUpperCase();
   getDCCompletedCount(userId).then(dcCount => {
     let hintText = '';
     
-    if(rankedIdx >= 0 || curriculumIdx >= 0) {
-      const rec = idx >= 0 ? filtered[idx] : rankedIdx >= 0 ? rankedFiltered[rankedIdx] : curriculumFiltered[curriculumIdx];
+    if(rankedIdx >= 0 || curriculumIdx >= 0 || plasticIdx >= 0) {
+      const rec = idx >= 0 ? filtered[idx] : rankedIdx >= 0 ? rankedFiltered[rankedIdx] : curriculumIdx >= 0 ? curriculumFiltered[curriculumIdx] : plasticFiltered[plasticIdx];
       const primary = computePrimaryBadge(rec.score || 0, rec.accuracy || 0, rec.bestCombo || 0, rec.attempts || 0);
       const rankedText = rankedIdx >= 0 ? `Ranked #${rankedIdx + 1}/${rankedFiltered.length}` : 'Ranked -';
       const curriculumText = curriculumIdx >= 0 ? `Kurikulum #${curriculumIdx + 1}/${curriculumFiltered.length}` : 'Kurikulum -';
+      const plasticText = plasticIdx >= 0 ? `Plastik #${plasticIdx + 1}/${plasticFiltered.length}` : 'Plastik -';
       const attCount = rec.attempts || 0;
       const attText = attCount > 0 ? ` · 🎮 ${attCount}x main` : '';
       const dcText = dcCount > 0 ? ` · 🏅 DC: ${dcCount}` : '';
-      hintText = `✅ ${rankedText} · ${curriculumText}${attText}${dcText} — <span class="font-bold">${escHtml(formatBadge(primary))}</span>`;
+      hintText = `✅ ${rankedText} · ${curriculumText} · ${plasticText}${attText}${dcText} — <span class="font-bold">${escHtml(formatBadge(primary))}</span>`;
     } else {
       const dcText = dcCount > 0 ? ` (${dcCount} DC selesai)` : '';
-      hintText = `Pamain Baru. Total Pemain Ranked: ${rankedFiltered.length} pemain, Kurikulum: ${curriculumFiltered.length} pemain${dcText}`;
+      hintText = `Pemain Baru. Total Pemain Ranked: ${rankedFiltered.length}, Kurikulum: ${curriculumFiltered.length}, Plastik: ${plasticFiltered.length} pemain${dcText}`;
     }
     
     el.innerHTML = hintText;
@@ -9975,14 +9978,15 @@ function updateNameHint() {
     renderStartRankNotif(name);
   }).catch(() => {
     // Fallback tanpa DC count
-    if(rankedIdx >= 0 || curriculumIdx >= 0) {
-      const rec = idx >= 0 ? filtered[idx] : rankedIdx >= 0 ? rankedFiltered[rankedIdx] : curriculumFiltered[curriculumIdx];
+    if(rankedIdx >= 0 || curriculumIdx >= 0 || plasticIdx >= 0) {
+      const rec = idx >= 0 ? filtered[idx] : rankedIdx >= 0 ? rankedFiltered[rankedIdx] : curriculumIdx >= 0 ? curriculumFiltered[curriculumIdx] : plasticFiltered[plasticIdx];
       const primary = computePrimaryBadge(rec.score || 0, rec.accuracy || 0, rec.bestCombo || 0, rec.attempts || 0);
       const rankedText = rankedIdx >= 0 ? `Ranked #${rankedIdx + 1}/${rankedFiltered.length}` : 'Ranked -';
       const curriculumText = curriculumIdx >= 0 ? `Kurikulum #${curriculumIdx + 1}/${curriculumFiltered.length}` : 'Kurikulum -';
-      el.innerHTML = `✅ ${rankedText} · ${curriculumText} — <span class="font-bold">${escHtml(formatBadge(primary))}</span>`;
+      const plasticText = plasticIdx >= 0 ? `Plastik #${plasticIdx + 1}/${plasticFiltered.length}` : 'Plastik -';
+      el.innerHTML = `✅ ${rankedText} · ${curriculumText} · ${plasticText} — <span class="font-bold">${escHtml(formatBadge(primary))}</span>`;
     } else {
-      el.textContent = `Belum ada di leaderboard. Total Ranked: ${rankedFiltered.length} pemain, Kurikulum: ${curriculumFiltered.length} pemain.`;
+      el.textContent = `Belum ada di leaderboard. Total Ranked: ${rankedFiltered.length}, Kurikulum: ${curriculumFiltered.length}, Plastik: ${plasticFiltered.length} pemain.`;
     }
     renderPlayCountBadge();
     renderStartRankNotif(name);
