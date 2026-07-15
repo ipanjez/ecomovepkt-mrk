@@ -5052,43 +5052,29 @@ let lbDataReady = false;
 //      start of this session (sessionSnapshot), so intra-session updates
 //      (e.g. your own score just saved) also show movement correctly.
 
-const LB_SNAPSHOT_KEY = 'eco_lb_snapshot_v2';
+const LB_SNAPSHOT_KEY = 'eco_lb_snapshot_v3';
 
 function loadLbSnapshot() {
   try {
     const raw = localStorage.getItem(LB_SNAPSHOT_KEY);
     if (!raw) return null;
-    const parsed = JSON.parse(raw); // { ranked: {id:rank}, curriculum: {id:rank}, ids_ranked: [...], ids_curriculum: [...] }
-    if (!parsed || typeof parsed !== 'object') return null;
-    if (!Array.isArray(parsed.ids_ranked)) {
-      parsed.ids_ranked = Object.keys(parsed.ranked || {}).filter(k => k.startsWith('id:')).map(k => k.slice(3));
-    }
-    if (!Array.isArray(parsed.ids_curriculum)) {
-      parsed.ids_curriculum = Object.keys(parsed.curriculum || {}).filter(k => k.startsWith('id:')).map(k => k.slice(3));
-    }
-    if (!Array.isArray(parsed.ids_plasticquiz)) {
-      parsed.ids_plasticquiz = Object.keys(parsed.plasticquiz || {}).filter(k => k.startsWith('id:')).map(k => k.slice(3));
-    }
-    return parsed;
+    const parsed = JSON.parse(raw);
+    if (parsed && Array.isArray(parsed.rawData)) return parsed.rawData;
+    return null;
   } catch(e) { return null; }
 }
 
-function saveLbSnapshot(rankedMap, curriculumMap, plasticMap, rankedIds, curriculumIds, plasticIds) {
+function saveLbSnapshot(rawData) {
   try {
     localStorage.setItem(LB_SNAPSHOT_KEY, JSON.stringify({
-      ranked: rankedMap,
-      curriculum: curriculumMap,
-      plasticquiz: plasticMap,
-      ids_ranked: [...rankedIds],
-      ids_curriculum: [...curriculumIds],
-      ids_plasticquiz: [...plasticIds],
+      rawData,
       savedAt: Date.now()
     }));
   } catch(e) {}
 }
 
 // Snapshot used as baseline for this page session (loaded once at first Firebase fire)
-let sessionBaseSnapshot = null;   // { ranked, curriculum, ids_ranked_set, ids_curriculum_set }
+let sessionBaseData = null;
 let lbFirebaseUpdateCount = 0;
 
 // Nearest rival
@@ -7992,14 +7978,9 @@ async function saveToDb(acc, wrong) {
   // Persist the PRE-GAME leaderboard state to localStorage BEFORE writing to Firebase.
   // This ensures the snapshot captures ranks as they were BEFORE this game's score
   // potentially shifts positions. The next page load uses this as its baseline.
-  // IMPORTANT: sessionBaseSnapshot (in-memory) is NOT updated here.
+  // IMPORTANT: sessionBaseData (in-memory) is NOT updated here.
   try {
-    const rankedIds = new Set(lbCache.filter(r=>!r.isCurriculum).map(r=>r.id));
-    const currIds   = new Set(lbCache.filter(r=>r.isCurriculum).map(r=>r.id));
-    const rMap={}, cMap={};
-    lbCache.filter(r=>!r.isCurriculum).forEach((r,i)=>{ rMap['id:'+r.id]=i+1; });
-    lbCache.filter(r=>r.isCurriculum).forEach((r,i)=>{ cMap['id:'+r.id]=i+1; });
-    saveLbSnapshot(rMap, cMap, rankedIds, currIds);
+    saveLbSnapshot(lbCache);
   } catch(e) {}
 
   if(!ex||GS.score>=ex.score) {
@@ -8053,61 +8034,32 @@ function setupFirebaseListener() {
       const plasticRankMap = {};
       plasticOnly.forEach((r,i)=>{ plasticRankMap['id:'+r.id] = i+1; });
 
-      // ── Movement indicators ──────────────────────────────────────────────
-      lbFirebaseUpdateCount++;
-
       // On first fire ONLY: load the persisted snapshot from the PREVIOUS session
-      // as the baseline. This baseline stays frozen for the entire page session
-      // so players can always see how their rank changed since they opened the page.
       if (lbFirebaseUpdateCount === 1) {
-        const saved = loadLbSnapshot();
-        if (saved) {
-          sessionBaseSnapshot = {
-            ranked: saved.ranked || {},
-            curriculum: saved.curriculum || {},
-            plasticquiz: saved.plasticquiz || {},
-            ids_ranked_set: new Set(saved.ids_ranked || []),
-            ids_curriculum_set: new Set(saved.ids_curriculum || []),
-            ids_plasticquiz_set: new Set(saved.ids_plasticquiz || [])
-          };
+        const savedRawData = loadLbSnapshot();
+        if (savedRawData) {
+          sessionBaseData = savedRawData;
         } else {
-          // No previous snapshot — use the current ranks as the baseline so
-          // the first save in this session can immediately show movement.
-          sessionBaseSnapshot = {
-            ranked: rankedRankMap,
-            curriculum: curriculumRankMap,
-            plasticquiz: plasticRankMap,
-            ids_ranked_set: new Set(rankedOnly.map(r=>r.id)),
-            ids_curriculum_set: new Set(curriculumOnly.map(r=>r.id)),
-            ids_plasticquiz_set: new Set(plasticOnly.map(r=>r.id))
-          };
-          saveLbSnapshot(rankedRankMap, curriculumRankMap, plasticRankMap,
-            sessionBaseSnapshot.ids_ranked_set,
-            sessionBaseSnapshot.ids_curriculum_set,
-            sessionBaseSnapshot.ids_plasticquiz_set);
+          sessionBaseData = arr;
+          saveLbSnapshot(arr);
         }
-        // NOTE: when there IS a saved snapshot, we do NOT overwrite it here.
-        // The snapshot is written by saveToDb() after each game, capturing the
-        // pre-save state as the baseline for the NEXT page load.
       }
-      // sessionBaseSnapshot is NEVER updated after first fire — it stays anchored
-      // to page-open ranks for the entire session.
+
+      // Movement indicators
+      const baselineRanked = typeof sessionBaseData !== 'undefined' && sessionBaseData ? filterLb(sessionBaseData, 'ranked', 'All') : [];
+      const baselineCurric = typeof sessionBaseData !== 'undefined' && sessionBaseData ? filterLb(sessionBaseData, 'curriculum', 'All') : [];
+      const baselinePlastik = typeof sessionBaseData !== 'undefined' && sessionBaseData ? filterLb(sessionBaseData, 'plasticquiz', 'All') : [];
 
       arr.forEach((r,i)=>{
         let sym='—', cls='text-gray-400', title='Tetap';
-        const baselineRankMap = r.isPlasticQuiz
-          ? (sessionBaseSnapshot && sessionBaseSnapshot.plasticquiz) || {}
-          : r.isCurriculum
-            ? (sessionBaseSnapshot && sessionBaseSnapshot.curriculum) || {}
-            : (sessionBaseSnapshot && sessionBaseSnapshot.ranked) || {};
-        const baselineIds = r.isPlasticQuiz
-          ? (sessionBaseSnapshot && sessionBaseSnapshot.ids_plasticquiz_set) || new Set()
-          : r.isCurriculum
-            ? (sessionBaseSnapshot && sessionBaseSnapshot.ids_curriculum_set) || new Set()
-            : (sessionBaseSnapshot && sessionBaseSnapshot.ids_ranked_set) || new Set();
-        const curRank = r.isPlasticQuiz ? (plasticRankMap['id:'+r.id]||null) : r.isCurriculum ? (curriculumRankMap['id:'+r.id]||null) : (rankedRankMap['id:'+r.id]||null);
-        const oldRank = baselineRankMap['id:'+r.id] || ((typeof r.prevModeRank === 'number') ? r.prevModeRank : null);
-        const wasPresent = baselineIds.has(r.id) || (typeof r.prevWasPresent === 'boolean' ? r.prevWasPresent : true);
+        let baselineFiltered = r.isPlasticQuiz ? baselinePlastik : r.isCurriculum ? baselineCurric : baselineRanked;
+        let currentFiltered = r.isPlasticQuiz ? plasticOnly : r.isCurriculum ? curriculumOnly : rankedOnly;
+        
+        const oldIdx = baselineFiltered.findIndex(x => x.id === r.id);
+        const oldRank = oldIdx >= 0 ? oldIdx + 1 : ((typeof r.prevModeRank === 'number') ? r.prevModeRank : null);
+        const curIdx = currentFiltered.findIndex(x => x.id === r.id);
+        const curRank = curIdx >= 0 ? curIdx + 1 : null;
+        const wasPresent = oldIdx >= 0 || (typeof r.prevWasPresent === 'boolean' ? r.prevWasPresent : true);
 
         if (wasPresent === false) {
           sym='🆕'; cls='text-blue-500'; title='Baru masuk';
@@ -9012,9 +8964,31 @@ function renderLbTable() {
   if(posEl) posEl.textContent=myIdx>=0?`#${myIdx+1} dari ${filtered.length} pemain`:`– dari ${filtered.length} pemain`;
   if(document.getElementById('final-rank')) document.getElementById('final-rank').textContent=myIdx>=0?`#${myIdx+1}`:'–';
 
+  let baselineFiltered = [];
+  if (typeof sessionBaseData !== 'undefined' && sessionBaseData) {
+    baselineFiltered = filterLb(sessionBaseData, lbMode, lbFilter);
+  }
+
   filtered.forEach((r,i)=>{
     const isMe=r.id===GS.currentSessionId;
-    const mv=r.__mv||{sym:'—',cls:'text-gray-400',title:'Tetap'};
+    
+    let sym='—', cls='text-gray-400', title='Tetap';
+    const curRank = i + 1;
+    const oldIdx = baselineFiltered.findIndex(x => x.id === r.id);
+    const oldRank = oldIdx >= 0 ? oldIdx + 1 : null;
+    const wasPresent = oldIdx >= 0;
+
+    if (!wasPresent) {
+      sym='🆕'; cls='text-blue-500'; title='Baru masuk';
+    } else if (curRank < oldRank) {
+      const delta = oldRank - curRank;
+      sym=`▲${delta}`; cls='text-green-600'; title=`Naik ${delta} (${oldRank}→${curRank})`;
+    } else if (curRank > oldRank) {
+      const delta = curRank - oldRank;
+      sym=`▼${delta}`; cls='text-red-500'; title=`Turun ${delta} (${oldRank}→${curRank})`;
+    }
+    const mv = { sym, cls, title, oldRank, curRank };
+
     const primary=computePrimaryBadge(r.score||0,r.accuracy||0,r.bestCombo||0,r.attempts||0);
     const secArr=r.secondaryBadges||[];
     const playTier = getParticipationTier(Number(r.attempts) || 0);
