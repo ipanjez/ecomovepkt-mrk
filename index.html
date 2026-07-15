@@ -2500,7 +2500,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
                 <th>Akurasi</th>
                 <th>D/B/S</th>
                 <th>Waktu</th>
-                <th title="Daily Challenge">DC</th>
+                <th title="Daily Challenge" id="lb-th-dc">DC</th>
                 <th>Coba</th>
               </tr>
             </thead>
@@ -3238,7 +3238,7 @@ body{margin:0;font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transp
             <th>Akurasi</th>
             <th>D/B/S</th>
             <th>Waktu</th>
-            <th title="Daily Challenge">DC</th>
+            <th title="Daily Challenge" id="lb-prev-th-dc">DC</th>
             <th>Coba</th>
           </tr>
         </thead>
@@ -8784,6 +8784,9 @@ function renderLbStatsPanel(prefix, mode, filter, search) {
     </div>
   `;
 
+  const thDc = document.getElementById('lb-th-dc');
+  if (thDc) thDc.style.display = mode === 'ranked' ? '' : 'none';
+
   const topPlayers = [...filtered].sort((a, b) => (Number(b.attempts) || 0) - (Number(a.attempts) || 0) || (Number(b.score) || 0) - (Number(a.score) || 0)).slice(0, 5);
   const maxAttempts = Math.max(1, ...topPlayers.map(r => Number(r.attempts) || 0));
   distEl.innerHTML = topPlayers.map((r, idx) => {
@@ -9058,7 +9061,7 @@ function renderLbTable() {
       <td class="text-center text-xs font-bold">${r.accuracy||0}%</td>
       <td class="text-center text-xs">${r.total||0}/${r.correct||0}/${r.wrong||0}</td>
       <td class="text-center text-[0.6rem] text-gray-400">${ts}</td>
-      <td class="text-center text-xs font-bold text-pktGreen">${dcDisplay}</td>
+      <td class="text-center text-xs font-bold text-pktGreen" style="display:${mode==='ranked'?'':'none'}">${dcDisplay}</td>
       <td class="text-center text-xs font-bold">${r.attempts||1}x</td>
     `;
     tbody.appendChild(tr);
@@ -9471,7 +9474,7 @@ function renderLbPrev() {
       <td class="text-center text-xs">${r.accuracy||0}%</td>
       <td class="text-center text-xs">${r.total||0}/${r.correct||0}/${r.wrong||0}</td>
       <td class="text-center text-[0.6rem] text-gray-400">${ts}</td>
-      <td class="text-center text-xs font-bold text-pktGreen">${r.isCurriculum ? '–' : (r.dcCompleted || 0)}</td>
+      <td class="text-center text-xs font-bold text-pktGreen" style="display:${lbPrevMode==='ranked'?'':'none'}">${r.dcCompleted || 0}</td>
       <td class="text-center text-xs">${r.attempts||1}x</td>
     `;
     tbody.appendChild(tr);
