@@ -10016,23 +10016,26 @@ function updateNameHint() {
 // ──────────────────────────────────────────
 document.addEventListener('keydown', e=>{
   const k=e.key.toLowerCase();
+  const c=e.code;
+  const isK = (v, cd, nd) => k===v || c===cd || c===nd;
+  
   const simClick = (sel) => {
     const b = document.querySelector(sel);
     if(b) { b.classList.add('active-sim'); setTimeout(()=>b.classList.remove('active-sim'), 150); b.click(); }
   };
   
   if (GS.isPlasticQuiz) {
-    if(k==='1') simClick('.pq-pet');
-    else if(k==='2') simClick('.pq-hdpe');
-    else if(k==='3') simClick('.pq-pvc');
-    else if(k==='4') simClick('.pq-ldpe');
-    else if(k==='5') simClick('.pq-pp');
-    else if(k==='6') simClick('.pq-ps');
-    else if(k==='7') simClick('.pq-other');
+    if(isK('1','Digit1','Numpad1')) simClick('.pq-pet');
+    else if(isK('2','Digit2','Numpad2')) simClick('.pq-hdpe');
+    else if(isK('3','Digit3','Numpad3')) simClick('.pq-pvc');
+    else if(isK('4','Digit4','Numpad4')) simClick('.pq-ldpe');
+    else if(isK('5','Digit5','Numpad5')) simClick('.pq-pp');
+    else if(isK('6','Digit6','Numpad6')) simClick('.pq-ps');
+    else if(isK('7','Digit7','Numpad7')) simClick('.pq-other');
   } else {
-    if(k==='1') { if (!GS.isCurriculum || !GS.curriculumFocus) simClick('.bin-sisa'); else simClick('#curr-match-btn'); }
-    else if(k==='2') { if (!GS.isCurriculum || !GS.curriculumFocus) simClick('.bin-laku'); else simClick('#curr-notmatch-btn'); }
-    else if(k==='3') { if (!GS.isCurriculum || !GS.curriculumFocus) simClick('.bin-residu'); }
+    if(isK('1','Digit1','Numpad1')) { if (!GS.isCurriculum || !GS.curriculumFocus) simClick('.bin-sisa'); else simClick('#curr-match-btn'); }
+    else if(isK('2','Digit2','Numpad2')) { if (!GS.isCurriculum || !GS.curriculumFocus) simClick('.bin-laku'); else simClick('#curr-notmatch-btn'); }
+    else if(isK('3','Digit3','Numpad3')) { if (!GS.isCurriculum || !GS.curriculumFocus) simClick('.bin-residu'); }
   }
 
   if(k==='p') togglePause();
